@@ -15,6 +15,7 @@
 .DS_Store
 .env*
 !.env.example
+!.env.docker
 .phpactor.json
 .phpunit.result.cache
 Homestead.json
@@ -43,6 +44,3 @@ yarn-error.log
 .ralph_run.log
 .ralph_counter
 .tmp/models.txt
-
-/.env.docker
-/.env.example
