@@ -16,7 +16,7 @@ class CategoryResource extends JsonResource
             'slug' => $this->slug,
             'type' => $this->type,
             'description' => $this->description,
-            'icon' => $this->icon ? Storage::disk('public')->url($this->icon) : null,
+            'icon' => $this->icon ? asset($this->icon) : null,
             'image' => $this->image ? Storage::disk('public')->url($this->image) : null,
             'products_count' => $this->whenCounted('products'),
             'is_active' => $this->is_active,
