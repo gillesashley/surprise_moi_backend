@@ -1,0 +1,60 @@
+# =============================================================================
+# Docker Ignore File for SurpriseMoi
+# =============================================================================
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+.DS_Store
+
+# Node
+node_modules
+npm-debug.log
+yarn-error.log
+
+# Composer
+vendor
+
+# Laravel
+.env
+.env.local
+.env.*.local
+storage/logs/*
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+bootstrap/cache/*
+
+# Testing
+.phpunit.result.cache
+coverage
+tests
+
+# Build artifacts (we build these in Docker)
+public/build
+public/hot
+public/storage
+
+# Documentation
+*.md
+!README.md
+api-plan
+
+# Backups
+backups
+
+# Playwright
+.playwright-mcp
+
+# Misc
+.editorconfig
+.styleci.yml
+phpunit.xml
+phpstan.neon

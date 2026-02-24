@@ -1,0 +1,48 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "playwright-extension": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "@playwright/mcp@latest",
+        "--extension"
+      ],
+      "enabled": true
+    },
+    "laravel-boost": {
+      "type": "local",
+      "command": [
+        "php",
+        "artisan",
+        "boost:mcp"
+      ],
+      "enabled": true
+    },
+    "auggiecode": {
+      "type": "local",
+      "command": [
+        "auggie",
+        "--mcp",
+        "--mcp-auto-workspace"
+      ]
+    },
+    "sequential-thinking": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "@modelcontextprotocol/server-sequential-thinking"
+      ]
+    },
+    "context7": {
+      "type": "remote",
+      "url": "https://mcp.context7.com/mcp",
+      "headers": {
+        "CONTEXT7_API_KEY": "c25919cb-dc4f-4775-a471-2a642ad2fa22"
+      },
+      "enabled": true
+    }
+  }
+}

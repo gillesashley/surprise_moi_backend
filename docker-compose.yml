@@ -1,0 +1,116 @@
+# =============================================================================
+# SurpriseMoi Backend - Docker Compose Configuration
+# Domain: dashboard.surprisemoi.com
+# Port: 8082 (avoiding 8080 and 8081 which are already in use)
+# Note: Scheduler runs via VPS cron, not Docker container
+# =============================================================================
+
+services:
+  # ---------------------------------------------------------------------------
+  # Laravel Application
+  # ---------------------------------------------------------------------------
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: surprisemoi-app
+    restart: unless-stopped
+    ports:
+      - "8082:80"
+    env_file:
+      - .env
+    environment:
+      - CONTAINER_ROLE=app
+    volumes:
+      # Persist storage for logs and uploads
+      - app-storage:/var/www/html/storage/app
+      - app-logs:/var/www/html/storage/logs
+    networks:
+      - surprisemoi-network
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/up"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+  # ---------------------------------------------------------------------------
+  # NOTE: Queue worker runs via Supervisor on the host VPS
+  # See: /etc/supervisor/conf.d/surprisemoi-queue.conf
+  # ---------------------------------------------------------------------------
+
+  # ---------------------------------------------------------------------------
+  # PostgreSQL Database
+  # ---------------------------------------------------------------------------
+  db:
+    image: postgres:16-alpine
+    container_name: surprisemoi-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_DATABASE:-surprise_moi_db}
+      POSTGRES_USER: ${DB_USERNAME:-laraveluser}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-Gilash@123}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    networks:
+      - surprisemoi-network
+    ports:
+      - "54322:5432" # External port for direct access if needed
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${DB_USERNAME:-laraveluser} -d ${DB_DATABASE:-surprise_moi_db}",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # ---------------------------------------------------------------------------
+  # Redis Cache
+  # ---------------------------------------------------------------------------
+  redis:
+    image: redis:7-alpine
+    container_name: surprisemoi-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-Gilash@123}
+    volumes:
+      - redis-data:/data
+    networks:
+      - surprisemoi-network
+    ports:
+      - "63792:6379" # External port for direct access if needed
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-Gilash@123}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+# =============================================================================
+# Networks
+# =============================================================================
+networks:
+  surprisemoi-network:
+    driver: bridge
+    name: surprisemoi-network
+
+# =============================================================================
+# Volumes
+# =============================================================================
+volumes:
+  db-data:
+    name: surprisemoi-db-data
+  redis-data:
+    name: surprisemoi-redis-data
+  app-storage:
+    name: surprisemoi-app-storage
+  app-logs:
+    name: surprisemoi-app-logs

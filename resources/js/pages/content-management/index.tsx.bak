@@ -1,0 +1,1026 @@
+import { Button } from '@/components/ui/button';
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card';
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
+import { Pagination } from '@/components/ui/pagination';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import AppLayout from '@/layouts/app-layout';
+import {
+    create as bespokeServiceCreate,
+    destroy as bespokeServiceDestroy,
+    edit as bespokeServiceEdit,
+} from '@/routes/dashboard/bespoke-services';
+import {
+    create as categoryCreate,
+    destroy as categoryDestroy,
+    edit as categoryEdit,
+} from '@/routes/dashboard/categories';
+import {
+    create as interestCreate,
+    destroy as interestDestroy,
+    edit as interestEdit,
+} from '@/routes/dashboard/interests';
+import {
+    create as musicGenreCreate,
+    destroy as musicGenreDestroy,
+    edit as musicGenreEdit,
+} from '@/routes/dashboard/music-genres';
+import {
+    create as personalityTraitCreate,
+    destroy as personalityTraitDestroy,
+    edit as personalityTraitEdit,
+} from '@/routes/dashboard/personality-traits';
+import { type BreadcrumbItem } from '@/types';
+import { Head, Link, router } from '@inertiajs/react';
+import {
+    Eye,
+    FolderKanban,
+    Heart,
+    Music,
+    Pencil,
+    Plus,
+    Sparkles,
+    Trash2,
+} from 'lucide-react';
+import * as React from 'react';
+
+interface Category {
+    id: number;
+    name: string;
+    slug: string;
+    description: string | null;
+    icon: string | null;
+    image: string | null;
+    is_active: boolean;
+    sort_order: number;
+    products_count: number;
+    created_at: string;
+}
+
+interface Interest {
+    id: number;
+    name: string;
+    icon: string | null;
+    users_count: number;
+    created_at: string;
+}
+
+interface PersonalityTrait {
+    id: number;
+    name: string;
+    icon: string | null;
+    users_count: number;
+    created_at: string;
+}
+
+interface MusicGenre {
+    id: number;
+    name: string;
+    icon: string | null;
+    users_count: number;
+    created_at: string;
+}
+
+interface BespokeService {
+    id: number;
+    name: string;
+    slug: string;
+    description: string | null;
+    icon: string | null;
+    is_active: boolean;
+    sort_order: number;
+    vendor_applications_count: number;
+    created_at: string;
+}
+
+interface PaginatedData<T> {
+    data: T[];
+    current_page: number;
+    last_page: number;
+    per_page: number;
+    total: number;
+}
+
+interface Props {
+    categories: PaginatedData<Category>;
+    interests: PaginatedData<Interest>;
+    personalityTraits: PaginatedData<PersonalityTrait>;
+    musicGenres: PaginatedData<MusicGenre>;
+    bespokeServices: PaginatedData<BespokeService>;
+    canCreate: boolean;
+    canDelete: boolean;
+    activeTab?: string;
+}
+
+const breadcrumbs: BreadcrumbItem[] = [
+    {
+        title: 'Content Management',
+        href: '/content-management',
+    },
+];
+
+export default function ContentManagementIndex({
+    categories,
+    interests,
+    personalityTraits,
+    musicGenres,
+    bespokeServices,
+    canCreate,
+    canDelete,
+    activeTab = 'categories',
+}: Props) {
+    const [viewingCategory, setViewingCategory] =
+        React.useState<Category | null>(null);
+
+    const handleDeleteCategory = (categoryId: number, categoryName: string) => {
+        if (
+            confirm(
+                `Are you sure you want to delete "${categoryName}"? This action cannot be undone.`,
+            )
+        ) {
+            router.delete(categoryDestroy.url(categoryId), {
+                preserveScroll: true,
+            });
+        }
+    };
+
+    const handleDeleteInterest = (interestId: number, interestName: string) => {
+        if (
+            confirm(
+                `Are you sure you want to delete "${interestName}"? This action cannot be undone.`,
+            )
+        ) {
+            router.delete(interestDestroy.url(interestId), {
+                preserveScroll: true,
+            });
+        }
+    };
+
+    const handleDeleteTrait = (traitId: number, traitName: string) => {
+        if (
+            confirm(
+                `Are you sure you want to delete "${traitName}"? This action cannot be undone.`,
+            )
+        ) {
+            router.delete(personalityTraitDestroy.url(traitId), {
+                preserveScroll: true,
+            });
+        }
+    };
+
+    const handleDeleteGenre = (genreId: number, genreName: string) => {
+        if (
+            confirm(
+                `Are you sure you want to delete "${genreName}"? This action cannot be undone.`,
+            )
+        ) {
+            router.delete(musicGenreDestroy.url(genreId), {
+                preserveScroll: true,
+            });
+        }
+    };
+
+    const handleDeleteBespokeService = (
+        serviceId: number,
+        serviceName: string,
+    ) => {
+        if (
+            confirm(
+                `Are you sure you want to delete "${serviceName}"? This action cannot be undone.`,
+            )
+        ) {
+            router.delete(bespokeServiceDestroy.url(serviceId), {
+                preserveScroll: true,
+            });
+        }
+    };
+
+    const handleTabChange = (value: string) => {
+        router.get(
+            '/content-management',
+            { tab: value },
+            {
+                preserveState: true,
+                preserveScroll: true,
+                replace: true,
+            },
+        );
+    };
+
+    return (
+        <AppLayout breadcrumbs={breadcrumbs}>
+            <Head title="Content Management" />
+            <div className="flex h-full flex-1 flex-col gap-4 p-4">
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Content Management</CardTitle>
+                        <CardDescription>
+                            Manage categories, interests, personality traits,
+                            music genres, and bespoke services
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <Tabs
+                            defaultValue={activeTab}
+                            onValueChange={handleTabChange}
+                        >
+                            <TabsList className="grid w-full grid-cols-5">
+                                <TabsTrigger
+                                    value="categories"
+                                    className="flex items-center gap-2"
+                                >
+                                    <FolderKanban className="size-4" />
+                                    <span className="hidden sm:inline">
+                                        Categories
+                                    </span>
+                                </TabsTrigger>
+                                <TabsTrigger
+                                    value="interests"
+                                    className="flex items-center gap-2"
+                                >
+                                    <Heart className="size-4" />
+                                    <span className="hidden sm:inline">
+                                        Interests
+                                    </span>
+                                </TabsTrigger>
+                                <TabsTrigger
+                                    value="traits"
+                                    className="flex items-center gap-2"
+                                >
+                                    <Sparkles className="size-4" />
+                                    <span className="hidden sm:inline">
+                                        Traits
+                                    </span>
+                                </TabsTrigger>
+                                <TabsTrigger
+                                    value="music"
+                                    className="flex items-center gap-2"
+                                >
+                                    <Music className="size-4" />
+                                    <span className="hidden sm:inline">
+                                        Music
+                                    </span>
+                                </TabsTrigger>
+                                <TabsTrigger
+                                    value="bespoke"
+                                    className="flex items-center gap-2"
+                                >
+                                    <Sparkles className="size-4" />
+                                    <span className="hidden sm:inline">
+                                        Bespoke
+                                    </span>
+                                </TabsTrigger>
+                            </TabsList>
+
+                            {/* Categories Tab */}
+                            <TabsContent value="categories" className="mt-6">
+                                <div className="mb-4 flex items-center justify-between">
+                                    <h3 className="text-lg font-semibold">
+                                        Product Categories
+                                    </h3>
+                                    {canCreate && (
+                                        <Button asChild>
+                                            <Link href={categoryCreate.url()}>
+                                                <Plus className="mr-2 size-4" />
+                                                Add Category
+                                            </Link>
+                                        </Button>
+                                    )}
+                                </div>
+                                <div className="overflow-x-auto">
+                                    <table className="w-full">
+                                        <thead>
+                                            <tr className="border-b">
+                                                <th className="p-2 text-left text-sm font-medium">
+                                                    Name
+                                                </th>
+                                                <th className="p-2 text-left text-sm font-medium">
+                                                    Slug
+                                                </th>
+                                                <th className="p-2 text-left text-sm font-medium">
+                                                    Products
+                                                </th>
+                                                <th className="p-2 text-left text-sm font-medium">
+                                                    Status
+                                                </th>
+                                                <th className="p-2 text-left text-sm font-medium">
+                                                    Order
+                                                </th>
+                                                <th className="p-2 text-right text-sm font-medium">
+                                                    Actions
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {categories.data.map((category) => (
+                                                <tr
+                                                    key={category.id}
+                                                    className="border-b last:border-0 hover:bg-muted/50"
+                                                >
+                                                    <td className="p-2 text-sm font-medium">
+                                                        {category.name}
+                                                    </td>
+                                                    <td className="p-2 text-sm text-muted-foreground">
+                                                        {category.slug}
+                                                    </td>
+                                                    <td className="p-2 text-sm">
+                                                        {
+                                                            category.products_count
+                                                        }
+                                                    </td>
+                                                    <td className="p-2 text-sm">
+                                                        <span
+                                                            className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
+                                                                category.is_active
+                                                                    ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                                                                    : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200'
+                                                            }`}
+                                                        >
+                                                            {category.is_active
+                                                                ? 'Active'
+                                                                : 'Inactive'}
+                                                        </span>
+                                                    </td>
+                                                    <td className="p-2 text-sm">
+                                                        {category.sort_order}
+                                                    </td>
+                                                    <td className="p-2">
+                                                        <div className="flex justify-end gap-2">
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="sm"
+                                                                onClick={() =>
+                                                                    setViewingCategory(
+                                                                        category,
+                                                                    )
+                                                                }
+                                                            >
+                                                                <Eye className="size-4" />
+                                                            </Button>
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="sm"
+                                                                asChild
+                                                            >
+                                                                <Link
+                                                                    href={categoryEdit.url(
+                                                                        category.id,
+                                                                    )}
+                                                                >
+                                                                    <Pencil className="size-4" />
+                                                                </Link>
+                                                            </Button>
+                                                            {canDelete && (
+                                                                <Button
+                                                                    variant="ghost"
+                                                                    size="sm"
+                                                                    onClick={() =>
+                                                                        handleDeleteCategory(
+                                                                            category.id,
+                                                                            category.name,
+                                                                        )
+                                                                    }
+                                                                >
+                                                                    <Trash2 className="size-4 text-destructive" />
+                                                                </Button>
+                                                            )}
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                            {categories.data.length === 0 && (
+                                                <tr>
+                                                    <td
+                                                        colSpan={6}
+                                                        className="p-4 text-center text-muted-foreground"
+                                                    >
+                                                        No categories found
+                                                    </td>
+                                                </tr>
+                                            )}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <Pagination
+                                    currentPage={categories.current_page}
+                                    lastPage={categories.last_page}
+                                    onPageChange={(page) => {
+                                        router.get('/content-management', {
+                                            tab: 'categories',
+                                            page,
+                                        });
+                                    }}
+                                />
+                            </TabsContent>
+
+                            {/* Interests Tab */}
+                            <TabsContent value="interests" className="mt-6">
+                                <div className="mb-4 flex items-center justify-between">
+                                    <h3 className="text-lg font-semibold">
+                                        User Interests
+                                    </h3>
+                                    {canCreate && (
+                                        <Button asChild>
+                                            <Link href={interestCreate.url()}>
+                                                <Plus className="mr-2 size-4" />
+                                                Add Interest
+                                            </Link>
+                                        </Button>
+                                    )}
+                                </div>
+                                <div className="overflow-x-auto">
+                                    <table className="w-full">
+                                        <thead>
+                                            <tr className="border-b">
+                                                <th className="p-2 text-left text-sm font-medium">
+                                                    Name
+                                                </th>
+                                                <th className="p-2 text-left text-sm font-medium">
+                                                    Icon
+                                                </th>
+                                                <th className="p-2 text-left text-sm font-medium">
+                                                    Users
+                                                </th>
+                                                <th className="p-2 text-right text-sm font-medium">
+                                                    Actions
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {interests.data.map((interest) => (
+                                                <tr
+                                                    key={interest.id}
+                                                    className="border-b last:border-0 hover:bg-muted/50"
+                                                >
+                                                    <td className="p-2 text-sm font-medium">
+                                                        {interest.name}
+                                                    </td>
+                                                    <td className="p-2 text-sm">
+                                                        {interest.icon || '-'}
+                                                    </td>
+                                                    <td className="p-2 text-sm">
+                                                        {interest.users_count}
+                                                    </td>
+                                                    <td className="p-2">
+                                                        <div className="flex justify-end gap-2">
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="sm"
+                                                                asChild
+                                                            >
+                                                                <Link
+                                                                    href={interestEdit.url(
+                                                                        interest.id,
+                                                                    )}
+                                                                >
+                                                                    <Pencil className="size-4" />
+                                                                </Link>
+                                                            </Button>
+                                                            {canDelete && (
+                                                                <Button
+                                                                    variant="ghost"
+                                                                    size="sm"
+                                                                    onClick={() =>
+                                                                        handleDeleteInterest(
+                                                                            interest.id,
+                                                                            interest.name,
+                                                                        )
+                                                                    }
+                                                                >
+                                                                    <Trash2 className="size-4 text-destructive" />
+                                                                </Button>
+                                                            )}
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                            {interests.data.length === 0 && (
+                                                <tr>
+                                                    <td
+                                                        colSpan={4}
+                                                        className="p-4 text-center text-muted-foreground"
+                                                    >
+                                                        No interests found
+                                                    </td>
+                                                </tr>
+                                            )}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <Pagination
+                                    currentPage={interests.current_page}
+                                    lastPage={interests.last_page}
+                                    onPageChange={(page) => {
+                                        router.get('/content-management', {
+                                            tab: 'interests',
+                                            page,
+                                        });
+                                    }}
+                                />
+                            </TabsContent>
+
+                            {/* Personality Traits Tab */}
+                            <TabsContent value="traits" className="mt-6">
+                                <div className="mb-4 flex items-center justify-between">
+                                    <h3 className="text-lg font-semibold">
+                                        Personality Traits
+                                    </h3>
+                                    {canCreate && (
+                                        <Button asChild>
+                                            <Link
+                                                href={personalityTraitCreate.url()}
+                                            >
+                                                <Plus className="mr-2 size-4" />
+                                                Add Trait
+                                            </Link>
+                                        </Button>
+                                    )}
+                                </div>
+                                <div className="overflow-x-auto">
+                                    <table className="w-full">
+                                        <thead>
+                                            <tr className="border-b">
+                                                <th className="p-2 text-left text-sm font-medium">
+                                                    Name
+                                                </th>
+                                                <th className="p-2 text-left text-sm font-medium">
+                                                    Icon
+                                                </th>
+                                                <th className="p-2 text-left text-sm font-medium">
+                                                    Users
+                                                </th>
+                                                <th className="p-2 text-right text-sm font-medium">
+                                                    Actions
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {personalityTraits.data.map(
+                                                (trait) => (
+                                                    <tr
+                                                        key={trait.id}
+                                                        className="border-b last:border-0 hover:bg-muted/50"
+                                                    >
+                                                        <td className="p-2 text-sm font-medium">
+                                                            {trait.name}
+                                                        </td>
+                                                        <td className="p-2 text-sm">
+                                                            {trait.icon || '-'}
+                                                        </td>
+                                                        <td className="p-2 text-sm">
+                                                            {trait.users_count}
+                                                        </td>
+                                                        <td className="p-2">
+                                                            <div className="flex justify-end gap-2">
+                                                                <Button
+                                                                    variant="ghost"
+                                                                    size="sm"
+                                                                    asChild
+                                                                >
+                                                                    <Link
+                                                                        href={personalityTraitEdit.url(
+                                                                            trait.id,
+                                                                        )}
+                                                                    >
+                                                                        <Pencil className="size-4" />
+                                                                    </Link>
+                                                                </Button>
+                                                                {canDelete && (
+                                                                    <Button
+                                                                        variant="ghost"
+                                                                        size="sm"
+                                                                        onClick={() =>
+                                                                            handleDeleteTrait(
+                                                                                trait.id,
+                                                                                trait.name,
+                                                                            )
+                                                                        }
+                                                                    >
+                                                                        <Trash2 className="size-4 text-destructive" />
+                                                                    </Button>
+                                                                )}
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                ),
+                                            )}
+                                            {personalityTraits.data.length ===
+                                                0 && (
+                                                <tr>
+                                                    <td
+                                                        colSpan={4}
+                                                        className="p-4 text-center text-muted-foreground"
+                                                    >
+                                                        No personality traits
+                                                        found
+                                                    </td>
+                                                </tr>
+                                            )}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <Pagination
+                                    currentPage={personalityTraits.current_page}
+                                    lastPage={personalityTraits.last_page}
+                                    onPageChange={(page) => {
+                                        router.get('/content-management', {
+                                            tab: 'traits',
+                                            page,
+                                        });
+                                    }}
+                                />
+                            </TabsContent>
+
+                            {/* Music Genres Tab */}
+                            <TabsContent value="music" className="mt-6">
+                                <div className="mb-4 flex items-center justify-between">
+                                    <h3 className="text-lg font-semibold">
+                                        Music Genres
+                                    </h3>
+                                    {canCreate && (
+                                        <Button asChild>
+                                            <Link href={musicGenreCreate.url()}>
+                                                <Plus className="mr-2 size-4" />
+                                                Add Genre
+                                            </Link>
+                                        </Button>
+                                    )}
+                                </div>
+                                <div className="overflow-x-auto">
+                                    <table className="w-full">
+                                        <thead>
+                                            <tr className="border-b">
+                                                <th className="p-2 text-left text-sm font-medium">
+                                                    Name
+                                                </th>
+                                                <th className="p-2 text-left text-sm font-medium">
+                                                    Icon
+                                                </th>
+                                                <th className="p-2 text-left text-sm font-medium">
+                                                    Users
+                                                </th>
+                                                <th className="p-2 text-right text-sm font-medium">
+                                                    Actions
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {musicGenres.data.map((genre) => (
+                                                <tr
+                                                    key={genre.id}
+                                                    className="border-b last:border-0 hover:bg-muted/50"
+                                                >
+                                                    <td className="p-2 text-sm font-medium">
+                                                        {genre.name}
+                                                    </td>
+                                                    <td className="p-2 text-sm">
+                                                        {genre.icon || '-'}
+                                                    </td>
+                                                    <td className="p-2 text-sm">
+                                                        {genre.users_count}
+                                                    </td>
+                                                    <td className="p-2">
+                                                        <div className="flex justify-end gap-2">
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="sm"
+                                                                asChild
+                                                            >
+                                                                <Link
+                                                                    href={musicGenreEdit.url(
+                                                                        genre.id,
+                                                                    )}
+                                                                >
+                                                                    <Pencil className="size-4" />
+                                                                </Link>
+                                                            </Button>
+                                                            {canDelete && (
+                                                                <Button
+                                                                    variant="ghost"
+                                                                    size="sm"
+                                                                    onClick={() =>
+                                                                        handleDeleteGenre(
+                                                                            genre.id,
+                                                                            genre.name,
+                                                                        )
+                                                                    }
+                                                                >
+                                                                    <Trash2 className="size-4 text-destructive" />
+                                                                </Button>
+                                                            )}
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                            {musicGenres.data.length === 0 && (
+                                                <tr>
+                                                    <td
+                                                        colSpan={4}
+                                                        className="p-4 text-center text-muted-foreground"
+                                                    >
+                                                        No music genres found
+                                                    </td>
+                                                </tr>
+                                            )}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <Pagination
+                                    currentPage={musicGenres.current_page}
+                                    lastPage={musicGenres.last_page}
+                                    onPageChange={(page) => {
+                                        router.get('/content-management', {
+                                            tab: 'music',
+                                            page,
+                                        });
+                                    }}
+                                />
+                            </TabsContent>
+
+                            {/* Bespoke Services Tab */}
+                            <TabsContent value="bespoke" className="mt-6">
+                                <div className="mb-4 flex items-center justify-between">
+                                    <h3 className="text-lg font-semibold">
+                                        Bespoke Services
+                                    </h3>
+                                    {canCreate && (
+                                        <Button asChild>
+                                            <Link
+                                                href={bespokeServiceCreate.url()}
+                                            >
+                                                <Plus className="mr-2 size-4" />
+                                                Add Service
+                                            </Link>
+                                        </Button>
+                                    )}
+                                </div>
+                                <div className="overflow-x-auto">
+                                    <table className="w-full">
+                                        <thead>
+                                            <tr className="border-b">
+                                                <th className="p-2 text-left text-sm font-medium">
+                                                    Name
+                                                </th>
+                                                <th className="p-2 text-left text-sm font-medium">
+                                                    Slug
+                                                </th>
+                                                <th className="p-2 text-left text-sm font-medium">
+                                                    Vendors
+                                                </th>
+                                                <th className="p-2 text-left text-sm font-medium">
+                                                    Status
+                                                </th>
+                                                <th className="p-2 text-left text-sm font-medium">
+                                                    Order
+                                                </th>
+                                                <th className="p-2 text-right text-sm font-medium">
+                                                    Actions
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {bespokeServices.data.map(
+                                                (service) => (
+                                                    <tr
+                                                        key={service.id}
+                                                        className="border-b last:border-0 hover:bg-muted/50"
+                                                    >
+                                                        <td className="p-2 text-sm font-medium">
+                                                            {service.icon && (
+                                                                <span className="mr-2">
+                                                                    {
+                                                                        service.icon
+                                                                    }
+                                                                </span>
+                                                            )}
+                                                            {service.name}
+                                                        </td>
+                                                        <td className="p-2 text-sm text-muted-foreground">
+                                                            {service.slug}
+                                                        </td>
+                                                        <td className="p-2 text-sm">
+                                                            {
+                                                                service.vendor_applications_count
+                                                            }
+                                                        </td>
+                                                        <td className="p-2 text-sm">
+                                                            <span
+                                                                className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
+                                                                    service.is_active
+                                                                        ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                                                                        : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200'
+                                                                }`}
+                                                            >
+                                                                {service.is_active
+                                                                    ? 'Active'
+                                                                    : 'Inactive'}
+                                                            </span>
+                                                        </td>
+                                                        <td className="p-2 text-sm">
+                                                            {service.sort_order}
+                                                        </td>
+                                                        <td className="p-2">
+                                                            <div className="flex justify-end gap-2">
+                                                                <Button
+                                                                    variant="ghost"
+                                                                    size="sm"
+                                                                    asChild
+                                                                >
+                                                                    <Link
+                                                                        href={bespokeServiceEdit.url(
+                                                                            service.id,
+                                                                        )}
+                                                                    >
+                                                                        <Pencil className="size-4" />
+                                                                    </Link>
+                                                                </Button>
+                                                                {canDelete && (
+                                                                    <Button
+                                                                        variant="ghost"
+                                                                        size="sm"
+                                                                        onClick={() =>
+                                                                            handleDeleteBespokeService(
+                                                                                service.id,
+                                                                                service.name,
+                                                                            )
+                                                                        }
+                                                                    >
+                                                                        <Trash2 className="size-4 text-destructive" />
+                                                                    </Button>
+                                                                )}
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                ),
+                                            )}
+                                            {bespokeServices.data.length ===
+                                                0 && (
+                                                <tr>
+                                                    <td
+                                                        colSpan={6}
+                                                        className="p-4 text-center text-muted-foreground"
+                                                    >
+                                                        No bespoke services
+                                                        found
+                                                    </td>
+                                                </tr>
+                                            )}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <Pagination
+                                    currentPage={bespokeServices.current_page}
+                                    lastPage={bespokeServices.last_page}
+                                    onPageChange={(page) => {
+                                        router.get('/content-management', {
+                                            tab: 'bespoke',
+                                            page,
+                                        });
+                                    }}
+                                />
+                            </TabsContent>
+                        </Tabs>
+                    </CardContent>
+                </Card>
+            </div>
+
+            {/* Category View Modal */}
+            <Dialog
+                open={!!viewingCategory}
+                onOpenChange={(open) => !open && setViewingCategory(null)}
+            >
+                <DialogContent className="max-w-2xl">
+                    <DialogHeader>
+                        <DialogTitle>Category Details</DialogTitle>
+                    </DialogHeader>
+                    {viewingCategory && (
+                        <div className="space-y-4">
+                            <div className="grid gap-4 md:grid-cols-2">
+                                <div>
+                                    <h4 className="mb-1 text-sm font-medium text-muted-foreground">
+                                        Name
+                                    </h4>
+                                    <p className="text-base font-medium">
+                                        {viewingCategory.name}
+                                    </p>
+                                </div>
+                                <div>
+                                    <h4 className="mb-1 text-sm font-medium text-muted-foreground">
+                                        Slug
+                                    </h4>
+                                    <p className="text-base text-muted-foreground">
+                                        {viewingCategory.slug}
+                                    </p>
+                                </div>
+                            </div>
+
+                            {viewingCategory.description && (
+                                <div>
+                                    <h4 className="mb-1 text-sm font-medium text-muted-foreground">
+                                        Description
+                                    </h4>
+                                    <p className="text-base">
+                                        {viewingCategory.description}
+                                    </p>
+                                </div>
+                            )}
+
+                            <div className="grid gap-4 md:grid-cols-2">
+                                {viewingCategory.icon && (
+                                    <div>
+                                        <h4 className="mb-1 text-sm font-medium text-muted-foreground">
+                                            Icon
+                                        </h4>
+                                        <div className="flex items-center gap-2">
+                                            <img
+                                                src={
+                                                    viewingCategory.icon.startsWith(
+                                                        'http',
+                                                    ) ||
+                                                    viewingCategory.icon.startsWith(
+                                                        '/',
+                                                    )
+                                                        ? viewingCategory.icon
+                                                        : `/${viewingCategory.icon}`
+                                                }
+                                                alt="Category icon"
+                                                className="h-12 w-12 object-contain"
+                                            />
+                                        </div>
+                                    </div>
+                                )}
+                                <div>
+                                    <h4 className="mb-1 text-sm font-medium text-muted-foreground">
+                                        Status
+                                    </h4>
+                                    <span
+                                        className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
+                                            viewingCategory.is_active
+                                                ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                                                : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200'
+                                        }`}
+                                    >
+                                        {viewingCategory.is_active
+                                            ? 'Active'
+                                            : 'Inactive'}
+                                    </span>
+                                </div>
+                            </div>
+
+                            {viewingCategory.image && (
+                                <div>
+                                    <h4 className="mb-2 text-sm font-medium text-muted-foreground">
+                                        Image
+                                    </h4>
+                                    <img
+                                        src={
+                                            viewingCategory.image.startsWith(
+                                                'http',
+                                            ) ||
+                                            viewingCategory.image.startsWith(
+                                                '/',
+                                            )
+                                                ? viewingCategory.image
+                                                : `/${viewingCategory.image}`
+                                        }
+                                        alt={viewingCategory.name}
+                                        className="w-full max-w-md rounded-lg border border-input object-cover"
+                                    />
+                                </div>
+                            )}
+
+                            <div className="grid gap-4 md:grid-cols-2">
+                                <div>
+                                    <h4 className="mb-1 text-sm font-medium text-muted-foreground">
+                                        Sort Order
+                                    </h4>
+                                    <p className="text-base">
+                                        {viewingCategory.sort_order}
+                                    </p>
+                                </div>
+                                <div>
+                                    <h4 className="mb-1 text-sm font-medium text-muted-foreground">
+                                        Products
+                                    </h4>
+                                    <p className="text-base">
+                                        {viewingCategory.products_count}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </DialogContent>
+            </Dialog>
+        </AppLayout>
+    );
+}

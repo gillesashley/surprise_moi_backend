@@ -1,0 +1,99 @@
+# =============================================================================
+# SurpriseMoi Backend - Docker Compose Configuration
+# Domain: dashboard.surprisemoi.com
+# Port: 8082 (avoiding 8080 and 8081 which are already in use)
+# Note: Scheduler runs via VPS cron, not Docker container
+# =============================================================================
+
+services:
+  # ---------------------------------------------------------------------------
+  # Laravel Application
+  # ---------------------------------------------------------------------------
+  app:
+    extends:
+      file: docker-compose.base.yml
+      service: app
+    environment:
+      - APP_USER=$USER
+      - APP_GROUP=$USER
+      - DEBUG=1
+    labels:
+      caddy_0: 'open.localhost:80, *.surprisemoi.localhost, *.localhost, localhost, 127.0.0.1, :80, :443, :8082'
+      caddy_0.header: Access-Control-Allow-Origin "*"
+      # dev vites
+      caddy_0.@vites.path: /resources* /@* /node_modules* /?token* /vite-ws*
+      caddy_0.reverse_proxy_1: "@vites {{ upstreams 5173 }}"
+
+      # websocket support for laravel echo server
+      caddy_0.@ws.path: /ws* /reverb-ws* /socket.io*
+      caddy_0.reverse_proxy_2: '@ws {{ upstreams 8080 }}'
+
+      # fall back to lavarel app
+      caddy_0.reverse_proxy: '{{ upstreams 80 }}'
+
+    ports:
+      - '8082:80'
+      - '8000:80'
+      - '5173:5173' # Vite development server port
+    command: >
+      bash -lc '
+          composer dev
+        '  >> /proc/1/fd/2 2>&1
+    # depends_on:
+    #   queue:
+    #     condition: service_healthy
+
+  # ---------------------------------------------------------------------------
+  # Queue Worker Service
+  # ---------------------------------------------------------------------------
+  # queue:
+  #   extends:
+  #     file: docker-compose.base.yml
+  #     service: queue
+  #   container_name: surprisemoi-queue
+
+  # ---------------------------------------------------------------------------
+  # PostgreSQL Database
+  # ---------------------------------------------------------------------------
+  db:
+    extends:
+      file: docker-compose.base.yml
+      service: db
+
+  # ---------------------------------------------------------------------------
+  # Redis Cache
+  # ---------------------------------------------------------------------------
+  redis:
+    extends:
+      file: docker-compose.base.yml
+      service: redis
+
+  caddy:
+    extends:
+      file: docker-compose.base.yml
+      service: caddy
+    networks:
+      - surprisemoi-network
+
+# =============================================================================
+# Networks
+# =============================================================================
+networks:
+  surprisemoi-network:
+    driver: bridge
+    name: surprisemoi-network
+
+# =============================================================================
+# Volumes
+# =============================================================================
+volumes:
+  db-data:
+    name: surprisemoi-db-data
+  redis-data:
+    name: surprisemoi-redis-data
+  app-storage:
+    name: surprisemoi-app-storage
+  app-logs:
+    name: surprisemoi-app-logs
+  caddy_data:
+  caddy_config:
