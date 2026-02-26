@@ -4,10 +4,14 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Facades\Storage;
 
 class BespokeServiceResource extends JsonResource
 {
+    /**
+     * Transform the resource into an array.
+     *
+     * @return array<string, mixed>
+     */
     public function toArray(Request $request): array
     {
         return [
@@ -16,7 +20,7 @@ class BespokeServiceResource extends JsonResource
             'slug' => $this->slug,
             'description' => $this->description,
             'icon' => $this->icon,
-            'image' => $this->image ? Storage::disk('public')->url($this->image) : null,
+            'image' => $this->image ? url('storage/' . $this->image) : null,
             'is_active' => $this->is_active,
             'sort_order' => $this->sort_order,
         ];

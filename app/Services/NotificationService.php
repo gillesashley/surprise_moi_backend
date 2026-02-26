@@ -61,7 +61,7 @@ class NotificationService
     public function createVendorNotification(int $userId, string $vendorName, string $action, array $data = []): Notification
     {
         $user = User::findOrFail($userId);
-
+        
         $titles = [
             'submitted' => 'New Vendor Application',
             'approved' => 'Vendor Approved',

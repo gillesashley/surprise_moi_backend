@@ -1,4 +1,3 @@
-import { notificationApi, type Notification } from '@/lib/notifications/api';
 import {
     createContext,
     useCallback,
@@ -6,6 +5,10 @@ import {
     useState,
     type ReactNode,
 } from 'react';
+import {
+    notificationApi,
+    type Notification,
+} from '@/lib/notifications/api';
 
 interface NotificationContextValue {
     notifications: Notification[];
@@ -21,8 +24,9 @@ interface NotificationContextValue {
     addNotification: (notification: Notification) => void;
 }
 
-export const NotificationContext =
-    createContext<NotificationContextValue | null>(null);
+export const NotificationContext = createContext<NotificationContextValue | null>(
+    null,
+);
 
 interface NotificationProviderProps {
     children: ReactNode;
@@ -40,15 +44,9 @@ export function NotificationProvider({ children }: NotificationProviderProps) {
             setError(null);
             const response = await notificationApi.getAll();
             setNotifications(response.data.notifications);
-            setUnreadCount(
-                response.data.notifications.filter((n) => !n.read_at).length,
-            );
+            setUnreadCount(response.data.notifications.filter((n) => !n.read_at).length);
         } catch (err) {
-            setError(
-                err instanceof Error
-                    ? err.message
-                    : 'Failed to fetch notifications',
-            );
+            setError(err instanceof Error ? err.message : 'Failed to fetch notifications');
         } finally {
             setIsLoading(false);
         }
@@ -75,9 +73,7 @@ export function NotificationProvider({ children }: NotificationProviderProps) {
             );
             setUnreadCount((prev) => Math.max(0, prev - 1));
         } catch (err) {
-            setError(
-                err instanceof Error ? err.message : 'Failed to mark as read',
-            );
+            setError(err instanceof Error ? err.message : 'Failed to mark as read');
         }
     }, []);
 
@@ -91,9 +87,7 @@ export function NotificationProvider({ children }: NotificationProviderProps) {
             );
             setUnreadCount((prev) => prev + 1);
         } catch (err) {
-            setError(
-                err instanceof Error ? err.message : 'Failed to mark as unread',
-            );
+            setError(err instanceof Error ? err.message : 'Failed to mark as unread');
         }
     }, []);
 
@@ -101,44 +95,26 @@ export function NotificationProvider({ children }: NotificationProviderProps) {
         try {
             await notificationApi.markAllAsRead();
             setNotifications((prev) =>
-                prev.map((n) => ({
-                    ...n,
-                    read_at: n.read_at ?? new Date().toISOString(),
-                })),
+                prev.map((n) => ({ ...n, read_at: n.read_at ?? new Date().toISOString() })),
             );
             setUnreadCount(0);
         } catch (err) {
-            setError(
-                err instanceof Error
-                    ? err.message
-                    : 'Failed to mark all as read',
-            );
+            setError(err instanceof Error ? err.message : 'Failed to mark all as read');
         }
     }, []);
 
-    const deleteNotification = useCallback(
-        async (notificationId: string) => {
-            try {
-                await notificationApi.delete(notificationId);
-                const deletedNotification = notifications.find(
-                    (n) => n.id === notificationId,
-                );
-                setNotifications((prev) =>
-                    prev.filter((n) => n.id !== notificationId),
-                );
-                if (deletedNotification && !deletedNotification.read_at) {
-                    setUnreadCount((prev) => Math.max(0, prev - 1));
-                }
-            } catch (err) {
-                setError(
-                    err instanceof Error
-                        ? err.message
-                        : 'Failed to delete notification',
-                );
+    const deleteNotification = useCallback(async (notificationId: string) => {
+        try {
+            await notificationApi.delete(notificationId);
+            const deletedNotification = notifications.find((n) => n.id === notificationId);
+            setNotifications((prev) => prev.filter((n) => n.id !== notificationId));
+            if (deletedNotification && !deletedNotification.read_at) {
+                setUnreadCount((prev) => Math.max(0, prev - 1));
             }
-        },
-        [notifications],
-    );
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Failed to delete notification');
+        }
+    }, [notifications]);
 
     const addNotification = useCallback((notification: Notification) => {
         setNotifications((prev) => [notification, ...prev]);

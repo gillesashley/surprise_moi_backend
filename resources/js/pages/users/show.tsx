@@ -511,8 +511,7 @@ export default function UserShow({ user, canDelete }: Props) {
                                         <span className="ml-1">
                                             (Submitted on{' '}
                                             {new Date(
-                                                user.vendor_application
-                                                    .submitted_at,
+                                                user.vendor_application.submitted_at,
                                             ).toLocaleDateString()}
                                             )
                                         </span>
@@ -567,8 +566,7 @@ export default function UserShow({ user, canDelete }: Props) {
                                                 <p className="text-sm text-muted-foreground">
                                                     Reviewed:{' '}
                                                     {new Date(
-                                                        user.vendor_application
-                                                            .reviewed_at,
+                                                        user.vendor_application.reviewed_at,
                                                     ).toLocaleDateString()}
                                                 </p>
                                             )}

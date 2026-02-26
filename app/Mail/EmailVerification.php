@@ -2,12 +2,12 @@
 
 namespace App\Mail;
 
-use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use App\Models\User;
 
 class EmailVerification extends Mailable
 {
@@ -30,6 +30,8 @@ class EmailVerification extends Mailable
     /**
      * Create a new message instance.
      *
+     * @param \App\Models\User $user
+     * @param string $verificationUrl
      * @return void
      */
     public function __construct(User $user, string $verificationUrl)
@@ -40,6 +42,8 @@ class EmailVerification extends Mailable
 
     /**
      * Get the message envelope.
+     *
+     * @return \Illuminate\Mail\Mailables\Envelope
      */
     public function envelope(): Envelope
     {
@@ -50,6 +54,8 @@ class EmailVerification extends Mailable
 
     /**
      * Get the message content definition.
+     *
+     * @return \Illuminate\Mail\Mailables\Content
      */
     public function content(): Content
     {

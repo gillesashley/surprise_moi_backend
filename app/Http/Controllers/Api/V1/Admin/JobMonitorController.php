@@ -119,7 +119,7 @@ class JobMonitorController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to retry job: '.$e->getMessage(),
+                'message' => 'Failed to retry job: ' . $e->getMessage(),
             ], 500);
         }
     }

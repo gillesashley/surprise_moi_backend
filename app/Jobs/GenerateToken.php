@@ -2,9 +2,9 @@
 
 namespace App\Jobs;
 
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str;
 use Throwable;
 
 class GenerateToken extends BaseJob
@@ -13,11 +13,8 @@ class GenerateToken extends BaseJob
      * The token types supported.
      */
     public const TYPE_PASSWORD_RESET = 'password_reset';
-
     public const TYPE_API_TOKEN = 'api_token';
-
     public const TYPE_EMAIL_VERIFICATION = 'email_verification';
-
     public const TYPE_REFRESH_TOKEN = 'refresh_token';
 
     /**
@@ -51,6 +48,9 @@ class GenerateToken extends BaseJob
     /**
      * Create a new job instance.
      *
+     * @param int $userId
+     * @param string $tokenType
+     * @param array $metadata
      * @return void
      */
     public function __construct(int $userId, string $tokenType, array $metadata = [])
@@ -64,6 +64,8 @@ class GenerateToken extends BaseJob
 
     /**
      * Get the default queue for this job type.
+     *
+     * @return string
      */
     protected function getDefaultQueue(): string
     {
@@ -72,6 +74,8 @@ class GenerateToken extends BaseJob
 
     /**
      * Execute the actual job logic.
+     *
+     * @return void
      */
     public function executeJob(): void
     {
@@ -88,6 +92,8 @@ class GenerateToken extends BaseJob
 
     /**
      * Generate a password reset token.
+     *
+     * @return string
      */
     protected function generatePasswordResetToken(): string
     {
@@ -106,6 +112,8 @@ class GenerateToken extends BaseJob
 
     /**
      * Generate an API token.
+     *
+     * @return string
      */
     protected function generateApiToken(): string
     {
@@ -125,6 +133,8 @@ class GenerateToken extends BaseJob
 
     /**
      * Generate an email verification token.
+     *
+     * @return string
      */
     protected function generateEmailVerificationToken(): string
     {
@@ -133,6 +143,8 @@ class GenerateToken extends BaseJob
 
     /**
      * Generate a refresh token.
+     *
+     * @return string
      */
     protected function generateRefreshToken(): string
     {
@@ -141,6 +153,8 @@ class GenerateToken extends BaseJob
 
     /**
      * Get job data for logging (mask sensitive data).
+     *
+     * @return array
      */
     protected function getJobDataForLogging(): array
     {
@@ -154,6 +168,8 @@ class GenerateToken extends BaseJob
 
     /**
      * Log token generation.
+     *
+     * @return void
      */
     protected function logTokenGenerated(): void
     {
@@ -168,6 +184,9 @@ class GenerateToken extends BaseJob
 
     /**
      * Mask token for logging (security).
+     *
+     * @param string $token
+     * @return string
      */
     protected function maskToken(string $token): string
     {
@@ -175,11 +194,13 @@ class GenerateToken extends BaseJob
             return '***';
         }
 
-        return substr($token, 0, 3).'***'.substr($token, -3);
+        return substr($token, 0, 3) . '***' . substr($token, -3);
     }
 
     /**
      * Get the generated token.
+     *
+     * @return string|null
      */
     public function getGeneratedToken(): ?string
     {
@@ -188,6 +209,8 @@ class GenerateToken extends BaseJob
 
     /**
      * Get the display name of the job.
+     *
+     * @return string
      */
     public function getDisplayName(): string
     {
@@ -196,6 +219,9 @@ class GenerateToken extends BaseJob
 
     /**
      * Handle job-specific failure logic.
+     *
+     * @param Throwable $exception
+     * @return void
      */
     protected function handleFailure(Throwable $exception): void
     {

@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\VendorAnalyticsResource;
 use App\Models\Category;
 use App\Models\Order;
 use App\Models\OrderItem;
@@ -12,16 +11,12 @@ use App\Models\Service;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class VendorAnalyticsController extends Controller
 {
     /**
      * Get comprehensive vendor analytics dashboard data.
-     *
-     * Returns the single JSON object needed to render the vendor sales analytics dashboard.
-     * Results are cached for 5 minutes per vendor to avoid heavy DB load on every load.
      */
     public function index(Request $request): JsonResponse
     {
@@ -32,77 +27,27 @@ class VendorAnalyticsController extends Controller
         }
 
         $vendorId = $user->role === 'admin' && $request->filled('vendor_id')
-            ? (int) $request->input('vendor_id')
+            ? $request->input('vendor_id')
             : $user->id;
 
-        $data = Cache::remember("vendor_analytics_dashboard_{$vendorId}", 300, function () use ($vendorId) {
-            return $this->computeDashboardAnalytics($vendorId);
-        });
+        $period = $request->input('period', 'month'); // day, week, month, year
+        $dateRange = $this->getDateRange($period, $request);
 
-        return response()->json((new VendorAnalyticsResource($data))->toArray($request));
-    }
-
-    /**
-     * Compute all raw data needed for the dashboard analytics response.
-     *
-     * @return array<string, mixed>
-     */
-    private function computeDashboardAnalytics(int $vendorId): array
-    {
-        $completedStatuses = ['fulfilled', 'delivered'];
-        $today           = Carbon::today();
-        $todayEnd        = Carbon::today()->endOfDay();
-        $lastWeekDay     = Carbon::today()->subWeek();
-        $lastWeekDayEnd  = Carbon::today()->subWeek()->endOfDay();
-        $monthStart      = Carbon::now()->startOfMonth();
-        $monthEnd        = Carbon::now()->endOfMonth();
-
-        $dateRange = ['start' => $monthStart, 'end' => $monthEnd];
-
-        // Today's completed revenue
-        $todayRevenue = (float) Order::query()
-            ->where('vendor_id', $vendorId)
-            ->whereBetween('created_at', [$today, $todayEnd])
-            ->whereIn('status', $completedStatuses)
-            ->sum('total');
-
-        // Today's total order count (all statuses)
-        $todayOrders = Order::query()
-            ->where('vendor_id', $vendorId)
-            ->whereBetween('created_at', [$today, $todayEnd])
-            ->count();
-
-        // Same calendar day last week — comparison baseline
-        $lastWeekRevenue = (float) Order::query()
-            ->where('vendor_id', $vendorId)
-            ->whereBetween('created_at', [$lastWeekDay, $lastWeekDayEnd])
-            ->whereIn('status', $completedStatuses)
-            ->sum('total');
-
-        $lastWeekOrders = Order::query()
-            ->where('vendor_id', $vendorId)
-            ->whereBetween('created_at', [$lastWeekDay, $lastWeekDayEnd])
-            ->count();
-
-        // Monthly progress towards target
-        $monthlyTarget = $this->getMonthlyTarget($vendorId);
-
-        $monthlyRevenue = (float) Order::query()
-            ->where('vendor_id', $vendorId)
-            ->whereBetween('created_at', [$monthStart, $monthEnd])
-            ->whereIn('status', $completedStatuses)
-            ->sum('total');
-
-        return [
-            'monthly_target'      => round($monthlyTarget, 2),
-            'monthly_revenue'     => round($monthlyRevenue, 2),
-            'today_revenue'       => round($todayRevenue, 2),
-            'last_week_revenue'   => round($lastWeekRevenue, 2),
-            'today_orders'        => $todayOrders,
-            'last_week_orders'    => $lastWeekOrders,
-            'revenue_by_category' => $this->getRevenueByCategory($vendorId, $dateRange),
-            'top_products'        => $this->getTopProducts($vendorId, $dateRange, 5),
-        ];
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'overview' => $this->getOverviewStats($vendorId, $dateRange),
+                'revenue_by_category' => $this->getRevenueByCategory($vendorId, $dateRange),
+                'top_products' => $this->getTopProducts($vendorId, $dateRange),
+                'orders_trend' => $this->getOrdersTrend($vendorId, $dateRange),
+                'revenue_trend' => $this->getRevenueTrend($vendorId, $dateRange),
+                'period' => $period,
+                'date_range' => [
+                    'start' => $dateRange['start']->toDateTimeString(),
+                    'end' => $dateRange['end']->toDateTimeString(),
+                ],
+            ],
+        ]);
     }
 
     /**
@@ -313,7 +258,7 @@ class VendorAnalyticsController extends Controller
     }
 
     /**
-     * Get order counts by status using a single grouped query.
+     * Get order counts by status.
      *
      * @param  array{start: Carbon, end: Carbon}  $dateRange
      * @return array<string, int>
@@ -321,18 +266,14 @@ class VendorAnalyticsController extends Controller
     protected function getOrderStatusBreakdown(int $vendorId, array $dateRange): array
     {
         $statuses = ['pending', 'confirmed', 'processing', 'fulfilled', 'shipped', 'delivered', 'refunded'];
-
-        $counts = Order::query()
-            ->where('vendor_id', $vendorId)
-            ->whereBetween('created_at', [$dateRange['start'], $dateRange['end']])
-            ->whereIn('status', $statuses)
-            ->select('status', DB::raw('COUNT(*) as count'))
-            ->groupBy('status')
-            ->pluck('count', 'status');
-
         $breakdown = [];
+
         foreach ($statuses as $status) {
-            $breakdown[$status] = (int) ($counts[$status] ?? 0);
+            $breakdown[$status] = Order::query()
+                ->where('vendor_id', $vendorId)
+                ->whereBetween('created_at', [$dateRange['start'], $dateRange['end']])
+                ->where('status', $status)
+                ->count();
         }
 
         return $breakdown;
@@ -445,7 +386,8 @@ class VendorAnalyticsController extends Controller
                 'categories.name as category_name',
                 DB::raw('SUM(order_items.subtotal) as total_revenue'),
                 DB::raw('SUM(order_items.quantity) as total_orders'),
-                DB::raw('COUNT(DISTINCT orders.id) as order_count')
+                DB::raw('COUNT(DISTINCT orders.id) as order_count'),
+                DB::raw('AVG(order_items.subtotal) as avg_order_value')
             )
             ->groupBy('products.id', 'products.name', 'products.thumbnail', 'categories.name')
             ->orderByDesc('total_revenue')
@@ -461,9 +403,7 @@ class VendorAnalyticsController extends Controller
                 'revenue' => round((float) $product->total_revenue, 2),
                 'orders' => (int) $product->total_orders,
                 'order_count' => (int) $product->order_count,
-                'average_order_value' => $product->order_count > 0
-                    ? round((float) $product->total_revenue / $product->order_count, 2)
-                    : 0,
+                'average_order_value' => round((float) $product->avg_order_value, 2),
                 'currency' => 'GHS',
             ];
         })->toArray();

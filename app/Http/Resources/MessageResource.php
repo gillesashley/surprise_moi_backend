@@ -4,7 +4,6 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Facades\Storage;
 
 class MessageResource extends JsonResource
 {
@@ -22,7 +21,7 @@ class MessageResource extends JsonResource
             'sender' => [
                 'id' => $this->sender->id,
                 'name' => $this->sender->name,
-                'avatar' => $this->sender->avatar ? Storage::disk('public')->url($this->sender->avatar) : null,
+                'avatar' => $this->sender->avatar ? url($this->sender->avatar) : null,
             ],
             'body' => $this->body,
             'type' => $this->type,

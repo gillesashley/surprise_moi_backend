@@ -393,6 +393,18 @@ class PaystackService
             ];
         }
 
+        if ($paystackStatus === Payment::STATUS_PENDING) {
+            return [
+                'success' => false,
+                'data' => [
+                    'status' => $paystackStatus,
+                    'reference' => $payment->reference,
+                ],
+                'payment' => $payment->fresh(),
+                'message' => 'Payment is still processing. Please wait.',
+            ];
+        }
+
         // Handle failed/abandoned/other statuses
         $failureStatus = match ($paystackStatus) {
             'abandoned' => Payment::STATUS_ABANDONED,

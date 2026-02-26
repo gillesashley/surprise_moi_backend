@@ -11,10 +11,10 @@ use Illuminate\Queue\SerializesModels;
 
 /**
  * VendorApprovalSubmitted Event
- *
+ * 
  * Fired when a vendor submits their application for approval.
  * Notifies all admins in real-time via Reverb WebSocket.
- *
+ * 
  * Triggers:
  * - Real-time notification to admin users via Reverb
  * - Admin dashboard updates with pending applications
@@ -30,7 +30,7 @@ class VendorApprovalSubmitted implements ShouldBroadcast
 
     /**
      * Get the channels the event should broadcast on.
-     *
+     * 
      * Broadcasts to private 'admin' channel.
      * Only authenticated admin users can subscribe (see routes/channels.php).
      *
@@ -62,6 +62,8 @@ class VendorApprovalSubmitted implements ShouldBroadcast
 
     /**
      * The event's broadcast name.
+     *
+     * @return string
      */
     public function broadcastAs(): string
     {

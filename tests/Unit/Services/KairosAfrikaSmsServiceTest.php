@@ -3,6 +3,8 @@
 namespace Tests\Unit\Services;
 
 use App\Contracts\Sms\SmsProviderInterface;
+use App\Notifications\Messages\SmsMessage;
+use App\Notifications\Sms\OtpNotification;
 use App\Services\KairosAfrikaSmsService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Config;
@@ -17,7 +19,7 @@ class KairosAfrikaSmsServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-
+        
         // Configure service for testing
         Config::set('services.kairosafrika.api_url', 'https://api.test.com');
         Config::set('services.kairosafrika.api_key', 'test_key');
@@ -25,7 +27,7 @@ class KairosAfrikaSmsServiceTest extends TestCase
         Config::set('services.kairosafrika.api_version', 'v1');
         Config::set('services.kairosafrika.sender_name', 'TestSender');
         Config::set('services.kairosafrika.log_only', true);
-
+        
         $this->smsService = new KairosAfrikaSmsService;
     }
 
@@ -43,7 +45,7 @@ class KairosAfrikaSmsServiceTest extends TestCase
     public function test_send_otp_returns_expected_structure(): void
     {
         $result = $this->smsService->sendOtp('0559400612');
-
+        
         $this->assertIsArray($result);
         $this->assertArrayHasKey('success', $result);
         $this->assertArrayHasKey('message', $result);
@@ -57,7 +59,7 @@ class KairosAfrikaSmsServiceTest extends TestCase
     public function test_validate_otp_returns_expected_structure(): void
     {
         $result = $this->smsService->validateOtp('1234', '0559400612');
-
+        
         $this->assertIsArray($result);
         $this->assertArrayHasKey('success', $result);
         $this->assertArrayHasKey('message', $result);
@@ -70,7 +72,7 @@ class KairosAfrikaSmsServiceTest extends TestCase
     public function test_send_method_returns_expected_structure(): void
     {
         $result = $this->smsService->send('0559400612', 'Test message');
-
+        
         $this->assertIsArray($result);
         $this->assertArrayHasKey('success', $result);
         $this->assertArrayHasKey('message', $result);
@@ -86,11 +88,11 @@ class KairosAfrikaSmsServiceTest extends TestCase
         // Test with leading zero
         $result = $this->smsService->send('0559400612', 'Test');
         $this->assertTrue($result['success']);
-
+        
         // Test with international format
         $result = $this->smsService->send('233559400612', 'Test');
         $this->assertTrue($result['success']);
-
+        
         // Test with plus sign
         $result = $this->smsService->send('+233559400612', 'Test');
         $this->assertTrue($result['success']);
@@ -102,7 +104,7 @@ class KairosAfrikaSmsServiceTest extends TestCase
     public function test_interface_binding_works(): void
     {
         $resolved = app(SmsProviderInterface::class);
-
+        
         $this->assertInstanceOf(KairosAfrikaSmsService::class, $resolved);
     }
 }

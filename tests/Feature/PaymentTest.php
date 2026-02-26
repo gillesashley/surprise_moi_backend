@@ -263,6 +263,55 @@ class PaymentTest extends TestCase
         ]);
     }
 
+    public function test_pending_verification_status_does_not_mark_payment_as_failed(): void
+    {
+        $payment = Payment::factory()->create([
+            'user_id' => $this->user->id,
+            'order_id' => $this->order->id,
+            'status' => Payment::STATUS_PROCESSING,
+            'amount' => 100.00,
+            'amount_in_kobo' => 10000,
+            'verified_at' => null,
+            'failure_reason' => null,
+        ]);
+
+        $this->order->update(['payment_status' => 'pending']);
+
+        Http::fake([
+            'https://api.paystack.co/transaction/verify/*' => Http::response([
+                'status' => true,
+                'message' => 'Verification successful',
+                'data' => [
+                    'status' => 'pending',
+                    'reference' => $payment->reference,
+                    'amount' => 10000,
+                    'gateway_response' => 'Awaiting customer authorization',
+                ],
+            ], 200),
+        ]);
+
+        $response = $this->actingAs($this->user)
+            ->postJson('/api/v1/payments/verify', [
+                'reference' => $payment->reference,
+            ]);
+
+        $response->assertStatus(422)
+            ->assertJson([
+                'message' => 'Payment is still processing. Please wait.',
+            ]);
+
+        $this->assertDatabaseHas('payments', [
+            'id' => $payment->id,
+            'status' => Payment::STATUS_PROCESSING,
+            'failure_reason' => null,
+        ]);
+
+        $this->assertDatabaseHas('orders', [
+            'id' => $this->order->id,
+            'payment_status' => 'pending',
+        ]);
+    }
+
     public function test_user_cannot_verify_another_users_payment(): void
     {
         $payment = Payment::factory()->pending()->create([
@@ -669,24 +718,57 @@ class PaymentTest extends TestCase
             ], 200),
         ]);
 
-        $response = $this->actingAs($this->user)
-            ->getJson("/api/v1/payments/callback?reference={$payment->reference}");
+        $response = $this->get("/api/v1/payments/callback?reference={$payment->reference}");
 
-        $response->assertStatus(200)
-            ->assertJson([
-                'status' => 'success',
-            ]);
+        $response->assertRedirect(
+            "surprisemoi://payment-callback?status=success&type=order&reference={$payment->reference}&order_id={$this->order->id}"
+        );
     }
 
     public function test_callback_requires_reference(): void
     {
-        $response = $this->actingAs($this->user)
-            ->getJson('/api/v1/payments/callback');
+        $response = $this->get('/api/v1/payments/callback');
 
-        $response->assertStatus(400)
-            ->assertJson([
-                'message' => 'Payment reference is required.',
-            ]);
+        $response->assertRedirect(
+            'surprisemoi://payment-callback?status=failed&type=order&message=Payment+reference+is+required'
+        );
+    }
+
+    public function test_callback_skips_reverification_for_successful_payment(): void
+    {
+        $payment = Payment::factory()->successful()->create([
+            'user_id' => $this->user->id,
+            'order_id' => $this->order->id,
+        ]);
+
+        Http::fake();
+
+        $response = $this->get("/api/v1/payments/callback?reference={$payment->reference}");
+
+        $response->assertRedirect(
+            "surprisemoi://payment-callback?status=success&type=order&reference={$payment->reference}&order_id={$this->order->id}"
+        );
+
+        Http::assertNothingSent();
+    }
+
+    public function test_callback_skips_reverification_for_failed_payment(): void
+    {
+        $payment = Payment::factory()->failed()->create([
+            'user_id' => $this->user->id,
+            'order_id' => $this->order->id,
+            'failure_reason' => 'Insufficient funds',
+        ]);
+
+        Http::fake();
+
+        $response = $this->get("/api/v1/payments/callback?reference={$payment->reference}");
+
+        $response->assertRedirect(
+            "surprisemoi://payment-callback?status=failed&type=order&reference={$payment->reference}&order_id={$this->order->id}&message=Insufficient+funds"
+        );
+
+        Http::assertNothingSent();
     }
 
     // ==========================================

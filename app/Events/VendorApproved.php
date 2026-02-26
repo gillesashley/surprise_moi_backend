@@ -11,12 +11,12 @@ use Illuminate\Queue\SerializesModels;
 
 /**
  * VendorApproved Event
- *
+ * 
  * Fired when an admin approves a vendor application.
  * Triggers:
  * - Email notification to the vendor
  * - Real-time notification via Reverb to the vendor
- *
+ * 
  * Usage: event(new VendorApproved($vendorApplication));
  */
 class VendorApproved implements ShouldBroadcast
@@ -30,7 +30,7 @@ class VendorApproved implements ShouldBroadcast
 
     /**
      * Get the channels the event should broadcast on.
-     *
+     * 
      * Broadcasts to private channel scoped to the vendor user.
      * Only the approved vendor can subscribe.
      *
@@ -39,7 +39,7 @@ class VendorApproved implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel('user.'.$this->vendorApplication->user_id),
+            new PrivateChannel('user.' . $this->vendorApplication->user_id),
         ];
     }
 
@@ -60,6 +60,8 @@ class VendorApproved implements ShouldBroadcast
 
     /**
      * The event's broadcast name.
+     *
+     * @return string
      */
     public function broadcastAs(): string
     {

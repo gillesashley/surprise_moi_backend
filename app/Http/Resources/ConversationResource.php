@@ -4,7 +4,6 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Facades\Storage;
 
 class ConversationResource extends JsonResource
 {
@@ -38,7 +37,7 @@ class ConversationResource extends JsonResource
             'participant' => [
                 'id' => $otherParticipant->id,
                 'name' => $otherParticipant->name,
-                'avatar' => $otherParticipant->avatar ? Storage::disk('public')->url($otherParticipant->avatar) : null,
+                'avatar' => $otherParticipant->avatar ? url($otherParticipant->avatar) : null,
                 'role' => $otherParticipant->role,
                 'is_online' => true, // This could be enhanced with presence channels
             ],

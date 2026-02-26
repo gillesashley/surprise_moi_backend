@@ -43,7 +43,7 @@ class NotificationServiceTest extends TestCase
     public function test_gets_notifications_for_user(): void
     {
         $user = User::factory()->create();
-
+        
         Notification::factory()->count(3)->create(['user_id' => $user->id]);
         Notification::factory()->count(2)->create();
 
@@ -55,7 +55,7 @@ class NotificationServiceTest extends TestCase
     public function test_gets_unread_notifications(): void
     {
         $user = User::factory()->create();
-
+        
         Notification::factory()->count(2)->create([
             'user_id' => $user->id,
             'read_at' => null,
@@ -73,7 +73,7 @@ class NotificationServiceTest extends TestCase
     public function test_gets_unread_count(): void
     {
         $user = User::factory()->create();
-
+        
         Notification::factory()->count(5)->create([
             'user_id' => $user->id,
             'read_at' => null,
@@ -117,7 +117,7 @@ class NotificationServiceTest extends TestCase
     public function test_marks_all_notifications_as_read(): void
     {
         $user = User::factory()->create();
-
+        
         Notification::factory()->count(3)->create([
             'user_id' => $user->id,
             'read_at' => null,

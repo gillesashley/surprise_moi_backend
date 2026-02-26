@@ -24,7 +24,6 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { useVendorApprovalEvents } from '@/hooks/use-vendor-approval-events';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router, useForm } from '@inertiajs/react';
@@ -41,6 +40,7 @@ import {
     XCircle,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { useVendorApprovalEvents } from '@/hooks/use-vendor-approval-events';
 
 interface VendorApplicationSummary {
     id: number;
@@ -133,8 +133,7 @@ export default function VendorApplicationsIndex({
     const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
     const [selectedApplication, setSelectedApplication] =
         useState<VendorApplicationSummary | null>(null);
-    const [showNewSubmissionNotice, setShowNewSubmissionNotice] =
-        useState(false);
+    const [showNewSubmissionNotice, setShowNewSubmissionNotice] = useState(false);
 
     const rejectForm = useForm({
         reason: '',
@@ -143,37 +142,24 @@ export default function VendorApplicationsIndex({
     if (isDevelopment) {
         console.log('🏪 [VendorApplicationsIndex] Component mounted');
         console.log('🏪 [VendorApplicationsIndex] Current filters:', filters);
-        console.log(
-            '🏪 [VendorApplicationsIndex] Applications loaded:',
-            applications.total,
-            'total,',
-            applications.data.length,
-            'on page',
-        );
+        console.log('🏪 [VendorApplicationsIndex] Applications loaded:', applications.total, 'total,', applications.data.length, 'on page');
     }
 
     // Listen for new vendor application submissions
     useVendorApprovalEvents((event) => {
         if (isDevelopment) {
-            console.log(
-                '🎯 [VendorApplicationsIndex] Reverb event callback triggered',
-                {
-                    timestamp: new Date().toISOString(),
-                    event,
-                },
-            );
-            console.log(
-                '🎯 [VendorApplicationsIndex] Showing notification banner...',
-            );
+            console.log('🎯 [VendorApplicationsIndex] Reverb event callback triggered', {
+                timestamp: new Date().toISOString(),
+                event,
+            });
+            console.log('🎯 [VendorApplicationsIndex] Showing notification banner...');
         }
 
         // Show notification banner
         setShowNewSubmissionNotice(true);
 
         if (isDevelopment) {
-            console.log(
-                '🎯 [VendorApplicationsIndex] Scheduling page refresh in 1000ms...',
-            );
+            console.log('🎯 [VendorApplicationsIndex] Scheduling page refresh in 1000ms...');
         }
 
         // Auto-refresh the list after a short delay
@@ -319,16 +305,12 @@ export default function VendorApplicationsIndex({
             <div className="flex h-full flex-1 flex-col gap-4 p-4">
                 {/* New Submission Notification */}
                 {showNewSubmissionNotice && (
-                    <div className="flex items-center justify-between rounded-md bg-blue-50 p-4 text-sm text-blue-800 dark:bg-blue-900/30 dark:text-blue-200">
-                        <span>
-                            ✨ New vendor application received! Refreshing...
-                        </span>
+                    <div className="rounded-md bg-blue-50 p-4 text-sm text-blue-800 dark:bg-blue-900/30 dark:text-blue-200 flex items-center justify-between">
+                        <span>✨ New vendor application received! Refreshing...</span>
                         <button
                             onClick={() => {
                                 if (isDevelopment) {
-                                    console.log(
-                                        '🎯 [VendorApplicationsIndex] Notification closed',
-                                    );
+                                    console.log('🎯 [VendorApplicationsIndex] Notification closed');
                                 }
                                 setShowNewSubmissionNotice(false);
                             }}

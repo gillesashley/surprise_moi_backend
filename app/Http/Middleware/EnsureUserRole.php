@@ -8,11 +8,11 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * EnsureUserRole Middleware - Restrict routes to specific user roles.
- *
+ * 
  * Usage in routes:
  * Route::middleware('role:vendor')->group(...)
  * Route::middleware('role:admin,super_admin')->group(...)  // Multiple roles
- *
+ * 
  * Available roles:
  * - customer (default)
  * - vendor
@@ -21,21 +21,21 @@ use Symfony\Component\HttpFoundation\Response;
  * - influencer
  * - field_agent
  * - marketer
- *
+ * 
  * Returns 403 if user doesn't have required role.
  */
 class EnsureUserRole
 {
     /**
      * Handle an incoming request.
-     *
+     * 
      * Validates that authenticated user has one of the allowed roles.
      * Supports comma-separated roles (e.g., 'admin,super_admin') or
      * multiple arguments (e.g., 'admin', 'super_admin').
      *
-     * @param  Request  $request  The incoming request
-     * @param  Closure  $next  Next middleware
-     * @param  string  ...$roles  Comma-separated roles or multiple role arguments
+     * @param Request $request The incoming request
+     * @param Closure $next Next middleware
+     * @param string ...$roles Comma-separated roles or multiple role arguments
      * @return Response 401 if unauthenticated, 403 if wrong role, or continues
      */
     public function handle(Request $request, Closure $next, string ...$roles): Response

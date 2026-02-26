@@ -1,4 +1,5 @@
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
     Card,
     CardContent,
@@ -7,7 +8,6 @@ import {
     CardTitle,
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Pagination } from '@/components/ui/pagination';
 import {
     Select,
     SelectContent,
@@ -18,7 +18,15 @@ import {
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, router } from '@inertiajs/react';
-import { DollarSign, Package, ShoppingCart, Truck, User } from 'lucide-react';
+import {
+    ChevronLeft,
+    ChevronRight,
+    DollarSign,
+    Package,
+    ShoppingCart,
+    Truck,
+    User,
+} from 'lucide-react';
 
 interface Address {
     label: string;
@@ -164,6 +172,15 @@ const formatCurrency = (amount: string) => {
         style: 'currency',
         currency: 'GHS',
     }).format(parseFloat(amount));
+};
+
+const formatDate = (dateString: string | null) => {
+    if (!dateString) return '-';
+    return new Date(dateString).toLocaleDateString('en-GH', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+    });
 };
 
 const formatDateTime = (dateString: string | null) => {
@@ -657,12 +674,42 @@ export default function TransactionsIndex({
                                     </table>
                                 </div>
 
+                                {/* Pagination */}
                                 {orders.last_page > 1 && (
-                                    <Pagination
-                                        currentPage={orders.current_page}
-                                        lastPage={orders.last_page}
-                                        onPageChange={handlePageChange}
-                                    />
+                                    <div className="mt-4 flex items-center justify-between">
+                                        <div className="text-sm text-muted-foreground">
+                                            Page {orders.current_page} of{' '}
+                                            {orders.last_page}
+                                        </div>
+                                        <div className="flex gap-2">
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={() =>
+                                                    handlePageChange(
+                                                        orders.current_page - 1,
+                                                    )
+                                                }
+                                                disabled={!orders.prev_page_url}
+                                            >
+                                                <ChevronLeft className="h-4 w-4" />
+                                                Previous
+                                            </Button>
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={() =>
+                                                    handlePageChange(
+                                                        orders.current_page + 1,
+                                                    )
+                                                }
+                                                disabled={!orders.next_page_url}
+                                            >
+                                                Next
+                                                <ChevronRight className="h-4 w-4" />
+                                            </Button>
+                                        </div>
+                                    </div>
                                 )}
                             </>
                         )}

@@ -42,7 +42,7 @@ class UserFactory extends Factory
             'phone' => '024'.$faker->unique()->numberBetween(1000000, 9999999),
             'email_verified_at' => now(),
             'phone_verified_at' => now(),
-            'password' => (static::$hashed_password ??= bcrypt('password')),
+            'password' => (static::$hashed_password ??= bcrypt("password")),
             'role' => 'customer',
             'avatar' => $faker->randomElement($avatars),
             'remember_token' => Str::random(10),

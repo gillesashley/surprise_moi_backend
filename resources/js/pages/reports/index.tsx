@@ -63,41 +63,19 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 const statusConfig: Record<string, { color: string; label: string }> = {
-    pending: {
-        color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
-        label: 'Pending',
-    },
-    in_progress: {
-        color: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
-        label: 'In Progress',
-    },
-    resolved: {
-        color: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
-        label: 'Resolved',
-    },
-    cancelled: {
-        color: 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200',
-        label: 'Cancelled',
-    },
+    pending: { color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200', label: 'Pending' },
+    in_progress: { color: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200', label: 'In Progress' },
+    resolved: { color: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200', label: 'Resolved' },
+    cancelled: { color: 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200', label: 'Cancelled' },
 };
 
 function formatCategory(value: string): string {
-    return value
-        .split('_')
-        .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-        .join(' ');
+    return value.split('_').map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
 }
 
-export default function ReportsIndex({
-    reports,
-    filters,
-    categories,
-    statuses,
-}: Props) {
+export default function ReportsIndex({ reports, filters, categories, statuses }: Props) {
     const [statusFilter, setStatusFilter] = useState(filters.status || 'all');
-    const [categoryFilter, setCategoryFilter] = useState(
-        filters.category || 'all',
-    );
+    const [categoryFilter, setCategoryFilter] = useState(filters.category || 'all');
     const [searchTerm, setSearchTerm] = useState(filters.search || '');
 
     const buildParams = (overrides: Record<string, unknown> = {}) => ({
@@ -111,10 +89,7 @@ export default function ReportsIndex({
     useEffect(() => {
         const delay = setTimeout(() => {
             if (searchTerm !== filters.search) {
-                router.get('/dashboard/reports', buildParams(), {
-                    preserveState: true,
-                    preserveScroll: true,
-                });
+                router.get('/dashboard/reports', buildParams(), { preserveState: true, preserveScroll: true });
             }
         }, 300);
         return () => clearTimeout(delay);
@@ -122,27 +97,16 @@ export default function ReportsIndex({
 
     const handleStatusChange = (value: string) => {
         setStatusFilter(value);
-        router.get(
-            '/dashboard/reports',
-            buildParams({ status: value !== 'all' ? value : undefined }),
-            { preserveState: true, preserveScroll: true },
-        );
+        router.get('/dashboard/reports', buildParams({ status: value !== 'all' ? value : undefined }), { preserveState: true, preserveScroll: true });
     };
 
     const handleCategoryChange = (value: string) => {
         setCategoryFilter(value);
-        router.get(
-            '/dashboard/reports',
-            buildParams({ category: value !== 'all' ? value : undefined }),
-            { preserveState: true, preserveScroll: true },
-        );
+        router.get('/dashboard/reports', buildParams({ category: value !== 'all' ? value : undefined }), { preserveState: true, preserveScroll: true });
     };
 
     const handlePageChange = (page: number) => {
-        router.get('/dashboard/reports', buildParams({ page }), {
-            preserveState: true,
-            preserveScroll: true,
-        });
+        router.get('/dashboard/reports', buildParams({ page }), { preserveState: true, preserveScroll: true });
     };
 
     return (
@@ -156,18 +120,11 @@ export default function ReportsIndex({
                                 <div className="flex items-center gap-2">
                                     <AlertTriangle className="h-5 w-5 text-orange-500" />
                                     <div>
-                                        <CardTitle>
-                                            Reports & Conflicts
-                                        </CardTitle>
-                                        <CardDescription>
-                                            Review and resolve user-submitted
-                                            reports
-                                        </CardDescription>
+                                        <CardTitle>Reports & Conflicts</CardTitle>
+                                        <CardDescription>Review and resolve user-submitted reports</CardDescription>
                                     </div>
                                 </div>
-                                <Badge className="text-sm">
-                                    {reports.total} total
-                                </Badge>
+                                <Badge className="text-sm">{reports.total} total</Badge>
                             </div>
                             <div className="flex flex-col gap-2 sm:flex-row">
                                 <div className="relative flex-1">
@@ -176,51 +133,29 @@ export default function ReportsIndex({
                                         type="search"
                                         placeholder="Search by report number or user..."
                                         value={searchTerm}
-                                        onChange={(e) =>
-                                            setSearchTerm(e.target.value)
-                                        }
+                                        onChange={(e) => setSearchTerm(e.target.value)}
                                         className="pl-9"
                                     />
                                 </div>
-                                <Select
-                                    value={statusFilter}
-                                    onValueChange={handleStatusChange}
-                                >
+                                <Select value={statusFilter} onValueChange={handleStatusChange}>
                                     <SelectTrigger className="w-40">
                                         <SelectValue placeholder="All statuses" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="all">
-                                            All Statuses
-                                        </SelectItem>
+                                        <SelectItem value="all">All Statuses</SelectItem>
                                         {statuses.map((s) => (
-                                            <SelectItem
-                                                key={s.value}
-                                                value={s.value}
-                                            >
-                                                {s.label}
-                                            </SelectItem>
+                                            <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
                                         ))}
                                     </SelectContent>
                                 </Select>
-                                <Select
-                                    value={categoryFilter}
-                                    onValueChange={handleCategoryChange}
-                                >
+                                <Select value={categoryFilter} onValueChange={handleCategoryChange}>
                                     <SelectTrigger className="w-44">
                                         <SelectValue placeholder="All categories" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="all">
-                                            All Categories
-                                        </SelectItem>
+                                        <SelectItem value="all">All Categories</SelectItem>
                                         {categories.map((c) => (
-                                            <SelectItem
-                                                key={c.value}
-                                                value={c.value}
-                                            >
-                                                {c.label}
-                                            </SelectItem>
+                                            <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
                                         ))}
                                     </SelectContent>
                                 </Select>
@@ -239,95 +174,37 @@ export default function ReportsIndex({
                                     <table className="w-full">
                                         <thead>
                                             <tr className="border-b">
-                                                <th className="p-2 text-left text-sm font-medium">
-                                                    Report #
-                                                </th>
-                                                <th className="p-2 text-left text-sm font-medium">
-                                                    User
-                                                </th>
-                                                <th className="p-2 text-left text-sm font-medium">
-                                                    Category
-                                                </th>
-                                                <th className="p-2 text-left text-sm font-medium">
-                                                    Status
-                                                </th>
-                                                <th className="p-2 text-left text-sm font-medium">
-                                                    Order
-                                                </th>
-                                                <th className="p-2 text-left text-sm font-medium">
-                                                    Date
-                                                </th>
-                                                <th className="p-2 text-left text-sm font-medium">
-                                                    Actions
-                                                </th>
+                                                <th className="p-2 text-left text-sm font-medium">Report #</th>
+                                                <th className="p-2 text-left text-sm font-medium">User</th>
+                                                <th className="p-2 text-left text-sm font-medium">Category</th>
+                                                <th className="p-2 text-left text-sm font-medium">Status</th>
+                                                <th className="p-2 text-left text-sm font-medium">Order</th>
+                                                <th className="p-2 text-left text-sm font-medium">Date</th>
+                                                <th className="p-2 text-left text-sm font-medium">Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             {reports.data.map((report) => {
-                                                const sc =
-                                                    statusConfig[
-                                                        report.status
-                                                    ] ?? statusConfig.pending;
+                                                const sc = statusConfig[report.status] ?? statusConfig.pending;
                                                 return (
-                                                    <tr
-                                                        key={report.id}
-                                                        className="border-b last:border-0 hover:bg-muted/30"
-                                                    >
-                                                        <td className="p-2 font-mono text-sm">
-                                                            {
-                                                                report.report_number
-                                                            }
-                                                        </td>
+                                                    <tr key={report.id} className="border-b last:border-0 hover:bg-muted/30">
+                                                        <td className="p-2 text-sm font-mono">{report.report_number}</td>
                                                         <td className="p-2">
-                                                            <div className="text-sm font-medium">
-                                                                {
-                                                                    report.user
-                                                                        .name
-                                                                }
-                                                            </div>
-                                                            <div className="text-xs text-muted-foreground">
-                                                                {
-                                                                    report.user
-                                                                        .email
-                                                                }
-                                                            </div>
+                                                            <div className="text-sm font-medium">{report.user.name}</div>
+                                                            <div className="text-xs text-muted-foreground">{report.user.email}</div>
                                                         </td>
-                                                        <td className="p-2 text-sm">
-                                                            {formatCategory(
-                                                                report.category,
-                                                            )}
-                                                        </td>
+                                                        <td className="p-2 text-sm">{formatCategory(report.category)}</td>
                                                         <td className="p-2">
-                                                            <Badge
-                                                                className={
-                                                                    sc.color
-                                                                }
-                                                            >
-                                                                {sc.label}
-                                                            </Badge>
+                                                            <Badge className={sc.color}>{sc.label}</Badge>
                                                         </td>
-                                                        <td className="p-2 text-sm">
-                                                            {report.order_number ??
-                                                                '—'}
-                                                        </td>
+                                                        <td className="p-2 text-sm">{report.order_number ?? '—'}</td>
                                                         <td className="p-2 text-sm text-muted-foreground">
-                                                            {report.created_at
-                                                                ? new Date(
-                                                                      report.created_at,
-                                                                  ).toLocaleDateString()
-                                                                : '—'}
+                                                            {report.created_at ? new Date(report.created_at).toLocaleDateString() : '—'}
                                                         </td>
                                                         <td className="p-2">
-                                                            <Button
-                                                                asChild
-                                                                variant="ghost"
-                                                                size="sm"
-                                                            >
-                                                                <Link
-                                                                    href={`/dashboard/reports/${report.id}`}
-                                                                >
-                                                                    <Eye className="mr-1 h-4 w-4" />{' '}
-                                                                    View
+                                                            <Button asChild variant="ghost" size="sm">
+                                                                <Link href={`/dashboard/reports/${report.id}`}>
+                                                                    <Eye className="mr-1 h-4 w-4" /> View
                                                                 </Link>
                                                             </Button>
                                                         </td>
@@ -340,39 +217,22 @@ export default function ReportsIndex({
                                 {reports.last_page > 1 && (
                                     <div className="mt-4 flex items-center justify-between">
                                         <p className="text-sm text-muted-foreground">
-                                            Page {reports.current_page} of{' '}
-                                            {reports.last_page} ({reports.total}{' '}
-                                            total)
+                                            Page {reports.current_page} of {reports.last_page} ({reports.total} total)
                                         </p>
                                         <div className="flex gap-2">
                                             <Button
                                                 variant="outline"
                                                 size="sm"
-                                                disabled={
-                                                    reports.current_page === 1
-                                                }
-                                                onClick={() =>
-                                                    handlePageChange(
-                                                        reports.current_page -
-                                                            1,
-                                                    )
-                                                }
+                                                disabled={reports.current_page === 1}
+                                                onClick={() => handlePageChange(reports.current_page - 1)}
                                             >
                                                 Previous
                                             </Button>
                                             <Button
                                                 variant="outline"
                                                 size="sm"
-                                                disabled={
-                                                    reports.current_page ===
-                                                    reports.last_page
-                                                }
-                                                onClick={() =>
-                                                    handlePageChange(
-                                                        reports.current_page +
-                                                            1,
-                                                    )
-                                                }
+                                                disabled={reports.current_page === reports.last_page}
+                                                onClick={() => handlePageChange(reports.current_page + 1)}
                                             >
                                                 Next
                                             </Button>
@@ -387,3 +247,4 @@ export default function ReportsIndex({
         </AppLayout>
     );
 }
+

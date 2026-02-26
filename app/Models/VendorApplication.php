@@ -327,7 +327,7 @@ class VendorApplication extends Model
 
     /**
      * Submit the vendor application for review.
-     *
+     * 
      * Fires VendorApprovalSubmitted event to notify admins in real-time.
      */
     public function submit(): bool

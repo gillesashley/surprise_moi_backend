@@ -196,7 +196,7 @@ class ProductController extends Controller
         // Handle thumbnail upload
         if ($request->hasFile('thumbnail')) {
             $thumbnailPath = $request->file('thumbnail')->store('products/thumbnails', 'public');
-            $data['thumbnail'] = $thumbnailPath;
+            $data['thumbnail'] = 'storage/'.$thumbnailPath;
         }
 
         $product = Product::create($data);
@@ -206,7 +206,7 @@ class ProductController extends Controller
             foreach ($request->file('images') as $index => $image) {
                 $imagePath = $image->store('products/images', 'public');
                 $product->images()->create([
-                    'image_path' => $imagePath,
+                    'image_path' => 'storage/'.$imagePath,
                     'sort_order' => $index,
                     'is_primary' => $index === 0,
                 ]);
@@ -244,7 +244,7 @@ class ProductController extends Controller
             }
 
             $thumbnailPath = $request->file('thumbnail')->store('products/thumbnails', 'public');
-            $data['thumbnail'] = $thumbnailPath;
+            $data['thumbnail'] = 'storage/'.$thumbnailPath;
         }
 
         $product->update($data);
@@ -266,7 +266,7 @@ class ProductController extends Controller
             foreach ($request->file('images') as $index => $image) {
                 $imagePath = $image->store('products/images', 'public');
                 $product->images()->create([
-                    'image_path' => $imagePath,
+                    'image_path' => 'storage/'.$imagePath,
                     'sort_order' => $currentMaxOrder + $index + 1,
                     'is_primary' => false,
                 ]);

@@ -15,7 +15,6 @@
 .DS_Store
 .env*
 !.env.example
-!.env.docker
 .phpactor.json
 .phpunit.result.cache
 Homestead.json
@@ -30,8 +29,6 @@ yarn-error.log
 /.zed
 
 /.github
-!/.github/workflows
-
 /api-plan
 
 /postman-collections
@@ -41,6 +38,5 @@ yarn-error.log
 /docs
 .worktrees/
 
-.ralph_run.log
-.ralph_counter
-.tmp/models.txt
+/.env.docker
+/.env.example

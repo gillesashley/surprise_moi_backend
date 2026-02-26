@@ -128,7 +128,7 @@ class OrderApiTest extends TestCase
             ]);
 
         $response->assertStatus(422)
-            ->assertJsonFragment(['message' => 'Failed to create order: Product "'.$product->name.'" is not available.']);
+            ->assertJsonFragment(['message' => 'Failed to create order: Product "' . $product->name . '" is not available.']);
     }
 
     public function test_cannot_order_more_than_available_stock(): void
@@ -152,7 +152,7 @@ class OrderApiTest extends TestCase
             ]);
 
         $response->assertStatus(422)
-            ->assertJsonFragment(['message' => 'Failed to create order: Insufficient stock for "'.$product->name.'". Available: 5']);
+            ->assertJsonFragment(['message' => 'Failed to create order: Insufficient stock for "' . $product->name . '". Available: 5']);
     }
 
     public function test_cannot_order_unavailable_service(): void

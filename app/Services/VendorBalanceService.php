@@ -33,7 +33,7 @@ class VendorBalanceService
     public function creditPendingBalance(Order $order): ?VendorTransaction
     {
         // If order has no vendor, skip commission calculation
-        if (! $order->vendor_id) {
+        if (!$order->vendor_id) {
             return null;
         }
 

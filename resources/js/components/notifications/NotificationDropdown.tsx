@@ -1,7 +1,7 @@
-import { Button } from '@/components/ui/button';
-import { useNotifications } from '@/hooks/useNotifications';
-import { cn } from '@/lib/utils';
 import { Bell, Check, Trash2 } from 'lucide-react';
+import { useNotifications } from '@/hooks/useNotifications';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 interface NotificationDropdownProps {
     onClose: () => void;
@@ -25,10 +25,7 @@ export function NotificationDropdown({ onClose }: NotificationDropdownProps) {
         await markAllAsRead();
     };
 
-    const handleDelete = async (
-        e: React.MouseEvent,
-        notificationId: string,
-    ) => {
+    const handleDelete = async (e: React.MouseEvent, notificationId: string) => {
         e.stopPropagation();
         await deleteNotification(notificationId);
     };
@@ -87,7 +84,7 @@ export function NotificationDropdown({ onClose }: NotificationDropdownProps) {
                                     >
                                         {notification.title}
                                     </p>
-                                    <p className="line-clamp-2 text-xs text-muted-foreground">
+                                    <p className="text-xs text-muted-foreground line-clamp-2">
                                         {notification.message}
                                     </p>
                                     <p className="text-xs text-muted-foreground">
@@ -121,7 +118,9 @@ export function NotificationDropdown({ onClose }: NotificationDropdownProps) {
 function formatTimeAgo(dateString: string): string {
     const date = new Date(dateString);
     const now = new Date();
-    const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+    const diffInSeconds = Math.floor(
+        (now.getTime() - date.getTime()) / 1000,
+    );
 
     if (diffInSeconds < 60) {
         return 'Just now';

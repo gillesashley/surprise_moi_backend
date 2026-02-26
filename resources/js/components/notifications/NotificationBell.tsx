@@ -1,13 +1,13 @@
+import { Bell } from 'lucide-react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
     Popover,
     PopoverContent,
     PopoverTrigger,
 } from '@/components/ui/popover';
-import { useNotifications } from '@/hooks/useNotifications';
-import { Bell } from 'lucide-react';
-import { useState } from 'react';
 import { NotificationDropdown } from './NotificationDropdown';
+import { useNotifications } from '@/hooks/useNotifications';
 
 export function NotificationBell() {
     const [isOpen, setIsOpen] = useState(false);

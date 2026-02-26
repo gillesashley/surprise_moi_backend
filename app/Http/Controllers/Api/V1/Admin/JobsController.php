@@ -128,11 +128,9 @@ class JobsController extends Controller
     {
         $parts = explode('@', $email);
         if (count($parts) === 2) {
-            $local = substr($parts[0], 0, 2).str_repeat('*', max(0, strlen($parts[0]) - 4)).substr($parts[0], -2);
-
-            return $local.'@'.$parts[1];
+            $local = substr($parts[0], 0, 2) . str_repeat('*', max(0, strlen($parts[0]) - 4)) . substr($parts[0], -2);
+            return $local . '@' . $parts[1];
         }
-
         return $email;
     }
 
@@ -142,7 +140,6 @@ class JobsController extends Controller
         if ($length <= 4) {
             return str_repeat('*', $length);
         }
-
-        return substr($phone, 0, 3).str_repeat('*', $length - 6).substr($phone, -3);
+        return substr($phone, 0, 3) . str_repeat('*', $length - 6) . substr($phone, -3);
     }
 }

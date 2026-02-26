@@ -1,7 +1,7 @@
 import { dashboard, login, register } from '@/routes';
 import { type SharedData } from '@/types';
 import { Head, Link, usePage } from '@inertiajs/react';
-import { Gift, Package, Sparkles, Users } from 'lucide-react';
+import { Gift, Sparkles, Users, Package } from 'lucide-react';
 
 export default function Welcome({
     canRegister = true,
@@ -19,9 +19,7 @@ export default function Welcome({
                     <div className="container mx-auto flex h-16 items-center justify-between px-4">
                         <div className="flex items-center gap-2">
                             <Gift className="h-6 w-6 text-primary" />
-                            <span className="text-xl font-bold">
-                                SurpriseMoi
-                            </span>
+                            <span className="text-xl font-bold">SurpriseMoi</span>
                         </div>
                         <nav className="flex items-center gap-4">
                             {auth.user ? (
@@ -60,19 +58,17 @@ export default function Welcome({
                             <Sparkles className="h-4 w-4" />
                             <span>Create Memorable Moments</span>
                         </div>
-
+                        
                         <h1 className="mb-6 text-5xl font-bold tracking-tight sm:text-6xl md:text-7xl">
                             Welcome to{' '}
                             <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                                 SurpriseMoi
                             </span>
                         </h1>
-
+                        
                         <p className="mb-12 text-xl text-muted-foreground">
-                            Your one-stop platform for creating unforgettable
-                            surprises and connecting with amazing vendors.
-                            Discover unique gifts, services, and experiences
-                            tailored just for you.
+                            Your one-stop platform for creating unforgettable surprises and connecting with amazing vendors.
+                            Discover unique gifts, services, and experiences tailored just for you.
                         </p>
 
                         <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
@@ -109,12 +105,9 @@ export default function Welcome({
                             <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
                                 <Gift className="h-7 w-7 text-primary" />
                             </div>
-                            <h3 className="mb-2 text-lg font-semibold">
-                                Unique Surprises
-                            </h3>
+                            <h3 className="mb-2 text-lg font-semibold">Unique Surprises</h3>
                             <p className="text-sm text-muted-foreground">
-                                Discover and create personalized surprises with
-                                our curated selection of gifts and experiences.
+                                Discover and create personalized surprises with our curated selection of gifts and experiences.
                             </p>
                         </div>
 
@@ -122,12 +115,9 @@ export default function Welcome({
                             <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-accent/10">
                                 <Package className="h-7 w-7 text-accent" />
                             </div>
-                            <h3 className="mb-2 text-lg font-semibold">
-                                Quality Products
-                            </h3>
+                            <h3 className="mb-2 text-lg font-semibold">Quality Products</h3>
                             <p className="text-sm text-muted-foreground">
-                                Browse thousands of high-quality products from
-                                verified vendors across multiple categories.
+                                Browse thousands of high-quality products from verified vendors across multiple categories.
                             </p>
                         </div>
 
@@ -135,12 +125,9 @@ export default function Welcome({
                             <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-success/10">
                                 <Users className="h-7 w-7 text-success" />
                             </div>
-                            <h3 className="mb-2 text-lg font-semibold">
-                                Trusted Vendors
-                            </h3>
+                            <h3 className="mb-2 text-lg font-semibold">Trusted Vendors</h3>
                             <p className="text-sm text-muted-foreground">
-                                Connect with reliable vendors offering
-                                exceptional services and products.
+                                Connect with reliable vendors offering exceptional services and products.
                             </p>
                         </div>
                     </div>
@@ -149,13 +136,11 @@ export default function Welcome({
                 {/* Footer */}
                 <footer className="border-t bg-background/95 backdrop-blur">
                     <div className="container mx-auto px-4 py-8 text-center text-sm text-muted-foreground">
-                        <p>
-                            &copy; {new Date().getFullYear()} SurpriseMoi. All
-                            rights reserved.
-                        </p>
+                        <p>&copy; {new Date().getFullYear()} SurpriseMoi. All rights reserved.</p>
                     </div>
                 </footer>
             </div>
         </>
     );
 }
+

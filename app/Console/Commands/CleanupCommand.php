@@ -3,8 +3,8 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Process;
+use Illuminate\Support\Facades\Log;
 
 class CleanupCommand extends Command
 {
@@ -26,34 +26,34 @@ class CleanupCommand extends Command
     public function handle()
     {
         $this->info('Starting backup cleanup...');
-
+        
         try {
             $days = $this->option('days');
             $weeks = $this->option('weeks');
             $months = $this->option('months');
-
-            $result = Process::timeout(60)->run(base_path('scripts/manage.sh')." cleanup --days={$days} --weeks={$weeks} --months={$months}");
-
+            
+            $result = Process::timeout(60)->run(base_path('scripts/manage.sh') . " cleanup --days={$days} --weeks={$weeks} --months={$months}");
+            
             if ($result->successful()) {
                 $this->info('Backup cleanup completed successfully');
                 Log::info('Database backup cleanup completed successfully');
-
+                
                 // Display cleanup output
                 $this->line($result->output());
-
+                
                 return Command::SUCCESS;
             } else {
                 $this->error('Backup cleanup failed');
                 $this->error($result->errorOutput());
-                Log::error('Database backup cleanup failed: '.$result->errorOutput());
-
+                Log::error('Database backup cleanup failed: ' . $result->errorOutput());
+                
                 return Command::FAILURE;
             }
-
+            
         } catch (\Exception $e) {
-            $this->error('Backup cleanup failed: '.$e->getMessage());
-            Log::error('Database backup cleanup failed: '.$e->getMessage());
-
+            $this->error('Backup cleanup failed: ' . $e->getMessage());
+            Log::error('Database backup cleanup failed: ' . $e->getMessage());
+            
             return Command::FAILURE;
         }
     }

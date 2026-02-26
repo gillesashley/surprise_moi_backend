@@ -5,6 +5,7 @@ namespace Tests\Unit\Jobs;
 use App\Jobs\BaseJob;
 use Illuminate\Support\Facades\Log;
 use PHPUnit\Framework\TestCase;
+use ReflectionClass;
 
 class BaseJobTest extends TestCase
 {
@@ -17,8 +18,7 @@ class BaseJobTest extends TestCase
 
     public function test_base_job_has_correct_defaults(): void
     {
-        $job = new class extends BaseJob
-        {
+        $job = new class extends BaseJob {
             public function executeJob(): void
             {
                 // Test implementation
@@ -32,8 +32,7 @@ class BaseJobTest extends TestCase
 
     public function test_base_job_queue_can_be_set(): void
     {
-        $job = new class extends BaseJob
-        {
+        $job = new class extends BaseJob {
             public function executeJob(): void
             {
                 // Test implementation
@@ -45,8 +44,7 @@ class BaseJobTest extends TestCase
 
     public function test_base_job_extends_should_queue(): void
     {
-        $job = new class extends BaseJob
-        {
+        $job = new class extends BaseJob {
             public function executeJob(): void
             {
                 // Test implementation
@@ -58,8 +56,7 @@ class BaseJobTest extends TestCase
 
     public function test_get_job_id_returns_null_when_no_job_set(): void
     {
-        $job = new class extends BaseJob
-        {
+        $job = new class extends BaseJob {
             public function executeJob(): void
             {
                 // Test implementation
@@ -71,8 +68,7 @@ class BaseJobTest extends TestCase
 
     public function test_get_display_name_returns_class_basename(): void
     {
-        $job = new class extends BaseJob
-        {
+        $job = new class extends BaseJob {
             public function executeJob(): void
             {
                 // Test implementation

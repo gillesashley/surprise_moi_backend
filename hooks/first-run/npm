@@ -1,0 +1,5 @@
+#!/bin/bash
+# # Download and install fnm:
+#  curl -o- https://fnm.vercel.app/install | bash --install-dir "/usr/bin/.fnm" &&
+#             source $HOME/.bashrc && fnm install 24 && fnm use 24
+# php artisan migrate

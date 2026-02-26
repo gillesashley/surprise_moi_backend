@@ -1,5 +1,7 @@
-import type { Notification } from '@/lib/notifications/api';
 import { toast } from 'sonner';
+import { X } from 'lucide-react';
+import type { Notification } from '@/lib/notifications/api';
+import { Button } from '@/components/ui/button';
 
 interface ToastNotificationProps {
     notification: Notification;
@@ -14,8 +16,7 @@ export function showNotificationToast(notification: Notification) {
             ? {
                   label: 'View',
                   onClick: () => {
-                      window.location.href = notification.data
-                          ?.action_url as string;
+                      window.location.href = notification.data?.action_url as string;
                   },
               }
             : undefined,

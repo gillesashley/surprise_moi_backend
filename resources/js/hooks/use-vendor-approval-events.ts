@@ -1,5 +1,5 @@
-import echo from '@/lib/echo';
 import { useEffect } from 'react';
+import echo from '@/lib/echo';
 
 interface VendorApprovalEvent {
     vendor_application_id: number;
@@ -24,37 +24,26 @@ export function useVendorApprovalEvents(
 ) {
     useEffect(() => {
         if (isDevelopment) {
-            console.log(
-                '📡 [useVendorApprovalEvents] Hook mounted, subscribing to admin channel...',
-            );
+            console.log('📡 [useVendorApprovalEvents] Hook mounted, subscribing to admin channel...');
         }
 
         // Listen on private admin channel for new submissions
         const channel = echo.private('admin');
 
         if (isDevelopment) {
-            console.log(
-                '📡 [useVendorApprovalEvents] Subscribed to channel:',
-                'private-admin',
-            );
-            console.log(
-                '📡 [useVendorApprovalEvents] Listening for event:',
-                'vendor.approval.submitted',
-            );
+            console.log('📡 [useVendorApprovalEvents] Subscribed to channel:', 'private-admin');
+            console.log('📡 [useVendorApprovalEvents] Listening for event:', 'vendor.approval.submitted');
         }
 
         const listener = channel.listen(
             'vendor.approval.submitted',
             (event: VendorApprovalEvent) => {
                 if (isDevelopment) {
-                    console.log(
-                        '✅ [useVendorApprovalEvents] Event received!',
-                        {
-                            timestamp: new Date().toISOString(),
-                            event: 'vendor.approval.submitted',
-                            data: event,
-                        },
-                    );
+                    console.log('✅ [useVendorApprovalEvents] Event received!', {
+                        timestamp: new Date().toISOString(),
+                        event: 'vendor.approval.submitted',
+                        data: event,
+                    });
                 }
 
                 onNewApplication?.(event);
@@ -64,25 +53,18 @@ export function useVendorApprovalEvents(
         // Add error handler
         channel.error((error: any) => {
             if (isDevelopment) {
-                console.error(
-                    '❌ [useVendorApprovalEvents] Channel error:',
-                    error,
-                );
+                console.error('❌ [useVendorApprovalEvents] Channel error:', error);
             }
         });
 
         if (isDevelopment) {
-            console.log(
-                '📡 [useVendorApprovalEvents] Event listeners configured',
-            );
+            console.log('📡 [useVendorApprovalEvents] Event listeners configured');
         }
 
         // Cleanup: unsubscribe when component unmounts
         return () => {
             if (isDevelopment) {
-                console.log(
-                    '📡 [useVendorApprovalEvents] Cleaning up - leaving admin channel',
-                );
+                console.log('📡 [useVendorApprovalEvents] Cleaning up - leaving admin channel');
             }
             echo.leaveChannel('admin');
         };

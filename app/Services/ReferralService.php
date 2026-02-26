@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\DB;
 
 /**
  * ReferralService - Manages influencer referral system and commission tracking.
- *
+ * 
  * Referral Lifecycle:
  * 1. Influencer creates referral code
  * 2. Vendor uses code during registration
@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\DB;
  * 4. When vendor application approved -> referral 'active' + registration bonus earned
  * 5. For X months, influencer earns commission % on vendor's orders
  * 6. After X months, commission expires
- *
+ * 
  * Earnings Types:
  * - Registration Bonus: One-time payment when vendor approved
  * - Commission: Percentage of vendor's order total (during commission period)
@@ -28,19 +28,19 @@ class ReferralService
 {
     /**
      * Create a referral code for an influencer.
-     *
+     * 
      * Influencers can create multiple codes for different campaigns.
      * Each code can have its own bonus amount, commission rate, and duration.
-     *
-     * @param  User  $influencer  User with 'influencer' role
-     * @param  string|null  $code  Custom code (auto-generated if null)
-     * @param  string|null  $description  Campaign description
-     * @param  float  $registrationBonus  One-time bonus when vendor approved (GHS)
-     * @param  float  $commissionRate  Percentage of vendor's order total (0-100)
-     * @param  int  $commissionDurationMonths  How long to earn commission
-     * @param  int|null  $maxUsages  Limit how many times code can be used
-     * @param  \DateTime|null  $expiresAt  When code becomes invalid
-     *
+     * 
+     * @param User $influencer User with 'influencer' role
+     * @param string|null $code Custom code (auto-generated if null)
+     * @param string|null $description Campaign description
+     * @param float $registrationBonus One-time bonus when vendor approved (GHS)
+     * @param float $commissionRate Percentage of vendor's order total (0-100)
+     * @param int $commissionDurationMonths How long to earn commission
+     * @param int|null $maxUsages Limit how many times code can be used
+     * @param \DateTime|null $expiresAt When code becomes invalid
+     * @return ReferralCode
      * @throws \InvalidArgumentException If user is not an influencer
      */
     public function createReferralCode(
@@ -72,13 +72,13 @@ class ReferralService
 
     /**
      * Apply a referral code to a vendor application.
-     *
+     * 
      * Called during vendor registration when they provide a referral code.
      * Creates a referral record in 'pending' status until application approved.
-     *
-     * @param  VendorApplication  $vendorApplication  The application to attach code to
-     * @param  string  $code  The referral code provided by vendor
-     *
+     * 
+     * @param VendorApplication $vendorApplication The application to attach code to
+     * @param string $code The referral code provided by vendor
+     * @return Referral
      * @throws \RuntimeException If application already has a code
      * @throws \Illuminate\Database\Eloquent\ModelNotFoundException If code invalid
      */
@@ -119,15 +119,15 @@ class ReferralService
 
     /**
      * Activate a referral when vendor application is approved.
-     *
+     * 
      * This method:
      * 1. Changes referral status from 'pending' to 'active'
      * 2. Sets commission_starts_at and commission_expires_at dates
      * 3. Creates registration bonus earning for influencer (if configured)
-     *
+     * 
      * Called by admin when approving vendor application.
-     *
-     * @param  VendorApplication  $vendorApplication  The approved application
+     * 
+     * @param VendorApplication $vendorApplication The approved application
      * @return Referral|null Null if application has no referral code
      */
     public function activateReferral(VendorApplication $vendorApplication): ?Referral
@@ -172,14 +172,14 @@ class ReferralService
 
     /**
      * Calculate and create commission earnings from vendor orders.
-     *
+     * 
      * Called automatically by PaystackService after successful payment verification.
      * Only creates commission if referral is still within commission period.
-     *
+     * 
      * Example: If commission rate is 5% and order is GHS 1000, influencer earns GHS 50.
-     *
-     * @param  Referral  $referral  The active referral
-     * @param  float  $orderAmount  Total order amount in GHS
+     * 
+     * @param Referral $referral The active referral
+     * @param float $orderAmount Total order amount in GHS
      * @return Earning|null Null if commission period expired or amount is zero
      */
     public function calculateCommission(
@@ -223,8 +223,8 @@ class ReferralService
     /**
      * Get referral statistics for an influencer.
      * Used in influencer dashboard to display performance metrics.
-     *
-     * @param  User  $influencer  The influencer to get stats for
+     * 
+     * @param User $influencer The influencer to get stats for
      * @return array Statistics with counts and totals
      */
     public function getInfluencerStats(User $influencer): array
@@ -243,10 +243,10 @@ class ReferralService
 
     /**
      * Expire referrals with expired commissions.
-     *
+     * 
      * Should be run daily via scheduled command.
      * Changes status from 'active' to 'expired' for referrals past commission period.
-     *
+     * 
      * @return int Number of referrals expired
      */
     public function expireCommissions(): int

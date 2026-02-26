@@ -159,6 +159,31 @@ class PaymentController extends Controller
             return $this->redirectToApp('failed', $reference, 'Payment not found', $type, $orderId);
         }
 
+        if ($payment->isSuccessful()) {
+            Log::info('Payment already verified', [
+                'reference' => $reference,
+                'order_id' => $payment->order_id,
+            ]);
+
+            return $this->redirectToApp('success', $reference, null, $type, $payment->order_id ?? $orderId);
+        }
+
+        if ($payment->hasFailed()) {
+            Log::info('Payment already failed', [
+                'reference' => $reference,
+                'status' => $payment->status,
+                'order_id' => $payment->order_id,
+            ]);
+
+            return $this->redirectToApp(
+                'failed',
+                $reference,
+                $payment->failure_reason ?: 'Payment has already failed.',
+                $type,
+                $payment->order_id ?? $orderId
+            );
+        }
+
         // Verify the payment
         $result = $this->paystackService->verifyTransaction($reference);
 

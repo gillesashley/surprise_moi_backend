@@ -12,12 +12,12 @@ use Illuminate\Notifications\Notification;
 
 /**
  * VendorApprovalNotification
- *
+ * 
  * Handles both email and real-time Reverb notifications for vendor approval status changes.
  * Sent via two channels:
  * 1. Mail - Traditional email notification with detailed information
  * 2. Broadcast - Real-time notification via Laravel Reverb WebSocket
- *
+ * 
  * Usage:
  *   $user->notify(new VendorApprovalNotification($vendorApplication, 'approved'));
  *   $user->notify(new VendorApprovalNotification($vendorApplication, 'rejected'));
@@ -28,13 +28,16 @@ class VendorApprovalNotification extends Notification implements ShouldQueue
 
     /**
      * Notification status: 'approved' or 'rejected'
+     *
+     * @var string
      */
     protected string $status;
 
     /**
      * Create a new notification instance.
      *
-     * @param  string  $status  'approved' or 'rejected'
+     * @param VendorApplication $vendorApplication
+     * @param string $status 'approved' or 'rejected'
      */
     public function __construct(
         public VendorApplication $vendorApplication,
@@ -56,6 +59,8 @@ class VendorApprovalNotification extends Notification implements ShouldQueue
 
     /**
      * Get the mail representation of the notification.
+     *
+     * @return \Illuminate\Notifications\Messages\MailMessage
      */
     public function toMail(object $notifiable): MailMessage
     {
@@ -68,6 +73,8 @@ class VendorApprovalNotification extends Notification implements ShouldQueue
 
     /**
      * Build the approval email.
+     *
+     * @return \Illuminate\Notifications\Messages\MailMessage
      */
     protected function buildApprovedEmail(object $notifiable): MailMessage
     {
@@ -76,7 +83,7 @@ class VendorApprovalNotification extends Notification implements ShouldQueue
             ->greeting("Hello {$notifiable->name},")
             ->line('Congratulations! Your vendor application has been approved.')
             ->line('You can now start selling on SurpriseMoi!')
-            ->line('Application ID: '.$this->vendorApplication->id)
+            ->line('Application ID: ' . $this->vendorApplication->id)
             ->action('Go to Dashboard', url('/dashboard'))
             ->line('If you have any questions, feel free to contact our support team.')
             ->salutation('Best regards, SurpriseMoi Team');
@@ -84,6 +91,8 @@ class VendorApprovalNotification extends Notification implements ShouldQueue
 
     /**
      * Build the rejection email.
+     *
+     * @return \Illuminate\Notifications\Messages\MailMessage
      */
     protected function buildRejectedEmail(object $notifiable): MailMessage
     {
@@ -94,13 +103,13 @@ class VendorApprovalNotification extends Notification implements ShouldQueue
             ->line('Unfortunately, your application has been rejected.');
 
         if ($this->vendorApplication->rejection_reason) {
-            $message->line('**Reason:** '.$this->vendorApplication->rejection_reason);
+            $message->line('**Reason:** ' . $this->vendorApplication->rejection_reason);
         }
 
         $message
-            ->line('Application ID: '.$this->vendorApplication->id)
+            ->line('Application ID: ' . $this->vendorApplication->id)
             ->line('You can reapply after addressing the feedback provided.')
-            ->action('View Application', url('/dashboard/vendor-applications/'.$this->vendorApplication->id))
+            ->action('View Application', url('/dashboard/vendor-applications/' . $this->vendorApplication->id))
             ->line('If you have questions about the decision, please contact our support team.')
             ->salutation('Best regards, SurpriseMoi Team');
 
@@ -109,6 +118,8 @@ class VendorApprovalNotification extends Notification implements ShouldQueue
 
     /**
      * Get the broadcastable representation of the notification.
+     *
+     * @return \Illuminate\Notifications\Messages\BroadcastMessage
      */
     public function toBroadcast(object $notifiable): BroadcastMessage
     {
@@ -126,7 +137,7 @@ class VendorApprovalNotification extends Notification implements ShouldQueue
             'status' => $this->status,
             'vendor_application_id' => $this->vendorApplication->id,
             'rejection_reason' => $this->vendorApplication->rejection_reason,
-            'action_url' => '/dashboard/vendor-applications/'.$this->vendorApplication->id,
+            'action_url' => '/dashboard/vendor-applications/' . $this->vendorApplication->id,
         ]);
     }
 }

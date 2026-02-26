@@ -4,7 +4,6 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Facades\Storage;
 
 class ConversationDetailResource extends JsonResource
 {
@@ -38,19 +37,19 @@ class ConversationDetailResource extends JsonResource
             'customer' => [
                 'id' => $this->customer->id,
                 'name' => $this->customer->name,
-                'avatar' => $this->customer->avatar ? Storage::disk('public')->url($this->customer->avatar) : null,
+                'avatar' => $this->customer->avatar ? url($this->customer->avatar) : null,
                 'role' => $this->customer->role,
             ],
             'vendor' => [
                 'id' => $this->vendor->id,
                 'name' => $this->vendor->name,
-                'avatar' => $this->vendor->avatar ? Storage::disk('public')->url($this->vendor->avatar) : null,
+                'avatar' => $this->vendor->avatar ? url($this->vendor->avatar) : null,
                 'role' => $this->vendor->role,
             ],
             'participant' => [
                 'id' => $otherParticipant->id,
                 'name' => $otherParticipant->name,
-                'avatar' => $otherParticipant->avatar ? Storage::disk('public')->url($otherParticipant->avatar) : null,
+                'avatar' => $otherParticipant->avatar ? url($otherParticipant->avatar) : null,
                 'role' => $otherParticipant->role,
                 'is_online' => true,
             ],

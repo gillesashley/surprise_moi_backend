@@ -76,7 +76,7 @@ class VendorOnboardingPayment extends Model
     public static function generateReference(): string
     {
         do {
-            $reference = 'VOP-'.strtoupper(Str::random(16));
+            $reference = 'VOP-' . strtoupper(Str::random(16));
         } while (self::where('reference', $reference)->exists());
 
         return $reference;
@@ -147,6 +147,6 @@ class VendorOnboardingPayment extends Model
 
     public function getFormattedAmountAttribute(): string
     {
-        return $this->currency.' '.number_format($this->amount, 2);
+        return $this->currency . ' ' . number_format($this->amount, 2);
     }
 }

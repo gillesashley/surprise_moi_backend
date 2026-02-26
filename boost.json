@@ -2,9 +2,8 @@
     "agents": [
         "copilot"
     ],
-    "skills": [
-        "wayfinder-development",
-        "inertia-react-development",
-        "tailwindcss-development"
-    ]
+    "editors": [
+        "vscode"
+    ],
+    "guidelines": []
 }

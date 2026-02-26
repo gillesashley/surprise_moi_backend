@@ -42,12 +42,6 @@ Route::middleware(['auth', 'dashboard'])->prefix('dashboard')->group(function ()
     // Jobs Dashboard
     Route::get('jobs', [AdminDashboardController::class, 'jobs'])->name('jobs');
 
-    // Scheduled Tasks Management
-    Route::get('scheduled-tasks', [AdminDashboardController::class, 'scheduledTasks'])->name('scheduled-tasks');
-
-    // Client Errors Dashboard
-    Route::get('client-errors', [AdminDashboardController::class, 'clientErrors'])->name('client-errors');
-
     Route::resource('users', UserController::class)->names([
         'index' => 'users.index',
         'create' => 'users.create',

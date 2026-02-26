@@ -34,7 +34,7 @@ class ServiceFactory extends Factory
             'charge_start' => $chargeStart,
             'charge_end' => $this->faker->boolean(70) ? $chargeStart * 1.5 : null,
             'currency' => 'GHS',
-            'thumbnail' => 'services/'.$this->faker->slug().'.jpg',
+            'thumbnail' => 'storage/services/'.$this->faker->slug().'.jpg',
             'availability' => $this->faker->randomElement(['available', 'unavailable', 'booked']),
             'rating' => $this->faker->randomFloat(2, 3, 5),
             'reviews_count' => $this->faker->numberBetween(0, 200),

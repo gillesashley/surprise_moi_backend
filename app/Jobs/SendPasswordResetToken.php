@@ -3,8 +3,8 @@
 namespace App\Jobs;
 
 use App\Models\User;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\Log;
 use Throwable;
 
 class SendPasswordResetToken extends BaseJob
@@ -26,6 +26,8 @@ class SendPasswordResetToken extends BaseJob
     /**
      * Create a new job instance.
      *
+     * @param User $user
+     * @param string $email
      * @return void
      */
     public function __construct(User $user, string $email)
@@ -38,6 +40,8 @@ class SendPasswordResetToken extends BaseJob
 
     /**
      * Get the default queue for this job type.
+     *
+     * @return string
      */
     protected function getDefaultQueue(): string
     {
@@ -46,6 +50,8 @@ class SendPasswordResetToken extends BaseJob
 
     /**
      * Execute the actual job logic.
+     *
+     * @return void
      */
     public function executeJob(): void
     {
@@ -56,6 +62,8 @@ class SendPasswordResetToken extends BaseJob
 
     /**
      * Get job data for logging (mask sensitive data).
+     *
+     * @return array
      */
     protected function getJobDataForLogging(): array
     {
@@ -67,6 +75,9 @@ class SendPasswordResetToken extends BaseJob
 
     /**
      * Mask email address for logging (show only domain for privacy).
+     *
+     * @param string $email
+     * @return string
      */
     protected function maskEmail(string $email): string
     {
@@ -79,14 +90,17 @@ class SendPasswordResetToken extends BaseJob
         $domain = $parts[1];
 
         $maskedUsername = strlen($username) > 2
-            ? substr($username, 0, 2).'***'
+            ? substr($username, 0, 2) . '***'
             : '***';
 
-        return $maskedUsername.'@'.$domain;
+        return $maskedUsername . '@' . $domain;
     }
 
     /**
      * Handle job-specific failure logic.
+     *
+     * @param Throwable $exception
+     * @return void
      */
     protected function handleFailure(Throwable $exception): void
     {
@@ -100,6 +114,8 @@ class SendPasswordResetToken extends BaseJob
 
     /**
      * Get the display name of the job.
+     *
+     * @return string
      */
     public function getDisplayName(): string
     {

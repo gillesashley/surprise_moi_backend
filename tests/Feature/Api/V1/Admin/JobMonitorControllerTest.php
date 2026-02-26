@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Api\V1\Admin;
 
+use App\Http\Controllers\Api\V1\Admin\JobMonitorController;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;

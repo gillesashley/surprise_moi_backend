@@ -25,7 +25,7 @@ class ShopFactory extends Factory
             'owner_name' => $this->faker->name(),
             'slug' => \Illuminate\Support\Str::slug($name),
             'description' => $this->faker->paragraph(),
-            'logo' => 'shops/logos/'.$this->faker->slug().'.jpg',
+            'logo' => 'storage/shops/'.$this->faker->slug().'.jpg',
             'is_active' => $this->faker->boolean(90),
             'location' => $this->faker->city(),
             'phone' => $this->faker->phoneNumber(),

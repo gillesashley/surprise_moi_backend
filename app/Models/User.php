@@ -379,7 +379,7 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Get total unpaid earnings amount.
      * Sums all earnings that have status 'unpaid'.
-     *
+     * 
      * @return float Total amount in GHS
      */
     public function getTotalUnpaidEarnings(): float
@@ -390,7 +390,7 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Get total paid earnings amount.
      * Sums all earnings that have been successfully paid out.
-     *
+     * 
      * @return float Total amount in GHS
      */
     public function getTotalPaidEarnings(): float
@@ -401,7 +401,7 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Get total unread messages count across all conversations.
      * Combines unread counts from both customer and vendor conversations.
-     *
+     * 
      * @return int Total number of unread messages
      */
     public function getUnreadMessagesCount(): int

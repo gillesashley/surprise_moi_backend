@@ -49,10 +49,10 @@ class VendorRegistrationTest extends TestCase
     {
         // Minimal valid JPEG file header
         $jpegContent = base64_decode('/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRof'
-            .'Hh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIy'
-            .'MjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAn/'
-            .'xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMB'
-            .'AAIRAxEAPwCwAB//2Q==');
+            . 'Hh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIy'
+            . 'MjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAn/'
+            . 'xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMB'
+            . 'AAIRAxEAPwCwAB//2Q==');
 
         return UploadedFile::fake()->createWithContent($name, $jpegContent);
     }
@@ -585,7 +585,7 @@ class VendorRegistrationTest extends TestCase
             ->assertJson([
                 'success' => false,
             ])
-            ->assertJsonPath('message', fn ($message) => str_contains($message, 'submitted'));
+            ->assertJsonPath('message', fn($message) => str_contains($message, 'submitted'));
     }
 
     // ==========================================

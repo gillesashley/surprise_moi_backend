@@ -24,8 +24,8 @@ class CategoryFactory extends Factory
             'slug' => $uniqueSlug,
             'type' => $this->faker->randomElement(['product', 'service']),
             'description' => $this->faker->sentence(),
-            'icon' => 'icons/'.$this->faker->slug().'.png',
-            'image' => 'categories/'.$this->faker->slug().'.jpg',
+            'icon' => 'storage/icons/'.$this->faker->slug().'.png',
+            'image' => 'storage/categories/'.$this->faker->slug().'.jpg',
             'is_active' => true,
             'sort_order' => $this->faker->numberBetween(1, 10),
         ];

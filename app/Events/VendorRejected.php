@@ -11,12 +11,12 @@ use Illuminate\Queue\SerializesModels;
 
 /**
  * VendorRejected Event
- *
+ * 
  * Fired when an admin rejects a vendor application.
  * Triggers:
  * - Email notification to the vendor with rejection reason
  * - Real-time notification via Reverb to the vendor
- *
+ * 
  * Usage: event(new VendorRejected($vendorApplication));
  */
 class VendorRejected implements ShouldBroadcast
@@ -30,7 +30,7 @@ class VendorRejected implements ShouldBroadcast
 
     /**
      * Get the channels the event should broadcast on.
-     *
+     * 
      * Broadcasts to private channel scoped to the vendor user.
      * Only the rejected vendor can subscribe.
      *
@@ -39,7 +39,7 @@ class VendorRejected implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel('user.'.$this->vendorApplication->user_id),
+            new PrivateChannel('user.' . $this->vendorApplication->user_id),
         ];
     }
 
@@ -61,6 +61,8 @@ class VendorRejected implements ShouldBroadcast
 
     /**
      * The event's broadcast name.
+     *
+     * @return string
      */
     public function broadcastAs(): string
     {

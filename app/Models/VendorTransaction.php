@@ -64,7 +64,7 @@ class VendorTransaction extends Model
     public static function generateTransactionNumber(): string
     {
         do {
-            $number = 'VTX-'.strtoupper(Str::random(10));
+            $number = 'VTX-' . strtoupper(Str::random(10));
         } while (static::where('transaction_number', $number)->exists());
 
         return $number;

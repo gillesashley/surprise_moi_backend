@@ -238,7 +238,7 @@ class CartController extends Controller
             'user_id' => $cart->user_id,
             'cart_token' => $cart->cart_token,
             'currency' => $cart->currency,
-            'items' => $cart->items->map(fn ($item) => $this->formatCartItem($item)),
+            'items' => $cart->items->map(fn($item) => $this->formatCartItem($item)),
             'subtotal_cents' => $cart->subtotal_cents,
             'shipping_cents' => $cart->shipping_cents,
             'tax_cents' => $cart->tax_cents,

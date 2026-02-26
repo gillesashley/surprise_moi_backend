@@ -18,8 +18,6 @@ import { Link, usePage } from '@inertiajs/react';
 import {
     AlertTriangle,
     BarChart3,
-    Bug,
-    Calendar,
     CheckCircle,
     Code,
     CreditCard,
@@ -125,16 +123,6 @@ const getNavItemsForRole = (role: string): NavItem[] => {
                 title: 'Jobs',
                 href: '/dashboard/jobs',
                 icon: BarChart3,
-            },
-            {
-                title: 'Scheduled Tasks',
-                href: '/dashboard/scheduled-tasks',
-                icon: Calendar,
-            },
-            {
-                title: 'Client Errors',
-                href: '/dashboard/client-errors',
-                icon: Bug,
             },
         ];
     }

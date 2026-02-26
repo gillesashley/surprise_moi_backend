@@ -44,6 +44,7 @@ class OtpNotification extends Notification implements ShouldQueue
     /**
      * Get the notification's delivery channels.
      *
+     * @param  mixed  $notifiable
      * @return array<int, string>
      */
     public function via(mixed $notifiable): array
@@ -53,6 +54,9 @@ class OtpNotification extends Notification implements ShouldQueue
 
     /**
      * Get the SMS representation of the notification.
+     *
+     * @param  mixed  $notifiable
+     * @return SmsMessage
      */
     public function toSms(mixed $notifiable): SmsMessage
     {

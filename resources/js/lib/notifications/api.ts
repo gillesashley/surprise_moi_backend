@@ -41,7 +41,7 @@ export const notificationApi = {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
-                    Accept: 'application/json',
+                    'Accept': 'application/json',
                 },
                 credentials: 'include',
             },
@@ -59,7 +59,7 @@ export const notificationApi = {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
-                Accept: 'application/json',
+                'Accept': 'application/json',
             },
             credentials: 'include',
         });
@@ -76,7 +76,7 @@ export const notificationApi = {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
-                Accept: 'application/json',
+                'Accept': 'application/json',
             },
             credentials: 'include',
         });
@@ -88,14 +88,12 @@ export const notificationApi = {
         return response.json();
     },
 
-    async markAsRead(
-        notificationId: string,
-    ): Promise<{ success: boolean; message: string }> {
+    async markAsRead(notificationId: string): Promise<{ success: boolean; message: string }> {
         const response = await fetch(`${API_BASE_URL}/${notificationId}/read`, {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',
-                Accept: 'application/json',
+                'Accept': 'application/json',
             },
             credentials: 'include',
         });
@@ -107,20 +105,15 @@ export const notificationApi = {
         return response.json();
     },
 
-    async markAsUnread(
-        notificationId: string,
-    ): Promise<{ success: boolean; message: string }> {
-        const response = await fetch(
-            `${API_BASE_URL}/${notificationId}/unread`,
-            {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Accept: 'application/json',
-                },
-                credentials: 'include',
+    async markAsUnread(notificationId: string): Promise<{ success: boolean; message: string }> {
+        const response = await fetch(`${API_BASE_URL}/${notificationId}/unread`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
             },
-        );
+            credentials: 'include',
+        });
 
         if (!response.ok) {
             throw new Error('Failed to mark notification as unread');
@@ -129,16 +122,12 @@ export const notificationApi = {
         return response.json();
     },
 
-    async markAllAsRead(): Promise<{
-        success: boolean;
-        message: string;
-        data: { marked_count: number };
-    }> {
+    async markAllAsRead(): Promise<{ success: boolean; message: string; data: { marked_count: number } }> {
         const response = await fetch(`${API_BASE_URL}/read-all`, {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',
-                Accept: 'application/json',
+                'Accept': 'application/json',
             },
             credentials: 'include',
         });
@@ -150,14 +139,12 @@ export const notificationApi = {
         return response.json();
     },
 
-    async delete(
-        notificationId: string,
-    ): Promise<{ success: boolean; message: string }> {
+    async delete(notificationId: string): Promise<{ success: boolean; message: string }> {
         const response = await fetch(`${API_BASE_URL}/${notificationId}`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
-                Accept: 'application/json',
+                'Accept': 'application/json',
             },
             credentials: 'include',
         });

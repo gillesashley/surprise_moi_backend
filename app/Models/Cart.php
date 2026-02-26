@@ -10,16 +10,16 @@ use Illuminate\Support\Str;
 
 /**
  * Cart - Shopping cart for authenticated users and guests.
- *
+ * 
  * Storage Strategy:
  * - All monetary values stored as cents (integers) for precision
  * - Accessors convert to decimal for display (e.g., subtotal_cents -> subtotal)
  * - Version field incremented on each update for cache invalidation
- *
+ * 
  * Guest Carts:
  * - Identified by cart_token (UUID)
  * - Merged into user cart on login
- *
+ * 
  * Authenticated Carts:
  * - Identified by user_id
  * - One cart per user
@@ -31,7 +31,7 @@ class Cart extends Model
 
     /**
      * Mass-assignable attributes.
-     *
+     * 
      * All monetary values stored as cents (integer) to avoid floating-point precision issues.
      * Example: GHS 10.50 stored as 1050 cents
      */

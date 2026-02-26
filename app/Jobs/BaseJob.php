@@ -44,6 +44,8 @@ abstract class BaseJob implements ShouldQueue
 
     /**
      * Create a new job instance.
+     *
+     * @param string|null $queue
      */
     public function __construct(?string $queue = null)
     {
@@ -52,6 +54,8 @@ abstract class BaseJob implements ShouldQueue
 
     /**
      * Get the default queue for this job type.
+     *
+     * @return string
      */
     protected function getDefaultQueue(): string
     {
@@ -60,11 +64,13 @@ abstract class BaseJob implements ShouldQueue
 
     /**
      * Execute the job.
+     *
+     * @return void
      */
     public function handle(): void
     {
         $this->logJobStart();
-
+        
         try {
             $this->executeJob();
             $this->logJobCompletion();
@@ -76,22 +82,30 @@ abstract class BaseJob implements ShouldQueue
 
     /**
      * Execute the actual job logic.
+     *
+     * @return void
      */
     abstract public function executeJob(): void;
 
     /**
      * Handle a job failure.
+     *
+     * @param  \Throwable  $exception
+     * @return void
      */
     public function failed(Throwable $exception): void
     {
         $this->logJobFailure($exception);
-
+        
         // Additional failure handling can be implemented by child classes
         $this->handleFailure($exception);
     }
 
     /**
      * Log job failure with context.
+     *
+     * @param  \Throwable  $exception
+     * @return void
      */
     protected function logJobFailure(Throwable $exception): void
     {
@@ -107,6 +121,8 @@ abstract class BaseJob implements ShouldQueue
 
     /**
      * Get job data for logging (override in child classes to mask sensitive data).
+     *
+     * @return array
      */
     protected function getJobDataForLogging(): array
     {
@@ -115,6 +131,9 @@ abstract class BaseJob implements ShouldQueue
 
     /**
      * Handle job-specific failure logic (override in child classes).
+     *
+     * @param  \Throwable  $exception
+     * @return void
      */
     protected function handleFailure(Throwable $exception): void
     {
@@ -123,6 +142,8 @@ abstract class BaseJob implements ShouldQueue
 
     /**
      * Log job start.
+     *
+     * @return void
      */
     protected function logJobStart(): void
     {
@@ -136,6 +157,8 @@ abstract class BaseJob implements ShouldQueue
 
     /**
      * Log job completion.
+     *
+     * @return void
      */
     protected function logJobCompletion(): void
     {
@@ -148,6 +171,8 @@ abstract class BaseJob implements ShouldQueue
 
     /**
      * Get the job's unique identifier.
+     *
+     * @return string|null
      */
     public function getJobId(): ?string
     {
@@ -156,6 +181,8 @@ abstract class BaseJob implements ShouldQueue
 
     /**
      * Get the display name of the job.
+     *
+     * @return string
      */
     public function getDisplayName(): string
     {

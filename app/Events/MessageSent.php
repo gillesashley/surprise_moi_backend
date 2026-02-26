@@ -11,15 +11,15 @@ use Illuminate\Queue\SerializesModels;
 
 /**
  * MessageSent Event - Broadcast new chat message to conversation participants.
- *
+ * 
  * Broadcasting:
  * - Uses Laravel Reverb WebSocket server
  * - Sends to private channel: conversation.{id}
  * - Only participants can subscribe (see routes/channels.php)
- *
+ * 
  * Implements ShouldBroadcast to queue the broadcast (async).
  * Fired when: User sends a message via ChatController
- *
+ * 
  * Frontend receives:
  * - Event: 'message.sent'
  * - Data: Message with sender info
@@ -30,14 +30,14 @@ class MessageSent implements ShouldBroadcast
 
     /**
      * Create a new event instance.
-     *
-     * @param  Message  $message  The message that was sent
+     * 
+     * @param Message $message The message that was sent
      */
     public function __construct(public Message $message) {}
 
     /**
      * Get the channels the event should broadcast on.
-     *
+     * 
      * Broadcasts to private channel scoped to conversation.
      * Authorization checked in routes/channels.php
      *
@@ -46,13 +46,13 @@ class MessageSent implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel('conversation.'.$this->message->conversation_id),
+            new PrivateChannel('conversation.' . $this->message->conversation_id),
         ];
     }
 
     /**
      * The event's broadcast name.
-     *
+     * 
      * Frontend listens with:
      * echo.private(`conversation.${id}`).listen('.message.sent', callback)
      */
@@ -63,7 +63,7 @@ class MessageSent implements ShouldBroadcast
 
     /**
      * Get the data to broadcast.
-     *
+     * 
      * Includes message content and sender info.
      * Keeps payload minimal for WebSocket efficiency.
      *

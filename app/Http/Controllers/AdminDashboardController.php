@@ -328,16 +328,14 @@ class AdminDashboardController extends Controller
                 'description' => 'Order #'.$order->order_number,
             ]);
 
-            return Inertia::render('transactions/index', [
-                'orders' => $mappedOrders,
-                'statistics' => $this->getOrderStatistics(),
-                'filters' => [
-                    'type' => $type,
-                    'status' => $status,
-                    'date_from' => $dateFrom,
-                    'date_to' => $dateTo,
-                ],
-            ]);
+        return Inertia::render('commission-statistics/index', [
+            'totalOrders' => $totalOrders,
+            'totalSales' => (string) $totalSales,
+            'totalCommission' => (string) $totalCommission,
+            'totalPayouts' => (string) $totalPayouts,
+            'averageCommissionRate' => $averageCommissionRate,
+            'tierBreakdown' => $tierBreakdown,
+        ]);
         }
 
         // Get payout requests (payout transactions)
@@ -386,155 +384,48 @@ class AdminDashboardController extends Controller
                 'description' => 'Payout to '.($payout->user->name ?? 'Unknown'),
             ]);
 
-            return Inertia::render('transactions/index', [
-                'orders' => $mappedPayouts,
-                'statistics' => $this->getOrderStatistics(),
-                'filters' => [
-                    'type' => $type,
-                    'status' => $status,
-                    'date_from' => $dateFrom,
-                    'date_to' => $dateTo,
-                ],
-            ]);
-        }
+         return Inertia::render('transactions/index', [
+                 'orders' => $mappedPayouts,
+                 'statistics' => $this->getOrderStatistics(),
+                 'filters' => [
+                     'type' => $type,
+                     'status' => $status,
+                     'date_from' => $dateFrom,
+                     'date_to' => $dateTo,
+                 ],
+             ]);
+         }
 
-        return Inertia::render('transactions/index', [
-            'orders' => [],
-            'statistics' => $this->getOrderStatistics(),
-            'filters' => [
-                'type' => $type,
-                'status' => $status,
-                'date_from' => $dateFrom,
-                'date_to' => $dateTo,
-            ],
-        ]);
-    }
+             return Inertia::render('transactions/index', [
+             'orders' => [],
+             'statistics' => $this->getOrderStatistics(),
+             'filters' => [
+                 'type' => $type,
+                 'status' => $status,
+                 'date_from' => $dateFrom,
+                 'date_to' => $dateTo,
+             ],
+         ]);
+     }
 
     public function jobs()
     {
-        $jobMonitor = new \App\Http\Controllers\Api\V1\Admin\JobMonitorController;
-
+        $jobMonitor = new \App\Http\Controllers\Api\V1\Admin\JobMonitorController();
+        
         // Get initial statistics
         $statsResponse = $jobMonitor->stats();
         $statistics = $statsResponse->getData(true)['data'] ?? [];
-
+        
         // Get first page of failed jobs
         $request = new \Illuminate\Http\Request(['page' => 1, 'per_page' => 50]);
         $jobsResponse = $jobMonitor->index($request);
         $jobsData = $jobsResponse->getData(true)['data'] ?? [];
-
+        
         return Inertia::render('admin/dashboard/jobs/index', [
             'initialStatistics' => $statistics,
             'initialJobs' => $jobsData['failed_jobs'] ?? [],
             'initialPagination' => $jobsData['pagination'] ?? [],
         ]);
-    }
-
-    /**
-     * Display scheduled tasks in admin panel
-     */
-    public function scheduledTasks()
-    {
-        try {
-            $scheduleService = new \App\Services\ScheduleService;
-            $result = $scheduleService->getScheduleDataWithCache(5); // Cache for 5 minutes
-
-            return Inertia::render('admin/dashboard/scheduled-tasks/index', [
-                'scheduleData' => $result['data'] ?? [],
-                'lastRefreshed' => $result['executed_at'] ?? now()->toIso8601String(),
-                'success' => $result['success'] ?? false,
-                'error' => $result['error'] ?? null,
-                'cached' => true,
-            ]);
-
-        } catch (\Exception $e) {
-            // Log the error for debugging
-            \Log::error('Failed to fetch schedule list: '.$e->getMessage());
-
-            return Inertia::render('admin/dashboard/scheduled-tasks/index', [
-                'scheduleData' => [],
-                'error' => 'Failed to fetch schedule information: '.$e->getMessage(),
-                'lastRefreshed' => now()->toIso8601String(),
-                'success' => false,
-                'cached' => false,
-            ]);
-        }
-    }
-
-    /**
-     * Display client errors in admin panel
-     */
-    public function clientErrors()
-    {
-        $page = request()->query('page', 1);
-        $perPage = request()->query('per_page', 20);
-
-        $errors = \App\Models\ClientError::with('user:id,name,email')
-            ->orderBy('occurred_at', 'desc')
-            ->paginate($perPage, ['*'], 'page', $page);
-
-        $statistics = $this->getClientErrorStatistics();
-
-        return Inertia::render('admin/dashboard/client-errors/index', [
-            'initialErrors' => $errors->items(),
-            'initialPagination' => [
-                'current_page' => $errors->currentPage(),
-                'total_pages' => $errors->lastPage(),
-                'per_page' => $errors->perPage(),
-                'total' => $errors->total(),
-            ],
-            'initialStatistics' => $statistics,
-        ]);
-    }
-
-    private function getClientErrorStatistics(): array
-    {
-        $errors = \App\Models\ClientError::all();
-
-        $byOs = [];
-        $byDevice = [];
-        $byBrowser = [];
-        $byNetwork = [];
-        $byResolution = [];
-        $daily = [];
-
-        foreach ($errors as $error) {
-            $deviceInfo = $error->device_info ?? [];
-
-            $os = $deviceInfo['os'] ?? 'Unknown';
-            $device = $deviceInfo['device_type'] ?? 'unknown';
-            $browser = $deviceInfo['browser'] ?? 'Unknown';
-            $network = $deviceInfo['network'] ?? 'Unknown';
-            $resolution = $deviceInfo['screen_resolution'] ?? 'Unknown';
-
-            $byOs[$os] = ($byOs[$os] ?? 0) + 1;
-            $byDevice[$device] = ($byDevice[$device] ?? 0) + 1;
-            $byBrowser[$browser] = ($byBrowser[$browser] ?? 0) + 1;
-            $byNetwork[$network] = ($byNetwork[$network] ?? 0) + 1;
-            $byResolution[$resolution] = ($byResolution[$resolution] ?? 0) + 1;
-
-            if ($error->occurred_at) {
-                $date = $error->occurred_at->format('Y-m-d');
-                $daily[$date] = ($daily[$date] ?? 0) + 1;
-            }
-        }
-
-        ksort($byOs);
-        ksort($byDevice);
-        ksort($byBrowser);
-        ksort($byNetwork);
-        ksort($byResolution);
-        ksort($daily);
-
-        return [
-            'total' => $errors->count(),
-            'by_os' => $byOs,
-            'by_device' => $byDevice,
-            'by_browser' => $byBrowser,
-            'by_network' => $byNetwork,
-            'by_resolution' => $byResolution,
-            'daily' => $daily,
-        ];
     }
 
     private function getOrderStatistics(): array

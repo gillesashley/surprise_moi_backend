@@ -90,7 +90,7 @@ class BespokeServiceController extends Controller
     public function update(Request $request, BespokeService $bespokeService)
     {
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255', 'unique:bespoke_services,name,'.$bespokeService->id],
+            'name' => ['required', 'string', 'max:255', 'unique:bespoke_services,name,' . $bespokeService->id],
             'description' => ['nullable', 'string', 'max:1000'],
             'icon' => ['nullable', 'string', 'max:255'],
             'image' => ['nullable', 'image', 'mimes:jpeg,jpg,png,webp', 'max:2048'],

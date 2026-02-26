@@ -30,7 +30,7 @@ class ProductFactory extends Factory
             'discount_price' => $hasDiscount ? $price * 0.85 : null,
             'discount_percentage' => $hasDiscount ? 15 : null,
             'currency' => 'GHS',
-            'thumbnail' => 'products/thumbnails/'.$this->faker->slug().'.jpg',
+            'thumbnail' => 'storage/products/'.$this->faker->slug().'.jpg',
             'stock' => $this->faker->numberBetween(0, 100),
             'is_available' => $this->faker->boolean(90),
             'is_featured' => $this->faker->boolean(20),

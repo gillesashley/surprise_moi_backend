@@ -20,15 +20,7 @@ import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router, useForm } from '@inertiajs/react';
-import {
-    ArrowLeft,
-    CheckCircle,
-    Clock,
-    FileImage,
-    Loader2,
-    Package,
-    User as UserIcon,
-} from 'lucide-react';
+import { ArrowLeft, CheckCircle, Clock, FileImage, Loader2, Package, User as UserIcon } from 'lucide-react';
 import { useState } from 'react';
 
 interface Attachment {
@@ -69,29 +61,14 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 const statusConfig: Record<string, { color: string; label: string }> = {
-    pending: {
-        color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
-        label: 'Pending',
-    },
-    in_progress: {
-        color: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
-        label: 'In Progress',
-    },
-    resolved: {
-        color: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
-        label: 'Resolved',
-    },
-    cancelled: {
-        color: 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200',
-        label: 'Cancelled',
-    },
+    pending: { color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200', label: 'Pending' },
+    in_progress: { color: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200', label: 'In Progress' },
+    resolved: { color: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200', label: 'Resolved' },
+    cancelled: { color: 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200', label: 'Cancelled' },
 };
 
 function formatCategory(value: string): string {
-    return value
-        .split('_')
-        .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-        .join(' ');
+    return value.split('_').map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
 }
 
 function formatFileSize(bytes: number): string {
@@ -107,13 +84,9 @@ export default function ReportShow({ report }: Props) {
     const resolveForm = useForm({ resolution_notes: '' });
 
     const handleMarkInProgress = () => {
-        router.post(
-            `/dashboard/reports/${report.id}/status`,
-            {},
-            {
-                preserveScroll: true,
-            },
-        );
+        router.post(`/dashboard/reports/${report.id}/status`, {}, {
+            preserveScroll: true,
+        });
     };
 
     const handleResolve = () => {
@@ -132,24 +105,18 @@ export default function ReportShow({ report }: Props) {
                 <div className="flex items-center justify-between">
                     <Button asChild variant="ghost" size="sm">
                         <Link href="/dashboard/reports">
-                            <ArrowLeft className="mr-1 h-4 w-4" /> Back to
-                            Reports
+                            <ArrowLeft className="mr-1 h-4 w-4" /> Back to Reports
                         </Link>
                     </Button>
                     <div className="flex gap-2">
                         {report.is_pending && (
-                            <Button
-                                variant="outline"
-                                onClick={handleMarkInProgress}
-                            >
-                                <Clock className="mr-1 h-4 w-4" /> Mark In
-                                Progress
+                            <Button variant="outline" onClick={handleMarkInProgress}>
+                                <Clock className="mr-1 h-4 w-4" /> Mark In Progress
                             </Button>
                         )}
                         {(report.is_pending || report.is_in_progress) && (
                             <Button onClick={() => setResolveDialogOpen(true)}>
-                                <CheckCircle className="mr-1 h-4 w-4" /> Resolve
-                                Report
+                                <CheckCircle className="mr-1 h-4 w-4" /> Resolve Report
                             </Button>
                         )}
                     </div>
@@ -162,51 +129,31 @@ export default function ReportShow({ report }: Props) {
                             <CardHeader>
                                 <div className="flex items-center justify-between">
                                     <div>
-                                        <CardTitle className="font-mono">
-                                            {report.report_number}
-                                        </CardTitle>
-                                        <CardDescription>
-                                            {formatCategory(report.category)}
-                                        </CardDescription>
+                                        <CardTitle className="font-mono">{report.report_number}</CardTitle>
+                                        <CardDescription>{formatCategory(report.category)}</CardDescription>
                                     </div>
-                                    <Badge className={sc.color}>
-                                        {sc.label}
-                                    </Badge>
+                                    <Badge className={sc.color}>{sc.label}</Badge>
                                 </div>
                             </CardHeader>
                             <CardContent className="flex flex-col gap-4">
                                 <div>
-                                    <p className="mb-1 text-sm font-medium text-muted-foreground">
-                                        Description
-                                    </p>
-                                    <p className="text-sm leading-relaxed">
-                                        {report.description}
-                                    </p>
+                                    <p className="mb-1 text-sm font-medium text-muted-foreground">Description</p>
+                                    <p className="text-sm leading-relaxed">{report.description}</p>
                                 </div>
                                 {report.cancellation_reason && (
                                     <div className="rounded-md bg-gray-50 p-3 dark:bg-gray-900">
-                                        <p className="mb-1 text-sm font-medium text-muted-foreground">
-                                            Cancellation Reason
-                                        </p>
-                                        <p className="text-sm">
-                                            {report.cancellation_reason}
-                                        </p>
+                                        <p className="mb-1 text-sm font-medium text-muted-foreground">Cancellation Reason</p>
+                                        <p className="text-sm">{report.cancellation_reason}</p>
                                     </div>
                                 )}
                                 {report.resolution_notes && (
                                     <div className="rounded-md bg-green-50 p-3 dark:bg-green-950">
-                                        <p className="mb-1 text-sm font-medium text-green-700 dark:text-green-300">
-                                            Resolution Notes
-                                        </p>
-                                        <p className="text-sm">
-                                            {report.resolution_notes}
-                                        </p>
+                                        <p className="mb-1 text-sm font-medium text-green-700 dark:text-green-300">Resolution Notes</p>
+                                        <p className="text-sm">{report.resolution_notes}</p>
                                         {report.resolver && (
                                             <p className="mt-1 text-xs text-muted-foreground">
-                                                Resolved by{' '}
-                                                {report.resolver.name}
-                                                {report.resolved_at &&
-                                                    ` on ${new Date(report.resolved_at).toLocaleDateString()}`}
+                                                Resolved by {report.resolver.name}
+                                                {report.resolved_at && ` on ${new Date(report.resolved_at).toLocaleDateString()}`}
                                             </p>
                                         )}
                                     </div>
@@ -219,9 +166,7 @@ export default function ReportShow({ report }: Props) {
                             <Card>
                                 <CardHeader>
                                     <CardTitle className="flex items-center gap-2 text-base">
-                                        <FileImage className="h-4 w-4" />{' '}
-                                        Attachments ({report.attachments.length}
-                                        )
+                                        <FileImage className="h-4 w-4" /> Attachments ({report.attachments.length})
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent>
@@ -238,21 +183,10 @@ export default function ReportShow({ report }: Props) {
                                                     src={att.url}
                                                     alt={att.file_name}
                                                     className="h-20 w-full rounded object-cover"
-                                                    onError={(e) => {
-                                                        (
-                                                            e.target as HTMLImageElement
-                                                        ).style.display =
-                                                            'none';
-                                                    }}
+                                                    onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
                                                 />
-                                                <span className="mt-1 truncate text-xs font-medium">
-                                                    {att.file_name}
-                                                </span>
-                                                <span className="text-xs text-muted-foreground">
-                                                    {formatFileSize(
-                                                        att.file_size,
-                                                    )}
-                                                </span>
+                                                <span className="mt-1 truncate text-xs font-medium">{att.file_name}</span>
+                                                <span className="text-xs text-muted-foreground">{formatFileSize(att.file_size)}</span>
                                             </a>
                                         ))}
                                     </div>
@@ -266,22 +200,13 @@ export default function ReportShow({ report }: Props) {
                         <Card>
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2 text-base">
-                                    <UserIcon className="h-4 w-4" /> Submitted
-                                    By
+                                    <UserIcon className="h-4 w-4" /> Submitted By
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="flex flex-col gap-1 text-sm">
-                                <p className="font-medium">
-                                    {report.user.name}
-                                </p>
-                                <p className="text-muted-foreground">
-                                    {report.user.email}
-                                </p>
-                                {report.user.phone && (
-                                    <p className="text-muted-foreground">
-                                        {report.user.phone}
-                                    </p>
-                                )}
+                                <p className="font-medium">{report.user.name}</p>
+                                <p className="text-muted-foreground">{report.user.email}</p>
+                                {report.user.phone && <p className="text-muted-foreground">{report.user.phone}</p>}
                             </CardContent>
                         </Card>
 
@@ -289,95 +214,55 @@ export default function ReportShow({ report }: Props) {
                             <Card>
                                 <CardHeader>
                                     <CardTitle className="flex items-center gap-2 text-base">
-                                        <Package className="h-4 w-4" /> Related
-                                        Order
+                                        <Package className="h-4 w-4" /> Related Order
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent>
-                                    <p className="font-mono text-sm">
-                                        {report.order.order_number}
-                                    </p>
+                                    <p className="font-mono text-sm">{report.order.order_number}</p>
                                 </CardContent>
                             </Card>
                         )}
 
                         <Card>
                             <CardHeader>
-                                <CardTitle className="text-base">
-                                    Timeline
-                                </CardTitle>
+                                <CardTitle className="text-base">Timeline</CardTitle>
                             </CardHeader>
                             <CardContent className="flex flex-col gap-1 text-sm text-muted-foreground">
-                                <p>
-                                    Created:{' '}
-                                    {report.created_at
-                                        ? new Date(
-                                              report.created_at,
-                                          ).toLocaleString()
-                                        : '—'}
-                                </p>
-                                <p>
-                                    Updated:{' '}
-                                    {report.updated_at
-                                        ? new Date(
-                                              report.updated_at,
-                                          ).toLocaleString()
-                                        : '—'}
-                                </p>
+                                <p>Created: {report.created_at ? new Date(report.created_at).toLocaleString() : '—'}</p>
+                                <p>Updated: {report.updated_at ? new Date(report.updated_at).toLocaleString() : '—'}</p>
                             </CardContent>
                         </Card>
                     </div>
                 </div>
 
                 {/* Resolve Dialog */}
-                <Dialog
-                    open={resolveDialogOpen}
-                    onOpenChange={setResolveDialogOpen}
-                >
+                <Dialog open={resolveDialogOpen} onOpenChange={setResolveDialogOpen}>
                     <DialogContent>
                         <DialogHeader>
                             <DialogTitle>Resolve Report</DialogTitle>
                             <DialogDescription>
-                                Provide resolution notes explaining how this
-                                report was handled.
+                                Provide resolution notes explaining how this report was handled.
                             </DialogDescription>
                         </DialogHeader>
                         <div className="flex flex-col gap-2">
-                            <Label htmlFor="resolution_notes">
-                                Resolution Notes
-                            </Label>
+                            <Label htmlFor="resolution_notes">Resolution Notes</Label>
                             <Textarea
                                 id="resolution_notes"
                                 placeholder="Describe how the issue was resolved..."
                                 rows={4}
                                 value={resolveForm.data.resolution_notes}
-                                onChange={(e) =>
-                                    resolveForm.setData(
-                                        'resolution_notes',
-                                        e.target.value,
-                                    )
-                                }
+                                onChange={(e) => resolveForm.setData('resolution_notes', e.target.value)}
                             />
                             {resolveForm.errors.resolution_notes && (
-                                <p className="text-sm text-destructive">
-                                    {resolveForm.errors.resolution_notes}
-                                </p>
+                                <p className="text-sm text-destructive">{resolveForm.errors.resolution_notes}</p>
                             )}
                         </div>
                         <DialogFooter>
-                            <Button
-                                variant="outline"
-                                onClick={() => setResolveDialogOpen(false)}
-                            >
+                            <Button variant="outline" onClick={() => setResolveDialogOpen(false)}>
                                 Cancel
                             </Button>
-                            <Button
-                                onClick={handleResolve}
-                                disabled={resolveForm.processing}
-                            >
-                                {resolveForm.processing && (
-                                    <Loader2 className="mr-1 h-4 w-4 animate-spin" />
-                                )}
+                            <Button onClick={handleResolve} disabled={resolveForm.processing}>
+                                {resolveForm.processing && <Loader2 className="mr-1 h-4 w-4 animate-spin" />}
                                 Resolve Report
                             </Button>
                         </DialogFooter>
@@ -387,3 +272,4 @@ export default function ReportShow({ report }: Props) {
         </AppLayout>
     );
 }
+

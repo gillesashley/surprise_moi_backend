@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Mail;
 
 class SendEmail extends BaseJob
 {
+
     /**
      * The email recipient.
      *
@@ -31,6 +32,9 @@ class SendEmail extends BaseJob
     /**
      * Create a new job instance.
      *
+     * @param string $recipient
+     * @param \Illuminate\Mail\Mailable $mailable
+     * @param string|null $subject
      * @return void
      */
     public function __construct(string $recipient, Mailable $mailable, ?string $subject = null)
@@ -38,13 +42,15 @@ class SendEmail extends BaseJob
         $this->recipient = $recipient;
         $this->mailable = $mailable;
         $this->subject = $subject;
-
+        
         // Use emails queue by default
         parent::__construct('emails');
     }
 
     /**
      * Get the default queue for this job type.
+     *
+     * @return string
      */
     protected function getDefaultQueue(): string
     {
@@ -53,6 +59,8 @@ class SendEmail extends BaseJob
 
     /**
      * Execute the actual job logic.
+     *
+     * @return void
      */
     public function executeJob(): void
     {
@@ -61,6 +69,8 @@ class SendEmail extends BaseJob
 
     /**
      * Get job data for logging (mask sensitive data).
+     *
+     * @return array
      */
     protected function getJobDataForLogging(): array
     {
@@ -73,6 +83,9 @@ class SendEmail extends BaseJob
 
     /**
      * Mask email address for logging (show only domain for privacy).
+     *
+     * @param string $email
+     * @return string
      */
     protected function maskEmail(string $email): string
     {
@@ -80,20 +93,22 @@ class SendEmail extends BaseJob
         if (count($parts) !== 2) {
             return '***@***';
         }
-
+        
         $username = $parts[0];
         $domain = $parts[1];
-
+        
         // Show only first 2 characters of username and the domain
-        $maskedUsername = strlen($username) > 2
-            ? substr($username, 0, 2).'***'
+        $maskedUsername = strlen($username) > 2 
+            ? substr($username, 0, 2) . '***' 
             : '***';
-
-        return $maskedUsername.'@'.$domain;
+            
+        return $maskedUsername . '@' . $domain;
     }
 
     /**
      * Get the display name of the job.
+     *
+     * @return string
      */
     public function getDisplayName(): string
     {

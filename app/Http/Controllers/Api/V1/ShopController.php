@@ -121,7 +121,7 @@ class ShopController extends Controller
         // Handle logo upload
         if ($request->hasFile('logo')) {
             $logoPath = $request->file('logo')->store('shops/logos', 'public');
-            $data['logo'] = $logoPath;
+            $data['logo'] = 'storage/'.$logoPath;
         }
 
         $shop = Shop::create($data);
@@ -151,7 +151,7 @@ class ShopController extends Controller
             }
 
             $logoPath = $request->file('logo')->store('shops/logos', 'public');
-            $data['logo'] = $logoPath;
+            $data['logo'] = 'storage/'.$logoPath;
         }
 
         $shop->update($data);

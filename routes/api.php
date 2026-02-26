@@ -28,15 +28,11 @@ use App\Http\Controllers\Api\V1\VendorOnboardingPaymentController;
 use App\Http\Controllers\Api\V1\VendorRegistrationController;
 use App\Http\Controllers\Api\V1\WishlistController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\V1\ClientErrorController;
 
 // API V1 Routes
 Route::prefix('v1')->group(function () {
     // Health check endpoint
     Route::get('/health', [HealthController::class, 'index']);
-
-    // Client errors reported from frontend/mobile clients
-    Route::post('/client_errors', [ClientErrorController::class, 'store']);
 
     // Paystack webhook (public - no auth required, validated via signature)
     Route::post('/payments/webhook', [PaymentController::class, 'webhook'])

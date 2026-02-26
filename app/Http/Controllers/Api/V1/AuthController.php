@@ -11,8 +11,9 @@ use App\Http\Requests\Api\V1\Auth\ResendVerificationRequest;
 use App\Http\Requests\Api\V1\Auth\ResetPasswordRequest;
 use App\Http\Requests\Api\V1\Auth\VerifyEmailRequest;
 use App\Http\Requests\Api\V1\Auth\VerifyPhoneRequest;
-use App\Jobs\SendPasswordResetToken;
 use App\Jobs\SendVerificationEmail;
+use App\Jobs\SendPasswordResetEmail;
+use App\Jobs\SendPasswordResetToken;
 use App\Models\User;
 use App\Services\KairosAfrikaSmsService;
 use Illuminate\Auth\Events\Verified;
@@ -43,7 +44,7 @@ class AuthController extends Controller
 
         // Send OTP to phone number for verification
         $otpResult = $this->smsService->sendOtp($user->phone);
-
+        
         // Send email verification notification via queue
         dispatch(new SendVerificationEmail($user));
 

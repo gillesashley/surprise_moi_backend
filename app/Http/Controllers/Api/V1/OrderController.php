@@ -367,9 +367,7 @@ class OrderController extends Controller
     /**
      * Get vendor order statistics and summary data.
      *
-     * Provides counts for orders by status, total revenue, and other key metrics.
-     * Uses two queries instead of one-per-status to avoid N+1 patterns.
-     * Vendors see their own stats, admins see all.
+     * Provides counts for orders by status, total revenue, and other key metrics. Vendors see their own stats, admins see all.
      */
     public function statistics(Request $request): JsonResponse
     {
@@ -383,30 +381,16 @@ class OrderController extends Controller
             $query->where('vendor_id', $request->user()->id);
         }
 
-        // Single grouped query for all status counts
-        $statusCounts = (clone $query)
-            ->select('status', DB::raw('COUNT(*) as count'))
-            ->groupBy('status')
-            ->pluck('count', 'status');
-
-        // Single aggregate query for revenue metrics
-        $revenueStats = (clone $query)
-            ->whereIn('status', ['fulfilled', 'shipped', 'delivered'])
-            ->selectRaw('SUM(total) as total_revenue, AVG(total) as avg_order_value')
-            ->first();
-
         $stats = [
-            'total_orders'       => $statusCounts->sum(),
-            'pending_orders'     => (int) ($statusCounts['pending'] ?? 0),
-            'confirmed_orders'   => (int) ($statusCounts['confirmed'] ?? 0),
-            'processing_orders'  => (int) ($statusCounts['processing'] ?? 0),
-            'fulfilled_orders'   => (int) ($statusCounts['fulfilled'] ?? 0),
-            'shipped_orders'     => (int) ($statusCounts['shipped'] ?? 0),
-            'delivered_orders'   => (int) ($statusCounts['delivered'] ?? 0),
-            'total_revenue'      => (float) ($revenueStats->total_revenue ?? 0),
-            'average_order_value'=> $revenueStats?->avg_order_value !== null
-                ? (float) $revenueStats->avg_order_value
-                : null,
+            'total_orders' => (clone $query)->count(),
+            'pending_orders' => (clone $query)->where('status', 'pending')->count(),
+            'confirmed_orders' => (clone $query)->where('status', 'confirmed')->count(),
+            'processing_orders' => (clone $query)->where('status', 'processing')->count(),
+            'fulfilled_orders' => (clone $query)->where('status', 'fulfilled')->count(),
+            'shipped_orders' => (clone $query)->where('status', 'shipped')->count(),
+            'delivered_orders' => (clone $query)->where('status', 'delivered')->count(),
+            'total_revenue' => (clone $query)->whereIn('status', ['fulfilled', 'shipped', 'delivered'])->sum('total'),
+            'average_order_value' => (clone $query)->whereIn('status', ['fulfilled', 'shipped', 'delivered'])->avg('total'),
         ];
 
         return response()->json([
