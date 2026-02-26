@@ -19,12 +19,13 @@ class ReviewFactory extends Factory
      */
     public function definition(): array
     {
-        $reviewableType = $this->faker->randomElement([Product::class, Service::class]);
+        $reviewableModelClass = $this->faker->randomElement([Product::class, Service::class]);
+        $reviewableType = (new $reviewableModelClass)->getMorphClass();
 
         return [
             'user_id' => User::factory(),
             'reviewable_type' => $reviewableType,
-            'reviewable_id' => $reviewableType::factory(),
+            'reviewable_id' => $reviewableModelClass::factory(),
             'rating' => $this->faker->numberBetween(1, 5),
             'comment' => $this->faker->paragraph(),
             'images' => $this->faker->optional(0.3)->randomElements([
@@ -42,7 +43,7 @@ class ReviewFactory extends Factory
     public function forProduct(?Product $product = null): static
     {
         return $this->state(fn (array $attributes) => [
-            'reviewable_type' => Product::class,
+            'reviewable_type' => (new Product)->getMorphClass(),
             'reviewable_id' => $product?->id ?? Product::factory(),
         ]);
     }
@@ -53,7 +54,7 @@ class ReviewFactory extends Factory
     public function forService(?Service $service = null): static
     {
         return $this->state(fn (array $attributes) => [
-            'reviewable_type' => Service::class,
+            'reviewable_type' => (new Service)->getMorphClass(),
             'reviewable_id' => $service?->id ?? Service::factory(),
         ]);
     }

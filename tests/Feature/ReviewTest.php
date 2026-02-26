@@ -89,7 +89,7 @@ class ReviewTest extends TestCase
 
         $this->assertDatabaseHas('reviews', [
             'user_id' => $user->id,
-            'reviewable_type' => Product::class,
+            'reviewable_type' => $product->getMorphClass(),
             'reviewable_id' => $product->id,
             'rating' => 5,
         ]);
@@ -112,7 +112,7 @@ class ReviewTest extends TestCase
 
         $this->assertDatabaseHas('reviews', [
             'user_id' => $user->id,
-            'reviewable_type' => Service::class,
+            'reviewable_type' => $service->getMorphClass(),
             'reviewable_id' => $service->id,
             'rating' => 4,
         ]);

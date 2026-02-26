@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -39,5 +40,21 @@ class Review extends Model
     public function reviewable(): MorphTo
     {
         return $this->morphTo();
+    }
+
+    /**
+     * Normalize reviewable_type to the configured morph class alias.
+     */
+    protected function reviewableType(): Attribute
+    {
+        return Attribute::make(
+            set: function (string $value): string {
+                if (class_exists($value) && is_subclass_of($value, Model::class)) {
+                    return (new $value)->getMorphClass();
+                }
+
+                return $value;
+            }
+        );
     }
 }

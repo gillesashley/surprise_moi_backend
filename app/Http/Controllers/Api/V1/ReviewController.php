@@ -62,7 +62,10 @@ class ReviewController extends Controller
 
         // Check if user already reviewed this item
         $existingReview = Review::where('user_id', auth()->id())
-            ->where('reviewable_type', $reviewableClass)
+            ->whereIn('reviewable_type', array_unique([
+                $reviewable->getMorphClass(),
+                $reviewableClass,
+            ]))
             ->where('reviewable_id', $data['reviewable_id'])
             ->first();
 

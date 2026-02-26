@@ -4,7 +4,6 @@ namespace Tests\Unit\Jobs;
 
 use App\Jobs\GenerateToken;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class GenerateTokenTest extends TestCase
@@ -37,7 +36,7 @@ class GenerateTokenTest extends TestCase
     public function test_generate_password_reset_token_creates_record(): void
     {
         $user = \App\Models\User::factory()->create([
-            'email' => 'test@example.com'
+            'email' => 'test@example.com',
         ]);
 
         $job = new GenerateToken(
@@ -69,7 +68,7 @@ class GenerateTokenTest extends TestCase
             tokenType: GenerateToken::TYPE_PASSWORD_RESET
         );
 
-        $masked = $job->maskToken('abc123def456');
+        $masked = $this->invokeMaskToken($job, 'abc123def456');
 
         $this->assertEquals('abc***456', $masked);
     }
@@ -81,8 +80,16 @@ class GenerateTokenTest extends TestCase
             tokenType: GenerateToken::TYPE_PASSWORD_RESET
         );
 
-        $masked = $job->maskToken('abc');
+        $masked = $this->invokeMaskToken($job, 'abc');
 
         $this->assertEquals('***', $masked);
+    }
+
+    private function invokeMaskToken(GenerateToken $job, string $token): string
+    {
+        $method = new \ReflectionMethod($job, 'maskToken');
+        $method->setAccessible(true);
+
+        return $method->invoke($job, $token);
     }
 }

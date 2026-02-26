@@ -28,9 +28,8 @@ class AddressTest extends TestCase
                 'data' => [
                     '*' => [
                         'id',
-                        'label',
+                        'name',
                         'address_line_1',
-                        'address_line_2',
                         'city',
                         'state',
                         'postal_code',
@@ -51,9 +50,8 @@ class AddressTest extends TestCase
         $user = User::factory()->create();
 
         $addressData = [
-            'label' => 'Home',
+            'name' => 'Home',
             'address_line_1' => '1901 Thornridge Cir',
-            'address_line_2' => 'Apt 4B',
             'city' => 'Shiloh',
             'state' => 'Hawaii',
             'postal_code' => '81063',
@@ -70,12 +68,12 @@ class AddressTest extends TestCase
                 'message' => 'Address created successfully',
             ])
             ->assertJsonStructure([
-                'data' => ['id', 'label', 'address_line_1', 'city', 'is_default'],
+                'data' => ['id', 'name', 'address_line_1', 'city', 'is_default'],
             ]);
 
         $this->assertDatabaseHas('user_addresses', [
             'user_id' => $user->id,
-            'label' => 'Home',
+            'name' => 'Home',
             'city' => 'Shiloh',
             'is_default' => true,
         ]);
@@ -87,7 +85,7 @@ class AddressTest extends TestCase
 
         $response = $this->actingAs($user)
             ->postJson('/api/v1/addresses', [
-                'label' => 'Office',
+                'name' => 'Office',
                 'address_line_1' => '123 Main St',
                 'city' => 'New York',
                 'state' => 'NY',
@@ -111,7 +109,7 @@ class AddressTest extends TestCase
 
         $response = $this->actingAs($user)
             ->postJson('/api/v1/addresses', [
-                'label' => 'New Home',
+                'name' => 'New Home',
                 'address_line_1' => '456 Oak Ave',
                 'city' => 'Los Angeles',
                 'state' => 'CA',
@@ -127,7 +125,7 @@ class AddressTest extends TestCase
 
         $this->assertDatabaseHas('user_addresses', [
             'user_id' => $user->id,
-            'label' => 'New Home',
+            'name' => 'New Home',
             'is_default' => true,
         ]);
     }
@@ -145,7 +143,7 @@ class AddressTest extends TestCase
                 'success' => true,
                 'data' => [
                     'id' => $address->id,
-                    'label' => $address->label,
+                    'name' => $address->name,
                 ],
             ]);
     }
@@ -171,13 +169,13 @@ class AddressTest extends TestCase
         $user = User::factory()->create();
         $address = Address::factory()->create([
             'user_id' => $user->id,
-            'label' => 'Home',
+            'name' => 'Home',
             'city' => 'Old City',
         ]);
 
         $response = $this->actingAs($user)
             ->putJson("/api/v1/addresses/{$address->id}", [
-                'label' => 'Updated Home',
+                'name' => 'Updated Home',
                 'address_line_1' => $address->address_line_1,
                 'city' => 'New City',
                 'state' => $address->state,
@@ -192,7 +190,7 @@ class AddressTest extends TestCase
             ]);
 
         $address->refresh();
-        $this->assertEquals('Updated Home', $address->label);
+        $this->assertEquals('Updated Home', $address->name);
         $this->assertEquals('New City', $address->city);
     }
 
@@ -281,7 +279,7 @@ class AddressTest extends TestCase
 
         $response = $this->actingAs($user)
             ->postJson('/api/v1/addresses', [
-                'label' => '',
+                'name' => '',
                 'address_line_1' => '',
                 'city' => '',
                 'state' => '',
@@ -289,7 +287,7 @@ class AddressTest extends TestCase
             ]);
 
         $response->assertStatus(422)
-            ->assertJsonValidationErrors(['address_line_1', 'city', 'state', 'postal_code']);
+            ->assertJsonValidationErrors(['name', 'address_line_1', 'city', 'state', 'postal_code']);
     }
 
     public function test_unauthenticated_user_cannot_access_addresses(): void
