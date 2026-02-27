@@ -65,10 +65,19 @@ class MigrateStorageToR2Command extends Command
         $localDisk = Storage::disk('public');
         $r2Disk = Storage::disk('r2');
 
+        // Verify R2 config is loaded
+        $r2Config = config('filesystems.disks.r2');
+        if (empty($r2Config['key']) || empty($r2Config['secret'])) {
+            $this->error('❌ R2 credentials not configured! Check CLOUDFLARE_R2_ACCESS_KEY_ID and CLOUDFLARE_R2_SECRET_ACCESS_KEY');
+            return;
+        }
+
         $files = $localDisk->allFiles();
         $total = count($files);
 
         $this->info("📁 Found {$total} files on local public disk");
+        $this->line("ℹ️  Using R2 endpoint: {$r2Config['endpoint']}");
+        $this->line("ℹ️  R2 bucket: {$r2Config['bucket']}");
         $bar = $this->output->createProgressBar($total);
         $bar->start();
 
