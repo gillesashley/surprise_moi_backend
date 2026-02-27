@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Api\V1\Admin;
 
-use App\Http\Controllers\Api\V1\Admin\JobMonitorController;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
@@ -14,16 +14,17 @@ class JobMonitorControllerTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        $admin = User::factory()->create(['role' => 'admin']);
+        $this->actingAs($admin);
 
         // Create a failed job for testing
         DB::table('failed_jobs')->insert([
             'uuid' => 'test-uuid-123',
-            'connection' => 'redis',
+            'connection' => 'sync',
             'queue' => 'emails',
             'payload' => json_encode(['job' => 'test-job']),
             'exception' => 'Test exception message',
             'failed_at' => now(),
-            'created_at' => now(),
         ]);
     }
 
@@ -58,12 +59,11 @@ class JobMonitorControllerTest extends TestCase
         // Create another failed job with different queue
         DB::table('failed_jobs')->insert([
             'uuid' => 'test-uuid-456',
-            'connection' => 'redis',
+            'connection' => 'sync',
             'queue' => 'tokens',
             'payload' => json_encode(['job' => 'test-job-2']),
             'exception' => 'Test exception message 2',
             'failed_at' => now(),
-            'created_at' => now(),
         ]);
 
         $response = $this->getJson('/api/v1/admin/jobs/failed?queue=emails');
@@ -128,21 +128,19 @@ class JobMonitorControllerTest extends TestCase
         DB::table('failed_jobs')->insert([
             [
                 'uuid' => 'test-uuid-789',
-                'connection' => 'redis',
+                'connection' => 'sync',
                 'queue' => 'emails',
                 'payload' => json_encode(['job' => 'test-job-3']),
                 'exception' => 'Test exception 3',
                 'failed_at' => now(),
-                'created_at' => now(),
             ],
             [
                 'uuid' => 'test-uuid-101',
-                'connection' => 'redis',
+                'connection' => 'sync',
                 'queue' => 'emails',
                 'payload' => json_encode(['job' => 'test-job-4']),
                 'exception' => 'Test exception 4',
                 'failed_at' => now(),
-                'created_at' => now(),
             ],
         ]);
 
@@ -163,12 +161,11 @@ class JobMonitorControllerTest extends TestCase
         DB::table('failed_jobs')->insert([
             [
                 'uuid' => 'test-uuid-111',
-                'connection' => 'redis',
+                'connection' => 'sync',
                 'queue' => 'tokens',
                 'payload' => json_encode(['job' => 'test-job-token']),
                 'exception' => 'Test exception token',
                 'failed_at' => now(),
-                'created_at' => now(),
             ],
         ]);
 
@@ -190,7 +187,7 @@ class JobMonitorControllerTest extends TestCase
 
         $response->assertOk()
             ->assertJsonPath('success', true)
-            ->assertJsonPath('count', $initialCount);
+            ->assertJsonPath('message', "Cleared {$initialCount} failed job(s)");
 
         $this->assertEquals(0, DB::table('failed_jobs')->count());
     }
@@ -201,12 +198,11 @@ class JobMonitorControllerTest extends TestCase
         DB::table('failed_jobs')->insert([
             [
                 'uuid' => 'test-uuid-222',
-                'connection' => 'redis',
+                'connection' => 'sync',
                 'queue' => 'tokens',
                 'payload' => json_encode(['job' => 'test-job-token-2']),
                 'exception' => 'Test exception token 2',
                 'failed_at' => now(),
-                'created_at' => now(),
             ],
         ]);
 
@@ -214,7 +210,7 @@ class JobMonitorControllerTest extends TestCase
 
         $response->assertOk()
             ->assertJsonPath('success', true)
-            ->assertJsonPath('count', 1);
+            ->assertJsonPath('message', 'Cleared 1 failed job(s)');
 
         // Only email jobs should be cleared
         $this->assertEquals(1, DB::table('failed_jobs')->count());
@@ -227,12 +223,11 @@ class JobMonitorControllerTest extends TestCase
         DB::table('failed_jobs')->insert([
             [
                 'uuid' => 'test-uuid-333',
-                'connection' => 'redis',
+                'connection' => 'sync',
                 'queue' => 'tokens',
                 'payload' => json_encode(['job' => 'test-job-5']),
                 'exception' => 'Test exception 5',
                 'failed_at' => now(),
-                'created_at' => now(),
             ],
         ]);
 

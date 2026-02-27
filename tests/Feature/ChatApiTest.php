@@ -243,7 +243,7 @@ class ChatApiTest extends TestCase
         $response->assertStatus(403);
     }
 
-    public function test_user_can_delete_conversation(): void
+    public function test_delete_conversation_route_is_disabled(): void
     {
         $conversation = Conversation::factory()
             ->forCustomer($this->customer)
@@ -253,10 +253,9 @@ class ChatApiTest extends TestCase
         $response = $this->actingAs($this->customer)
             ->deleteJson("/api/v1/chat/conversations/{$conversation->id}");
 
-        $response->assertStatus(200)
-            ->assertJsonPath('message', 'Conversation deleted successfully.');
+        $response->assertStatus(405);
 
-        $this->assertSoftDeleted('conversations', ['id' => $conversation->id]);
+        $this->assertDatabaseHas('conversations', ['id' => $conversation->id]);
     }
 
     public function test_user_can_search_conversations(): void

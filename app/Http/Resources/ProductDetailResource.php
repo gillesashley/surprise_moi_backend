@@ -74,15 +74,7 @@ class ProductDetailResource extends JsonResource
     }
 
     /**
-     * Cached wishlist product IDs per user for the current request.
-     *
-     * @var array<int, array<int, int>>
-     */
-    protected static array $wishlistProductIds = [];
-
-    /**
      * Check if this product is in the authenticated user's wishlist.
-     * Only called if isWishlisted is not precomputed.
      */
     protected function checkIsWishlisted(Request $request): bool
     {
@@ -92,15 +84,9 @@ class ProductDetailResource extends JsonResource
             return false;
         }
 
-        $userId = $user->id;
-
-        if (! array_key_exists($userId, self::$wishlistProductIds)) {
-            self::$wishlistProductIds[$userId] = Wishlist::forUser($userId)
-                ->where('item_type', 'product')
-                ->pluck('item_id')
-                ->all();
-        }
-
-        return in_array($this->id, self::$wishlistProductIds[$userId], true);
+        return Wishlist::forUser($user->id)
+            ->where('item_type', 'product')
+            ->where('item_id', $this->id)
+            ->exists();
     }
 }
