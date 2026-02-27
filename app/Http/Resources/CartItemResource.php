@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Storage;
 
 class CartItemResource extends JsonResource
 {
@@ -30,7 +31,7 @@ class CartItemResource extends JsonResource
                 return [
                     'id' => $this->product->id,
                     'name' => $this->product->name,
-                    'thumbnail' => $this->product->thumbnail ? url($this->product->thumbnail) : null,
+                    'thumbnail' => $this->product->thumbnail ? Storage::url($this->product->thumbnail) : null,
                     'stock' => $this->product->stock,
                     'is_available' => $this->product->is_available,
                 ];

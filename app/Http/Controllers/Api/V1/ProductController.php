@@ -7,6 +7,7 @@ use App\Http\Resources\ProductDetailResource;
 use App\Http\Resources\ProductResource;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
@@ -195,8 +196,8 @@ class ProductController extends Controller
 
         // Handle thumbnail upload
         if ($request->hasFile('thumbnail')) {
-            $thumbnailPath = $request->file('thumbnail')->store('products/thumbnails', 'public');
-            $data['thumbnail'] = 'storage/'.$thumbnailPath;
+            $thumbnailPath = $request->file('thumbnail')->store('products/thumbnails');
+            $data['thumbnail'] = $thumbnailPath;
         }
 
         $product = Product::create($data);
@@ -204,9 +205,9 @@ class ProductController extends Controller
         // Handle multiple product images
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $index => $image) {
-                $imagePath = $image->store('products/images', 'public');
+                $imagePath = $image->store('products/images');
                 $product->images()->create([
-                    'image_path' => 'storage/'.$imagePath,
+                    'image_path' => $imagePath,
                     'sort_order' => $index,
                     'is_primary' => $index === 0,
                 ]);
@@ -239,12 +240,12 @@ class ProductController extends Controller
         // Handle thumbnail upload
         if ($request->hasFile('thumbnail')) {
             // Delete old thumbnail if it exists
-            if ($product->thumbnail && file_exists(public_path($product->thumbnail))) {
-                unlink(public_path($product->thumbnail));
+            if ($product->thumbnail) {
+                Storage::disk()->delete($product->thumbnail);
             }
 
-            $thumbnailPath = $request->file('thumbnail')->store('products/thumbnails', 'public');
-            $data['thumbnail'] = 'storage/'.$thumbnailPath;
+            $thumbnailPath = $request->file('thumbnail')->store('products/thumbnails');
+            $data['thumbnail'] = $thumbnailPath;
         }
 
         $product->update($data);
@@ -253,9 +254,7 @@ class ProductController extends Controller
         if (! empty($data['remove_images'])) {
             $imagesToRemove = $product->images()->whereIn('id', $data['remove_images'])->get();
             foreach ($imagesToRemove as $image) {
-                if (file_exists(public_path($image->image_path))) {
-                    unlink(public_path($image->image_path));
-                }
+                Storage::disk()->delete($image->image_path);
                 $image->delete();
             }
         }
@@ -264,9 +263,9 @@ class ProductController extends Controller
         if ($request->hasFile('images')) {
             $currentMaxOrder = $product->images()->max('sort_order') ?? -1;
             foreach ($request->file('images') as $index => $image) {
-                $imagePath = $image->store('products/images', 'public');
+                $imagePath = $image->store('products/images');
                 $product->images()->create([
-                    'image_path' => 'storage/'.$imagePath,
+                    'image_path' => $imagePath,
                     'sort_order' => $currentMaxOrder + $index + 1,
                     'is_primary' => false,
                 ]);
@@ -303,14 +302,12 @@ class ProductController extends Controller
         }
 
         // Delete associated images from storage
-        if ($product->thumbnail && file_exists(public_path($product->thumbnail))) {
-            unlink(public_path($product->thumbnail));
+        if ($product->thumbnail) {
+            Storage::disk()->delete($product->thumbnail);
         }
 
         foreach ($product->images as $image) {
-            if (file_exists(public_path($image->image_path))) {
-                unlink(public_path($image->image_path));
-            }
+            Storage::disk()->delete($image->image_path);
         }
 
         $product->delete();

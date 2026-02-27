@@ -143,7 +143,7 @@ class ChatController extends Controller
         // Handle file uploads
         if ($request->hasFile('attachments')) {
             foreach ($request->file('attachments') as $file) {
-                $path = $file->store('chat-attachments', 'public');
+                $path = $file->store('chat-attachments');
                 $attachments[] = [
                     'path' => $path,
                     'url' => Storage::url($path),

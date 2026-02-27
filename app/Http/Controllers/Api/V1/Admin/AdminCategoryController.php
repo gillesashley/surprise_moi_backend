@@ -40,7 +40,7 @@ class AdminCategoryController extends Controller
 
         // Handle image upload
         if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('categories', 'public');
+            $imagePath = $request->file('image')->store('categories');
             $data['image'] = $imagePath;
         }
 
@@ -85,10 +85,10 @@ class AdminCategoryController extends Controller
         if ($request->hasFile('image')) {
             // Delete old image if exists
             if ($category->image) {
-                Storage::disk('public')->delete($category->image);
+                Storage::disk()->delete($category->image);
             }
 
-            $imagePath = $request->file('image')->store('categories', 'public');
+            $imagePath = $request->file('image')->store('categories');
             $data['image'] = $imagePath;
         }
 
@@ -119,7 +119,7 @@ class AdminCategoryController extends Controller
 
         // Delete image if exists
         if ($category->image) {
-            Storage::disk('public')->delete($category->image);
+            Storage::disk()->delete($category->image);
         }
 
         $category->delete();

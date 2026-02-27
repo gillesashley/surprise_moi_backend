@@ -45,7 +45,7 @@ class AdvertisementController extends Controller
         $data = $request->validated();
 
         if ($request->hasFile('image')) {
-            $data['image_path'] = $request->file('image')->store('advertisements', 'public');
+            $data['image_path'] = $request->file('image')->store('advertisements');
         }
 
         $data['created_by'] = auth()->id();
@@ -88,10 +88,10 @@ class AdvertisementController extends Controller
         if ($request->hasFile('image')) {
             // Delete old image if exists
             if ($advertisement->image_path) {
-                Storage::disk('public')->delete($advertisement->image_path);
+                Storage::disk()->delete($advertisement->image_path);
             }
 
-            $data['image_path'] = $request->file('image')->store('advertisements', 'public');
+            $data['image_path'] = $request->file('image')->store('advertisements');
         }
 
         $advertisement->update($data);
@@ -107,7 +107,7 @@ class AdvertisementController extends Controller
     {
         // Delete associated image if exists
         if ($advertisement->image_path) {
-            Storage::disk('public')->delete($advertisement->image_path);
+            Storage::disk()->delete($advertisement->image_path);
         }
 
         $advertisement->delete();

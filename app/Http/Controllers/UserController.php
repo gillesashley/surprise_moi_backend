@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class UserController extends Controller
@@ -76,10 +77,10 @@ class UserController extends Controller
 
                 // Step 1: Ghana Card
                 'ghana_card_front' => $app->ghana_card_front
-                    ? url('storage/'.$app->ghana_card_front)
+                    ? Storage::url($app->ghana_card_front)
                     : null,
                 'ghana_card_back' => $app->ghana_card_back
-                    ? url('storage/'.$app->ghana_card_back)
+                    ? Storage::url($app->ghana_card_back)
                     : null,
 
                 // Step 2: Business Registration Flags
@@ -88,18 +89,18 @@ class UserController extends Controller
 
                 // Step 3A: Registered Vendor Documents
                 'business_certificate_document' => $app->business_certificate_document
-                    ? url('storage/'.$app->business_certificate_document)
+                    ? Storage::url($app->business_certificate_document)
                     : null,
                 'tin_document' => $app->tin_document
-                    ? url('storage/'.$app->tin_document)
+                    ? Storage::url($app->tin_document)
                     : null,
 
                 // Step 3B: Unregistered Vendor Documents
                 'selfie_image' => $app->selfie_image
-                    ? url('storage/'.$app->selfie_image)
+                    ? Storage::url($app->selfie_image)
                     : null,
                 'proof_of_business' => $app->proof_of_business
-                    ? url('storage/'.$app->proof_of_business)
+                    ? Storage::url($app->proof_of_business)
                     : null,
                 'mobile_money_number' => $app->mobile_money_number,
                 'mobile_money_provider' => $app->mobile_money_provider,
@@ -119,7 +120,7 @@ class UserController extends Controller
         return Inertia::render('users/show', [
             'user' => [
                 ...$user->only(['id', 'name', 'email', 'phone', 'role', 'bio', 'date_of_birth', 'gender', 'favorite_color', 'favorite_music_genre', 'email_verified_at', 'phone_verified_at', 'is_popular', 'created_at', 'updated_at']),
-                'avatar' => $user->avatar ? url($user->avatar) : null,
+                'avatar' => $user->avatar ? Storage::url($user->avatar) : null,
                 'interests' => $user->interests->map(fn ($i) => ['id' => $i->id, 'name' => $i->name, 'icon' => $i->icon]),
                 'personality_traits' => $user->personalityTraits->map(fn ($t) => ['id' => $t->id, 'name' => $t->name, 'icon' => $t->icon]),
                 'shops' => $user->shops->map(fn ($s) => [
@@ -152,7 +153,7 @@ class UserController extends Controller
         return Inertia::render('users/edit', [
             'user' => [
                 ...$user->only(['id', 'name', 'email', 'phone', 'role', 'bio', 'date_of_birth', 'gender', 'is_popular']),
-                'avatar' => $user->avatar ? url($user->avatar) : null,
+                'avatar' => $user->avatar ? Storage::url($user->avatar) : null,
             ],
             'roles' => self::ROLES,
             'canEditRole' => Auth::user()->isSuperAdmin() || ! $user->isAdmin(),
@@ -195,8 +196,8 @@ class UserController extends Controller
 
         // Handle avatar upload
         if ($request->hasFile('avatar')) {
-            $avatarPath = $request->file('avatar')->store('avatars', 'public');
-            $validated['avatar'] = 'storage/'.$avatarPath;
+            $avatarPath = $request->file('avatar')->store('avatars');
+            $validated['avatar'] = $avatarPath;
         }
 
         // Prevent demoting yourself from super_admin

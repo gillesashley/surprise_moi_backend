@@ -156,7 +156,7 @@ class VendorRegistrationTest extends TestCase
             'current_step' => 2,
         ]);
 
-        Storage::disk('public')->assertExists(
+        Storage::disk()->assertExists(
             VendorApplication::where('user_id', $user->id)->first()->ghana_card_front
         );
     }

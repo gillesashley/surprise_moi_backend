@@ -10,6 +10,7 @@ use App\Http\Resources\ServiceResource;
 use App\Http\Resources\ShopResource;
 use App\Models\Shop;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ShopController extends Controller
 {
@@ -120,8 +121,8 @@ class ShopController extends Controller
 
         // Handle logo upload
         if ($request->hasFile('logo')) {
-            $logoPath = $request->file('logo')->store('shops/logos', 'public');
-            $data['logo'] = 'storage/'.$logoPath;
+            $logoPath = $request->file('logo')->store('shops/logos');
+            $data['logo'] = $logoPath;
         }
 
         $shop = Shop::create($data);
@@ -146,12 +147,12 @@ class ShopController extends Controller
         // Handle logo upload
         if ($request->hasFile('logo')) {
             // Delete old logo if it exists
-            if ($shop->logo && file_exists(public_path($shop->logo))) {
-                unlink(public_path($shop->logo));
+            if ($shop->logo) {
+                Storage::disk()->delete($shop->logo);
             }
 
-            $logoPath = $request->file('logo')->store('shops/logos', 'public');
-            $data['logo'] = 'storage/'.$logoPath;
+            $logoPath = $request->file('logo')->store('shops/logos');
+            $data['logo'] = $logoPath;
         }
 
         $shop->update($data);

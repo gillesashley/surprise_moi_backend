@@ -111,7 +111,7 @@ class ServiceController extends Controller
 
         // Handle thumbnail upload
         if ($request->hasFile('thumbnail')) {
-            $data['thumbnail'] = $request->file('thumbnail')->store('services/thumbnails', 'public');
+            $data['thumbnail'] = $request->file('thumbnail')->store('services/thumbnails');
         }
 
         $service = Service::create($data);
@@ -137,10 +137,10 @@ class ServiceController extends Controller
         if ($request->hasFile('thumbnail')) {
             // Delete old thumbnail if it exists
             if ($service->thumbnail) {
-                Storage::disk('public')->delete($service->thumbnail);
+                Storage::disk()->delete($service->thumbnail);
             }
 
-            $data['thumbnail'] = $request->file('thumbnail')->store('services/thumbnails', 'public');
+            $data['thumbnail'] = $request->file('thumbnail')->store('services/thumbnails');
         }
 
         $service->update($data);
@@ -170,7 +170,7 @@ class ServiceController extends Controller
 
         // Delete thumbnail from storage
         if ($service->thumbnail) {
-            Storage::disk('public')->delete($service->thumbnail);
+            Storage::disk()->delete($service->thumbnail);
         }
 
         $service->delete();

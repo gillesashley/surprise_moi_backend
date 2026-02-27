@@ -206,7 +206,7 @@ class AdminCategoryTest extends TestCase
 
         $category = Category::where('name', 'Category with Image')->first();
         $this->assertNotNull($category->image);
-        Storage::disk('public')->assertExists($category->image);
+        Storage::disk()->assertExists($category->image);
     }
 
     public function test_admin_can_update_category_with_new_image(): void
@@ -230,7 +230,7 @@ class AdminCategoryTest extends TestCase
             ]);
 
         $category->refresh();
-        Storage::disk('public')->assertExists($category->image);
+        Storage::disk()->assertExists($category->image);
         $this->assertEquals('Updated description', $category->description);
     }
 

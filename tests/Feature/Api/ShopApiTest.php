@@ -214,7 +214,7 @@ class ShopApiTest extends TestCase
             ->assertJsonPath('data.shop.owner_name', 'Jane Owner');
 
         // Verify logo was uploaded
-        Storage::disk('public')->assertExists('shops/logos/'.$logo->hashName());
+        Storage::disk()->assertExists('shops/logos/'.$logo->hashName());
 
         $this->assertDatabaseHas('shops', [
             'name' => 'Shop With Logo',

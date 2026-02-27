@@ -132,10 +132,10 @@ class VendorRegistrationController extends Controller
             // Delete old files if updating
             if ($application) {
                 if ($application->ghana_card_front) {
-                    Storage::disk('public')->delete($application->ghana_card_front);
+                    Storage::disk()->delete($application->ghana_card_front);
                 }
                 if ($application->ghana_card_back) {
-                    Storage::disk('public')->delete($application->ghana_card_back);
+                    Storage::disk()->delete($application->ghana_card_back);
                 }
             } else {
                 $application = new VendorApplication(['user_id' => $user->id]);
@@ -143,9 +143,9 @@ class VendorRegistrationController extends Controller
 
             // Store new files
             $frontPath = $request->file('ghana_card_front')
-                ->store('vendor-applications/ghana-cards', 'public');
+                ->store('vendor-applications/ghana-cards');
             $backPath = $request->file('ghana_card_back')
-                ->store('vendor-applications/ghana-cards', 'public');
+                ->store('vendor-applications/ghana-cards');
 
             $application->fill([
                 'ghana_card_front' => $frontPath,
@@ -264,10 +264,10 @@ class VendorRegistrationController extends Controller
             // Handle business certificate document
             if ($request->hasFile('business_certificate_document')) {
                 if ($application->business_certificate_document) {
-                    Storage::disk('public')->delete($application->business_certificate_document);
+                    Storage::disk()->delete($application->business_certificate_document);
                 }
                 $data['business_certificate_document'] = $request->file('business_certificate_document')
-                    ->store('vendor-applications/business-documents', 'public');
+                    ->store('vendor-applications/business-documents');
             }
 
             // Social media handles
@@ -332,17 +332,17 @@ class VendorRegistrationController extends Controller
         try {
             // Delete old files if updating
             if ($application->selfie_image) {
-                Storage::disk('public')->delete($application->selfie_image);
+                Storage::disk()->delete($application->selfie_image);
             }
             if ($application->proof_of_business) {
-                Storage::disk('public')->delete($application->proof_of_business);
+                Storage::disk()->delete($application->proof_of_business);
             }
 
             // Store new files
             $selfiePath = $request->file('selfie_image')
-                ->store('vendor-applications/selfies', 'public');
+                ->store('vendor-applications/selfies');
             $proofPath = $request->file('proof_of_business')
-                ->store('vendor-applications/proof-of-business', 'public');
+                ->store('vendor-applications/proof-of-business');
 
             $application->fill([
                 'selfie_image' => $selfiePath,

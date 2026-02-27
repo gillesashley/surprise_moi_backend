@@ -66,7 +66,7 @@ class BespokeServiceController extends Controller
 
         // Handle image upload
         if ($request->hasFile('image')) {
-            $validated['image'] = $request->file('image')->store('bespoke-services', 'public');
+            $validated['image'] = $request->file('image')->store('bespoke-services');
         }
 
         BespokeService::create($validated);
@@ -107,9 +107,9 @@ class BespokeServiceController extends Controller
         if ($request->hasFile('image')) {
             // Delete old image if exists
             if ($bespokeService->image) {
-                Storage::disk('public')->delete($bespokeService->image);
+                Storage::disk()->delete($bespokeService->image);
             }
-            $validated['image'] = $request->file('image')->store('bespoke-services', 'public');
+            $validated['image'] = $request->file('image')->store('bespoke-services');
         }
 
         $bespokeService->update($validated);

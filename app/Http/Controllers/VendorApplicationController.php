@@ -99,10 +99,10 @@ class VendorApplicationController extends Controller
 
                 // Step 1: Ghana Card
                 'ghana_card_front' => $vendorApplication->ghana_card_front
-                    ? Storage::disk('public')->url($vendorApplication->ghana_card_front)
+                    ? Storage::url($vendorApplication->ghana_card_front)
                     : null,
                 'ghana_card_back' => $vendorApplication->ghana_card_back
-                    ? Storage::disk('public')->url($vendorApplication->ghana_card_back)
+                    ? Storage::url($vendorApplication->ghana_card_back)
                     : null,
 
                 // Step 2: Business Registration Flags
@@ -111,18 +111,18 @@ class VendorApplicationController extends Controller
 
                 // Step 3A: Registered Vendor Documents
                 'business_certificate_document' => $vendorApplication->business_certificate_document
-                    ? Storage::disk('public')->url($vendorApplication->business_certificate_document)
+                    ? Storage::url($vendorApplication->business_certificate_document)
                     : null,
                 'tin_document' => $vendorApplication->tin_document
-                    ? Storage::disk('public')->url($vendorApplication->tin_document)
+                    ? Storage::url($vendorApplication->tin_document)
                     : null,
 
                 // Step 3B: Unregistered Vendor Documents
                 'selfie_image' => $vendorApplication->selfie_image
-                    ? Storage::disk('public')->url($vendorApplication->selfie_image)
+                    ? Storage::url($vendorApplication->selfie_image)
                     : null,
                 'proof_of_business' => $vendorApplication->proof_of_business
-                    ? Storage::disk('public')->url($vendorApplication->proof_of_business)
+                    ? Storage::url($vendorApplication->proof_of_business)
                     : null,
                 'mobile_money_number' => $vendorApplication->mobile_money_number,
                 'mobile_money_provider' => $vendorApplication->mobile_money_provider,

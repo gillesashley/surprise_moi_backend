@@ -271,7 +271,7 @@ class CartController extends Controller
             'product' => $cartItem->product ? [
                 'id' => $cartItem->product->id,
                 'name' => $cartItem->product->name,
-                'thumbnail' => $cartItem->product->thumbnail ? Storage::disk('public')->url($cartItem->product->thumbnail) : null,
+                'thumbnail' => $cartItem->product->thumbnail ? Storage::url($cartItem->product->thumbnail) : null,
                 'stock' => $cartItem->product->stock,
                 'is_available' => $cartItem->product->is_available,
             ] : null,

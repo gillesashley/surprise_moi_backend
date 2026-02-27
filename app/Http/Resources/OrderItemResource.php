@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Storage;
 
 class OrderItemResource extends JsonResource
 {
@@ -22,7 +23,7 @@ class OrderItemResource extends JsonResource
                 return [
                     'id' => (int) $this->orderable->id,
                     'name' => $this->orderable->name,
-                    'thumbnail' => $this->orderable->thumbnail ? url($this->orderable->thumbnail) : null,
+                    'thumbnail' => $this->orderable->thumbnail ? Storage::url($this->orderable->thumbnail) : null,
                 ];
             }),
             'variant' => $this->whenLoaded('variant'),

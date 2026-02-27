@@ -46,7 +46,7 @@ class ReportController extends Controller
 
         if ($request->hasFile('attachments')) {
             foreach ($request->file('attachments') as $file) {
-                $path = $file->store('reports/'.$report->id, 'public');
+                $path = $file->store('reports/'.$report->id);
 
                 ReportAttachment::create([
                     'report_id' => $report->id,

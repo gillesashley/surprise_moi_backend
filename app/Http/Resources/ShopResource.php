@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Storage;
 
 class ShopResource extends JsonResource
 {
@@ -20,7 +21,7 @@ class ShopResource extends JsonResource
             'owner_name' => $this->owner_name,
             'slug' => $this->slug,
             'description' => $this->description,
-            'logo' => $this->logo ? url($this->logo) : null,
+            'logo' => $this->logo ? Storage::url($this->logo) : null,
             'is_active' => $this->is_active,
             'location' => $this->location,
             'phone' => $this->phone,

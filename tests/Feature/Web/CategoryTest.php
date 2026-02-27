@@ -93,7 +93,7 @@ class CategoryTest extends TestCase
         $category->refresh();
 
         $this->assertNotNull($category->image);
-        Storage::disk('public')->assertExists($category->image);
+        Storage::disk()->assertExists($category->image);
         $this->assertTrue(str_contains($category->image, 'categories/'));
     }
 
@@ -106,11 +106,11 @@ class CategoryTest extends TestCase
         $newImage = UploadedFile::fake()->create('new.jpg', 100, 'image/jpeg');
 
         $category = Category::factory()->create();
-        $oldImagePath = $oldImage->store('categories', 'public');
+        $oldImagePath = $oldImage->store('categories');
         $category->update(['image' => $oldImagePath]);
 
         // Verify old image exists
-        Storage::disk('public')->assertExists($oldImagePath);
+        Storage::disk()->assertExists($oldImagePath);
 
         $response = $this->actingAs($superAdmin)
             ->put("/dashboard/categories/{$category->id}", [
@@ -126,9 +126,9 @@ class CategoryTest extends TestCase
 
         // Verify new image is saved
         $this->assertNotNull($category->image);
-        Storage::disk('public')->assertExists($category->image);
+        Storage::disk()->assertExists($category->image);
         // Verify old image was deleted
-        Storage::disk('public')->assertMissing($oldImagePath);
+        Storage::disk()->assertMissing($oldImagePath);
     }
 
     public function test_category_update_with_image_removes_old_image(): void
@@ -140,7 +140,7 @@ class CategoryTest extends TestCase
         $newImage = UploadedFile::fake()->create('new.jpg', 100, 'image/jpeg');
 
         $category = Category::factory()->create();
-        $oldImagePath = $oldImage->store('categories', 'public');
+        $oldImagePath = $oldImage->store('categories');
         $category->update(['image' => $oldImagePath]);
 
         $oldImagePath = $category->image;
@@ -154,7 +154,7 @@ class CategoryTest extends TestCase
                 'is_active' => true,
             ]);
 
-        Storage::disk('public')->assertMissing($oldImagePath);
+        Storage::disk()->assertMissing($oldImagePath);
     }
 
     public function test_invalid_image_format_is_rejected_on_update(): void
@@ -246,7 +246,7 @@ class CategoryTest extends TestCase
 
         $category = Category::where('name', 'New Category')->first();
         $this->assertNotNull($category->image);
-        Storage::disk('public')->assertExists($category->image);
+        Storage::disk()->assertExists($category->image);
     }
 
     public function test_super_admin_can_delete_category_with_image(): void
@@ -257,17 +257,17 @@ class CategoryTest extends TestCase
         $image = UploadedFile::fake()->create('category.jpg', 100, 'image/jpeg');
 
         $category = Category::factory()->create();
-        $imagePath = $image->store('categories', 'public');
+        $imagePath = $image->store('categories');
         $category->update(['image' => $imagePath]);
 
-        Storage::disk('public')->assertExists($imagePath);
+        Storage::disk()->assertExists($imagePath);
 
         $response = $this->actingAs($superAdmin)
             ->delete("/dashboard/categories/{$category->id}");
 
         $response->assertRedirect();
         $this->assertDatabaseMissing('categories', ['id' => $category->id]);
-        Storage::disk('public')->assertMissing($imagePath);
+        Storage::disk()->assertMissing($imagePath);
     }
 
     public function test_duplicate_category_name_is_rejected(): void

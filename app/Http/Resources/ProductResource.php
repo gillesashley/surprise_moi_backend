@@ -5,6 +5,7 @@ namespace App\Http\Resources;
 use App\Models\Wishlist;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Storage;
 
 class ProductResource extends JsonResource
 {
@@ -30,9 +31,9 @@ class ProductResource extends JsonResource
             'discount_percentage' => $this->discount_percentage,
             'currency' => $this->currency,
             'images' => $this->whenLoaded('images', function () {
-                return $this->images->map(fn ($img) => url($img->image_path));
+                return $this->images->map(fn ($img) => Storage::url($img->image_path));
             }),
-            'thumbnail' => $this->thumbnail ? url($this->thumbnail) : null,
+            'thumbnail' => $this->thumbnail ? Storage::url($this->thumbnail) : null,
             'stock' => $this->stock,
             'is_available' => $this->is_available,
             'vendor' => new VendorResource($this->whenLoaded('vendor')),

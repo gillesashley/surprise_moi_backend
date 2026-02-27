@@ -5,6 +5,7 @@ namespace App\Http\Resources;
 use App\Models\Wishlist;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Storage;
 
 class ServiceResource extends JsonResource
 {
@@ -28,8 +29,8 @@ class ServiceResource extends JsonResource
             'charge_start' => (float) $this->charge_start,
             'charge_end' => $this->charge_end ? (float) $this->charge_end : null,
             'currency' => $this->currency,
-            'images' => $this->thumbnail ? [url($this->thumbnail)] : [],
-            'thumbnail' => $this->thumbnail ? url($this->thumbnail) : null,
+            'images' => $this->thumbnail ? [Storage::url($this->thumbnail)] : [],
+            'thumbnail' => $this->thumbnail ? Storage::url($this->thumbnail) : null,
             'vendor' => new VendorResource($this->whenLoaded('vendor')),
             'shop' => new ShopResource($this->whenLoaded('shop')),
             'rating' => (float) $this->rating,

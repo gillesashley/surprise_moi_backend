@@ -396,7 +396,7 @@ class ChatApiTest extends TestCase
         $this->assertNotNull($message->attachments);
         $this->assertCount(1, $message->attachments);
 
-        Storage::disk('public')->assertExists($message->attachments[0]['path']);
+        Storage::disk()->assertExists($message->attachments[0]['path']);
     }
 
     public function test_cannot_send_message_to_others_conversation(): void
