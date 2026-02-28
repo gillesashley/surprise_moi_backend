@@ -22,10 +22,13 @@ use App\Http\Controllers\Api\V1\ProfileController;
 use App\Http\Controllers\Api\V1\ReferralCodeController;
 use App\Http\Controllers\Api\V1\ReportController;
 use App\Http\Controllers\Api\V1\ReviewController;
+use App\Http\Controllers\Api\V1\ReviewHelpfulController;
+use App\Http\Controllers\Api\V1\ReviewReplyController;
 use App\Http\Controllers\Api\V1\TargetController;
 use App\Http\Controllers\Api\V1\VendorAnalyticsController;
 use App\Http\Controllers\Api\V1\VendorOnboardingPaymentController;
 use App\Http\Controllers\Api\V1\VendorRegistrationController;
+use App\Http\Controllers\Api\V1\VendorReviewController;
 use App\Http\Controllers\Api\V1\WishlistController;
 use Illuminate\Support\Facades\Route;
 
@@ -129,6 +132,11 @@ Route::prefix('v1')->group(function () {
     Route::get('/services/{service}', [\App\Http\Controllers\Api\V1\ServiceController::class, 'show']);
     Route::get('/services/{service}/reviews', [ReviewController::class, 'serviceReviews']);
 
+    // Public review routes
+    Route::get('/reviews', [ReviewController::class, 'index']);
+    Route::get('/reviews/{review}', [ReviewController::class, 'show']);
+    Route::get('/reviews/{review}/replies', [ReviewReplyController::class, 'index']);
+
     // Public vendor routes (for browsing vendor products/services before ordering)
     Route::get('/vendors', [\App\Http\Controllers\Api\V1\VendorController::class, 'index']);
     Route::get('/vendors/{vendor}', [\App\Http\Controllers\Api\V1\VendorController::class, 'show']);
@@ -173,11 +181,17 @@ Route::prefix('v1')->group(function () {
         Route::post('/addresses/{address}/set-default', [AddressController::class, 'setDefault']);
 
         // Review management
-        Route::get('/reviews', [ReviewController::class, 'index']);
         Route::post('/reviews', [ReviewController::class, 'store']);
-        Route::get('/reviews/{review}', [ReviewController::class, 'show']);
         Route::put('/reviews/{review}', [ReviewController::class, 'update']);
         Route::delete('/reviews/{review}', [ReviewController::class, 'destroy']);
+        Route::post('/reviews/{review}/helpful', [ReviewHelpfulController::class, 'toggle']);
+
+        Route::middleware('role:vendor')->group(function () {
+            Route::get('/vendor/reviews', [VendorReviewController::class, 'index']);
+            Route::post('/reviews/{review}/replies', [ReviewReplyController::class, 'store']);
+            Route::put('/review-replies/{reviewReply}', [ReviewReplyController::class, 'update']);
+            Route::delete('/review-replies/{reviewReply}', [ReviewReplyController::class, 'destroy']);
+        });
 
         // Wishlist routes
         Route::get('/wishlist', [WishlistController::class, 'index']);
