@@ -141,6 +141,68 @@ class ChatApiTest extends TestCase
         );
     }
 
+    public function test_conversation_list_marks_participant_offline_when_last_token_use_is_stale(): void
+    {
+        $conversation = Conversation::factory()
+            ->forCustomer($this->customer)
+            ->forVendor($this->vendor)
+            ->withLastMessage('Hello!')
+            ->create();
+
+        $token = $this->vendor->createToken('mobile-app')->accessToken;
+        $token->forceFill([
+            'last_used_at' => now()->subMinutes(10),
+        ])->save();
+
+        $response = $this->actingAs($this->customer)
+            ->getJson('/api/v1/chat/conversations');
+
+        $response->assertStatus(200)
+            ->assertJsonPath('data.0.id', $conversation->id)
+            ->assertJsonPath('data.0.participant.id', $this->vendor->id)
+            ->assertJsonPath('data.0.participant.is_online', false);
+    }
+
+    public function test_conversation_detail_marks_participant_online_when_recently_active(): void
+    {
+        $conversation = Conversation::factory()
+            ->forCustomer($this->customer)
+            ->forVendor($this->vendor)
+            ->create();
+
+        $token = $this->vendor->createToken('mobile-app')->accessToken;
+        $token->forceFill([
+            'last_used_at' => now()->subMinutes(2),
+        ])->save();
+
+        $response = $this->actingAs($this->customer)
+            ->getJson("/api/v1/chat/conversations/{$conversation->id}");
+
+        $response->assertStatus(200)
+            ->assertJsonPath('data.participant.id', $this->vendor->id)
+            ->assertJsonPath('data.participant.is_online', true);
+    }
+
+    public function test_conversation_detail_marks_participant_offline_when_last_token_use_is_stale(): void
+    {
+        $conversation = Conversation::factory()
+            ->forCustomer($this->customer)
+            ->forVendor($this->vendor)
+            ->create();
+
+        $token = $this->vendor->createToken('mobile-app')->accessToken;
+        $token->forceFill([
+            'last_used_at' => now()->subMinutes(12),
+        ])->save();
+
+        $response = $this->actingAs($this->customer)
+            ->getJson("/api/v1/chat/conversations/{$conversation->id}");
+
+        $response->assertStatus(200)
+            ->assertJsonPath('data.participant.id', $this->vendor->id)
+            ->assertJsonPath('data.participant.is_online', false);
+    }
+
     public function test_user_can_start_conversation_with_vendor(): void
     {
         $response = $this->actingAs($this->customer)

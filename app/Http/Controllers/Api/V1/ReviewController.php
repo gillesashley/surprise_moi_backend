@@ -3,116 +3,166 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\V1\Review\ListItemReviewsRequest;
 use App\Http\Requests\Api\V1\Review\StoreReviewRequest;
 use App\Http\Requests\Api\V1\Review\UpdateReviewRequest;
 use App\Http\Resources\ReviewResource;
-use App\Models\Order;
 use App\Models\Product;
 use App\Models\Review;
 use App\Models\Service;
+use App\Models\User;
+use App\Services\ReviewService;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class ReviewController extends Controller
 {
+    use AuthorizesRequests;
+
     /**
-     * Display a listing of the user's reviews.
+     * Display a listing of reviews for an item.
      */
-    public function index(Request $request): JsonResponse
-    {
-        $reviews = auth()->user()
-            ->reviews()
-            ->with(['reviewable'])
-            ->orderBy('created_at', 'desc')
-            ->paginate($request->get('per_page', 15));
+    public function index(
+        ListItemReviewsRequest $request,
+        ReviewService $reviewService
+    ): JsonResponse {
+        $data = $request->validated();
+        $itemType = $data['item_type'];
+        $itemId = (int) $data['item_id'];
+
+        $reviewable = $reviewService->findReviewable($itemType, $itemId);
+        if (! $reviewable) {
+            return response()->json([
+                'success' => false,
+                'message' => ucfirst($itemType).' not found.',
+                'data' => null,
+            ], 404);
+        }
+
+        $query = Review::query()
+            ->with([
+                'user',
+                'reviewable',
+                'reviewImages',
+            ])
+            ->withCount('helpfuls')
+            ->where('item_type', $itemType)
+            ->where('item_id', $itemId)
+            ->latest();
+
+        $this->withViewerHelpfulState($query, $request->user());
+
+        $reviews = $query->paginate((int) ($data['per_page'] ?? 15));
+        $stats = $this->calculateRatingStats($reviewable, $reviewService);
 
         return response()->json([
             'success' => true,
-            'data' => ReviewResource::collection($reviews),
-            'meta' => [
-                'current_page' => $reviews->currentPage(),
-                'last_page' => $reviews->lastPage(),
-                'per_page' => $reviews->perPage(),
-                'total' => $reviews->total(),
-            ],
+            'message' => 'Reviews retrieved successfully.',
+            'data' => $this->buildListPayload($reviews, $stats),
         ]);
     }
 
     /**
      * Store a newly created review.
      */
-    public function store(StoreReviewRequest $request): JsonResponse
-    {
+    public function store(
+        StoreReviewRequest $request,
+        ReviewService $reviewService
+    ): JsonResponse {
         $data = $request->validated();
+        $itemType = $data['item_type'];
+        $itemId = (int) $data['item_id'];
+        $user = $request->user();
 
-        // Resolve the reviewable model
-        $reviewableClass = $data['reviewable_type'] === 'product'
-            ? Product::class
-            : Service::class;
-
-        $reviewable = $reviewableClass::find($data['reviewable_id']);
-
+        $reviewable = $reviewService->findReviewable($itemType, $itemId);
         if (! $reviewable) {
             return response()->json([
                 'success' => false,
-                'message' => ucfirst($data['reviewable_type']).' not found.',
+                'message' => ucfirst($itemType).' not found.',
+                'data' => null,
             ], 404);
         }
 
-        // Check if user already reviewed this item
-        $existingReview = Review::where('user_id', auth()->id())
-            ->whereIn('reviewable_type', array_unique([
-                $reviewable->getMorphClass(),
-                $reviewableClass,
-            ]))
-            ->where('reviewable_id', $data['reviewable_id'])
-            ->first();
+        $order = $reviewService->resolveOrderForCreate(
+            $user->id,
+            $itemType,
+            $itemId,
+            isset($data['order_id']) ? (int) $data['order_id'] : null
+        );
 
-        if ($existingReview) {
+        if (! $order) {
             return response()->json([
                 'success' => false,
-                'message' => 'You have already reviewed this '.$data['reviewable_type'].'.',
+                'message' => 'You can only review purchased items from completed orders.',
+                'data' => null,
             ], 422);
         }
 
-        // Check if this is a verified purchase
-        $isVerifiedPurchase = $this->checkVerifiedPurchase(
-            auth()->id(),
-            $reviewableClass,
-            $data['reviewable_id']
+        $contextKey = $reviewService->buildContextKey(
+            $user->id,
+            $itemType,
+            $itemId,
+            $order->id
         );
+
+        if (Review::query()->where('context_key', $contextKey)->exists()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'You have already reviewed this purchase context.',
+                'data' => null,
+            ], 422);
+        }
+
+        $storedImagePaths = $this->storeUploadedImages($request);
 
         DB::beginTransaction();
 
         try {
             $review = Review::create([
-                'user_id' => auth()->id(),
-                'reviewable_type' => $reviewableClass,
-                'reviewable_id' => $data['reviewable_id'],
+                'user_id' => $user->id,
+                'order_id' => $order->id,
+                'item_type' => $itemType,
+                'item_id' => $itemId,
+                'reviewable_type' => $itemType,
+                'reviewable_id' => $itemId,
                 'rating' => $data['rating'],
-                'comment' => $data['comment'] ?? '',
-                'images' => $data['images'] ?? null,
-                'is_verified_purchase' => $isVerifiedPurchase,
+                'comment' => $data['comment'] ?? null,
+                'images' => $storedImagePaths,
+                'is_verified_purchase' => true,
+                'context_key' => $contextKey,
+                'helpful_count' => 0,
             ]);
 
-            // Update the reviewable's rating and review count
-            $this->updateReviewableRating($reviewable);
+            $this->replaceReviewImages($review, $storedImagePaths);
+            $reviewService->updateReviewableRating($reviewable);
 
             DB::commit();
+
+            $review = $review->fresh()
+                ->load(['user', 'reviewable', 'reviewImages'])
+                ->loadCount('helpfuls');
+            $review->setAttribute('is_helpful_by_me', false);
 
             return response()->json([
                 'success' => true,
                 'message' => 'Review submitted successfully.',
-                'data' => new ReviewResource($review->load('reviewable')),
+                'data' => [
+                    'review' => new ReviewResource($review),
+                ],
             ], 201);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             DB::rollBack();
+            $this->deleteStoredImages($storedImagePaths);
 
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to submit review.',
-                'error' => $e->getMessage(),
+                'data' => null,
             ], 500);
         }
     }
@@ -120,42 +170,129 @@ class ReviewController extends Controller
     /**
      * Display the specified review.
      */
-    public function show(Review $review): JsonResponse
+    public function show(Request $request, Review $review): JsonResponse
     {
+        $review->load(['user', 'reviewable', 'reviewImages'])
+            ->loadCount('helpfuls');
+
+        $isHelpfulByMe = false;
+        if ($request->user()) {
+            $isHelpfulByMe = $review->helpfuls()
+                ->where('user_id', $request->user()->id)
+                ->exists();
+        }
+
+        $review->setAttribute('is_helpful_by_me', $isHelpfulByMe);
+
         return response()->json([
             'success' => true,
-            'data' => new ReviewResource($review->load(['reviewable', 'user'])),
+            'message' => 'Review retrieved successfully.',
+            'data' => new ReviewResource($review),
         ]);
     }
 
     /**
      * Update the specified review.
      */
-    public function update(UpdateReviewRequest $request, Review $review): JsonResponse
-    {
+    public function update(
+        UpdateReviewRequest $request,
+        Review $review,
+        ReviewService $reviewService
+    ): JsonResponse {
+        $this->authorize('update', $review);
+
+        $data = $request->validated();
+        $itemType = $data['item_type'];
+        $itemId = (int) $data['item_id'];
+
+        if (
+            $review->item_type !== $itemType
+            || (int) $review->item_id !== $itemId
+        ) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Item context does not match this review.',
+                'data' => null,
+            ], 422);
+        }
+
+        if (
+            isset($data['order_id'])
+            && $review->order_id
+            && (int) $data['order_id'] !== (int) $review->order_id
+        ) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Item context does not match this review.',
+                'data' => null,
+            ], 422);
+        }
+
+        $newImagePaths = null;
+        if ($request->hasFile('images')) {
+            $newImagePaths = $this->storeUploadedImages($request);
+        }
+
         DB::beginTransaction();
 
         try {
-            $data = $request->validated();
-            $review->update($data);
+            $updateData = [
+                'rating' => $data['rating'],
+                'comment' => $data['comment'] ?? null,
+            ];
 
-            // Update the reviewable's rating
-            $this->updateReviewableRating($review->reviewable);
+            $oldImagePaths = $review->reviewImages->pluck('storage_path')->all();
+            if (is_array($review->images)) {
+                $oldImagePaths = array_unique(array_merge($oldImagePaths, $review->images));
+            }
+
+            if ($newImagePaths !== null) {
+                $updateData['images'] = $newImagePaths;
+            }
+
+            $review->update($updateData);
+
+            if ($newImagePaths !== null) {
+                $this->replaceReviewImages($review, $newImagePaths);
+            }
+
+            if ($review->reviewable) {
+                $reviewService->updateReviewableRating($review->reviewable);
+            }
 
             DB::commit();
+
+            if ($newImagePaths !== null) {
+                $this->deleteStoredImages($oldImagePaths);
+            }
+
+            $freshReview = $review->fresh()
+                ->load(['user', 'reviewable', 'reviewImages'])
+                ->loadCount('helpfuls');
+
+            $isHelpfulByMe = $request->user()
+                ? $freshReview->helpfuls()->where('user_id', $request->user()->id)->exists()
+                : false;
+            $freshReview->setAttribute('is_helpful_by_me', $isHelpfulByMe);
 
             return response()->json([
                 'success' => true,
                 'message' => 'Review updated successfully.',
-                'data' => new ReviewResource($review->fresh()->load('reviewable')),
+                'data' => [
+                    'review' => new ReviewResource($freshReview),
+                ],
             ]);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             DB::rollBack();
+
+            if ($newImagePaths !== null) {
+                $this->deleteStoredImages($newImagePaths);
+            }
 
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to update review.',
-                'error' => $e->getMessage(),
+                'data' => null,
             ], 500);
         }
     }
@@ -163,38 +300,44 @@ class ReviewController extends Controller
     /**
      * Remove the specified review.
      */
-    public function destroy(Review $review): JsonResponse
-    {
-        // Check ownership
-        if ($review->user_id !== auth()->id()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Unauthorized.',
-            ], 403);
-        }
+    public function destroy(
+        Request $request,
+        Review $review,
+        ReviewService $reviewService
+    ): JsonResponse {
+        $this->authorize('delete', $review);
 
         DB::beginTransaction();
 
         try {
             $reviewable = $review->reviewable;
+            $paths = $review->reviewImages->pluck('storage_path')->all();
+            if (is_array($review->images)) {
+                $paths = array_unique(array_merge($paths, $review->images));
+            }
+
             $review->delete();
 
-            // Update the reviewable's rating
-            $this->updateReviewableRating($reviewable);
+            if ($reviewable) {
+                $reviewService->updateReviewableRating($reviewable);
+            }
 
             DB::commit();
+
+            $this->deleteStoredImages($paths);
 
             return response()->json([
                 'success' => true,
                 'message' => 'Review deleted successfully.',
+                'data' => null,
             ]);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             DB::rollBack();
 
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to delete review.',
-                'error' => $e->getMessage(),
+                'data' => null,
             ], 500);
         }
     }
@@ -221,36 +364,38 @@ class ReviewController extends Controller
     public function vendorReviews(Request $request, int $vendorId): JsonResponse
     {
         $query = Review::query()
-            ->with(['user', 'reviewable'])
-            ->whereHasMorph('reviewable', [Product::class, Service::class], function ($query) use ($vendorId) {
+            ->with(['user', 'reviewable', 'reviewImages'])
+            ->withCount('helpfuls')
+            ->whereHasMorph('reviewable', [Product::class, Service::class], function (Builder $query) use ($vendorId): void {
                 $query->where('vendor_id', $vendorId);
             })
-            ->orderBy('created_at', 'desc');
+            ->latest();
 
-        // Filter by rating
         if ($request->has('rating')) {
-            $query->where('rating', $request->rating);
+            $query->where('rating', $request->input('rating'));
         }
 
-        // Filter by verified purchases only
         if ($request->boolean('verified_only')) {
             $query->where('is_verified_purchase', true);
         }
 
-        $reviews = $query->paginate($request->get('per_page', 15));
+        $this->withViewerHelpfulState($query, $request->user());
 
-        // Calculate rating statistics
-        $stats = $this->calculateVendorRatingStats($vendorId);
+        $reviews = $query->paginate((int) $request->get('per_page', 15));
+
+        $reviewService = app(ReviewService::class);
+        $stats = $this->calculateVendorRatingStats($vendorId, $reviewService);
 
         return response()->json([
             'success' => true,
-            'data' => ReviewResource::collection($reviews),
-            'stats' => $stats,
-            'meta' => [
+            'message' => 'Vendor reviews retrieved successfully.',
+            'data' => [
+                'reviews' => ReviewResource::collection($reviews),
+                'average_rating' => $stats['average_rating'],
+                'total_reviews' => $stats['total_reviews'],
+                'rating_distribution' => $stats['rating_distribution'],
                 'current_page' => $reviews->currentPage(),
                 'last_page' => $reviews->lastPage(),
-                'per_page' => $reviews->perPage(),
-                'total' => $reviews->total(),
             ],
         ]);
     }
@@ -261,129 +406,166 @@ class ReviewController extends Controller
     private function getReviewsFor(Request $request, Product|Service $reviewable): JsonResponse
     {
         $query = $reviewable->reviews()
-            ->with('user')
-            ->orderBy('created_at', 'desc');
+            ->with(['user', 'reviewImages'])
+            ->withCount('helpfuls')
+            ->latest();
 
-        // Filter by rating
         if ($request->has('rating')) {
-            $query->where('rating', $request->rating);
+            $query->where('rating', $request->input('rating'));
         }
 
-        // Filter by verified purchases only
         if ($request->boolean('verified_only')) {
             $query->where('is_verified_purchase', true);
         }
 
-        $reviews = $query->paginate($request->get('per_page', 15));
+        $this->withViewerHelpfulState($query, $request->user());
 
-        // Calculate rating statistics
-        $stats = $this->calculateRatingStats($reviewable);
+        $reviews = $query->paginate((int) $request->get('per_page', 15));
+        $reviewService = app(ReviewService::class);
+        $stats = $this->calculateRatingStats($reviewable, $reviewService);
 
         return response()->json([
             'success' => true,
-            'data' => ReviewResource::collection($reviews),
-            'stats' => $stats,
-            'meta' => [
+            'message' => 'Reviews retrieved successfully.',
+            'data' => [
+                'reviews' => ReviewResource::collection($reviews),
+                'average_rating' => $stats['average_rating'],
+                'total_reviews' => $stats['total_reviews'],
+                'rating_distribution' => $stats['rating_distribution'],
                 'current_page' => $reviews->currentPage(),
                 'last_page' => $reviews->lastPage(),
-                'per_page' => $reviews->perPage(),
-                'total' => $reviews->total(),
             ],
         ]);
     }
 
     /**
-     * Check if the user has purchased this product/service.
+     * @return array<string, mixed>
      */
-    private function checkVerifiedPurchase(int $userId, string $reviewableType, int $reviewableId): bool
-    {
-        return Order::where('user_id', $userId)
-            ->where('status', 'delivered')
-            ->whereHas('items', function ($query) use ($reviewableType, $reviewableId) {
-                $query->where('orderable_type', $reviewableType)
-                    ->where('orderable_id', $reviewableId);
-            })
-            ->exists();
-    }
+    private function calculateRatingStats(
+        Product|Service $reviewable,
+        ReviewService $reviewService
+    ): array {
+        $reviewsQuery = $reviewable->reviews();
 
-    /**
-     * Update the rating and review count for a reviewable entity.
-     */
-    private function updateReviewableRating(Product|Service $reviewable): void
-    {
-        $stats = $reviewable->reviews()->selectRaw('
-            COUNT(*) as count,
+        $summary = (clone $reviewsQuery)->selectRaw('
+            COUNT(*) as total,
             COALESCE(AVG(rating), 0) as average
         ')->first();
 
-        $reviewable->update([
-            'rating' => round($stats->average, 2),
-            'reviews_count' => $stats->count,
-        ]);
-    }
-
-    /**
-     * Calculate rating statistics for a reviewable entity.
-     *
-     * @return array<string, mixed>
-     */
-    private function calculateRatingStats(Product|Service $reviewable): array
-    {
-        $reviews = $reviewable->reviews();
-
-        $distribution = $reviews->selectRaw('rating, COUNT(*) as count')
+        $grouped = (clone $reviewsQuery)
+            ->selectRaw('rating, COUNT(*) as count')
             ->groupBy('rating')
             ->pluck('count', 'rating')
             ->toArray();
 
-        // Ensure all ratings 1-5 are present
-        $ratingDistribution = [];
-        for ($i = 5; $i >= 1; $i--) {
-            $ratingDistribution[$i] = $distribution[$i] ?? 0;
-        }
-
         return [
-            'average_rating' => $reviewable->rating,
-            'total_reviews' => $reviewable->reviews_count,
-            'verified_purchases' => $reviews->where('is_verified_purchase', true)->count(),
-            'rating_distribution' => $ratingDistribution,
+            'average_rating' => round((float) ($summary->average ?? 0), 2),
+            'total_reviews' => (int) ($summary->total ?? 0),
+            'rating_distribution' => $reviewService->calculateRatingDistribution($grouped),
         ];
     }
 
     /**
-     * Calculate rating statistics for a vendor across all their products/services.
-     *
      * @return array<string, mixed>
      */
-    private function calculateVendorRatingStats(int $vendorId): array
-    {
+    private function calculateVendorRatingStats(
+        int $vendorId,
+        ReviewService $reviewService
+    ): array {
         $query = Review::query()
-            ->whereHasMorph('reviewable', [Product::class, Service::class], function ($query) use ($vendorId) {
+            ->whereHasMorph('reviewable', [Product::class, Service::class], function (Builder $query) use ($vendorId): void {
                 $query->where('vendor_id', $vendorId);
             });
 
         $stats = (clone $query)->selectRaw('
             COUNT(*) as total,
-            COALESCE(AVG(rating), 0) as average,
-            SUM(CASE WHEN is_verified_purchase = true THEN 1 ELSE 0 END) as verified
+            COALESCE(AVG(rating), 0) as average
         ')->first();
 
-        $distribution = (clone $query)->selectRaw('rating, COUNT(*) as count')
+        $grouped = (clone $query)->selectRaw('rating, COUNT(*) as count')
             ->groupBy('rating')
             ->pluck('count', 'rating')
             ->toArray();
 
-        // Ensure all ratings 1-5 are present
-        $ratingDistribution = [];
-        for ($i = 5; $i >= 1; $i--) {
-            $ratingDistribution[$i] = $distribution[$i] ?? 0;
+        return [
+            'average_rating' => round((float) ($stats->average ?? 0), 2),
+            'total_reviews' => (int) ($stats->total ?? 0),
+            'rating_distribution' => $reviewService->calculateRatingDistribution($grouped),
+        ];
+    }
+
+    private function withViewerHelpfulState(Builder $query, ?User $viewer): void
+    {
+        if (! $viewer) {
+            return;
         }
 
+        $query->withExists([
+            'helpfuls as is_helpful_by_me' => function (Builder $query) use ($viewer): void {
+                $query->where('user_id', $viewer->id);
+            },
+        ]);
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function storeUploadedImages(Request $request): array
+    {
+        if (! $request->hasFile('images')) {
+            return [];
+        }
+
+        $paths = [];
+        foreach ($request->file('images') as $image) {
+            $paths[] = $image->store('reviews/images');
+        }
+
+        return $paths;
+    }
+
+    /**
+     * @param  array<int, string>  $paths
+     */
+    private function replaceReviewImages(Review $review, array $paths): void
+    {
+        $review->reviewImages()->delete();
+
+        foreach (array_values($paths) as $index => $path) {
+            $review->reviewImages()->create([
+                'storage_path' => $path,
+                'sort_order' => $index + 1,
+            ]);
+        }
+    }
+
+    /**
+     * @param  array<int, string>  $paths
+     */
+    private function deleteStoredImages(array $paths): void
+    {
+        if (empty($paths)) {
+            return;
+        }
+
+        Storage::disk()->delete($paths);
+    }
+
+    /**
+     * @param  array<string, mixed>  $stats
+     * @return array<string, mixed>
+     */
+    private function buildListPayload(
+        LengthAwarePaginator $reviews,
+        array $stats
+    ): array {
         return [
-            'average_rating' => round($stats->average, 2),
-            'total_reviews' => $stats->total,
-            'verified_purchases' => $stats->verified,
-            'rating_distribution' => $ratingDistribution,
+            'reviews' => ReviewResource::collection($reviews),
+            'average_rating' => $stats['average_rating'],
+            'total_reviews' => $stats['total_reviews'],
+            'rating_distribution' => $stats['rating_distribution'],
+            'current_page' => $reviews->currentPage(),
+            'last_page' => $reviews->lastPage(),
         ];
     }
 }

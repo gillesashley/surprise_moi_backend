@@ -11,7 +11,6 @@ use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
 use Symfony\Component\HttpFoundation\Request;
 
-
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
@@ -40,6 +39,11 @@ return Application::configure(basePath: dirname(__DIR__))
             HandleAppearance::class,
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
+        ]);
+
+        $middleware->validateCsrfTokens(except: [
+            '.well-known/assetlinks.json',
+            '.well-known/apple-app-site-association',
         ]);
 
         $middleware->alias([

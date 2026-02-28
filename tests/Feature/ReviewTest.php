@@ -6,568 +6,540 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\Review;
+use App\Models\ReviewReply;
 use App\Models\Service;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class ReviewTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_user_can_list_their_reviews(): void
+    protected function setUp(): void
     {
-        $user = User::factory()->create();
-        $product = Product::factory()->create();
+        parent::setUp();
 
-        Review::factory()->count(3)->create([
-            'user_id' => $user->id,
-            'reviewable_type' => Product::class,
-            'reviewable_id' => $product->id,
-        ]);
-
-        // Create reviews by another user (should not be visible)
-        Review::factory()->count(2)->create();
-
-        $response = $this->actingAs($user)
-            ->getJson('/api/v1/reviews');
-
-        $response->assertStatus(200)
-            ->assertJsonStructure([
-                'success',
-                'data' => [
-                    '*' => [
-                        'id',
-                        'rating',
-                        'comment',
-                        'is_verified_purchase',
-                        'user',
-                        'reviewable_type',
-                        'reviewable_id',
-                        'created_at',
-                        'updated_at',
-                    ],
-                ],
-                'meta' => [
-                    'current_page',
-                    'last_page',
-                    'per_page',
-                    'total',
-                ],
-            ]);
-
-        $this->assertEquals(3, $response->json('meta.total'));
+        Storage::fake(config('filesystems.default'));
     }
 
-    public function test_user_can_create_product_review(): void
+    public function test_user_can_create_review_with_mobile_contract(): void
     {
-        $user = User::factory()->create();
-        $product = Product::factory()->create();
+        $customer = User::factory()->create();
+        $vendor = User::factory()->create(['role' => 'vendor']);
+        $product = Product::factory()->create(['vendor_id' => $vendor->id]);
+        $order = $this->createEligibleOrderWithItem($customer, $vendor, $product);
 
-        $response = $this->actingAs($user)
-            ->postJson('/api/v1/reviews', [
-                'reviewable_type' => 'product',
-                'reviewable_id' => $product->id,
-                'rating' => 5,
-                'comment' => 'Excellent product! Highly recommended.',
-            ]);
+        $response = $this->actingAs($customer)->post('/api/v1/reviews', [
+            'item_id' => $product->id,
+            'item_type' => 'product',
+            'order_id' => $order->id,
+            'rating' => 4.5,
+            'comment' => 'Excellent gift quality.',
+            'images' => [
+                UploadedFile::fake()->create('review-1.jpg', 100, 'image/jpeg'),
+                UploadedFile::fake()->create('review-2.png', 100, 'image/png'),
+            ],
+        ], [
+            'Accept' => 'application/json',
+        ]);
 
         $response->assertStatus(201)
             ->assertJson([
                 'success' => true,
                 'message' => 'Review submitted successfully.',
-            ])
-            ->assertJsonStructure([
                 'data' => [
-                    'id',
-                    'rating',
-                    'comment',
-                    'is_verified_purchase',
-                    'user',
+                    'review' => [
+                        'item_id' => $product->id,
+                        'item_type' => 'product',
+                        'rating' => 4.5,
+                        'is_verified_purchase' => true,
+                    ],
                 ],
             ]);
 
         $this->assertDatabaseHas('reviews', [
-            'user_id' => $user->id,
-            'reviewable_type' => $product->getMorphClass(),
+            'user_id' => $customer->id,
+            'item_id' => $product->id,
+            'item_type' => 'product',
             'reviewable_id' => $product->id,
-            'rating' => 5,
+            'reviewable_type' => 'product',
+            'order_id' => $order->id,
+            'rating' => 4.5,
+            'is_verified_purchase' => true,
         ]);
+
+        $product->refresh();
+        $this->assertSame(4.5, (float) $product->rating);
+        $this->assertSame(1, $product->reviews_count);
     }
 
-    public function test_user_can_create_service_review(): void
+    public function test_user_cannot_review_item_without_eligible_purchase(): void
     {
-        $user = User::factory()->create();
-        $service = Service::factory()->create();
-
-        $response = $this->actingAs($user)
-            ->postJson('/api/v1/reviews', [
-                'reviewable_type' => 'service',
-                'reviewable_id' => $service->id,
-                'rating' => 4,
-                'comment' => 'Great service experience!',
-            ]);
-
-        $response->assertStatus(201);
-
-        $this->assertDatabaseHas('reviews', [
-            'user_id' => $user->id,
-            'reviewable_type' => $service->getMorphClass(),
-            'reviewable_id' => $service->id,
-            'rating' => 4,
-        ]);
-    }
-
-    public function test_user_cannot_review_same_product_twice(): void
-    {
-        $user = User::factory()->create();
+        $customer = User::factory()->create();
         $product = Product::factory()->create();
 
-        Review::factory()->create([
-            'user_id' => $user->id,
-            'reviewable_type' => Product::class,
-            'reviewable_id' => $product->id,
+        $response = $this->actingAs($customer)->postJson('/api/v1/reviews', [
+            'item_id' => $product->id,
+            'item_type' => 'product',
+            'rating' => 5,
+            'comment' => 'No purchase made.',
         ]);
-
-        $response = $this->actingAs($user)
-            ->postJson('/api/v1/reviews', [
-                'reviewable_type' => 'product',
-                'reviewable_id' => $product->id,
-                'rating' => 3,
-                'comment' => 'Another review attempt.',
-            ]);
 
         $response->assertStatus(422)
             ->assertJson([
                 'success' => false,
-                'message' => 'You have already reviewed this product.',
+                'message' => 'You can only review purchased items from completed orders.',
             ]);
     }
 
-    public function test_verified_purchase_is_detected(): void
+    public function test_user_cannot_submit_duplicate_review_for_same_order_context(): void
     {
-        $user = User::factory()->create();
+        $customer = User::factory()->create();
+        $vendor = User::factory()->create(['role' => 'vendor']);
+        $service = Service::factory()->create(['vendor_id' => $vendor->id]);
+        $order = $this->createEligibleOrderWithItem($customer, $vendor, $service);
+
+        $payload = [
+            'item_id' => $service->id,
+            'item_type' => 'service',
+            'order_id' => $order->id,
+            'rating' => 4.0,
+            'comment' => 'Great booking experience.',
+        ];
+
+        $this->actingAs($customer)->postJson('/api/v1/reviews', $payload)->assertStatus(201);
+
+        $response = $this->actingAs($customer)->postJson('/api/v1/reviews', $payload);
+
+        $response->assertStatus(422)
+            ->assertJson([
+                'success' => false,
+                'message' => 'You have already reviewed this purchase context.',
+            ]);
+    }
+
+    public function test_same_item_can_be_reviewed_for_different_orders(): void
+    {
+        $customer = User::factory()->create();
         $vendor = User::factory()->create(['role' => 'vendor']);
         $product = Product::factory()->create(['vendor_id' => $vendor->id]);
 
-        // Create a delivered order with this product
-        $order = Order::factory()->create([
-            'user_id' => $user->id,
-            'vendor_id' => $vendor->id,
-            'status' => 'delivered',
-        ]);
+        $orderOne = $this->createEligibleOrderWithItem($customer, $vendor, $product);
+        $orderTwo = $this->createEligibleOrderWithItem($customer, $vendor, $product);
 
-        OrderItem::factory()->create([
-            'order_id' => $order->id,
-            'orderable_type' => Product::class,
-            'orderable_id' => $product->id,
-        ]);
+        $this->actingAs($customer)->postJson('/api/v1/reviews', [
+            'item_id' => $product->id,
+            'item_type' => 'product',
+            'order_id' => $orderOne->id,
+            'rating' => 4.5,
+        ])->assertStatus(201);
 
-        $response = $this->actingAs($user)
-            ->postJson('/api/v1/reviews', [
-                'reviewable_type' => 'product',
-                'reviewable_id' => $product->id,
-                'rating' => 5,
-                'comment' => 'Verified purchase review.',
-            ]);
+        $this->actingAs($customer)->postJson('/api/v1/reviews', [
+            'item_id' => $product->id,
+            'item_type' => 'product',
+            'order_id' => $orderTwo->id,
+            'rating' => 5.0,
+        ])->assertStatus(201);
 
-        $response->assertStatus(201)
-            ->assertJson([
-                'data' => [
-                    'is_verified_purchase' => true,
-                ],
-            ]);
+        $this->assertDatabaseCount('reviews', 2);
     }
 
-    public function test_non_verified_purchase_is_marked_correctly(): void
+    public function test_reviews_index_is_public_and_item_scoped(): void
     {
-        $user = User::factory()->create();
         $product = Product::factory()->create();
 
-        // User hasn't purchased this product
-        $response = $this->actingAs($user)
-            ->postJson('/api/v1/reviews', [
-                'reviewable_type' => 'product',
-                'reviewable_id' => $product->id,
-                'rating' => 4,
-                'comment' => 'Non-verified review.',
-            ]);
+        Review::factory()->count(3)->create([
+            'item_type' => 'product',
+            'item_id' => $product->id,
+            'reviewable_type' => 'product',
+            'reviewable_id' => $product->id,
+        ]);
 
-        $response->assertStatus(201)
-            ->assertJson([
+        $response = $this->getJson("/api/v1/reviews?item_id={$product->id}&item_type=product");
+
+        $response->assertStatus(200)
+            ->assertJsonStructure([
+                'success',
+                'message',
                 'data' => [
-                    'is_verified_purchase' => false,
+                    'reviews' => [
+                        '*' => [
+                            'id',
+                            'user_id',
+                            'user_name',
+                            'user_avatar',
+                            'item_name',
+                            'item_id',
+                            'item_type',
+                            'order_id',
+                            'rating',
+                            'comment',
+                            'images',
+                            'helpful_count',
+                            'is_helpful_by_me',
+                            'is_verified_purchase',
+                            'created_at',
+                            'updated_at',
+                        ],
+                    ],
+                    'average_rating',
+                    'total_reviews',
+                    'rating_distribution' => [
+                        '1',
+                        '2',
+                        '3',
+                        '4',
+                        '5',
+                    ],
+                    'current_page',
+                    'last_page',
                 ],
             ]);
+
+        $this->assertSame(3, $response->json('data.total_reviews'));
     }
 
-    public function test_user_can_update_their_review(): void
+    public function test_reviews_index_requires_item_filters(): void
     {
-        $user = User::factory()->create();
+        $response = $this->getJson('/api/v1/reviews');
+
+        $response->assertStatus(422)
+            ->assertJson([
+                'success' => false,
+                'message' => 'Validation failed',
+            ])
+            ->assertJsonValidationErrors(['item_id', 'item_type']);
+    }
+
+    public function test_review_show_is_public(): void
+    {
         $product = Product::factory()->create();
 
         $review = Review::factory()->create([
-            'user_id' => $user->id,
-            'reviewable_type' => Product::class,
+            'item_type' => 'product',
+            'item_id' => $product->id,
+            'reviewable_type' => 'product',
             'reviewable_id' => $product->id,
-            'rating' => 3,
-            'comment' => 'Original comment.',
         ]);
 
-        $response = $this->actingAs($user)
-            ->putJson("/api/v1/reviews/{$review->id}", [
-                'rating' => 5,
-                'comment' => 'Updated comment after better experience.',
+        $response = $this->getJson("/api/v1/reviews/{$review->id}");
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'success' => true,
+                'message' => 'Review retrieved successfully.',
+                'data' => [
+                    'id' => $review->id,
+                ],
             ]);
+    }
+
+    public function test_user_can_update_own_review_with_matching_item_payload(): void
+    {
+        $customer = User::factory()->create();
+        $product = Product::factory()->create();
+        $review = Review::factory()->create([
+            'user_id' => $customer->id,
+            'item_type' => 'product',
+            'item_id' => $product->id,
+            'reviewable_type' => 'product',
+            'reviewable_id' => $product->id,
+            'rating' => 3.0,
+            'comment' => 'Old comment.',
+        ]);
+
+        $response = $this->actingAs($customer)->putJson("/api/v1/reviews/{$review->id}", [
+            'item_id' => $product->id,
+            'item_type' => 'product',
+            'rating' => 4.5,
+            'comment' => 'Updated after second delivery.',
+        ]);
 
         $response->assertStatus(200)
             ->assertJson([
                 'success' => true,
                 'message' => 'Review updated successfully.',
+                'data' => [
+                    'review' => [
+                        'rating' => 4.5,
+                        'comment' => 'Updated after second delivery.',
+                    ],
+                ],
             ]);
-
-        $review->refresh();
-        $this->assertEquals(5, $review->rating);
-        $this->assertEquals('Updated comment after better experience.', $review->comment);
     }
 
-    public function test_user_cannot_update_another_users_review(): void
+    public function test_user_cannot_update_review_with_mismatched_item_context(): void
     {
-        $user = User::factory()->create();
-        $otherUser = User::factory()->create();
+        $customer = User::factory()->create();
         $product = Product::factory()->create();
-
+        $anotherProduct = Product::factory()->create();
         $review = Review::factory()->create([
-            'user_id' => $otherUser->id,
-            'reviewable_type' => Product::class,
+            'user_id' => $customer->id,
+            'item_type' => 'product',
+            'item_id' => $product->id,
+            'reviewable_type' => 'product',
             'reviewable_id' => $product->id,
         ]);
 
-        $response = $this->actingAs($user)
-            ->putJson("/api/v1/reviews/{$review->id}", [
-                'rating' => 1,
-                'comment' => 'Trying to change someone else\'s review.',
-            ]);
+        $response = $this->actingAs($customer)->putJson("/api/v1/reviews/{$review->id}", [
+            'item_id' => $anotherProduct->id,
+            'item_type' => 'product',
+            'rating' => 5.0,
+        ]);
 
-        $response->assertStatus(403);
+        $response->assertStatus(422)
+            ->assertJson([
+                'success' => false,
+                'message' => 'Item context does not match this review.',
+            ]);
     }
 
-    public function test_user_can_delete_their_review(): void
+    public function test_user_can_delete_own_review(): void
     {
-        $user = User::factory()->create();
+        $customer = User::factory()->create();
         $product = Product::factory()->create();
 
         $review = Review::factory()->create([
-            'user_id' => $user->id,
-            'reviewable_type' => Product::class,
+            'user_id' => $customer->id,
+            'item_type' => 'product',
+            'item_id' => $product->id,
+            'reviewable_type' => 'product',
             'reviewable_id' => $product->id,
         ]);
 
-        $response = $this->actingAs($user)
-            ->deleteJson("/api/v1/reviews/{$review->id}");
-
-        $response->assertStatus(200)
+        $this->actingAs($customer)
+            ->deleteJson("/api/v1/reviews/{$review->id}")
+            ->assertStatus(200)
             ->assertJson([
                 'success' => true,
                 'message' => 'Review deleted successfully.',
             ]);
 
-        $this->assertDatabaseMissing('reviews', ['id' => $review->id]);
+        $this->assertSoftDeleted('reviews', ['id' => $review->id]);
     }
 
-    public function test_user_cannot_delete_another_users_review(): void
+    public function test_helpful_endpoint_toggles_for_authenticated_user(): void
     {
-        $user = User::factory()->create();
-        $otherUser = User::factory()->create();
         $product = Product::factory()->create();
 
         $review = Review::factory()->create([
-            'user_id' => $otherUser->id,
-            'reviewable_type' => Product::class,
+            'item_type' => 'product',
+            'item_id' => $product->id,
+            'reviewable_type' => 'product',
             'reviewable_id' => $product->id,
         ]);
 
-        $response = $this->actingAs($user)
-            ->deleteJson("/api/v1/reviews/{$review->id}");
+        $helper = User::factory()->create();
 
-        $response->assertStatus(403);
-        $this->assertDatabaseHas('reviews', ['id' => $review->id]);
-    }
-
-    public function test_product_rating_is_updated_after_review(): void
-    {
-        $user = User::factory()->create();
-        $product = Product::factory()->create([
-            'rating' => 0,
-            'reviews_count' => 0,
-        ]);
-
-        $this->actingAs($user)
-            ->postJson('/api/v1/reviews', [
-                'reviewable_type' => 'product',
-                'reviewable_id' => $product->id,
-                'rating' => 4,
-                'comment' => 'Great product!',
+        $first = $this->actingAs($helper)->postJson("/api/v1/reviews/{$review->id}/helpful");
+        $first->assertStatus(200)
+            ->assertJson([
+                'success' => true,
+                'data' => [
+                    'is_helpful_by_me' => true,
+                    'helpful_count' => 1,
+                ],
             ]);
 
-        $product->refresh();
-        $this->assertEquals(4.0, (float) $product->rating);
-        $this->assertEquals(1, $product->reviews_count);
+        $second = $this->actingAs($helper)->postJson("/api/v1/reviews/{$review->id}/helpful");
+        $second->assertStatus(200)
+            ->assertJson([
+                'success' => true,
+                'data' => [
+                    'is_helpful_by_me' => false,
+                    'helpful_count' => 0,
+                ],
+            ]);
     }
 
-    public function test_can_view_product_reviews_publicly(): void
+    public function test_vendor_can_list_only_their_reviews_with_filters(): void
     {
-        $product = Product::factory()->create();
-        Review::factory()->count(5)->create([
-            'reviewable_type' => Product::class,
-            'reviewable_id' => $product->id,
+        $vendor = User::factory()->create(['role' => 'vendor']);
+        $otherVendor = User::factory()->create(['role' => 'vendor']);
+
+        $ownedProduct = Product::factory()->create(['vendor_id' => $vendor->id]);
+        $otherProduct = Product::factory()->create(['vendor_id' => $otherVendor->id]);
+
+        $matching = Review::factory()->create([
+            'item_type' => 'product',
+            'item_id' => $ownedProduct->id,
+            'reviewable_type' => 'product',
+            'reviewable_id' => $ownedProduct->id,
+            'rating' => 5.0,
+            'comment' => 'Amazing quality and packaging.',
+            'images' => ['reviews/owned.jpg'],
+        ]);
+        $matching->reviewImages()->create([
+            'storage_path' => 'reviews/owned.jpg',
+            'sort_order' => 1,
         ]);
 
-        $response = $this->getJson("/api/v1/products/{$product->id}/reviews");
+        Review::factory()->create([
+            'item_type' => 'product',
+            'item_id' => $ownedProduct->id,
+            'reviewable_type' => 'product',
+            'reviewable_id' => $ownedProduct->id,
+            'rating' => 3.0,
+            'comment' => 'Average result.',
+            'images' => null,
+        ]);
+
+        Review::factory()->create([
+            'item_type' => 'product',
+            'item_id' => $otherProduct->id,
+            'reviewable_type' => 'product',
+            'reviewable_id' => $otherProduct->id,
+            'rating' => 5.0,
+            'comment' => 'Amazing but not mine.',
+            'images' => ['reviews/other.jpg'],
+        ]);
+
+        $response = $this->actingAs($vendor)
+            ->getJson('/api/v1/vendor/reviews?rating=5&has_images=1&search=Amazing');
 
         $response->assertStatus(200)
             ->assertJsonStructure([
                 'success',
+                'message',
                 'data' => [
-                    '*' => ['id', 'rating', 'comment', 'user'],
-                ],
-                'stats' => [
+                    'reviews',
                     'average_rating',
                     'total_reviews',
-                    'verified_purchases',
-                    'rating_distribution',
+                    'rating_distribution' => ['1', '2', '3', '4', '5'],
+                    'current_page',
+                    'last_page',
                 ],
-                'meta',
             ]);
+
+        $this->assertSame(1, $response->json('data.total_reviews'));
+        $this->assertSame($matching->id, $response->json('data.reviews.0.id'));
     }
 
-    public function test_can_view_service_reviews_publicly(): void
+    public function test_non_vendor_cannot_access_vendor_reviews_endpoint(): void
     {
-        $service = Service::factory()->create();
-        Review::factory()->count(3)->create([
-            'reviewable_type' => Service::class,
-            'reviewable_id' => $service->id,
-        ]);
+        $customer = User::factory()->create(['role' => 'customer']);
 
-        $response = $this->getJson("/api/v1/services/{$service->id}/reviews");
-
-        $response->assertStatus(200)
-            ->assertJsonStructure([
-                'success',
-                'data',
-                'stats',
-                'meta',
-            ]);
+        $this->actingAs($customer)
+            ->getJson('/api/v1/vendor/reviews')
+            ->assertStatus(403);
     }
 
-    public function test_can_view_vendor_reviews_publicly(): void
+    public function test_vendor_can_create_and_upsert_single_reply_for_owned_review(): void
     {
         $vendor = User::factory()->create(['role' => 'vendor']);
         $product = Product::factory()->create(['vendor_id' => $vendor->id]);
-        $service = Service::factory()->create(['vendor_id' => $vendor->id]);
-
-        Review::factory()->count(3)->create([
-            'reviewable_type' => Product::class,
-            'reviewable_id' => $product->id,
-        ]);
-
-        Review::factory()->count(2)->create([
-            'reviewable_type' => Service::class,
-            'reviewable_id' => $service->id,
-        ]);
-
-        $response = $this->getJson("/api/v1/vendors/{$vendor->id}/reviews");
-
-        $response->assertStatus(200)
-            ->assertJsonStructure([
-                'success',
-                'data',
-                'stats' => [
-                    'average_rating',
-                    'total_reviews',
-                    'verified_purchases',
-                    'rating_distribution',
-                ],
-                'meta',
-            ]);
-
-        $this->assertEquals(5, $response->json('meta.total'));
-    }
-
-    public function test_can_filter_reviews_by_rating(): void
-    {
-        $product = Product::factory()->create();
-
-        Review::factory()->count(3)->create([
-            'reviewable_type' => Product::class,
-            'reviewable_id' => $product->id,
-            'rating' => 5,
-        ]);
-
-        Review::factory()->count(2)->create([
-            'reviewable_type' => Product::class,
-            'reviewable_id' => $product->id,
-            'rating' => 3,
-        ]);
-
-        $response = $this->getJson("/api/v1/products/{$product->id}/reviews?rating=5");
-
-        $response->assertStatus(200);
-        $this->assertEquals(3, $response->json('meta.total'));
-    }
-
-    public function test_can_filter_verified_reviews_only(): void
-    {
-        $product = Product::factory()->create();
-
-        Review::factory()->count(3)->verified()->create([
-            'reviewable_type' => Product::class,
-            'reviewable_id' => $product->id,
-        ]);
-
-        Review::factory()->count(2)->unverified()->create([
-            'reviewable_type' => Product::class,
-            'reviewable_id' => $product->id,
-        ]);
-
-        $response = $this->getJson("/api/v1/products/{$product->id}/reviews?verified_only=true");
-
-        $response->assertStatus(200);
-        $this->assertEquals(3, $response->json('meta.total'));
-    }
-
-    public function test_review_validation_requires_rating(): void
-    {
-        $user = User::factory()->create();
-        $product = Product::factory()->create();
-
-        $response = $this->actingAs($user)
-            ->postJson('/api/v1/reviews', [
-                'reviewable_type' => 'product',
-                'reviewable_id' => $product->id,
-                'comment' => 'Missing rating.',
-            ]);
-
-        $response->assertStatus(422)
-            ->assertJsonValidationErrors(['rating']);
-    }
-
-    public function test_review_validation_rating_must_be_between_1_and_5(): void
-    {
-        $user = User::factory()->create();
-        $product = Product::factory()->create();
-
-        $response = $this->actingAs($user)
-            ->postJson('/api/v1/reviews', [
-                'reviewable_type' => 'product',
-                'reviewable_id' => $product->id,
-                'rating' => 6,
-            ]);
-
-        $response->assertStatus(422)
-            ->assertJsonValidationErrors(['rating']);
-
-        $response = $this->actingAs($user)
-            ->postJson('/api/v1/reviews', [
-                'reviewable_type' => 'product',
-                'reviewable_id' => $product->id,
-                'rating' => 0,
-            ]);
-
-        $response->assertStatus(422)
-            ->assertJsonValidationErrors(['rating']);
-    }
-
-    public function test_review_can_have_images(): void
-    {
-        $user = User::factory()->create();
-        $product = Product::factory()->create();
-
-        $response = $this->actingAs($user)
-            ->postJson('/api/v1/reviews', [
-                'reviewable_type' => 'product',
-                'reviewable_id' => $product->id,
-                'rating' => 5,
-                'comment' => 'With images!',
-                'images' => [
-                    'reviews/image1.jpg',
-                    'reviews/image2.jpg',
-                ],
-            ]);
-
-        $response->assertStatus(201);
-
-        $this->assertDatabaseHas('reviews', [
-            'user_id' => $user->id,
-        ]);
-
-        $review = Review::where('user_id', $user->id)->first();
-        $this->assertCount(2, $review->images);
-    }
-
-    public function test_review_for_nonexistent_product_fails(): void
-    {
-        $user = User::factory()->create();
-
-        $response = $this->actingAs($user)
-            ->postJson('/api/v1/reviews', [
-                'reviewable_type' => 'product',
-                'reviewable_id' => 99999,
-                'rating' => 5,
-            ]);
-
-        $response->assertStatus(404)
-            ->assertJson([
-                'success' => false,
-                'message' => 'Product not found.',
-            ]);
-    }
-
-    public function test_unauthenticated_user_cannot_create_review(): void
-    {
-        $product = Product::factory()->create();
-
-        $response = $this->postJson('/api/v1/reviews', [
+        $review = Review::factory()->create([
+            'item_type' => 'product',
+            'item_id' => $product->id,
             'reviewable_type' => 'product',
             'reviewable_id' => $product->id,
-            'rating' => 5,
         ]);
 
-        $response->assertStatus(401);
+        $create = $this->actingAs($vendor)->postJson("/api/v1/reviews/{$review->id}/replies", [
+            'message' => 'Thanks for your feedback.',
+        ]);
+
+        $create->assertStatus(201)
+            ->assertJson([
+                'success' => true,
+                'data' => [
+                    'message' => 'Thanks for your feedback.',
+                ],
+            ]);
+
+        $update = $this->actingAs($vendor)->postJson("/api/v1/reviews/{$review->id}/replies", [
+            'message' => 'Thanks again, we improved packaging.',
+        ]);
+
+        $update->assertStatus(200)
+            ->assertJson([
+                'success' => true,
+                'data' => [
+                    'message' => 'Thanks again, we improved packaging.',
+                ],
+            ]);
+
+        $this->assertDatabaseCount('review_replies', 1);
     }
 
-    public function test_rating_distribution_is_correct(): void
+    public function test_vendor_reply_endpoints_respect_ownership(): void
     {
-        $product = Product::factory()->create();
+        $ownerVendor = User::factory()->create(['role' => 'vendor']);
+        $otherVendor = User::factory()->create(['role' => 'vendor']);
+        $product = Product::factory()->create(['vendor_id' => $ownerVendor->id]);
 
-        // Create reviews with specific ratings
-        Review::factory()->count(5)->create([
-            'reviewable_type' => Product::class,
+        $review = Review::factory()->create([
+            'item_type' => 'product',
+            'item_id' => $product->id,
+            'reviewable_type' => 'product',
             'reviewable_id' => $product->id,
-            'rating' => 5,
         ]);
 
-        Review::factory()->count(3)->create([
-            'reviewable_type' => Product::class,
-            'reviewable_id' => $product->id,
-            'rating' => 4,
+        $this->actingAs($otherVendor)->postJson("/api/v1/reviews/{$review->id}/replies", [
+            'message' => 'Not my review.',
+        ])->assertStatus(403);
+
+        $reply = ReviewReply::factory()->create([
+            'review_id' => $review->id,
+            'vendor_id' => $ownerVendor->id,
         ]);
 
-        Review::factory()->count(2)->create([
-            'reviewable_type' => Product::class,
+        $this->actingAs($otherVendor)->putJson("/api/v1/review-replies/{$reply->id}", [
+            'message' => 'Trying to overwrite.',
+        ])->assertStatus(403);
+
+        $this->actingAs($otherVendor)
+            ->deleteJson("/api/v1/review-replies/{$reply->id}")
+            ->assertStatus(403);
+    }
+
+    public function test_review_replies_can_be_listed_publicly(): void
+    {
+        $vendor = User::factory()->create(['role' => 'vendor']);
+        $product = Product::factory()->create(['vendor_id' => $vendor->id]);
+        $review = Review::factory()->create([
+            'item_type' => 'product',
+            'item_id' => $product->id,
+            'reviewable_type' => 'product',
             'reviewable_id' => $product->id,
-            'rating' => 3,
         ]);
 
-        $response = $this->getJson("/api/v1/products/{$product->id}/reviews");
+        ReviewReply::factory()->create([
+            'review_id' => $review->id,
+            'vendor_id' => $vendor->id,
+            'message' => 'We appreciate your order.',
+        ]);
 
-        $response->assertStatus(200);
+        $response = $this->getJson("/api/v1/reviews/{$review->id}/replies");
 
-        $distribution = $response->json('stats.rating_distribution');
-        $this->assertEquals(5, $distribution[5]);
-        $this->assertEquals(3, $distribution[4]);
-        $this->assertEquals(2, $distribution[3]);
-        $this->assertEquals(0, $distribution[2]);
-        $this->assertEquals(0, $distribution[1]);
+        $response->assertStatus(200)
+            ->assertJson([
+                'success' => true,
+            ])
+            ->assertJsonCount(1, 'data');
+    }
+
+    private function createEligibleOrderWithItem(
+        User $customer,
+        User $vendor,
+        Product|Service $item,
+        string $status = 'delivered'
+    ): Order {
+        $order = Order::factory()->create([
+            'user_id' => $customer->id,
+            'vendor_id' => $vendor->id,
+            'status' => $status,
+        ]);
+
+        OrderItem::factory()->create([
+            'order_id' => $order->id,
+            'orderable_type' => $item::class,
+            'orderable_id' => $item->id,
+        ]);
+
+        return $order;
     }
 }

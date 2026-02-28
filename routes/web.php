@@ -11,6 +11,7 @@ use App\Http\Controllers\InterestController;
 use App\Http\Controllers\MarketerDashboardController;
 use App\Http\Controllers\MusicGenreController;
 use App\Http\Controllers\PersonalityTraitController;
+use App\Http\Controllers\ProductShareController;
 use App\Http\Controllers\ReferralCodeController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\TargetController;
@@ -25,6 +26,17 @@ Route::get('/', function () {
         'canRegister' => Features::enabled(Features::registration()),
     ]);
 })->name('home');
+
+Route::prefix('.well-known')->group(function () {
+    Route::get('/assetlinks.json', [ProductShareController::class, 'assetLinks'])
+        ->name('well-known.assetlinks');
+    Route::get('/apple-app-site-association', [ProductShareController::class, 'appleAppSiteAssociation'])
+        ->name('well-known.apple-app-site-association');
+});
+
+Route::get('/products/{id}', [ProductShareController::class, 'show'])
+    ->whereNumber('id')
+    ->name('products.share');
 
 // Admin Dashboard routes - only for admin and super_admin users
 Route::middleware(['auth', 'dashboard'])->prefix('dashboard')->group(function () {

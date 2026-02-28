@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\DB;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Sanctum\HasApiTokens;
 
@@ -14,6 +15,8 @@ class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasApiTokens, HasFactory, Notifiable, TwoFactorAuthenticatable;
+
+    private const ONLINE_WINDOW_MINUTES = 5;
 
     /**
      * The attributes that are mass assignable.
@@ -221,6 +224,28 @@ class User extends Authenticatable implements MustVerifyEmail
     public function sentMessages()
     {
         return $this->hasMany(Message::class, 'sender_id');
+    }
+
+    /**
+     * Determine if the user is online based on recent auth activity.
+     */
+    public function isOnline(): bool
+    {
+        $cutoff = now()->subMinutes(self::ONLINE_WINDOW_MINUTES);
+
+        $hasRecentTokenActivity = $this->tokens()
+            ->whereNotNull('last_used_at')
+            ->where('last_used_at', '>=', $cutoff)
+            ->exists();
+
+        if ($hasRecentTokenActivity) {
+            return true;
+        }
+
+        return DB::table('sessions')
+            ->where('user_id', $this->id)
+            ->where('last_activity', '>=', $cutoff->timestamp)
+            ->exists();
     }
 
     /**

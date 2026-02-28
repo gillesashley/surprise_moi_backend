@@ -21,19 +21,29 @@ class ReviewFactory extends Factory
     {
         $reviewableModelClass = $this->faker->randomElement([Product::class, Service::class]);
         $reviewableType = (new $reviewableModelClass)->getMorphClass();
+        $userId = User::factory();
+        $itemId = $reviewableModelClass::factory();
+        $rating = $this->faker->randomElement([
+            1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0,
+        ]);
 
         return [
-            'user_id' => User::factory(),
+            'user_id' => $userId,
+            'item_type' => $reviewableType,
+            'item_id' => $itemId,
             'reviewable_type' => $reviewableType,
-            'reviewable_id' => $reviewableModelClass::factory(),
-            'rating' => $this->faker->numberBetween(1, 5),
-            'comment' => $this->faker->paragraph(),
+            'reviewable_id' => $itemId,
+            'rating' => $rating,
+            'comment' => $this->faker->optional(0.95)->paragraph(),
             'images' => $this->faker->optional(0.3)->randomElements([
                 'reviews/image1.jpg',
                 'reviews/image2.jpg',
                 'reviews/image3.jpg',
             ], $this->faker->numberBetween(1, 3)),
             'is_verified_purchase' => $this->faker->boolean(30),
+            'helpful_count' => 0,
+            'order_id' => null,
+            'context_key' => null,
         ];
     }
 
@@ -43,6 +53,8 @@ class ReviewFactory extends Factory
     public function forProduct(?Product $product = null): static
     {
         return $this->state(fn (array $attributes) => [
+            'item_type' => (new Product)->getMorphClass(),
+            'item_id' => $product?->id ?? Product::factory(),
             'reviewable_type' => (new Product)->getMorphClass(),
             'reviewable_id' => $product?->id ?? Product::factory(),
         ]);
@@ -54,6 +66,8 @@ class ReviewFactory extends Factory
     public function forService(?Service $service = null): static
     {
         return $this->state(fn (array $attributes) => [
+            'item_type' => (new Service)->getMorphClass(),
+            'item_id' => $service?->id ?? Service::factory(),
             'reviewable_type' => (new Service)->getMorphClass(),
             'reviewable_id' => $service?->id ?? Service::factory(),
         ]);
@@ -82,10 +96,10 @@ class ReviewFactory extends Factory
     /**
      * Set a specific rating.
      */
-    public function withRating(int $rating): static
+    public function withRating(float $rating): static
     {
         return $this->state(fn (array $attributes) => [
-            'rating' => min(5, max(1, $rating)),
+            'rating' => min(5.0, max(1.0, $rating)),
         ]);
     }
 
