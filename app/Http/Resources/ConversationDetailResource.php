@@ -52,7 +52,7 @@ class ConversationDetailResource extends JsonResource
                 'name' => $otherParticipant->name,
                 'avatar' => $otherParticipant->avatar ? Storage::url($otherParticipant->avatar) : null,
                 'role' => $otherParticipant->role,
-                'is_online' => true,
+                'is_online' => $otherParticipant->isOnline(),
             ],
             'last_message' => $this->last_message,
             'last_message_at' => $this->last_message_at?->toIso8601String(),
