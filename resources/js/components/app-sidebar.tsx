@@ -37,7 +37,7 @@ import AppLogo from './app-logo';
 const getNavItemsForRole = (role: string): NavItem[] => {
     // Admin & Super Admin - full access with organized groups
     if (role === 'admin' || role === 'super_admin') {
-        return [
+        const items: NavItem[] = [
             {
                 title: 'Dashboard',
                 href: dashboard(),
@@ -117,12 +117,17 @@ const getNavItemsForRole = (role: string): NavItem[] => {
                 href: contentManagementIndex.url(),
                 icon: Settings2,
             },
-            {
+        ];
+
+        if (role === 'super_admin') {
+            items.push({
                 title: 'Jobs',
                 href: '/dashboard/jobs',
                 icon: BarChart3,
-            },
-        ];
+            });
+        }
+
+        return items;
     }
 
     // Influencer - referrals, earnings, payouts
