@@ -238,7 +238,7 @@ unreadCount.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
  * @see app/Http/Controllers/Api/V1/NotificationController.php:76
  * @route '/api/v1/notifications/{notification}/read'
  */
-export const markAsRead = (args: { notification: string | number | { id: string | number } } | [notification: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
+export const markAsRead = (args: { notification: string | { id: string } } | [notification: string | { id: string } ] | string | { id: string }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
     url: markAsRead.url(args, options),
     method: 'patch',
 })
@@ -253,7 +253,7 @@ markAsRead.definition = {
  * @see app/Http/Controllers/Api/V1/NotificationController.php:76
  * @route '/api/v1/notifications/{notification}/read'
  */
-markAsRead.url = (args: { notification: string | number | { id: string | number } } | [notification: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
+markAsRead.url = (args: { notification: string | { id: string } } | [notification: string | { id: string } ] | string | { id: string }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { notification: args }
     }
@@ -286,7 +286,7 @@ markAsRead.url = (args: { notification: string | number | { id: string | number 
  * @see app/Http/Controllers/Api/V1/NotificationController.php:76
  * @route '/api/v1/notifications/{notification}/read'
  */
-markAsRead.patch = (args: { notification: string | number | { id: string | number } } | [notification: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
+markAsRead.patch = (args: { notification: string | { id: string } } | [notification: string | { id: string } ] | string | { id: string }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
     url: markAsRead.url(args, options),
     method: 'patch',
 })
@@ -296,7 +296,7 @@ markAsRead.patch = (args: { notification: string | number | { id: string | numbe
  * @see app/Http/Controllers/Api/V1/NotificationController.php:76
  * @route '/api/v1/notifications/{notification}/read'
  */
-    const markAsReadForm = (args: { notification: string | number | { id: string | number } } | [notification: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    const markAsReadForm = (args: { notification: string | { id: string } } | [notification: string | { id: string } ] | string | { id: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
         action: markAsRead.url(args, {
                     [options?.mergeQuery ? 'mergeQuery' : 'query']: {
                         _method: 'PATCH',
@@ -311,7 +311,7 @@ markAsRead.patch = (args: { notification: string | number | { id: string | numbe
  * @see app/Http/Controllers/Api/V1/NotificationController.php:76
  * @route '/api/v1/notifications/{notification}/read'
  */
-        markAsReadForm.patch = (args: { notification: string | number | { id: string | number } } | [notification: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+        markAsReadForm.patch = (args: { notification: string | { id: string } } | [notification: string | { id: string } ] | string | { id: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
             action: markAsRead.url(args, {
                         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
                             _method: 'PATCH',
@@ -327,7 +327,7 @@ markAsRead.patch = (args: { notification: string | number | { id: string | numbe
  * @see app/Http/Controllers/Api/V1/NotificationController.php:98
  * @route '/api/v1/notifications/{notification}/unread'
  */
-export const markAsUnread = (args: { notification: string | number | { id: string | number } } | [notification: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
+export const markAsUnread = (args: { notification: string | { id: string } } | [notification: string | { id: string } ] | string | { id: string }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
     url: markAsUnread.url(args, options),
     method: 'patch',
 })
@@ -342,7 +342,7 @@ markAsUnread.definition = {
  * @see app/Http/Controllers/Api/V1/NotificationController.php:98
  * @route '/api/v1/notifications/{notification}/unread'
  */
-markAsUnread.url = (args: { notification: string | number | { id: string | number } } | [notification: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
+markAsUnread.url = (args: { notification: string | { id: string } } | [notification: string | { id: string } ] | string | { id: string }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { notification: args }
     }
@@ -375,7 +375,7 @@ markAsUnread.url = (args: { notification: string | number | { id: string | numbe
  * @see app/Http/Controllers/Api/V1/NotificationController.php:98
  * @route '/api/v1/notifications/{notification}/unread'
  */
-markAsUnread.patch = (args: { notification: string | number | { id: string | number } } | [notification: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
+markAsUnread.patch = (args: { notification: string | { id: string } } | [notification: string | { id: string } ] | string | { id: string }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
     url: markAsUnread.url(args, options),
     method: 'patch',
 })
@@ -385,7 +385,7 @@ markAsUnread.patch = (args: { notification: string | number | { id: string | num
  * @see app/Http/Controllers/Api/V1/NotificationController.php:98
  * @route '/api/v1/notifications/{notification}/unread'
  */
-    const markAsUnreadForm = (args: { notification: string | number | { id: string | number } } | [notification: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    const markAsUnreadForm = (args: { notification: string | { id: string } } | [notification: string | { id: string } ] | string | { id: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
         action: markAsUnread.url(args, {
                     [options?.mergeQuery ? 'mergeQuery' : 'query']: {
                         _method: 'PATCH',
@@ -400,7 +400,7 @@ markAsUnread.patch = (args: { notification: string | number | { id: string | num
  * @see app/Http/Controllers/Api/V1/NotificationController.php:98
  * @route '/api/v1/notifications/{notification}/unread'
  */
-        markAsUnreadForm.patch = (args: { notification: string | number | { id: string | number } } | [notification: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+        markAsUnreadForm.patch = (args: { notification: string | { id: string } } | [notification: string | { id: string } ] | string | { id: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
             action: markAsUnread.url(args, {
                         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
                             _method: 'PATCH',
@@ -481,7 +481,7 @@ markAllAsRead.patch = (options?: RouteQueryOptions): RouteDefinition<'patch'> =>
  * @see app/Http/Controllers/Api/V1/NotificationController.php:137
  * @route '/api/v1/notifications/{notification}'
  */
-export const destroy = (args: { notification: string | number | { id: string | number } } | [notification: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
+export const destroy = (args: { notification: string | { id: string } } | [notification: string | { id: string } ] | string | { id: string }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
     url: destroy.url(args, options),
     method: 'delete',
 })
@@ -496,7 +496,7 @@ destroy.definition = {
  * @see app/Http/Controllers/Api/V1/NotificationController.php:137
  * @route '/api/v1/notifications/{notification}'
  */
-destroy.url = (args: { notification: string | number | { id: string | number } } | [notification: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
+destroy.url = (args: { notification: string | { id: string } } | [notification: string | { id: string } ] | string | { id: string }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { notification: args }
     }
@@ -529,7 +529,7 @@ destroy.url = (args: { notification: string | number | { id: string | number } }
  * @see app/Http/Controllers/Api/V1/NotificationController.php:137
  * @route '/api/v1/notifications/{notification}'
  */
-destroy.delete = (args: { notification: string | number | { id: string | number } } | [notification: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
+destroy.delete = (args: { notification: string | { id: string } } | [notification: string | { id: string } ] | string | { id: string }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
     url: destroy.url(args, options),
     method: 'delete',
 })
@@ -539,7 +539,7 @@ destroy.delete = (args: { notification: string | number | { id: string | number 
  * @see app/Http/Controllers/Api/V1/NotificationController.php:137
  * @route '/api/v1/notifications/{notification}'
  */
-    const destroyForm = (args: { notification: string | number | { id: string | number } } | [notification: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    const destroyForm = (args: { notification: string | { id: string } } | [notification: string | { id: string } ] | string | { id: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
         action: destroy.url(args, {
                     [options?.mergeQuery ? 'mergeQuery' : 'query']: {
                         _method: 'DELETE',
@@ -554,7 +554,7 @@ destroy.delete = (args: { notification: string | number | { id: string | number 
  * @see app/Http/Controllers/Api/V1/NotificationController.php:137
  * @route '/api/v1/notifications/{notification}'
  */
-        destroyForm.delete = (args: { notification: string | number | { id: string | number } } | [notification: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+        destroyForm.delete = (args: { notification: string | { id: string } } | [notification: string | { id: string } ] | string | { id: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
             action: destroy.url(args, {
                         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
                             _method: 'DELETE',
