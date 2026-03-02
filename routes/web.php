@@ -51,8 +51,8 @@ Route::middleware(['auth', 'dashboard'])->prefix('dashboard')->group(function ()
     // All Transactions
     Route::get('transactions', [AdminDashboardController::class, 'allTransactions'])->name('transactions');
 
-    // Jobs Dashboard
-    Route::get('jobs', [AdminDashboardController::class, 'jobs'])->name('jobs');
+    // Jobs Dashboard (super_admin only)
+    Route::get('jobs', [AdminDashboardController::class, 'jobs'])->name('jobs')->middleware('role:super_admin');
 
     Route::resource('users', UserController::class)->names([
         'index' => 'users.index',

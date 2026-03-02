@@ -328,13 +328,15 @@ class AdminDashboardController extends Controller
                 'description' => 'Order #'.$order->order_number,
             ]);
 
-        return Inertia::render('commission-statistics/index', [
-            'totalOrders' => $totalOrders,
-            'totalSales' => (string) $totalSales,
-            'totalCommission' => (string) $totalCommission,
-            'totalPayouts' => (string) $totalPayouts,
-            'averageCommissionRate' => $averageCommissionRate,
-            'tierBreakdown' => $tierBreakdown,
+        return Inertia::render('transactions/index', [
+            'orders' => $mappedOrders,
+            'statistics' => $this->getOrderStatistics(),
+            'filters' => [
+                'type' => $type,
+                'status' => $status,
+                'date_from' => $dateFrom,
+                'date_to' => $dateTo,
+            ],
         ]);
         }
 
