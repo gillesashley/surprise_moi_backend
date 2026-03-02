@@ -113,7 +113,7 @@ function QuickActionCard({
     href: string;
 }) {
     return (
-        <a
+        <Link
             href={href}
             className={`group block rounded-xl p-5 transition-all duration-200 hover:scale-[1.02] hover:shadow-md ${bgColor}`}
         >
@@ -126,7 +126,7 @@ function QuickActionCard({
                     <p className="text-sm opacity-80">{description}</p>
                 </div>
             </div>
-        </a>
+        </Link>
     );
 }
 
@@ -435,14 +435,14 @@ export default function Dashboard({
                                 description="View and manage user accounts"
                                 icon={Users}
                                 bgColor="bg-primary/10 text-primary hover:bg-primary/20"
-                                href="/users"
+                                href="/dashboard/users"
                             />
                             <QuickActionCard
                                 title="Content Management"
                                 description="Update categories and content"
                                 icon={Package}
                                 bgColor="bg-accent/10 text-accent-foreground hover:bg-accent/20"
-                                href="/content-management"
+                                href="/dashboard/content-management"
                             />
                         </div>
                     </div>
