@@ -3,7 +3,9 @@ import InputError from '@/components/input-error';
 import AppLayout from '@/layouts/app-layout';
 import SettingsLayout from '@/layouts/settings/layout';
 import { type BreadcrumbItem } from '@/types';
-import { Transition } from '@headlessui/react';
+import Fade from '@mui/material/Fade';
+import Typography from '@mui/material/Typography';
+import Box from '@mui/material/Box';
 import { Form, Head } from '@inertiajs/react';
 import { useRef } from 'react';
 
@@ -29,7 +31,7 @@ export default function Password() {
             <Head title="Password settings" />
 
             <SettingsLayout>
-                <div className="space-y-6">
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
                     <HeadingSmall
                         title="Update password"
                         description="Ensure your account is using a long, random password to stay secure"
@@ -55,11 +57,11 @@ export default function Password() {
                                 currentPasswordInput.current?.focus();
                             }
                         }}
-                        className="space-y-6"
+                        style={{ display: 'flex', flexDirection: 'column', gap: 24 }}
                     >
                         {({ errors, processing, recentlySuccessful }) => (
                             <>
-                                <div className="grid gap-2">
+                                <Box sx={{ display: 'grid', gap: 1 }}>
                                     <Label htmlFor="current_password">
                                         Current password
                                     </Label>
@@ -69,7 +71,6 @@ export default function Password() {
                                         ref={currentPasswordInput}
                                         name="current_password"
                                         type="password"
-                                        className="mt-1 block w-full"
                                         autoComplete="current-password"
                                         placeholder="Current password"
                                     />
@@ -77,9 +78,9 @@ export default function Password() {
                                     <InputError
                                         message={errors.current_password}
                                     />
-                                </div>
+                                </Box>
 
-                                <div className="grid gap-2">
+                                <Box sx={{ display: 'grid', gap: 1 }}>
                                     <Label htmlFor="password">
                                         New password
                                     </Label>
@@ -89,15 +90,14 @@ export default function Password() {
                                         ref={passwordInput}
                                         name="password"
                                         type="password"
-                                        className="mt-1 block w-full"
                                         autoComplete="new-password"
                                         placeholder="New password"
                                     />
 
                                     <InputError message={errors.password} />
-                                </div>
+                                </Box>
 
-                                <div className="grid gap-2">
+                                <Box sx={{ display: 'grid', gap: 1 }}>
                                     <Label htmlFor="password_confirmation">
                                         Confirm password
                                     </Label>
@@ -106,7 +106,6 @@ export default function Password() {
                                         id="password_confirmation"
                                         name="password_confirmation"
                                         type="password"
-                                        className="mt-1 block w-full"
                                         autoComplete="new-password"
                                         placeholder="Confirm password"
                                     />
@@ -114,9 +113,9 @@ export default function Password() {
                                     <InputError
                                         message={errors.password_confirmation}
                                     />
-                                </div>
+                                </Box>
 
-                                <div className="flex items-center gap-4">
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                                     <Button
                                         disabled={processing}
                                         data-test="update-password-button"
@@ -124,22 +123,16 @@ export default function Password() {
                                         Save password
                                     </Button>
 
-                                    <Transition
-                                        show={recentlySuccessful}
-                                        enter="transition ease-in-out"
-                                        enterFrom="opacity-0"
-                                        leave="transition ease-in-out"
-                                        leaveTo="opacity-0"
-                                    >
-                                        <p className="text-sm text-neutral-600">
+                                    <Fade in={recentlySuccessful}>
+                                        <Typography variant="body2" color="text.secondary">
                                             Saved
-                                        </p>
-                                    </Transition>
-                                </div>
+                                        </Typography>
+                                    </Fade>
+                                </Box>
                             </>
                         )}
                     </Form>
-                </div>
+                </Box>
             </SettingsLayout>
         </AppLayout>
     );

@@ -1,7 +1,9 @@
 import ProfileController from '@/actions/App/Http/Controllers/Settings/ProfileController';
 import { send } from '@/routes/verification';
 import { type BreadcrumbItem, type SharedData } from '@/types';
-import { Transition } from '@headlessui/react';
+import Fade from '@mui/material/Fade';
+import Typography from '@mui/material/Typography';
+import Box from '@mui/material/Box';
 import { Form, Head, Link, usePage } from '@inertiajs/react';
 
 import DeleteUser from '@/components/delete-user';
@@ -42,7 +44,7 @@ export default function Profile({
             <Head title="Profile settings" />
 
             <SettingsLayout>
-                <div className="space-y-6">
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
                     <HeadingSmall
                         title="Profile information"
                         description="Update your profile information"
@@ -53,16 +55,15 @@ export default function Profile({
                         options={{
                             preserveScroll: true,
                         }}
-                        className="space-y-6"
+                        style={{ display: 'flex', flexDirection: 'column', gap: 24 }}
                     >
                         {({ processing, recentlySuccessful, errors }) => (
                             <>
-                                <div className="grid gap-2">
+                                <Box sx={{ display: 'grid', gap: 1 }}>
                                     <Label htmlFor="name">Name</Label>
 
                                     <Input
                                         id="name"
-                                        className="mt-1 block w-full"
                                         defaultValue={auth.user.name}
                                         name="name"
                                         required
@@ -71,18 +72,16 @@ export default function Profile({
                                     />
 
                                     <InputError
-                                        className="mt-2"
                                         message={errors.name}
                                     />
-                                </div>
+                                </Box>
 
-                                <div className="grid gap-2">
+                                <Box sx={{ display: 'grid', gap: 1 }}>
                                     <Label htmlFor="email">Email address</Label>
 
                                     <Input
                                         id="email"
                                         type="email"
-                                        className="mt-1 block w-full"
                                         defaultValue={auth.user.email}
                                         name="email"
                                         required
@@ -91,18 +90,16 @@ export default function Profile({
                                     />
 
                                     <InputError
-                                        className="mt-2"
                                         message={errors.email}
                                     />
-                                </div>
+                                </Box>
 
-                                <div className="grid gap-2">
+                                <Box sx={{ display: 'grid', gap: 1 }}>
                                     <Label htmlFor="phone">Phone number</Label>
 
                                     <Input
                                         id="phone"
                                         type="tel"
-                                        className="mt-1 block w-full"
                                         defaultValue={auth.user.phone || ''}
                                         name="phone"
                                         autoComplete="tel"
@@ -110,19 +107,18 @@ export default function Profile({
                                     />
 
                                     <InputError
-                                        className="mt-2"
                                         message={errors.phone}
                                     />
-                                </div>
+                                </Box>
 
-                                <div className="grid gap-2">
+                                <Box sx={{ display: 'grid', gap: 1 }}>
                                     <Label htmlFor="gender">Gender</Label>
 
                                     <Select
                                         name="gender"
                                         defaultValue={auth.user.gender || ''}
                                     >
-                                        <SelectTrigger className="mt-1 w-full">
+                                        <SelectTrigger>
                                             <SelectValue placeholder="Select gender" />
                                         </SelectTrigger>
                                         <SelectContent>
@@ -142,12 +138,11 @@ export default function Profile({
                                     </Select>
 
                                     <InputError
-                                        className="mt-2"
                                         message={errors.gender}
                                     />
-                                </div>
+                                </Box>
 
-                                <div className="grid gap-2">
+                                <Box sx={{ display: 'grid', gap: 1 }}>
                                     <Label htmlFor="date_of_birth">
                                         Date of birth
                                     </Label>
@@ -155,7 +150,6 @@ export default function Profile({
                                     <Input
                                         id="date_of_birth"
                                         type="date"
-                                        className="mt-1 block w-full"
                                         defaultValue={
                                             auth.user.date_of_birth || ''
                                         }
@@ -164,39 +158,42 @@ export default function Profile({
                                     />
 
                                     <InputError
-                                        className="mt-2"
                                         message={errors.date_of_birth}
                                     />
-                                </div>
+                                </Box>
 
                                 {mustVerifyEmail &&
                                     auth.user.email_verified_at === null && (
-                                        <div>
-                                            <p className="-mt-4 text-sm text-muted-foreground">
+                                        <Box>
+                                            <Typography variant="body2" color="text.secondary" sx={{ mt: -2 }}>
                                                 Your email address is
                                                 unverified.{' '}
                                                 <Link
                                                     href={send()}
                                                     as="button"
-                                                    className="text-foreground underline decoration-neutral-300 underline-offset-4 transition-colors duration-300 ease-out hover:decoration-current! dark:decoration-neutral-500"
+                                                    style={{
+                                                        textDecoration: 'underline',
+                                                        textUnderlineOffset: '4px',
+                                                        color: 'inherit',
+                                                    }}
                                                 >
                                                     Click here to resend the
                                                     verification email.
                                                 </Link>
-                                            </p>
+                                            </Typography>
 
                                             {status ===
                                                 'verification-link-sent' && (
-                                                <div className="mt-2 text-sm font-medium text-green-600">
+                                                <Typography variant="body2" color="success.main" sx={{ mt: 1, fontWeight: 500 }}>
                                                     A new verification link has
                                                     been sent to your email
                                                     address.
-                                                </div>
+                                                </Typography>
                                             )}
-                                        </div>
+                                        </Box>
                                     )}
 
-                                <div className="flex items-center gap-4">
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                                     <Button
                                         disabled={processing}
                                         data-test="update-profile-button"
@@ -204,22 +201,16 @@ export default function Profile({
                                         Save
                                     </Button>
 
-                                    <Transition
-                                        show={recentlySuccessful}
-                                        enter="transition ease-in-out"
-                                        enterFrom="opacity-0"
-                                        leave="transition ease-in-out"
-                                        leaveTo="opacity-0"
-                                    >
-                                        <p className="text-sm text-neutral-600">
+                                    <Fade in={recentlySuccessful}>
+                                        <Typography variant="body2" color="text.secondary">
                                             Saved
-                                        </p>
-                                    </Transition>
-                                </div>
+                                        </Typography>
+                                    </Fade>
+                                </Box>
                             </>
                         )}
                     </Form>
-                </div>
+                </Box>
 
                 <DeleteUser />
             </SettingsLayout>
