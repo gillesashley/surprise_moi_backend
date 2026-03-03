@@ -19,6 +19,8 @@ import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, router, useForm } from '@inertiajs/react';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
 import { FormEvent, useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -69,15 +71,15 @@ export default function CreateAdvertisement() {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Create Advertisement" />
 
-            <div className="space-y-6">
-                <div>
-                    <h1 className="text-3xl font-bold tracking-tight">
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                <Box>
+                    <Typography variant="h4" sx={{ fontWeight: 700, letterSpacing: '-0.025em' }}>
                         Create Advertisement
-                    </h1>
-                    <p className="text-muted-foreground">
+                    </Typography>
+                    <Typography sx={{ color: 'text.secondary' }}>
                         Create a new advertisement to display in the app
-                    </p>
-                </div>
+                    </Typography>
+                </Box>
 
                 <form onSubmit={handleSubmit}>
                     <Card>
@@ -87,11 +89,12 @@ export default function CreateAdvertisement() {
                                 Fill in the details for the new advertisement
                             </CardDescription>
                         </CardHeader>
-                        <CardContent className="space-y-6">
-                            <div className="space-y-2">
+                        <CardContent>
+                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                 <Label htmlFor="title">
                                     Title{' '}
-                                    <span className="text-red-500">*</span>
+                                    <Box component="span" sx={{ color: 'error.main' }}>*</Box>
                                 </Label>
                                 <Input
                                     id="title"
@@ -103,13 +106,13 @@ export default function CreateAdvertisement() {
                                     required
                                 />
                                 {errors.title && (
-                                    <p className="text-sm text-red-500">
+                                    <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
                                         {errors.title}
-                                    </p>
+                                    </Typography>
                                 )}
-                            </div>
+                            </Box>
 
-                            <div className="space-y-2">
+                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                 <Label htmlFor="description">Description</Label>
                                 <Textarea
                                     id="description"
@@ -121,13 +124,13 @@ export default function CreateAdvertisement() {
                                     rows={4}
                                 />
                                 {errors.description && (
-                                    <p className="text-sm text-red-500">
+                                    <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
                                         {errors.description}
-                                    </p>
+                                    </Typography>
                                 )}
-                            </div>
+                            </Box>
 
-                            <div className="space-y-2">
+                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                 <Label htmlFor="image">Image</Label>
                                 <Input
                                     id="image"
@@ -136,20 +139,21 @@ export default function CreateAdvertisement() {
                                     onChange={handleImageChange}
                                 />
                                 {errors.image && (
-                                    <p className="text-sm text-red-500">
+                                    <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
                                         {errors.image}
-                                    </p>
+                                    </Typography>
                                 )}
                                 {imagePreview && (
-                                    <img
+                                    <Box
+                                        component="img"
                                         src={imagePreview}
                                         alt="Preview"
-                                        className="mt-2 h-48 w-auto rounded-md object-cover"
+                                        sx={{ mt: 1, height: 192, width: 'auto', borderRadius: 1, objectFit: 'cover' }}
                                     />
                                 )}
-                            </div>
+                            </Box>
 
-                            <div className="space-y-2">
+                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                 <Label htmlFor="link_url">Link URL</Label>
                                 <Input
                                     id="link_url"
@@ -161,17 +165,17 @@ export default function CreateAdvertisement() {
                                     placeholder="https://example.com"
                                 />
                                 {errors.link_url && (
-                                    <p className="text-sm text-red-500">
+                                    <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
                                         {errors.link_url}
-                                    </p>
+                                    </Typography>
                                 )}
-                            </div>
+                            </Box>
 
-                            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                                <div className="space-y-2">
+                            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' }, gap: 3 }}>
+                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                     <Label htmlFor="status">
                                         Status{' '}
-                                        <span className="text-red-500">*</span>
+                                        <Box component="span" sx={{ color: 'error.main' }}>*</Box>
                                     </Label>
                                     <Select
                                         value={data.status}
@@ -195,16 +199,16 @@ export default function CreateAdvertisement() {
                                         </SelectContent>
                                     </Select>
                                     {errors.status && (
-                                        <p className="text-sm text-red-500">
+                                        <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
                                             {errors.status}
-                                        </p>
+                                        </Typography>
                                     )}
-                                </div>
+                                </Box>
 
-                                <div className="space-y-2">
+                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                     <Label htmlFor="placement">
                                         Placement{' '}
-                                        <span className="text-red-500">*</span>
+                                        <Box component="span" sx={{ color: 'error.main' }}>*</Box>
                                     </Label>
                                     <Select
                                         value={data.placement}
@@ -231,14 +235,14 @@ export default function CreateAdvertisement() {
                                         </SelectContent>
                                     </Select>
                                     {errors.placement && (
-                                        <p className="text-sm text-red-500">
+                                        <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
                                             {errors.placement}
-                                        </p>
+                                        </Typography>
                                     )}
-                                </div>
-                            </div>
+                                </Box>
+                            </Box>
 
-                            <div className="space-y-2">
+                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                 <Label htmlFor="display_order">
                                     Display Order
                                 </Label>
@@ -255,18 +259,18 @@ export default function CreateAdvertisement() {
                                     }
                                     placeholder="0"
                                 />
-                                <p className="text-sm text-muted-foreground">
+                                <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
                                     Lower numbers appear first
-                                </p>
+                                </Typography>
                                 {errors.display_order && (
-                                    <p className="text-sm text-red-500">
+                                    <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
                                         {errors.display_order}
-                                    </p>
+                                    </Typography>
                                 )}
-                            </div>
+                            </Box>
 
-                            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                                <div className="space-y-2">
+                            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' }, gap: 3 }}>
+                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                     <Label htmlFor="start_date">
                                         Start Date
                                     </Label>
@@ -282,13 +286,13 @@ export default function CreateAdvertisement() {
                                         }
                                     />
                                     {errors.start_date && (
-                                        <p className="text-sm text-red-500">
+                                        <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
                                             {errors.start_date}
-                                        </p>
+                                        </Typography>
                                     )}
-                                </div>
+                                </Box>
 
-                                <div className="space-y-2">
+                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                     <Label htmlFor="end_date">End Date</Label>
                                     <Input
                                         id="end_date"
@@ -299,14 +303,14 @@ export default function CreateAdvertisement() {
                                         }
                                     />
                                     {errors.end_date && (
-                                        <p className="text-sm text-red-500">
+                                        <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
                                             {errors.end_date}
-                                        </p>
+                                        </Typography>
                                     )}
-                                </div>
-                            </div>
+                                </Box>
+                            </Box>
 
-                            <div className="flex gap-4">
+                            <Box sx={{ display: 'flex', gap: 2 }}>
                                 <Button type="submit" disabled={processing}>
                                     {processing
                                         ? 'Creating...'
@@ -323,11 +327,12 @@ export default function CreateAdvertisement() {
                                 >
                                     Cancel
                                 </Button>
-                            </div>
+                            </Box>
+                            </Box>
                         </CardContent>
                     </Card>
                 </form>
-            </div>
+            </Box>
         </AppLayout>
     );
 }

@@ -10,6 +10,9 @@ import {
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, Link, router, usePage } from '@inertiajs/react';
+import Box from '@mui/material/Box';
+import Chip from '@mui/material/Chip';
+import Typography from '@mui/material/Typography';
 import { Eye, MousePointer, Pencil, Plus, Trash2 } from 'lucide-react';
 
 interface Advertisement {
@@ -86,23 +89,23 @@ export default function AdvertisementsIndex({ advertisements }: Props) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Advertisements" />
 
-            <div className="flex h-full flex-1 flex-col gap-4 p-4">
-                <div className="flex items-center justify-between">
-                    <div>
-                        <h1 className="text-3xl font-bold tracking-tight">
+            <Box sx={{ display: 'flex', height: '100%', flex: 1, flexDirection: 'column', gap: 2, p: 2 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <Box>
+                        <Typography variant="h4" sx={{ fontWeight: 700, letterSpacing: '-0.025em' }}>
                             Advertisements
-                        </h1>
-                        <p className="text-muted-foreground">
+                        </Typography>
+                        <Typography sx={{ color: 'text.secondary' }}>
                             Manage advertisements displayed in the app
-                        </p>
-                    </div>
+                        </Typography>
+                    </Box>
                     <Link href="/dashboard/advertisements/create">
                         <Button>
-                            <Plus className="mr-2 h-4 w-4" />
+                            <Plus style={{ marginRight: 8, width: 16, height: 16 }} />
                             Create Advertisement
                         </Button>
                     </Link>
-                </div>
+                </Box>
 
                 <Card>
                     <CardHeader>
@@ -112,56 +115,58 @@ export default function AdvertisementsIndex({ advertisements }: Props) {
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <div className="space-y-4">
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                             {advertisements.data.length === 0 ? (
-                                <div className="flex flex-col items-center justify-center py-12 text-center">
-                                    <p className="text-muted-foreground">
+                                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', py: 6, textAlign: 'center' }}>
+                                    <Typography sx={{ color: 'text.secondary' }}>
                                         No advertisements found
-                                    </p>
+                                    </Typography>
                                     <Link href="/dashboard/advertisements/create">
                                         <Button
-                                            className="mt-4"
+                                            style={{ marginTop: 16 }}
                                             variant="outline"
                                         >
-                                            <Plus className="mr-2 h-4 w-4" />
+                                            <Plus style={{ marginRight: 8, width: 16, height: 16 }} />
                                             Create your first advertisement
                                         </Button>
                                     </Link>
-                                </div>
+                                </Box>
                             ) : (
-                                <div className="space-y-3">
+                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
                                     {advertisements.data.map((ad) => (
                                         <Card
                                             key={ad.id}
-                                            className={
+                                            style={
                                                 ad.deleted_at
-                                                    ? 'opacity-50'
-                                                    : ''
+                                                    ? { opacity: 0.5 }
+                                                    : undefined
                                             }
                                         >
-                                            <CardContent className="flex items-start gap-4 p-4">
+                                            <CardContent>
+                                                <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2, p: 2 }}>
                                                 {ad.image_path && (
-                                                    <img
+                                                    <Box
+                                                        component="img"
                                                         src={`/storage/${ad.image_path}`}
                                                         alt={ad.title}
-                                                        className="h-24 w-24 rounded-md object-cover"
+                                                        sx={{ height: 96, width: 96, borderRadius: 1, objectFit: 'cover' }}
                                                     />
                                                 )}
-                                                <div className="flex-1">
-                                                    <div className="flex items-start justify-between">
-                                                        <div>
-                                                            <h3 className="text-lg font-semibold">
+                                                <Box sx={{ flex: 1 }}>
+                                                    <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+                                                        <Box>
+                                                            <Typography variant="h6" sx={{ fontWeight: 600 }}>
                                                                 {ad.title}
-                                                            </h3>
+                                                            </Typography>
                                                             {ad.description && (
-                                                                <p className="text-sm text-muted-foreground">
+                                                                <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
                                                                     {
                                                                         ad.description
                                                                     }
-                                                                </p>
+                                                                </Typography>
                                                             )}
-                                                        </div>
-                                                        <div className="flex items-center gap-2">
+                                                        </Box>
+                                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                                             {getStatusBadge(
                                                                 ad.status,
                                                             )}
@@ -170,22 +175,24 @@ export default function AdvertisementsIndex({ advertisements }: Props) {
                                                                     Deleted
                                                                 </Badge>
                                                             )}
-                                                        </div>
-                                                    </div>
+                                                        </Box>
+                                                    </Box>
 
-                                                    <div className="mt-2 flex flex-wrap gap-4 text-sm text-muted-foreground">
-                                                        <div className="flex items-center gap-1">
-                                                            <Eye className="h-4 w-4" />
+                                                    <Box sx={{ mt: 1, display: 'flex', flexWrap: 'wrap', gap: 2, fontSize: '0.875rem', color: 'text.secondary' }}>
+                                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                                            <Eye style={{ width: 16, height: 16 }} />
                                                             {ad.impressions.toLocaleString()}{' '}
                                                             impressions
-                                                        </div>
-                                                        <div className="flex items-center gap-1">
-                                                            <MousePointer className="h-4 w-4" />
+                                                        </Box>
+                                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                                            <MousePointer style={{ width: 16, height: 16 }} />
                                                             {ad.clicks.toLocaleString()}{' '}
                                                             clicks
-                                                        </div>
-                                                        <Badge variant="outline">
-                                                            {ad.placement
+                                                        </Box>
+                                                        <Chip
+                                                            variant="outlined"
+                                                            size="small"
+                                                            label={ad.placement
                                                                 .split('_')
                                                                 .map(
                                                                     (word) =>
@@ -199,30 +206,31 @@ export default function AdvertisementsIndex({ advertisements }: Props) {
                                                                         ),
                                                                 )
                                                                 .join(' ')}
-                                                        </Badge>
-                                                        <span>
+                                                        />
+                                                        <Box component="span">
                                                             Order:{' '}
                                                             {ad.display_order}
-                                                        </span>
-                                                    </div>
+                                                        </Box>
+                                                    </Box>
 
                                                     {ad.link_url && (
-                                                        <div className="mt-2">
-                                                            <a
+                                                        <Box sx={{ mt: 1 }}>
+                                                            <Box
+                                                                component="a"
                                                                 href={
                                                                     ad.link_url
                                                                 }
                                                                 target="_blank"
                                                                 rel="noopener noreferrer"
-                                                                className="text-xs text-blue-600 hover:underline"
+                                                                sx={{ fontSize: '0.75rem', color: 'info.main', '&:hover': { textDecoration: 'underline' } }}
                                                             >
                                                                 {ad.link_url}
-                                                            </a>
-                                                        </div>
+                                                            </Box>
+                                                        </Box>
                                                     )}
 
                                                     {!ad.deleted_at && (
-                                                        <div className="mt-4 flex gap-2">
+                                                        <Box sx={{ mt: 2, display: 'flex', gap: 1 }}>
                                                             <Link
                                                                 href={`/dashboard/advertisements/${ad.id}/edit`}
                                                             >
@@ -230,7 +238,7 @@ export default function AdvertisementsIndex({ advertisements }: Props) {
                                                                     size="sm"
                                                                     variant="outline"
                                                                 >
-                                                                    <Pencil className="mr-2 h-3 w-3" />
+                                                                    <Pencil style={{ marginRight: 8, width: 12, height: 12 }} />
                                                                     Edit
                                                                 </Button>
                                                             </Link>
@@ -243,20 +251,21 @@ export default function AdvertisementsIndex({ advertisements }: Props) {
                                                                     )
                                                                 }
                                                             >
-                                                                <Trash2 className="mr-2 h-3 w-3" />
+                                                                <Trash2 style={{ marginRight: 8, width: 12, height: 12 }} />
                                                                 Delete
                                                             </Button>
-                                                        </div>
+                                                        </Box>
                                                     )}
-                                                </div>
+                                                </Box>
+                                                </Box>
                                             </CardContent>
                                         </Card>
                                     ))}
-                                </div>
+                                </Box>
                             )}
 
                             {advertisements.last_page > 1 && (
-                                <div className="flex items-center justify-center gap-2 pt-4">
+                                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, pt: 2 }}>
                                     {Array.from(
                                         { length: advertisements.last_page },
                                         (_, i) => i + 1,
@@ -279,12 +288,12 @@ export default function AdvertisementsIndex({ advertisements }: Props) {
                                             </Button>
                                         </Link>
                                     ))}
-                                </div>
+                                </Box>
                             )}
-                        </div>
+                        </Box>
                     </CardContent>
                 </Card>
-            </div>
+            </Box>
         </AppLayout>
     );
 }

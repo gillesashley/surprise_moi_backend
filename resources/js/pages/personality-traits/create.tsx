@@ -13,6 +13,8 @@ import AppLayout from '@/layouts/app-layout';
 import { store as personalityTraitStore } from '@/routes/dashboard/personality-traits';
 import { type BreadcrumbItem } from '@/types';
 import { Form, Head, Link } from '@inertiajs/react';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
 import { ArrowLeft } from 'lucide-react';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -30,19 +32,19 @@ export default function PersonalityTraitCreate() {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Create Personality Trait" />
-            <div className="flex h-full flex-1 flex-col gap-4 p-4">
-                <div className="flex items-center justify-between">
+            <Box sx={{ display: 'flex', height: '100%', flex: 1, flexDirection: 'column', gap: 2, p: 2 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <Button variant="ghost" size="sm" asChild>
                         <Link
                             href={ContentManagementController.index.url({
                                 query: { tab: 'traits' },
                             })}
                         >
-                            <ArrowLeft className="mr-2 size-4" />
+                            <ArrowLeft style={{ marginRight: 8, width: 16, height: 16 }} />
                             Back to Content Management
                         </Link>
                     </Button>
-                </div>
+                </Box>
 
                 <Card>
                     <CardHeader>
@@ -57,30 +59,30 @@ export default function PersonalityTraitCreate() {
                             method="post"
                         >
                             {({ errors, processing }) => (
-                                <div className="space-y-4">
-                                    <div className="space-y-2">
+                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                         <Label htmlFor="name">Name</Label>
                                         <Input id="name" name="name" required />
                                         {errors.name && (
-                                            <p className="text-sm text-destructive">
+                                            <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
                                                 {errors.name}
-                                            </p>
+                                            </Typography>
                                         )}
-                                    </div>
+                                    </Box>
 
-                                    <div className="space-y-2">
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                         <Label htmlFor="icon">
                                             Icon (emoji)
                                         </Label>
                                         <Input id="icon" name="icon" />
                                         {errors.icon && (
-                                            <p className="text-sm text-destructive">
+                                            <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
                                                 {errors.icon}
-                                            </p>
+                                            </Typography>
                                         )}
-                                    </div>
+                                    </Box>
 
-                                    <div className="flex gap-2">
+                                    <Box sx={{ display: 'flex', gap: 1 }}>
                                         <Button
                                             type="submit"
                                             disabled={processing}
@@ -106,13 +108,13 @@ export default function PersonalityTraitCreate() {
                                                 Cancel
                                             </Link>
                                         </Button>
-                                    </div>
-                                </div>
+                                    </Box>
+                                </Box>
                             )}
                         </Form>
                     </CardContent>
                 </Card>
-            </div>
+            </Box>
         </AppLayout>
     );
 }

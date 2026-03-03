@@ -17,6 +17,8 @@ import {
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/react';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
 import { ArrowLeft, CheckCircle, Copy, XCircle } from 'lucide-react';
 import { useState } from 'react';
 
@@ -93,15 +95,15 @@ export default function ReferralCodeShow({ code }: Props) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={`Referral Code: ${code.code}`} />
 
-            <div className="flex h-full flex-1 flex-col gap-4 p-4">
-                <div className="flex items-center justify-between">
-                    <h1 className="text-3xl font-bold">
+            <Box sx={{ display: 'flex', height: '100%', flex: 1, flexDirection: 'column', gap: 2, p: 2 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <Typography variant="h4" sx={{ fontWeight: 700 }}>
                         Referral Code Details
-                    </h1>
-                    <div className="flex gap-3">
+                    </Typography>
+                    <Box sx={{ display: 'flex', gap: 1.5 }}>
                         <Button variant="outline" asChild>
                             <Link href="/dashboard/referral-codes">
-                                <ArrowLeft className="mr-2 size-4" />
+                                <ArrowLeft style={{ marginRight: 8, width: 16, height: 16 }} />
                                 Back to Referral Codes
                             </Link>
                         </Button>
@@ -112,10 +114,10 @@ export default function ReferralCodeShow({ code }: Props) {
                                 Edit Code
                             </Link>
                         </Button>
-                    </div>
-                </div>
+                    </Box>
+                </Box>
 
-                <div className="grid gap-6 md:grid-cols-2">
+                <Box sx={{ display: 'grid', gap: 3, gridTemplateColumns: { md: 'repeat(2, 1fr)' } }}>
                     <Card>
                         <CardHeader>
                             <CardTitle>Code Information</CardTitle>
@@ -123,69 +125,74 @@ export default function ReferralCodeShow({ code }: Props) {
                                 Basic details about this referral code
                             </CardDescription>
                         </CardHeader>
-                        <CardContent className="space-y-4">
-                            <div>
-                                <label className="text-sm font-medium text-muted-foreground">
-                                    Referral Code
-                                </label>
-                                <div className="mt-1 flex items-center gap-2">
-                                    <code className="rounded bg-muted px-3 py-2 font-mono text-xl font-bold">
-                                        {code.code}
-                                    </code>
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        onClick={copyToClipboard}
-                                    >
-                                        <Copy className="size-4" />
-                                    </Button>
-                                    {copied && (
-                                        <span className="text-sm font-medium text-green-600">
-                                            Copied!
-                                        </span>
-                                    )}
-                                </div>
-                            </div>
-                            <div>
-                                <label className="text-sm font-medium text-muted-foreground">
-                                    Status
-                                </label>
-                                <div className="mt-1 flex items-center gap-2">
-                                    {code.is_active ? (
-                                        <>
-                                            <CheckCircle className="size-5 text-green-600" />
-                                            <span className="font-semibold text-green-600">
-                                                Active
-                                            </span>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <XCircle className="size-5 text-gray-600" />
-                                            <span className="font-semibold text-gray-600">
-                                                Inactive
-                                            </span>
-                                        </>
-                                    )}
-                                </div>
-                            </div>
-                            {code.description && (
-                                <div>
-                                    <label className="text-sm font-medium text-muted-foreground">
-                                        Description
-                                    </label>
-                                    <p className="mt-1 text-sm">
-                                        {code.description}
-                                    </p>
-                                </div>
-                            )}
-                            <div>
-                                <label className="text-sm font-medium text-muted-foreground">
-                                    Created
-                                </label>
-                                <p className="mt-1 text-sm">
-                                    {formatDate(code.created_at)}
-                                </p>
-                            </div>
+                        <CardContent>
+                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                                <Box>
+                                    <Typography component="label" sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'text.secondary' }}>
+                                        Referral Code
+                                    </Typography>
+                                    <Box sx={{ mt: 0.5, display: 'flex', alignItems: 'center', gap: 1 }}>
+                                        <Box
+                                            component="code"
+                                            sx={{ borderRadius: 1, bgcolor: 'action.hover', px: 1.5, py: 1, fontFamily: 'monospace', fontSize: '1.25rem', fontWeight: 700 }}
+                                        >
+                                            {code.code}
+                                        </Box>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            onClick={copyToClipboard}
+                                        >
+                                            <Copy style={{ width: 16, height: 16 }} />
+                                        </Button>
+                                        {copied && (
+                                            <Box component="span" sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'success.main' }}>
+                                                Copied!
+                                            </Box>
+                                        )}
+                                    </Box>
+                                </Box>
+                                <Box>
+                                    <Typography component="label" sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'text.secondary' }}>
+                                        Status
+                                    </Typography>
+                                    <Box sx={{ mt: 0.5, display: 'flex', alignItems: 'center', gap: 1 }}>
+                                        {code.is_active ? (
+                                            <>
+                                                <CheckCircle style={{ width: 20, height: 20, color: '#16a34a' }} />
+                                                <Box component="span" sx={{ fontWeight: 600, color: 'success.main' }}>
+                                                    Active
+                                                </Box>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <XCircle style={{ width: 20, height: 20, color: '#6b7280' }} />
+                                                <Box component="span" sx={{ fontWeight: 600, color: 'text.secondary' }}>
+                                                    Inactive
+                                                </Box>
+                                            </>
+                                        )}
+                                    </Box>
+                                </Box>
+                                {code.description && (
+                                    <Box>
+                                        <Typography component="label" sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'text.secondary' }}>
+                                            Description
+                                        </Typography>
+                                        <Typography sx={{ mt: 0.5, fontSize: '0.875rem' }}>
+                                            {code.description}
+                                        </Typography>
+                                    </Box>
+                                )}
+                                <Box>
+                                    <Typography component="label" sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'text.secondary' }}>
+                                        Created
+                                    </Typography>
+                                    <Typography sx={{ mt: 0.5, fontSize: '0.875rem' }}>
+                                        {formatDate(code.created_at)}
+                                    </Typography>
+                                </Box>
+                            </Box>
                         </CardContent>
                     </Card>
 
@@ -196,23 +203,25 @@ export default function ReferralCodeShow({ code }: Props) {
                                 Who this code is assigned to
                             </CardDescription>
                         </CardHeader>
-                        <CardContent className="space-y-4">
-                            <div>
-                                <label className="text-sm font-medium text-muted-foreground">
-                                    Name
-                                </label>
-                                <p className="mt-1 text-lg font-semibold">
-                                    {code.influencer.name}
-                                </p>
-                            </div>
-                            <div>
-                                <label className="text-sm font-medium text-muted-foreground">
-                                    Email
-                                </label>
-                                <p className="mt-1 text-sm">
-                                    {code.influencer.email}
-                                </p>
-                            </div>
+                        <CardContent>
+                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                                <Box>
+                                    <Typography component="label" sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'text.secondary' }}>
+                                        Name
+                                    </Typography>
+                                    <Typography sx={{ mt: 0.5, fontSize: '1.125rem', fontWeight: 600 }}>
+                                        {code.influencer.name}
+                                    </Typography>
+                                </Box>
+                                <Box>
+                                    <Typography component="label" sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'text.secondary' }}>
+                                        Email
+                                    </Typography>
+                                    <Typography sx={{ mt: 0.5, fontSize: '0.875rem' }}>
+                                        {code.influencer.email}
+                                    </Typography>
+                                </Box>
+                            </Box>
                         </CardContent>
                     </Card>
 
@@ -223,39 +232,41 @@ export default function ReferralCodeShow({ code }: Props) {
                                 Commission and bonus details
                             </CardDescription>
                         </CardHeader>
-                        <CardContent className="space-y-4">
-                            <div>
-                                <label className="text-sm font-medium text-muted-foreground">
-                                    Registration Bonus
-                                </label>
-                                <p className="mt-1 text-2xl font-bold">
-                                    {formatCurrency(code.registration_bonus)}
-                                </p>
-                            </div>
-                            <div>
-                                <label className="text-sm font-medium text-muted-foreground">
-                                    Vendor Discount
-                                </label>
-                                <p className="mt-1 text-2xl font-bold text-green-600">
-                                    {code.discount_percentage}%
-                                </p>
-                            </div>
-                            <div>
-                                <label className="text-sm font-medium text-muted-foreground">
-                                    Commission Rate
-                                </label>
-                                <p className="mt-1 text-2xl font-bold">
-                                    {code.commission_rate}%
-                                </p>
-                            </div>
-                            <div>
-                                <label className="text-sm font-medium text-muted-foreground">
-                                    Commission Duration
-                                </label>
-                                <p className="mt-1 text-lg font-semibold">
-                                    {code.commission_duration_months} months
-                                </p>
-                            </div>
+                        <CardContent>
+                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                                <Box>
+                                    <Typography component="label" sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'text.secondary' }}>
+                                        Registration Bonus
+                                    </Typography>
+                                    <Typography sx={{ mt: 0.5, fontSize: '1.5rem', fontWeight: 700 }}>
+                                        {formatCurrency(code.registration_bonus)}
+                                    </Typography>
+                                </Box>
+                                <Box>
+                                    <Typography component="label" sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'text.secondary' }}>
+                                        Vendor Discount
+                                    </Typography>
+                                    <Typography sx={{ mt: 0.5, fontSize: '1.5rem', fontWeight: 700, color: 'success.main' }}>
+                                        {code.discount_percentage}%
+                                    </Typography>
+                                </Box>
+                                <Box>
+                                    <Typography component="label" sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'text.secondary' }}>
+                                        Commission Rate
+                                    </Typography>
+                                    <Typography sx={{ mt: 0.5, fontSize: '1.5rem', fontWeight: 700 }}>
+                                        {code.commission_rate}%
+                                    </Typography>
+                                </Box>
+                                <Box>
+                                    <Typography component="label" sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'text.secondary' }}>
+                                        Commission Duration
+                                    </Typography>
+                                    <Typography sx={{ mt: 0.5, fontSize: '1.125rem', fontWeight: 600 }}>
+                                        {code.commission_duration_months} months
+                                    </Typography>
+                                </Box>
+                            </Box>
                         </CardContent>
                     </Card>
 
@@ -266,40 +277,42 @@ export default function ReferralCodeShow({ code }: Props) {
                                 Limits and expiration
                             </CardDescription>
                         </CardHeader>
-                        <CardContent className="space-y-4">
-                            <div>
-                                <label className="text-sm font-medium text-muted-foreground">
-                                    Usage Count
-                                </label>
-                                <p className="mt-1 text-2xl font-bold">
-                                    {code.usage_count}
-                                    {code.max_usages && ` / ${code.max_usages}`}
-                                </p>
-                            </div>
-                            <div>
-                                <label className="text-sm font-medium text-muted-foreground">
-                                    Maximum Usages
-                                </label>
-                                <p className="mt-1 text-lg font-semibold">
-                                    {code.max_usages || 'Unlimited'}
-                                </p>
-                            </div>
-                            <div>
-                                <label className="text-sm font-medium text-muted-foreground">
-                                    Expiration Date
-                                </label>
-                                <p className="mt-1 text-sm">
-                                    {code.expires_at
-                                        ? formatDate(code.expires_at)
-                                        : 'No expiration'}
-                                </p>
-                            </div>
+                        <CardContent>
+                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                                <Box>
+                                    <Typography component="label" sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'text.secondary' }}>
+                                        Usage Count
+                                    </Typography>
+                                    <Typography sx={{ mt: 0.5, fontSize: '1.5rem', fontWeight: 700 }}>
+                                        {code.usage_count}
+                                        {code.max_usages && ` / ${code.max_usages}`}
+                                    </Typography>
+                                </Box>
+                                <Box>
+                                    <Typography component="label" sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'text.secondary' }}>
+                                        Maximum Usages
+                                    </Typography>
+                                    <Typography sx={{ mt: 0.5, fontSize: '1.125rem', fontWeight: 600 }}>
+                                        {code.max_usages || 'Unlimited'}
+                                    </Typography>
+                                </Box>
+                                <Box>
+                                    <Typography component="label" sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'text.secondary' }}>
+                                        Expiration Date
+                                    </Typography>
+                                    <Typography sx={{ mt: 0.5, fontSize: '0.875rem' }}>
+                                        {code.expires_at
+                                            ? formatDate(code.expires_at)
+                                            : 'No expiration'}
+                                    </Typography>
+                                </Box>
+                            </Box>
                         </CardContent>
                     </Card>
-                </div>
+                </Box>
 
                 {code.referrals && code.referrals.length > 0 && (
-                    <Card className="mt-6">
+                    <Card sx={{ mt: 3 }}>
                         <CardHeader>
                             <CardTitle>Referrals</CardTitle>
                             <CardDescription>
@@ -319,16 +332,18 @@ export default function ReferralCodeShow({ code }: Props) {
                                 <TableBody>
                                     {code.referrals.map((referral) => (
                                         <TableRow key={referral.id}>
-                                            <TableCell className="font-medium">
-                                                {referral.vendor.name}
+                                            <TableCell>
+                                                <Typography sx={{ fontWeight: 500 }}>
+                                                    {referral.vendor.name}
+                                                </Typography>
                                             </TableCell>
                                             <TableCell>
                                                 {referral.vendor.email}
                                             </TableCell>
                                             <TableCell>
-                                                <span className="capitalize">
+                                                <Box component="span" sx={{ textTransform: 'capitalize' }}>
                                                     {referral.status}
-                                                </span>
+                                                </Box>
                                             </TableCell>
                                             <TableCell>
                                                 {formatDate(
@@ -342,7 +357,7 @@ export default function ReferralCodeShow({ code }: Props) {
                         </CardContent>
                     </Card>
                 )}
-            </div>
+            </Box>
         </AppLayout>
     );
 }

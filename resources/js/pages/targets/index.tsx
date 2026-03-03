@@ -9,6 +9,9 @@ import {
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
+import Box from '@mui/material/Box';
+import Chip from '@mui/material/Chip';
+import Typography from '@mui/material/Typography';
 import { Eye, Pencil, Plus, Trash2 } from 'lucide-react';
 
 interface Target {
@@ -54,18 +57,18 @@ const formatTargetType = (type: string) => {
         .join(' ');
 };
 
-const getStatusBadgeColor = (status: string) => {
+const getStatusChipColor = (status: string): 'success' | 'info' | 'error' | 'default' => {
     switch (status) {
         case 'active':
-            return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
+            return 'success';
         case 'completed':
-            return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
+            return 'info';
         case 'expired':
-            return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
+            return 'error';
         case 'cancelled':
-            return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200';
+            return 'default';
         default:
-            return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200';
+            return 'default';
     }
 };
 
@@ -100,24 +103,24 @@ export default function TargetsIndex({ targets }: Props) {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Targets Management" />
-            <div className="flex h-full flex-1 flex-col gap-4 p-4">
-                <div className="flex items-center justify-between">
-                    <div>
-                        <h1 className="text-2xl font-bold">
+            <Box sx={{ display: 'flex', height: '100%', flex: 1, flexDirection: 'column', gap: 2, p: 2 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <Box>
+                        <Typography variant="h5" sx={{ fontWeight: 700 }}>
                             Targets Management
-                        </h1>
-                        <p className="text-sm text-muted-foreground">
+                        </Typography>
+                        <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
                             Assign and manage targets for field agents and
                             marketers
-                        </p>
-                    </div>
+                        </Typography>
+                    </Box>
                     <Button asChild>
                         <Link href="/dashboard/targets/create">
-                            <Plus className="mr-2 size-4" />
+                            <Plus style={{ marginRight: 8, width: 16, height: 16 }} />
                             Create Target
                         </Link>
                     </Button>
-                </div>
+                </Box>
 
                 <Card>
                     <CardHeader>
@@ -127,63 +130,64 @@ export default function TargetsIndex({ targets }: Props) {
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <div className="overflow-x-auto">
-                            <table className="w-full">
+                        <Box sx={{ overflowX: 'auto' }}>
+                            <Box component="table" sx={{ width: '100%' }}>
                                 <thead>
-                                    <tr className="border-b">
-                                        <th className="p-2 text-left text-sm font-medium">
+                                    <Box component="tr" sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                                        <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
                                             User
-                                        </th>
-                                        <th className="p-2 text-left text-sm font-medium">
+                                        </Box>
+                                        <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
                                             Target Type
-                                        </th>
-                                        <th className="p-2 text-left text-sm font-medium">
+                                        </Box>
+                                        <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
                                             Progress
-                                        </th>
-                                        <th className="p-2 text-left text-sm font-medium">
+                                        </Box>
+                                        <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
                                             Bonus
-                                        </th>
-                                        <th className="p-2 text-left text-sm font-medium">
+                                        </Box>
+                                        <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
                                             Period
-                                        </th>
-                                        <th className="p-2 text-left text-sm font-medium">
+                                        </Box>
+                                        <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
                                             Status
-                                        </th>
-                                        <th className="p-2 text-left text-sm font-medium">
+                                        </Box>
+                                        <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
                                             Actions
-                                        </th>
-                                    </tr>
+                                        </Box>
+                                    </Box>
                                 </thead>
                                 <tbody>
                                     {targets.data.map((target) => (
-                                        <tr
+                                        <Box
+                                            component="tr"
                                             key={target.id}
-                                            className="border-b hover:bg-muted/50"
+                                            sx={{ borderBottom: 1, borderColor: 'divider', '&:hover': { bgcolor: 'action.hover' } }}
                                         >
-                                            <td className="p-2">
-                                                <div>
-                                                    <p className="font-medium">
+                                            <Box component="td" sx={{ p: 1 }}>
+                                                <Box>
+                                                    <Typography sx={{ fontWeight: 500 }}>
                                                         {target.user.name}
-                                                    </p>
-                                                    <p className="text-sm text-muted-foreground">
+                                                    </Typography>
+                                                    <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
                                                         {target.user.email}
-                                                    </p>
-                                                </div>
-                                            </td>
-                                            <td className="p-2">
+                                                    </Typography>
+                                                </Box>
+                                            </Box>
+                                            <Box component="td" sx={{ p: 1 }}>
                                                 {formatTargetType(
                                                     target.target_type,
                                                 )}
-                                            </td>
-                                            <td className="p-2">
-                                                <div>
-                                                    <p className="text-sm font-medium">
+                                            </Box>
+                                            <Box component="td" sx={{ p: 1 }}>
+                                                <Box>
+                                                    <Typography sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
                                                         {target.current_value} /{' '}
                                                         {target.target_value}
-                                                    </p>
-                                                    <div className="mt-1 h-2 w-24 overflow-hidden rounded-full bg-gray-200">
-                                                        <div
-                                                            className="h-full bg-purple-600"
+                                                    </Typography>
+                                                    <Box sx={{ mt: 0.5, height: 8, width: 96, overflow: 'hidden', borderRadius: 4, bgcolor: 'action.hover' }}>
+                                                        <Box
+                                                            sx={{ height: '100%', bgcolor: 'primary.main', transition: 'all 0.3s' }}
                                                             style={{
                                                                 width: `${progressPercentage(
                                                                     target.current_value,
@@ -191,70 +195,69 @@ export default function TargetsIndex({ targets }: Props) {
                                                                 )}%`,
                                                             }}
                                                         />
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td className="p-2">
+                                                    </Box>
+                                                </Box>
+                                            </Box>
+                                            <Box component="td" sx={{ p: 1 }}>
                                                 GH₵{target.bonus_amount}
-                                            </td>
-                                            <td className="p-2 capitalize">
+                                            </Box>
+                                            <Box component="td" sx={{ p: 1, textTransform: 'capitalize' }}>
                                                 {target.period_type}
-                                            </td>
-                                            <td className="p-2">
-                                                <span
-                                                    className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold uppercase ${getStatusBadgeColor(
-                                                        target.status,
-                                                    )}`}
-                                                >
-                                                    {target.status}
-                                                </span>
-                                            </td>
-                                            <td className="p-2">
-                                                <div className="flex gap-2">
+                                            </Box>
+                                            <Box component="td" sx={{ p: 1 }}>
+                                                <Chip
+                                                    label={target.status}
+                                                    color={getStatusChipColor(target.status)}
+                                                    size="small"
+                                                    variant="outlined"
+                                                    sx={{ textTransform: 'uppercase' }}
+                                                />
+                                            </Box>
+                                            <Box component="td" sx={{ p: 1 }}>
+                                                <Box sx={{ display: 'flex', gap: 1 }}>
                                                     <Link
                                                         href={`/dashboard/targets/${target.id}`}
-                                                        className="text-muted-foreground hover:text-foreground"
                                                     >
-                                                        <Eye className="size-4" />
+                                                        <Eye style={{ width: 16, height: 16, color: 'gray' }} />
                                                     </Link>
                                                     <Link
                                                         href={`/dashboard/targets/${target.id}/edit`}
-                                                        className="text-muted-foreground hover:text-foreground"
                                                     >
-                                                        <Pencil className="size-4" />
+                                                        <Pencil style={{ width: 16, height: 16, color: 'gray' }} />
                                                     </Link>
-                                                    <button
+                                                    <Box
+                                                        component="button"
                                                         type="button"
                                                         onClick={() =>
                                                             handleDelete(
                                                                 target.id,
                                                             )
                                                         }
-                                                        className="text-muted-foreground hover:text-destructive"
+                                                        sx={{ color: 'text.secondary', '&:hover': { color: 'error.main' }, background: 'none', border: 'none', cursor: 'pointer', p: 0 }}
                                                     >
-                                                        <Trash2 className="size-4" />
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
+                                                        <Trash2 style={{ width: 16, height: 16 }} />
+                                                    </Box>
+                                                </Box>
+                                            </Box>
+                                        </Box>
                                     ))}
                                 </tbody>
-                            </table>
-                        </div>
+                            </Box>
+                        </Box>
 
                         {targets.data.length === 0 && (
-                            <div className="py-8 text-center text-muted-foreground">
+                            <Box sx={{ py: 4, textAlign: 'center', color: 'text.secondary' }}>
                                 No targets found. Create one to get started.
-                            </div>
+                            </Box>
                         )}
 
                         {targets.last_page > 1 && (
-                            <div className="mt-4 flex items-center justify-between">
-                                <p className="text-sm text-muted-foreground">
+                            <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
                                     Showing {targets.data.length} of{' '}
                                     {targets.total} targets
-                                </p>
-                                <div className="flex gap-2">
+                                </Typography>
+                                <Box sx={{ display: 'flex', gap: 1 }}>
                                     <Button
                                         variant="outline"
                                         size="sm"
@@ -267,10 +270,10 @@ export default function TargetsIndex({ targets }: Props) {
                                     >
                                         Previous
                                     </Button>
-                                    <div className="flex items-center px-3 text-sm">
+                                    <Box sx={{ display: 'flex', alignItems: 'center', px: 1.5, fontSize: '0.875rem' }}>
                                         Page {targets.current_page} of{' '}
                                         {targets.last_page}
-                                    </div>
+                                    </Box>
                                     <Button
                                         variant="outline"
                                         size="sm"
@@ -286,12 +289,12 @@ export default function TargetsIndex({ targets }: Props) {
                                     >
                                         Next
                                     </Button>
-                                </div>
-                            </div>
+                                </Box>
+                            </Box>
                         )}
                     </CardContent>
                 </Card>
-            </div>
+            </Box>
         </AppLayout>
     );
 }

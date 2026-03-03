@@ -15,6 +15,8 @@ import {
 } from '@/routes/dashboard/music-genres';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
 import { Pencil, Plus, Trash2 } from 'lucide-react';
 
 interface MusicGenre {
@@ -77,60 +79,63 @@ export default function MusicGenresIndex({
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Music Genres" />
-            <div className="flex h-full flex-1 flex-col gap-4 p-4">
+            <Box sx={{ display: 'flex', height: '100%', flex: 1, flexDirection: 'column', gap: 2, p: 2 }}>
                 <Card>
-                    <CardHeader className="flex flex-row items-center justify-between">
-                        <div>
+                    <CardHeader>
+                        <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <Box>
                             <CardTitle>Music Genres</CardTitle>
                             <CardDescription>
                                 Manage music genres for user personalization
                             </CardDescription>
-                        </div>
+                        </Box>
                         {canCreate && (
                             <Button asChild>
                                 <Link href={musicGenreCreate.url()}>
-                                    <Plus className="mr-2 size-4" />
+                                    <Plus style={{ marginRight: 8, width: 16, height: 16 }} />
                                     Add Genre
                                 </Link>
                             </Button>
                         )}
+                        </Box>
                     </CardHeader>
                     <CardContent>
-                        <div className="overflow-x-auto">
-                            <table className="w-full">
-                                <thead>
-                                    <tr className="border-b">
-                                        <th className="p-2 text-left text-sm font-medium">
+                        <Box sx={{ overflowX: 'auto' }}>
+                            <Box component="table" sx={{ width: '100%' }}>
+                                <Box component="thead">
+                                    <Box component="tr" sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                                        <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
                                             Name
-                                        </th>
-                                        <th className="p-2 text-left text-sm font-medium">
+                                        </Box>
+                                        <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
                                             Icon
-                                        </th>
-                                        <th className="p-2 text-left text-sm font-medium">
+                                        </Box>
+                                        <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
                                             Users
-                                        </th>
-                                        <th className="p-2 text-right text-sm font-medium">
+                                        </Box>
+                                        <Box component="th" sx={{ p: 1, textAlign: 'right', fontSize: '0.875rem', fontWeight: 500 }}>
                                             Actions
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
+                                        </Box>
+                                    </Box>
+                                </Box>
+                                <Box component="tbody">
                                     {musicGenres.data.map((genre) => (
-                                        <tr
+                                        <Box
+                                            component="tr"
                                             key={genre.id}
-                                            className="border-b last:border-0 hover:bg-muted/50"
+                                            sx={{ borderBottom: 1, borderColor: 'divider', '&:last-child': { borderBottom: 0 }, '&:hover': { bgcolor: 'action.hover' } }}
                                         >
-                                            <td className="p-2 text-sm font-medium">
+                                            <Box component="td" sx={{ p: 1, fontSize: '0.875rem', fontWeight: 500 }}>
                                                 {genre.name}
-                                            </td>
-                                            <td className="p-2 text-sm">
+                                            </Box>
+                                            <Box component="td" sx={{ p: 1, fontSize: '0.875rem' }}>
                                                 {genre.icon || '-'}
-                                            </td>
-                                            <td className="p-2 text-sm">
+                                            </Box>
+                                            <Box component="td" sx={{ p: 1, fontSize: '0.875rem' }}>
                                                 {genre.users_count}
-                                            </td>
-                                            <td className="p-2">
-                                                <div className="flex justify-end gap-2">
+                                            </Box>
+                                            <Box component="td" sx={{ p: 1 }}>
+                                                <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
                                                     <Button
                                                         variant="ghost"
                                                         size="sm"
@@ -141,7 +146,7 @@ export default function MusicGenresIndex({
                                                                 genre.id,
                                                             )}
                                                         >
-                                                            <Pencil className="size-4" />
+                                                            <Pencil style={{ width: 16, height: 16 }} />
                                                         </Link>
                                                     </Button>
                                                     {canDelete && (
@@ -155,25 +160,25 @@ export default function MusicGenresIndex({
                                                                 )
                                                             }
                                                         >
-                                                            <Trash2 className="size-4 text-destructive" />
+                                                            <Trash2 style={{ width: 16, height: 16, color: 'var(--destructive)' }} />
                                                         </Button>
                                                     )}
-                                                </div>
-                                            </td>
-                                        </tr>
+                                                </Box>
+                                            </Box>
+                                        </Box>
                                     ))}
-                                </tbody>
-                            </table>
-                        </div>
+                                </Box>
+                            </Box>
+                        </Box>
 
                         {/* Pagination */}
                         {musicGenres.last_page > 1 && (
-                            <div className="mt-4 flex items-center justify-between">
-                                <p className="text-sm text-muted-foreground">
+                            <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
                                     Showing {musicGenres.data.length} of{' '}
                                     {musicGenres.total} genres
-                                </p>
-                                <div className="flex gap-2">
+                                </Typography>
+                                <Box sx={{ display: 'flex', gap: 1 }}>
                                     <Button
                                         variant="outline"
                                         size="sm"
@@ -188,10 +193,10 @@ export default function MusicGenresIndex({
                                     >
                                         Previous
                                     </Button>
-                                    <span className="flex items-center px-2 text-sm">
+                                    <Box component="span" sx={{ display: 'flex', alignItems: 'center', px: 1, fontSize: '0.875rem' }}>
                                         Page {musicGenres.current_page} of{' '}
                                         {musicGenres.last_page}
-                                    </span>
+                                    </Box>
                                     <Button
                                         variant="outline"
                                         size="sm"
@@ -207,12 +212,12 @@ export default function MusicGenresIndex({
                                     >
                                         Next
                                     </Button>
-                                </div>
-                            </div>
+                                </Box>
+                            </Box>
                         )}
                     </CardContent>
                 </Card>
-            </div>
+            </Box>
         </AppLayout>
     );
 }

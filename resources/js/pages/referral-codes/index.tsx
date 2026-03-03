@@ -9,6 +9,9 @@ import {
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
+import Box from '@mui/material/Box';
+import Chip from '@mui/material/Chip';
+import Typography from '@mui/material/Typography';
 import { Copy, Eye, Pencil, Plus, Power, PowerOff, Trash2 } from 'lucide-react';
 
 interface ReferralCode {
@@ -89,23 +92,23 @@ export default function ReferralCodesIndex({ codes }: Props) {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Referral Codes" />
-            <div className="flex h-full flex-1 flex-col gap-4 p-4">
-                <div className="flex items-center justify-between">
-                    <div>
-                        <h1 className="text-2xl font-bold">
+            <Box sx={{ display: 'flex', height: '100%', flex: 1, flexDirection: 'column', gap: 2, p: 2 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <Box>
+                        <Typography variant="h5" sx={{ fontWeight: 700 }}>
                             Referral Codes Management
-                        </h1>
-                        <p className="text-sm text-muted-foreground">
+                        </Typography>
+                        <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
                             Manage referral codes for influencers
-                        </p>
-                    </div>
+                        </Typography>
+                    </Box>
                     <Button asChild>
                         <Link href="/dashboard/referral-codes/create">
-                            <Plus className="mr-2 size-4" />
+                            <Plus style={{ marginRight: 8, width: 16, height: 16 }} />
                             Create Code
                         </Link>
                     </Button>
-                </div>
+                </Box>
 
                 <Card>
                     <CardHeader>
@@ -115,133 +118,144 @@ export default function ReferralCodesIndex({ codes }: Props) {
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <div className="overflow-x-auto">
-                            <table className="w-full">
+                        <Box sx={{ overflowX: 'auto' }}>
+                            <Box component="table" sx={{ width: '100%' }}>
                                 <thead>
-                                    <tr className="border-b">
-                                        <th className="p-2 text-left text-sm font-medium">
+                                    <Box component="tr" sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                                        <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
                                             Code
-                                        </th>
-                                        <th className="p-2 text-left text-sm font-medium">
+                                        </Box>
+                                        <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
                                             Influencer
-                                        </th>
-                                        <th className="p-2 text-left text-sm font-medium">
+                                        </Box>
+                                        <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
                                             Discount
-                                        </th>
-                                        <th className="p-2 text-left text-sm font-medium">
+                                        </Box>
+                                        <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
                                             Usage
-                                        </th>
-                                        <th className="p-2 text-left text-sm font-medium">
+                                        </Box>
+                                        <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
                                             Commission
-                                        </th>
-                                        <th className="p-2 text-left text-sm font-medium">
+                                        </Box>
+                                        <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
                                             Bonus
-                                        </th>
-                                        <th className="p-2 text-left text-sm font-medium">
+                                        </Box>
+                                        <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
                                             Status
-                                        </th>
-                                        <th className="p-2 text-left text-sm font-medium">
+                                        </Box>
+                                        <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
                                             Actions
-                                        </th>
-                                    </tr>
+                                        </Box>
+                                    </Box>
                                 </thead>
                                 <tbody>
                                     {codes.data.map((code) => (
-                                        <tr
+                                        <Box
+                                            component="tr"
                                             key={code.id}
-                                            className="border-b hover:bg-muted/50"
+                                            sx={{ borderBottom: 1, borderColor: 'divider', '&:hover': { bgcolor: 'action.hover' } }}
                                         >
-                                            <td className="p-2">
-                                                <div className="flex items-center gap-2">
-                                                    <code className="rounded bg-muted px-2 py-1 font-mono text-sm font-semibold">
+                                            <Box component="td" sx={{ p: 1 }}>
+                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                    <Box
+                                                        component="code"
+                                                        sx={{ borderRadius: 1, bgcolor: 'action.hover', px: 1, py: 0.5, fontFamily: 'monospace', fontSize: '0.875rem', fontWeight: 600 }}
+                                                    >
                                                         {code.code}
-                                                    </code>
-                                                    <button
+                                                    </Box>
+                                                    <Box
+                                                        component="button"
                                                         type="button"
                                                         onClick={() =>
                                                             copyToClipboard(
                                                                 code.code,
                                                             )
                                                         }
-                                                        className="text-muted-foreground hover:text-foreground"
+                                                        sx={{ color: 'text.secondary', '&:hover': { color: 'text.primary' }, background: 'none', border: 'none', cursor: 'pointer', p: 0 }}
                                                     >
-                                                        <Copy className="size-4" />
-                                                    </button>
-                                                </div>
-                                            </td>
-                                            <td className="p-2">
-                                                <div>
-                                                    <p className="font-medium">
+                                                        <Copy style={{ width: 16, height: 16 }} />
+                                                    </Box>
+                                                </Box>
+                                            </Box>
+                                            <Box component="td" sx={{ p: 1 }}>
+                                                <Box>
+                                                    <Typography sx={{ fontWeight: 500 }}>
                                                         {code.influencer.name}
-                                                    </p>
-                                                    <p className="text-sm text-muted-foreground">
+                                                    </Typography>
+                                                    <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
                                                         {code.influencer.email}
-                                                    </p>
-                                                </div>
-                                            </td>
-                                            <td className="p-2">
-                                                <span className="font-semibold text-green-600">
+                                                    </Typography>
+                                                </Box>
+                                            </Box>
+                                            <Box component="td" sx={{ p: 1 }}>
+                                                <Box component="span" sx={{ fontWeight: 600, color: 'success.main' }}>
                                                     {code.discount_percentage}%
-                                                </span>
-                                            </td>
-                                            <td className="p-2">
+                                                </Box>
+                                            </Box>
+                                            <Box component="td" sx={{ p: 1 }}>
                                                 {code.usage_count} /{' '}
-                                                {code.max_usages || '∞'}
-                                            </td>
-                                            <td className="p-2">
+                                                {code.max_usages || '\u221E'}
+                                            </Box>
+                                            <Box component="td" sx={{ p: 1 }}>
                                                 {code.commission_rate}%
-                                            </td>
-                                            <td className="p-2">
+                                            </Box>
+                                            <Box component="td" sx={{ p: 1 }}>
                                                 GH₵{code.registration_bonus}
-                                            </td>
-                                            <td className="p-2">
+                                            </Box>
+                                            <Box component="td" sx={{ p: 1 }}>
                                                 {code.is_active ? (
-                                                    <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-1 text-xs font-semibold text-green-800 dark:bg-green-900 dark:text-green-200">
-                                                        <Power className="size-3" />
-                                                        ACTIVE
-                                                    </span>
+                                                    <Chip
+                                                        icon={<Power style={{ width: 12, height: 12 }} />}
+                                                        label="ACTIVE"
+                                                        color="success"
+                                                        size="small"
+                                                        variant="outlined"
+                                                    />
                                                 ) : (
-                                                    <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2 py-1 text-xs font-semibold text-gray-800 dark:bg-gray-800 dark:text-gray-200">
-                                                        <PowerOff className="size-3" />
-                                                        INACTIVE
-                                                    </span>
+                                                    <Chip
+                                                        icon={<PowerOff style={{ width: 12, height: 12 }} />}
+                                                        label="INACTIVE"
+                                                        color="default"
+                                                        size="small"
+                                                        variant="outlined"
+                                                    />
                                                 )}
-                                            </td>
-                                            <td className="p-2">
-                                                <div className="flex gap-2">
+                                            </Box>
+                                            <Box component="td" sx={{ p: 1 }}>
+                                                <Box sx={{ display: 'flex', gap: 1 }}>
                                                     <Link
                                                         href={`/dashboard/referral-codes/${code.id}`}
-                                                        className="text-muted-foreground hover:text-foreground"
                                                     >
-                                                        <Eye className="size-4" />
+                                                        <Eye style={{ width: 16, height: 16, color: 'gray' }} />
                                                     </Link>
                                                     <Link
                                                         href={`/dashboard/referral-codes/${code.id}/edit`}
-                                                        className="text-muted-foreground hover:text-foreground"
                                                     >
-                                                        <Pencil className="size-4" />
+                                                        <Pencil style={{ width: 16, height: 16, color: 'gray' }} />
                                                     </Link>
-                                                    <button
+                                                    <Box
+                                                        component="button"
                                                         type="button"
                                                         onClick={() =>
                                                             handleToggle(
                                                                 code.id,
                                                             )
                                                         }
-                                                        className="text-muted-foreground hover:text-foreground"
                                                         title={
                                                             code.is_active
                                                                 ? 'Deactivate'
                                                                 : 'Activate'
                                                         }
+                                                        sx={{ color: 'text.secondary', '&:hover': { color: 'text.primary' }, background: 'none', border: 'none', cursor: 'pointer', p: 0 }}
                                                     >
                                                         {code.is_active ? (
-                                                            <PowerOff className="size-4" />
+                                                            <PowerOff style={{ width: 16, height: 16 }} />
                                                         ) : (
-                                                            <Power className="size-4" />
+                                                            <Power style={{ width: 16, height: 16 }} />
                                                         )}
-                                                    </button>
-                                                    <button
+                                                    </Box>
+                                                    <Box
+                                                        component="button"
                                                         type="button"
                                                         onClick={() =>
                                                             handleDelete(
@@ -249,32 +263,32 @@ export default function ReferralCodesIndex({ codes }: Props) {
                                                                 code.code,
                                                             )
                                                         }
-                                                        className="text-muted-foreground hover:text-destructive"
+                                                        sx={{ color: 'text.secondary', '&:hover': { color: 'error.main' }, background: 'none', border: 'none', cursor: 'pointer', p: 0 }}
                                                     >
-                                                        <Trash2 className="size-4" />
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
+                                                        <Trash2 style={{ width: 16, height: 16 }} />
+                                                    </Box>
+                                                </Box>
+                                            </Box>
+                                        </Box>
                                     ))}
                                 </tbody>
-                            </table>
-                        </div>
+                            </Box>
+                        </Box>
 
                         {codes.data.length === 0 && (
-                            <div className="py-8 text-center text-muted-foreground">
+                            <Box sx={{ py: 4, textAlign: 'center', color: 'text.secondary' }}>
                                 No referral codes found. Create one to get
                                 started.
-                            </div>
+                            </Box>
                         )}
 
                         {codes.last_page > 1 && (
-                            <div className="mt-4 flex items-center justify-between">
-                                <p className="text-sm text-muted-foreground">
+                            <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
                                     Showing {codes.data.length} of {codes.total}{' '}
                                     codes
-                                </p>
-                                <div className="flex gap-2">
+                                </Typography>
+                                <Box sx={{ display: 'flex', gap: 1 }}>
                                     <Button
                                         variant="outline"
                                         size="sm"
@@ -287,10 +301,10 @@ export default function ReferralCodesIndex({ codes }: Props) {
                                     >
                                         Previous
                                     </Button>
-                                    <div className="flex items-center px-3 text-sm">
+                                    <Box sx={{ display: 'flex', alignItems: 'center', px: 1.5, fontSize: '0.875rem' }}>
                                         Page {codes.current_page} of{' '}
                                         {codes.last_page}
-                                    </div>
+                                    </Box>
                                     <Button
                                         variant="outline"
                                         size="sm"
@@ -306,12 +320,12 @@ export default function ReferralCodesIndex({ codes }: Props) {
                                     >
                                         Next
                                     </Button>
-                                </div>
-                            </div>
+                                </Box>
+                            </Box>
                         )}
                     </CardContent>
                 </Card>
-            </div>
+            </Box>
         </AppLayout>
     );
 }
