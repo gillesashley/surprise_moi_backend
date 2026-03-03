@@ -1,10 +1,20 @@
 import { Button } from '@/components/ui/button';
 import { Pagination } from '@/components/ui/pagination';
 import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@/components/ui/table';
+import {
     create as interestCreate,
     destroy as interestDestroy,
     edit as interestEdit,
 } from '@/routes/dashboard/interests';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
 import { Link, router } from '@inertiajs/react';
 import { Pencil, Plus, Trash2 } from 'lucide-react';
 
@@ -44,97 +54,110 @@ export function InterestsTab({ interests, canCreate, canDelete }: Props) {
     };
 
     return (
-        <div className="mt-6">
-            <div className="mb-4 flex items-center justify-between">
-                <h3 className="text-lg font-semibold">User Interests</h3>
+        <Box sx={{ mt: 3 }}>
+            <Box
+                sx={{
+                    mb: 2,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                }}
+            >
+                <Typography variant="h6" fontWeight={600}>
+                    User Interests
+                </Typography>
                 {canCreate && (
                     <Button asChild>
                         <Link href={interestCreate.url()}>
-                            <Plus className="mr-2 size-4" />
+                            <Plus style={{ width: 16, height: 16, marginRight: 8 }} />
                             Add Interest
                         </Link>
                     </Button>
                 )}
-            </div>
-            <div className="overflow-x-auto">
-                <table className="w-full">
-                    <thead>
-                        <tr className="border-b">
-                            <th className="p-2 text-left text-sm font-medium">
-                                Name
-                            </th>
-                            <th className="p-2 text-left text-sm font-medium">
-                                Icon
-                            </th>
-                            <th className="p-2 text-left text-sm font-medium">
-                                Users
-                            </th>
-                            <th className="p-2 text-right text-sm font-medium">
-                                Actions
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {interests.data.map((interest) => (
-                            <tr
-                                key={interest.id}
-                                className="border-b last:border-0 hover:bg-muted/50"
-                            >
-                                <td className="p-2 text-sm font-medium">
+            </Box>
+            <Table>
+                <TableHeader>
+                    <TableRow>
+                        <TableHead>Name</TableHead>
+                        <TableHead>Icon</TableHead>
+                        <TableHead>Users</TableHead>
+                        <TableHead sx={{ textAlign: 'right' }}>
+                            Actions
+                        </TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {interests.data.map((interest) => (
+                        <TableRow key={interest.id}>
+                            <TableCell>
+                                <Typography variant="body2" fontWeight={500}>
                                     {interest.name}
-                                </td>
-                                <td className="p-2 text-sm">
+                                </Typography>
+                            </TableCell>
+                            <TableCell>
+                                <Typography variant="body2">
                                     {interest.icon || '-'}
-                                </td>
-                                <td className="p-2 text-sm">
+                                </Typography>
+                            </TableCell>
+                            <TableCell>
+                                <Typography variant="body2">
                                     {interest.users_count}
-                                </td>
-                                <td className="p-2">
-                                    <div className="flex justify-end gap-2">
+                                </Typography>
+                            </TableCell>
+                            <TableCell>
+                                <Box
+                                    sx={{
+                                        display: 'flex',
+                                        justifyContent: 'flex-end',
+                                        gap: 1,
+                                    }}
+                                >
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        asChild
+                                    >
+                                        <Link
+                                            href={interestEdit.url(
+                                                interest.id,
+                                            )}
+                                        >
+                                            <Pencil style={{ width: 16, height: 16 }} />
+                                        </Link>
+                                    </Button>
+                                    {canDelete && (
                                         <Button
                                             variant="ghost"
                                             size="sm"
-                                            asChild
-                                        >
-                                            <Link
-                                                href={interestEdit.url(
+                                            onClick={() =>
+                                                handleDelete(
                                                     interest.id,
-                                                )}
-                                            >
-                                                <Pencil className="size-4" />
-                                            </Link>
+                                                    interest.name,
+                                                )
+                                            }
+                                        >
+                                            <Trash2 style={{ width: 16, height: 16, color: 'var(--mui-palette-error-main, #d32f2f)' }} />
                                         </Button>
-                                        {canDelete && (
-                                            <Button
-                                                variant="ghost"
-                                                size="sm"
-                                                onClick={() =>
-                                                    handleDelete(
-                                                        interest.id,
-                                                        interest.name,
-                                                    )
-                                                }
-                                            >
-                                                <Trash2 className="size-4 text-destructive" />
-                                            </Button>
-                                        )}
-                                    </div>
-                                </td>
-                            </tr>
-                        ))}
-                        {interests.data.length === 0 && (
-                            <tr>
-                                <td
-                                    colSpan={4}
-                                    className="p-4 text-center text-muted-foreground"
+                                    )}
+                                </Box>
+                            </TableCell>
+                        </TableRow>
+                    ))}
+                    {interests.data.length === 0 && (
+                        <TableRow>
+                            <TableCell colSpan={4}>
+                                <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                    sx={{ textAlign: 'center', p: 2 }}
                                 >
                                     No interests found
-                                </td>
-                            </tr>
-                        )}
-                    </tbody>
-                </table>
-            </div>
+                                </Typography>
+                            </TableCell>
+                        </TableRow>
+                    )}
+                </TableBody>
+            </Table>
             <Pagination
                 currentPage={interests.current_page}
                 lastPage={interests.last_page}
@@ -145,6 +168,6 @@ export function InterestsTab({ interests, canCreate, canDelete }: Props) {
                     });
                 }}
             />
-        </div>
+        </Box>
     );
 }

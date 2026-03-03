@@ -4,6 +4,10 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
+import Box from '@mui/material/Box';
+import Chip from '@mui/material/Chip';
+import Typography from '@mui/material/Typography';
+import type React from 'react';
 
 interface Category {
     id: number;
@@ -27,77 +31,156 @@ interface Props {
 export function CategoryDetailsModal({ category, onClose }: Props) {
     return (
         <Dialog open={!!category} onOpenChange={(open) => !open && onClose()}>
-            <DialogContent className="max-w-2xl" aria-describedby={undefined}>
+            <DialogContent style={{ maxWidth: 672 }} aria-describedby={undefined}>
                 <DialogHeader>
                     <DialogTitle>Category Details</DialogTitle>
                 </DialogHeader>
                 {category && (
-                    <div className="space-y-4">
-                        <div className="grid gap-4 md:grid-cols-2">
-                            <div>
-                                <h4 className="mb-1 text-sm font-medium text-muted-foreground">
-                                    Name
-                                </h4>
-                                <p className="text-base font-medium">
-                                    {category.name}
-                                </p>
-                            </div>
-                            <div>
-                                <h4 className="mb-1 text-sm font-medium text-muted-foreground">
-                                    Type
-                                </h4>
-                                <span
-                                    className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
-                                        category.type === 'service'
-                                            ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-                                            : 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
-                                    }`}
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                        <Box
+                            sx={{
+                                display: 'grid',
+                                gap: 2,
+                                gridTemplateColumns: { md: 'repeat(2, 1fr)' },
+                            }}
+                        >
+                            <Box>
+                                <Typography
+                                    variant="caption"
+                                    color="text.secondary"
+                                    sx={{
+                                        fontWeight: 500,
+                                        mb: 0.5,
+                                        display: 'block',
+                                    }}
                                 >
-                                    {category.type === 'service'
-                                        ? 'Service'
-                                        : 'Product'}
-                                </span>
-                            </div>
-                        </div>
+                                    Name
+                                </Typography>
+                                <Typography variant="body1" fontWeight={500}>
+                                    {category.name}
+                                </Typography>
+                            </Box>
+                            <Box>
+                                <Typography
+                                    variant="caption"
+                                    color="text.secondary"
+                                    sx={{
+                                        fontWeight: 500,
+                                        mb: 0.5,
+                                        display: 'block',
+                                    }}
+                                >
+                                    Type
+                                </Typography>
+                                <Chip
+                                    label={
+                                        category.type === 'service'
+                                            ? 'Service'
+                                            : 'Product'
+                                    }
+                                    size="small"
+                                    color={
+                                        category.type === 'service'
+                                            ? 'info'
+                                            : 'secondary'
+                                    }
+                                    variant="outlined"
+                                />
+                            </Box>
+                        </Box>
 
-                        <div className="grid gap-4 md:grid-cols-2">
-                            <div>
-                                <h4 className="mb-1 text-sm font-medium text-muted-foreground">
+                        <Box
+                            sx={{
+                                display: 'grid',
+                                gap: 2,
+                                gridTemplateColumns: { md: 'repeat(2, 1fr)' },
+                            }}
+                        >
+                            <Box>
+                                <Typography
+                                    variant="caption"
+                                    color="text.secondary"
+                                    sx={{
+                                        fontWeight: 500,
+                                        mb: 0.5,
+                                        display: 'block',
+                                    }}
+                                >
                                     Slug
-                                </h4>
-                                <p className="text-base text-muted-foreground">
+                                </Typography>
+                                <Typography
+                                    variant="body1"
+                                    color="text.secondary"
+                                >
                                     {category.slug}
-                                </p>
-                            </div>
-                            <div>
-                                <h4 className="mb-1 text-sm font-medium text-muted-foreground">
+                                </Typography>
+                            </Box>
+                            <Box>
+                                <Typography
+                                    variant="caption"
+                                    color="text.secondary"
+                                    sx={{
+                                        fontWeight: 500,
+                                        mb: 0.5,
+                                        display: 'block',
+                                    }}
+                                >
                                     Products
-                                </h4>
-                                <p className="text-base">
+                                </Typography>
+                                <Typography variant="body1">
                                     {category.products_count}
-                                </p>
-                            </div>
-                        </div>
+                                </Typography>
+                            </Box>
+                        </Box>
 
                         {category.description && (
-                            <div>
-                                <h4 className="mb-1 text-sm font-medium text-muted-foreground">
+                            <Box>
+                                <Typography
+                                    variant="caption"
+                                    color="text.secondary"
+                                    sx={{
+                                        fontWeight: 500,
+                                        mb: 0.5,
+                                        display: 'block',
+                                    }}
+                                >
                                     Description
-                                </h4>
-                                <p className="text-base">
+                                </Typography>
+                                <Typography variant="body1">
                                     {category.description}
-                                </p>
-                            </div>
+                                </Typography>
+                            </Box>
                         )}
 
-                        <div className="grid gap-4 md:grid-cols-2">
+                        <Box
+                            sx={{
+                                display: 'grid',
+                                gap: 2,
+                                gridTemplateColumns: { md: 'repeat(2, 1fr)' },
+                            }}
+                        >
                             {category.icon && (
-                                <div>
-                                    <h4 className="mb-1 text-sm font-medium text-muted-foreground">
+                                <Box>
+                                    <Typography
+                                        variant="caption"
+                                        color="text.secondary"
+                                        sx={{
+                                            fontWeight: 500,
+                                            mb: 0.5,
+                                            display: 'block',
+                                        }}
+                                    >
                                         Icon
-                                    </h4>
-                                    <div className="flex items-center gap-2">
-                                        <img
+                                    </Typography>
+                                    <Box
+                                        sx={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: 1,
+                                        }}
+                                    >
+                                        <Box
+                                            component="img"
                                             src={
                                                 category.icon.startsWith('http')
                                                     ? category.icon
@@ -108,23 +191,36 @@ export function CategoryDetailsModal({ category, onClose }: Props) {
                                                       : `/${category.icon}`
                                             }
                                             alt="Category icon"
-                                            className="h-12 w-12 object-contain"
-                                            onError={(e) => {
+                                            sx={{
+                                                height: 48,
+                                                width: 48,
+                                                objectFit: 'contain',
+                                            }}
+                                            onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
                                                 e.currentTarget.style.display =
                                                     'none';
                                             }}
                                         />
-                                    </div>
-                                </div>
+                                    </Box>
+                                </Box>
                             )}
-                        </div>
+                        </Box>
 
                         {category.image && (
-                            <div>
-                                <h4 className="mb-2 text-sm font-medium text-muted-foreground">
+                            <Box>
+                                <Typography
+                                    variant="caption"
+                                    color="text.secondary"
+                                    sx={{
+                                        fontWeight: 500,
+                                        mb: 1,
+                                        display: 'block',
+                                    }}
+                                >
                                     Image
-                                </h4>
-                                <img
+                                </Typography>
+                                <Box
+                                    component="img"
                                     src={
                                         category.image.startsWith('http')
                                             ? category.image
@@ -133,34 +229,63 @@ export function CategoryDetailsModal({ category, onClose }: Props) {
                                               : `/storage/${category.image}`
                                     }
                                     alt={category.name}
-                                    className="w-full max-w-md rounded-lg border border-input object-cover"
-                                    onError={(e) => {
+                                    sx={{
+                                        width: '100%',
+                                        maxWidth: 448,
+                                        borderRadius: 2,
+                                        border: 1,
+                                        borderColor: 'divider',
+                                        objectFit: 'cover',
+                                    }}
+                                    onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
                                         e.currentTarget.src =
                                             '/placeholder-image.png';
                                     }}
                                 />
-                            </div>
+                            </Box>
                         )}
 
-                        <div className="grid gap-4 md:grid-cols-2">
-                            <div>
-                                <h4 className="mb-1 text-sm font-medium text-muted-foreground">
+                        <Box
+                            sx={{
+                                display: 'grid',
+                                gap: 2,
+                                gridTemplateColumns: { md: 'repeat(2, 1fr)' },
+                            }}
+                        >
+                            <Box>
+                                <Typography
+                                    variant="caption"
+                                    color="text.secondary"
+                                    sx={{
+                                        fontWeight: 500,
+                                        mb: 0.5,
+                                        display: 'block',
+                                    }}
+                                >
                                     Sort Order
-                                </h4>
-                                <p className="text-base">
+                                </Typography>
+                                <Typography variant="body1">
                                     {category.sort_order}
-                                </p>
-                            </div>
-                            <div>
-                                <h4 className="mb-1 text-sm font-medium text-muted-foreground">
+                                </Typography>
+                            </Box>
+                            <Box>
+                                <Typography
+                                    variant="caption"
+                                    color="text.secondary"
+                                    sx={{
+                                        fontWeight: 500,
+                                        mb: 0.5,
+                                        display: 'block',
+                                    }}
+                                >
                                     Products
-                                </h4>
-                                <p className="text-base">
+                                </Typography>
+                                <Typography variant="body1">
                                     {category.products_count}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
+                                </Typography>
+                            </Box>
+                        </Box>
+                    </Box>
                 )}
             </DialogContent>
         </Dialog>

@@ -1,10 +1,21 @@
 import { Button } from '@/components/ui/button';
 import { Pagination } from '@/components/ui/pagination';
 import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@/components/ui/table';
+import {
     create as categoryCreate,
     destroy as categoryDestroy,
     edit as categoryEdit,
 } from '@/routes/dashboard/categories';
+import Box from '@mui/material/Box';
+import Chip from '@mui/material/Chip';
+import Typography from '@mui/material/Typography';
 import { Link, router } from '@inertiajs/react';
 import { Eye, Pencil, Plus, Trash2 } from 'lucide-react';
 
@@ -56,144 +67,159 @@ export function CategoriesTab({
     };
 
     return (
-        <div className="mt-6">
-            <div className="mb-4 flex items-center justify-between">
-                <h3 className="text-lg font-semibold">Product Categories</h3>
+        <Box sx={{ mt: 3 }}>
+            <Box
+                sx={{
+                    mb: 2,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                }}
+            >
+                <Typography variant="h6" fontWeight={600}>
+                    Product Categories
+                </Typography>
                 {canCreate && (
                     <Button asChild>
                         <Link href={categoryCreate.url()}>
-                            <Plus className="mr-2 size-4" />
+                            <Plus style={{ width: 16, height: 16, marginRight: 8 }} />
                             Add Category
                         </Link>
                     </Button>
                 )}
-            </div>
-            <div className="overflow-x-auto">
-                <table className="w-full">
-                    <thead>
-                        <tr className="border-b">
-                            <th className="p-2 text-left text-sm font-medium">
-                                Name
-                            </th>
-                            <th className="p-2 text-left text-sm font-medium">
-                                Slug
-                            </th>
-                            <th className="p-2 text-left text-sm font-medium">
-                                Type
-                            </th>
-                            <th className="p-2 text-left text-sm font-medium">
-                                Products
-                            </th>
-                            <th className="p-2 text-left text-sm font-medium">
-                                Status
-                            </th>
-                            <th className="p-2 text-left text-sm font-medium">
-                                Order
-                            </th>
-                            <th className="p-2 text-right text-sm font-medium">
-                                Actions
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {categories.data.map((category) => (
-                            <tr
-                                key={category.id}
-                                className="border-b last:border-0 hover:bg-muted/50"
-                            >
-                                <td className="p-2 text-sm font-medium">
+            </Box>
+            <Table>
+                <TableHeader>
+                    <TableRow>
+                        <TableHead>Name</TableHead>
+                        <TableHead>Slug</TableHead>
+                        <TableHead>Type</TableHead>
+                        <TableHead>Products</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Order</TableHead>
+                        <TableHead style={{ textAlign: 'right' }}>
+                            Actions
+                        </TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {categories.data.map((category) => (
+                        <TableRow key={category.id}>
+                            <TableCell>
+                                <Typography variant="body2" fontWeight={500}>
                                     {category.name}
-                                </td>
-                                <td className="w-fit p-2 text-sm">
+                                </Typography>
+                            </TableCell>
+                            <TableCell>
+                                <Typography variant="body2">
                                     {category.slug}
-                                </td>
-                                <td className="p-2 text-sm text-muted-foreground">
-                                    <span
-                                        className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
-                                            category.type === 'service'
-                                                ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-                                                : 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
-                                        }`}
-                                    >
-                                        {category.type === 'service'
+                                </Typography>
+                            </TableCell>
+                            <TableCell>
+                                <Chip
+                                    label={
+                                        category.type === 'service'
                                             ? 'Service'
-                                            : 'Product'}
-                                    </span>
-                                </td>
-                                <td className="p-2 text-sm">
+                                            : 'Product'
+                                    }
+                                    size="small"
+                                    color={
+                                        category.type === 'service'
+                                            ? 'info'
+                                            : 'secondary'
+                                    }
+                                    variant="outlined"
+                                />
+                            </TableCell>
+                            <TableCell>
+                                <Typography variant="body2">
                                     {category.products_count}
-                                </td>
-                                <td className="p-2 text-sm">
-                                    <span
-                                        className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
-                                            category.is_active
-                                                ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                                                : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200'
-                                        }`}
-                                    >
-                                        {category.is_active
+                                </Typography>
+                            </TableCell>
+                            <TableCell>
+                                <Chip
+                                    label={
+                                        category.is_active
                                             ? 'Active'
-                                            : 'Inactive'}
-                                    </span>
-                                </td>
-                                <td className="p-2 text-sm">
+                                            : 'Inactive'
+                                    }
+                                    size="small"
+                                    color={
+                                        category.is_active
+                                            ? 'success'
+                                            : 'default'
+                                    }
+                                    variant="outlined"
+                                />
+                            </TableCell>
+                            <TableCell>
+                                <Typography variant="body2">
                                     {category.sort_order}
-                                </td>
-                                <td className="p-2">
-                                    <div className="flex justify-end gap-2">
+                                </Typography>
+                            </TableCell>
+                            <TableCell>
+                                <Box
+                                    sx={{
+                                        display: 'flex',
+                                        justifyContent: 'flex-end',
+                                        gap: 1,
+                                    }}
+                                >
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() =>
+                                            onViewCategory(category)
+                                        }
+                                    >
+                                        <Eye style={{ width: 16, height: 16 }} />
+                                    </Button>
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        asChild
+                                    >
+                                        <Link
+                                            href={categoryEdit.url(
+                                                category.id,
+                                            )}
+                                        >
+                                            <Pencil style={{ width: 16, height: 16 }} />
+                                        </Link>
+                                    </Button>
+                                    {canDelete && (
                                         <Button
                                             variant="ghost"
                                             size="sm"
                                             onClick={() =>
-                                                onViewCategory(category)
+                                                handleDelete(
+                                                    category.id,
+                                                    category.name,
+                                                )
                                             }
                                         >
-                                            <Eye className="size-4" />
+                                            <Trash2 style={{ width: 16, height: 16, color: 'var(--mui-palette-error-main, #d32f2f)' }} />
                                         </Button>
-                                        <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            asChild
-                                        >
-                                            <Link
-                                                href={categoryEdit.url(
-                                                    category.id,
-                                                )}
-                                            >
-                                                <Pencil className="size-4" />
-                                            </Link>
-                                        </Button>
-                                        {canDelete && (
-                                            <Button
-                                                variant="ghost"
-                                                size="sm"
-                                                onClick={() =>
-                                                    handleDelete(
-                                                        category.id,
-                                                        category.name,
-                                                    )
-                                                }
-                                            >
-                                                <Trash2 className="size-4 text-destructive" />
-                                            </Button>
-                                        )}
-                                    </div>
-                                </td>
-                            </tr>
-                        ))}
-                        {categories.data.length === 0 && (
-                            <tr>
-                                <td
-                                    colSpan={7}
-                                    className="p-4 text-center text-muted-foreground"
+                                    )}
+                                </Box>
+                            </TableCell>
+                        </TableRow>
+                    ))}
+                    {categories.data.length === 0 && (
+                        <TableRow>
+                            <TableCell colSpan={7}>
+                                <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                    sx={{ textAlign: 'center', p: 2 }}
                                 >
                                     No categories found
-                                </td>
-                            </tr>
-                        )}
-                    </tbody>
-                </table>
-            </div>
+                                </Typography>
+                            </TableCell>
+                        </TableRow>
+                    )}
+                </TableBody>
+            </Table>
             <Pagination
                 currentPage={categories.current_page}
                 lastPage={categories.last_page}
@@ -204,6 +230,6 @@ export function CategoriesTab({
                     });
                 }}
             />
-        </div>
+        </Box>
     );
 }
