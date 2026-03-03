@@ -7,6 +7,10 @@ import {
     CardTitle,
 } from '@/components/ui/card';
 import { regenerateRecoveryCodes } from '@/routes/two-factor';
+import Box from '@mui/material/Box';
+import Collapse from '@mui/material/Collapse';
+import Skeleton from '@mui/material/Skeleton';
+import Typography from '@mui/material/Typography';
 import { Form } from '@inertiajs/react';
 import { Eye, EyeOff, LockKeyhole, RefreshCw } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -55,8 +59,17 @@ export default function TwoFactorRecoveryCodes({
     return (
         <Card>
             <CardHeader>
-                <CardTitle className="flex gap-3">
-                    <LockKeyhole className="size-4" aria-hidden="true" />
+                <CardTitle
+                    style={{
+                        display: 'flex',
+                        gap: 12,
+                        alignItems: 'center',
+                    }}
+                >
+                    <LockKeyhole
+                        style={{ width: 16, height: 16 }}
+                        aria-hidden="true"
+                    />
                     2FA Recovery Codes
                 </CardTitle>
                 <CardDescription>
@@ -65,15 +78,27 @@ export default function TwoFactorRecoveryCodes({
                 </CardDescription>
             </CardHeader>
             <CardContent>
-                <div className="flex flex-col gap-3 select-none sm:flex-row sm:items-center sm:justify-between">
+                <Box
+                    sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: 1.5,
+                        userSelect: 'none',
+                        sm: {
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                        },
+                    }}
+                >
                     <Button
                         onClick={toggleCodesVisibility}
-                        className="w-fit"
+                        style={{ width: 'fit-content' }}
                         aria-expanded={codesAreVisible}
                         aria-controls="recovery-codes-section"
                     >
                         <RecoveryCodeIconComponent
-                            className="size-4"
+                            style={{ width: 16, height: 16 }}
                             aria-hidden="true"
                         />
                         {codesAreVisible ? 'Hide' : 'View'} Recovery Codes
@@ -97,67 +122,94 @@ export default function TwoFactorRecoveryCodes({
                             )}
                         </Form>
                     )}
-                </div>
-                <div
+                </Box>
+                <Collapse
+                    in={codesAreVisible}
                     id="recovery-codes-section"
-                    className={`relative overflow-hidden transition-all duration-300 ${codesAreVisible ? 'h-auto opacity-100' : 'h-0 opacity-0'}`}
                     aria-hidden={!codesAreVisible}
                 >
-                    <div className="mt-3 space-y-3">
+                    <Box
+                        sx={{
+                            mt: 1.5,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: 1.5,
+                        }}
+                    >
                         {errors?.length ? (
                             <AlertError errors={errors} />
                         ) : (
                             <>
-                                <div
+                                <Box
                                     ref={codesSectionRef}
-                                    className="grid gap-1 rounded-lg bg-muted p-4 font-mono text-sm"
+                                    sx={{
+                                        display: 'grid',
+                                        gap: 0.5,
+                                        borderRadius: 2,
+                                        bgcolor: 'action.hover',
+                                        p: 2,
+                                        fontFamily: 'monospace',
+                                        fontSize: '0.875rem',
+                                    }}
                                     role="list"
                                     aria-label="Recovery codes"
                                 >
                                     {recoveryCodesList.length ? (
                                         recoveryCodesList.map((code, index) => (
-                                            <div
+                                            <Box
                                                 key={index}
                                                 role="listitem"
-                                                className="select-text"
+                                                sx={{ userSelect: 'text' }}
                                             >
                                                 {code}
-                                            </div>
+                                            </Box>
                                         ))
                                     ) : (
-                                        <div
-                                            className="space-y-2"
+                                        <Box
+                                            sx={{
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                gap: 1,
+                                            }}
                                             aria-label="Loading recovery codes"
                                         >
                                             {Array.from(
                                                 { length: 8 },
                                                 (_, index) => (
-                                                    <div
+                                                    <Skeleton
                                                         key={index}
-                                                        className="h-4 animate-pulse rounded bg-muted-foreground/20"
+                                                        variant="rectangular"
+                                                        height={16}
                                                         aria-hidden="true"
                                                     />
                                                 ),
                                             )}
-                                        </div>
+                                        </Box>
                                     )}
-                                </div>
+                                </Box>
 
-                                <div className="text-xs text-muted-foreground select-none">
-                                    <p id="regenerate-warning">
+                                <Typography
+                                    variant="caption"
+                                    color="text.secondary"
+                                    sx={{ userSelect: 'none' }}
+                                >
+                                    <span id="regenerate-warning">
                                         Each recovery code can be used once to
                                         access your account and will be removed
                                         after use. If you need more, click{' '}
-                                        <span className="font-bold">
+                                        <Box
+                                            component="span"
+                                            sx={{ fontWeight: 700 }}
+                                        >
                                             Regenerate Codes
-                                        </span>{' '}
+                                        </Box>{' '}
                                         above.
-                                    </p>
-                                </div>
+                                    </span>
+                                </Typography>
                             </>
                         )}
-                    </div>
-                </div>
+                    </Box>
+                </Collapse>
             </CardContent>
         </Card>
     );
