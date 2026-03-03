@@ -326,8 +326,8 @@ export default function VendorPayouts({
                 {/* Statistics Cards */}
                 <Box sx={{ display: 'grid', gap: 2, gridTemplateColumns: { md: 'repeat(4, 1fr)' } }}>
                     <Card>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">
+                        <CardHeader style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingBottom: 8 }}>
+                            <CardTitle style={{ fontSize: '0.875rem', fontWeight: 500 }}>
                                 Pending
                             </CardTitle>
                             <AlertCircleIcon style={{ width: 16, height: 16, color: 'var(--color-orange-600)' }} />
@@ -343,8 +343,8 @@ export default function VendorPayouts({
                     </Card>
 
                     <Card>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">
+                        <CardHeader style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingBottom: 8 }}>
+                            <CardTitle style={{ fontSize: '0.875rem', fontWeight: 500 }}>
                                 Approved
                             </CardTitle>
                             <CheckCircle style={{ width: 16, height: 16, color: 'var(--color-blue-600)' }} />
@@ -360,8 +360,8 @@ export default function VendorPayouts({
                     </Card>
 
                     <Card>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">
+                        <CardHeader style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingBottom: 8 }}>
+                            <CardTitle style={{ fontSize: '0.875rem', fontWeight: 500 }}>
                                 Paid
                             </CardTitle>
                             <CheckCircle style={{ width: 16, height: 16, color: 'var(--color-green-600)' }} />
@@ -377,8 +377,8 @@ export default function VendorPayouts({
                     </Card>
 
                     <Card>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">
+                        <CardHeader style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingBottom: 8 }}>
+                            <CardTitle style={{ fontSize: '0.875rem', fontWeight: 500 }}>
                                 Rejected
                             </CardTitle>
                             <XCircle style={{ width: 16, height: 16, color: 'var(--color-red-600)' }} />
@@ -417,7 +417,7 @@ export default function VendorPayouts({
                         </Box>
                     </CardHeader>
 
-                    <CardContent className="space-y-4">
+                    <CardContent style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                         {/* Filter */}
                         <Box sx={{ display: 'flex', gap: 1 }}>
                             <Filter style={{ marginTop: 10, width: 16, height: 16, color: 'var(--muted-foreground)' }} />
@@ -425,7 +425,7 @@ export default function VendorPayouts({
                                 value={statusFilter}
                                 onValueChange={handleFilterChange}
                             >
-                                <SelectTrigger className="w-[200px]">
+                                <SelectTrigger style={{ width: 200 }}>
                                     <SelectValue placeholder="Filter by status" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -449,7 +449,7 @@ export default function VendorPayouts({
                         {/* Table */}
                         <Box sx={{ borderRadius: 2, border: 1, borderColor: 'divider' }}>
                             <Table>
-                                <TableHeader className="bg-muted/50">
+                                <TableHeader>
                                     <TableRow>
                                         <TableHead>Request #</TableHead>
                                         <TableHead>Vendor</TableHead>
@@ -457,7 +457,7 @@ export default function VendorPayouts({
                                         <TableHead>Provider</TableHead>
                                         <TableHead>Status</TableHead>
                                         <TableHead>Date</TableHead>
-                                        <TableHead className="text-right">
+                                        <TableHead style={{ textAlign: 'right' }}>
                                             Actions
                                         </TableHead>
                                     </TableRow>
@@ -467,7 +467,7 @@ export default function VendorPayouts({
                                         <TableRow>
                                             <TableCell
                                                 colSpan={7}
-                                                className="py-8 text-center"
+                                                style={{ paddingTop: 32, paddingBottom: 32, textAlign: 'center' }}
                                             >
                                                 <Typography sx={{ color: 'text.secondary' }}>
                                                     No payout requests found
@@ -477,7 +477,7 @@ export default function VendorPayouts({
                                     ) : (
                                         data.payouts.data.map((payout) => (
                                             <TableRow key={payout.id}>
-                                                <TableCell className="font-mono text-sm">
+                                                <TableCell style={{ fontFamily: 'monospace', fontSize: '0.875rem' }}>
                                                     {payout.request_number}
                                                 </TableCell>
                                                 <TableCell>
@@ -490,7 +490,7 @@ export default function VendorPayouts({
                                                         </Typography>
                                                     </Box>
                                                 </TableCell>
-                                                <TableCell className="font-bold">
+                                                <TableCell style={{ fontWeight: 700 }}>
                                                     {payout.currency}{' '}
                                                     {parseFloat(
                                                         payout.amount,
@@ -506,12 +506,12 @@ export default function VendorPayouts({
                                                         payout.status,
                                                     )}
                                                 </TableCell>
-                                                <TableCell className="text-xs text-muted-foreground">
+                                                <TableCell style={{ fontSize: '0.75rem', color: 'gray' }}>
                                                     {new Date(
                                                         payout.created_at,
                                                     ).toLocaleDateString()}
                                                 </TableCell>
-                                                <TableCell className="text-right">
+                                                <TableCell style={{ textAlign: 'right' }}>
                                                     <Button
                                                         variant="ghost"
                                                         size="sm"

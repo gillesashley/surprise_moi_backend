@@ -269,7 +269,7 @@ export default function VendorApplicationShow({ application }: Props) {
                     application.ghana_card_back) && (
                     <Card>
                         <CardHeader>
-                            <CardTitle className="flex items-center gap-2 text-lg">
+                            <CardTitle style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '1.125rem' }}>
                                 <IdCard style={{ width: 20, height: 20 }} />
                                 Ghana Card
                             </CardTitle>
@@ -324,7 +324,7 @@ export default function VendorApplicationShow({ application }: Props) {
                         application.tin_document) && (
                         <Card>
                             <CardHeader>
-                                <CardTitle className="flex items-center gap-2 text-lg">
+                                <CardTitle style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '1.125rem' }}>
                                     <Briefcase style={{ width: 20, height: 20 }} />
                                     Business Documents
                                 </CardTitle>
@@ -388,7 +388,7 @@ export default function VendorApplicationShow({ application }: Props) {
                         application.mobile_money_number) && (
                         <Card>
                             <CardHeader>
-                                <CardTitle className="flex items-center gap-2 text-lg">
+                                <CardTitle style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '1.125rem' }}>
                                     <UserIcon style={{ width: 20, height: 20 }} />
                                     Individual Vendor Verification
                                 </CardTitle>
@@ -476,7 +476,7 @@ export default function VendorApplicationShow({ application }: Props) {
                     application.twitter_handle) && (
                     <Card>
                         <CardHeader>
-                            <CardTitle className="flex items-center gap-2 text-lg">
+                            <CardTitle style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '1.125rem' }}>
                                 <Users style={{ width: 20, height: 20 }} />
                                 Social Media
                             </CardTitle>
@@ -525,7 +525,7 @@ export default function VendorApplicationShow({ application }: Props) {
                 {application.bespoke_services.length > 0 && (
                     <Card>
                         <CardHeader>
-                            <CardTitle className="flex items-center gap-2 text-lg">
+                            <CardTitle style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '1.125rem' }}>
                                 <Package style={{ width: 20, height: 20 }} />
                                 Selected Bespoke Services
                             </CardTitle>
@@ -575,7 +575,7 @@ export default function VendorApplicationShow({ application }: Props) {
                                 setData('rejection_reason', e.target.value)
                             }
                             rows={5}
-                            className="resize-none"
+                            style={{ resize: 'none' }}
                         />
                         {data.rejection_reason &&
                             data.rejection_reason.length < 10 && (

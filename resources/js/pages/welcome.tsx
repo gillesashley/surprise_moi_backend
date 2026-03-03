@@ -1,7 +1,10 @@
 import { dashboard, login, register } from '@/routes';
 import { type SharedData } from '@/types';
+import Box from '@mui/material/Box';
+import MuiButton from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
 import { Head, Link, usePage } from '@inertiajs/react';
-import { Gift, Sparkles, Users, Package } from 'lucide-react';
+import { Gift, Package, Sparkles, Users } from 'lucide-react';
 
 export default function Welcome({
     canRegister = true,
@@ -13,134 +16,274 @@ export default function Welcome({
     return (
         <>
             <Head title="Welcome to SurpriseMoi" />
-            <div className="min-h-screen bg-gradient-to-br from-primary/10 via-background to-accent/10">
+            <Box
+                sx={{
+                    minHeight: '100vh',
+                    background: (theme) =>
+                        `linear-gradient(135deg, ${theme.palette.primary.main}1a, ${theme.palette.background.default}, ${theme.palette.secondary.main}1a)`,
+                }}
+            >
                 {/* Header Navigation */}
-                <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-                    <div className="container mx-auto flex h-16 items-center justify-between px-4">
-                        <div className="flex items-center gap-2">
-                            <Gift className="h-6 w-6 text-primary" />
-                            <span className="text-xl font-bold">SurpriseMoi</span>
-                        </div>
-                        <nav className="flex items-center gap-4">
+                <Box
+                    component="header"
+                    sx={{
+                        borderBottom: 1,
+                        borderColor: 'divider',
+                        bgcolor: 'rgba(255,255,255,0.95)',
+                        backdropFilter: 'blur(8px)',
+                    }}
+                >
+                    <Box
+                        sx={{
+                            maxWidth: 1200,
+                            mx: 'auto',
+                            display: 'flex',
+                            height: 64,
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            px: 2,
+                        }}
+                    >
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <Gift style={{ width: 24, height: 24 }} />
+                            <Typography variant="h6" fontWeight={700}>
+                                SurpriseMoi
+                            </Typography>
+                        </Box>
+                        <Box component="nav" sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                             {auth.user ? (
-                                <Link
-                                    href={dashboard()}
-                                    className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-6 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+                                <MuiButton
+                                    component={Link}
+                                    href={dashboard().url}
+                                    variant="contained"
+                                    size="small"
                                 >
                                     Dashboard
-                                </Link>
+                                </MuiButton>
                             ) : (
                                 <>
-                                    <Link
-                                        href={login()}
-                                        className="inline-flex h-9 items-center justify-center rounded-md px-6 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
+                                    <MuiButton
+                                        component={Link}
+                                        href={login().url}
+                                        variant="text"
+                                        size="small"
                                     >
                                         Log in
-                                    </Link>
+                                    </MuiButton>
                                     {canRegister && (
-                                        <Link
-                                            href={register()}
-                                            className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-6 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+                                        <MuiButton
+                                            component={Link}
+                                            href={register().url}
+                                            variant="contained"
+                                            size="small"
                                         >
                                             Register
-                                        </Link>
+                                        </MuiButton>
                                     )}
                                 </>
                             )}
-                        </nav>
-                    </div>
-                </header>
+                        </Box>
+                    </Box>
+                </Box>
 
                 {/* Hero Section */}
-                <main className="container mx-auto px-4 py-20">
-                    <div className="mx-auto max-w-4xl text-center">
-                        <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-sm font-medium text-primary">
-                            <Sparkles className="h-4 w-4" />
-                            <span>Create Memorable Moments</span>
-                        </div>
-                        
-                        <h1 className="mb-6 text-5xl font-bold tracking-tight sm:text-6xl md:text-7xl">
+                <Box component="main" sx={{ maxWidth: 1200, mx: 'auto', px: 2, py: 10 }}>
+                    <Box sx={{ mx: 'auto', maxWidth: 896, textAlign: 'center' }}>
+                        <Box
+                            sx={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: 1,
+                                borderRadius: 99,
+                                bgcolor: 'primary.main',
+                                color: 'primary.contrastText',
+                                px: 2,
+                                py: 1,
+                                mb: 3,
+                            }}
+                        >
+                            <Sparkles style={{ width: 16, height: 16 }} />
+                            <Typography variant="body2" fontWeight={500}>
+                                Create Memorable Moments
+                            </Typography>
+                        </Box>
+
+                        <Typography
+                            variant="h2"
+                            fontWeight={700}
+                            sx={{
+                                mb: 3,
+                                letterSpacing: '-0.02em',
+                                fontSize: { xs: '2.5rem', sm: '3.5rem', md: '4rem' },
+                            }}
+                        >
                             Welcome to{' '}
-                            <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                            <Box
+                                component="span"
+                                sx={{
+                                    background: (theme) =>
+                                        `linear-gradient(90deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
+                                    WebkitBackgroundClip: 'text',
+                                    WebkitTextFillColor: 'transparent',
+                                }}
+                            >
                                 SurpriseMoi
-                            </span>
-                        </h1>
-                        
-                        <p className="mb-12 text-xl text-muted-foreground">
+                            </Box>
+                        </Typography>
+
+                        <Typography
+                            variant="h6"
+                            color="text.secondary"
+                            fontWeight={400}
+                            sx={{ mb: 6 }}
+                        >
                             Your one-stop platform for creating unforgettable surprises and connecting with amazing vendors.
                             Discover unique gifts, services, and experiences tailored just for you.
-                        </p>
+                        </Typography>
 
-                        <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                flexDirection: { xs: 'column', sm: 'row' },
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: 2,
+                            }}
+                        >
                             {!auth.user && (
                                 <>
-                                    <Link
-                                        href={register()}
-                                        className="inline-flex h-12 items-center justify-center rounded-md bg-primary px-8 text-base font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+                                    <MuiButton
+                                        component={Link}
+                                        href={register().url}
+                                        variant="contained"
+                                        size="large"
+                                        sx={{ px: 4 }}
                                     >
                                         Get Started
-                                    </Link>
-                                    <Link
-                                        href={login()}
-                                        className="inline-flex h-12 items-center justify-center rounded-md border border-input bg-background px-8 text-base font-semibold transition-colors hover:bg-accent hover:text-accent-foreground"
+                                    </MuiButton>
+                                    <MuiButton
+                                        component={Link}
+                                        href={login().url}
+                                        variant="outlined"
+                                        size="large"
+                                        sx={{ px: 4 }}
                                     >
                                         Sign In
-                                    </Link>
+                                    </MuiButton>
                                 </>
                             )}
                             {auth.user && (
-                                <Link
-                                    href={dashboard()}
-                                    className="inline-flex h-12 items-center justify-center rounded-md bg-primary px-8 text-base font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+                                <MuiButton
+                                    component={Link}
+                                    href={dashboard().url}
+                                    variant="contained"
+                                    size="large"
+                                    sx={{ px: 4 }}
                                 >
                                     Go to Dashboard
-                                </Link>
+                                </MuiButton>
                             )}
-                        </div>
-                    </div>
+                        </Box>
+                    </Box>
 
                     {/* Features Grid */}
-                    <div className="mx-auto mt-24 grid max-w-5xl gap-8 md:grid-cols-3">
-                        <div className="rounded-xl border bg-card p-6 text-center shadow-sm transition-all hover:shadow-md">
-                            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
-                                <Gift className="h-7 w-7 text-primary" />
-                            </div>
-                            <h3 className="mb-2 text-lg font-semibold">Unique Surprises</h3>
-                            <p className="text-sm text-muted-foreground">
-                                Discover and create personalized surprises with our curated selection of gifts and experiences.
-                            </p>
-                        </div>
-
-                        <div className="rounded-xl border bg-card p-6 text-center shadow-sm transition-all hover:shadow-md">
-                            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-accent/10">
-                                <Package className="h-7 w-7 text-accent" />
-                            </div>
-                            <h3 className="mb-2 text-lg font-semibold">Quality Products</h3>
-                            <p className="text-sm text-muted-foreground">
-                                Browse thousands of high-quality products from verified vendors across multiple categories.
-                            </p>
-                        </div>
-
-                        <div className="rounded-xl border bg-card p-6 text-center shadow-sm transition-all hover:shadow-md">
-                            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-success/10">
-                                <Users className="h-7 w-7 text-success" />
-                            </div>
-                            <h3 className="mb-2 text-lg font-semibold">Trusted Vendors</h3>
-                            <p className="text-sm text-muted-foreground">
-                                Connect with reliable vendors offering exceptional services and products.
-                            </p>
-                        </div>
-                    </div>
-                </main>
+                    <Box
+                        sx={{
+                            mx: 'auto',
+                            mt: 12,
+                            display: 'grid',
+                            maxWidth: 1024,
+                            gap: 4,
+                            gridTemplateColumns: { md: 'repeat(3, 1fr)' },
+                        }}
+                    >
+                        {[
+                            {
+                                icon: Gift,
+                                title: 'Unique Surprises',
+                                description: 'Discover and create personalized surprises with our curated selection of gifts and experiences.',
+                                color: 'primary.main',
+                            },
+                            {
+                                icon: Package,
+                                title: 'Quality Products',
+                                description: 'Browse thousands of high-quality products from verified vendors across multiple categories.',
+                                color: 'secondary.main',
+                            },
+                            {
+                                icon: Users,
+                                title: 'Trusted Vendors',
+                                description: 'Connect with reliable vendors offering exceptional services and products.',
+                                color: 'success.main',
+                            },
+                        ].map((feature) => (
+                            <Box
+                                key={feature.title}
+                                sx={{
+                                    borderRadius: 3,
+                                    border: 1,
+                                    borderColor: 'divider',
+                                    bgcolor: 'background.paper',
+                                    p: 3,
+                                    textAlign: 'center',
+                                    boxShadow: 1,
+                                    transition: 'all 0.2s',
+                                    '&:hover': { boxShadow: 3 },
+                                }}
+                            >
+                                <Box
+                                    sx={{
+                                        mx: 'auto',
+                                        mb: 2,
+                                        display: 'flex',
+                                        width: 56,
+                                        height: 56,
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        borderRadius: '50%',
+                                        bgcolor: `${feature.color}`,
+                                        opacity: 0.1,
+                                        position: 'relative',
+                                    }}
+                                >
+                                    <feature.icon style={{ width: 28, height: 28 }} />
+                                </Box>
+                                <Typography variant="h6" fontWeight={600} sx={{ mb: 1 }}>
+                                    {feature.title}
+                                </Typography>
+                                <Typography variant="body2" color="text.secondary">
+                                    {feature.description}
+                                </Typography>
+                            </Box>
+                        ))}
+                    </Box>
+                </Box>
 
                 {/* Footer */}
-                <footer className="border-t bg-background/95 backdrop-blur">
-                    <div className="container mx-auto px-4 py-8 text-center text-sm text-muted-foreground">
-                        <p>&copy; {new Date().getFullYear()} SurpriseMoi. All rights reserved.</p>
-                    </div>
-                </footer>
-            </div>
+                <Box
+                    component="footer"
+                    sx={{
+                        borderTop: 1,
+                        borderColor: 'divider',
+                        bgcolor: 'rgba(255,255,255,0.95)',
+                        backdropFilter: 'blur(8px)',
+                    }}
+                >
+                    <Box
+                        sx={{
+                            maxWidth: 1200,
+                            mx: 'auto',
+                            px: 2,
+                            py: 4,
+                            textAlign: 'center',
+                        }}
+                    >
+                        <Typography variant="body2" color="text.secondary">
+                            &copy; {new Date().getFullYear()} SurpriseMoi. All rights reserved.
+                        </Typography>
+                    </Box>
+                </Box>
+            </Box>
         </>
     );
 }
-

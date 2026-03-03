@@ -60,10 +60,6 @@ const rightNavItems: NavItem[] = [
     },
 ];
 
-const activeItemSx = {
-    color: 'text.primary',
-} as const;
-
 const srOnlySx = {
     position: 'absolute',
     width: 1,
@@ -75,6 +71,9 @@ const srOnlySx = {
     whiteSpace: 'nowrap',
     border: 0,
 } as const;
+
+const iconSmall = { width: 16, height: 16 };
+const iconMedium = { width: 20, height: 20 };
 
 interface AppHeaderProps {
     breadcrumbs?: BreadcrumbItem[];
@@ -104,20 +103,37 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                 <Button
                                     variant="ghost"
                                     size="icon"
-                                    className="mr-2 h-[34px] w-[34px]"
+                                    style={{ marginRight: 8, width: 34, height: 34 }}
                                 >
-                                    <Menu className="h-5 w-5" />
+                                    <Menu style={iconMedium} />
                                 </Button>
                             </SheetTrigger>
                             <SheetContent
                                 side="left"
-                                className="flex h-full w-64 flex-col items-stretch justify-between bg-sidebar"
+                                style={{
+                                    display: 'flex',
+                                    height: '100%',
+                                    width: 256,
+                                    flexDirection: 'column',
+                                    alignItems: 'stretch',
+                                    justifyContent: 'space-between',
+                                }}
                             >
-                                <SheetTitle className="sr-only">
+                                <SheetTitle style={{
+                                    position: 'absolute',
+                                    width: 1,
+                                    height: 1,
+                                    padding: 0,
+                                    margin: -1,
+                                    overflow: 'hidden',
+                                    clip: 'rect(0,0,0,0)',
+                                    whiteSpace: 'nowrap',
+                                    border: 0,
+                                }}>
                                     Navigation Menu
                                 </SheetTitle>
-                                <SheetHeader className="flex justify-start text-left">
-                                    <AppLogoIcon className="h-6 w-6 fill-current text-black dark:text-white" />
+                                <SheetHeader style={{ display: 'flex', justifyContent: 'flex-start', textAlign: 'left' }}>
+                                    <AppLogoIcon style={{ width: 24, height: 24 }} />
                                 </SheetHeader>
                                 <Box
                                     sx={{
@@ -152,7 +168,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                                     style={{
                                                         display: 'flex',
                                                         alignItems: 'center',
-                                                        gap: '8px',
+                                                        gap: 8,
                                                         fontWeight: 500,
                                                         textDecoration: 'none',
                                                         color: 'inherit',
@@ -161,7 +177,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                                     {item.icon && (
                                                         <Icon
                                                             iconNode={item.icon}
-                                                            className="h-5 w-5"
+                                                            style={iconMedium}
                                                         />
                                                     )}
                                                     <span>{item.title}</span>
@@ -185,7 +201,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                                     style={{
                                                         display: 'flex',
                                                         alignItems: 'center',
-                                                        gap: '8px',
+                                                        gap: 8,
                                                         fontWeight: 500,
                                                         textDecoration: 'none',
                                                         color: 'inherit',
@@ -194,7 +210,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                                     {item.icon && (
                                                         <Icon
                                                             iconNode={item.icon}
-                                                            className="h-5 w-5"
+                                                            style={iconMedium}
                                                         />
                                                     )}
                                                     <span>{item.title}</span>
@@ -213,7 +229,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                         style={{
                             display: 'flex',
                             alignItems: 'center',
-                            gap: '8px',
+                            gap: 8,
                             textDecoration: 'none',
                             color: 'inherit',
                         }}
@@ -231,36 +247,35 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                             gap: 3,
                         }}
                     >
-                        <NavigationMenu className="flex h-full items-stretch">
-                            <NavigationMenuList className="flex h-full items-stretch space-x-2">
+                        <NavigationMenu style={{ display: 'flex', height: '100%', alignItems: 'stretch' }}>
+                            <NavigationMenuList style={{ display: 'flex', height: '100%', alignItems: 'stretch', gap: 8 }}>
                                 {mainNavItems.map((item, index) => (
                                     <NavigationMenuItem
                                         key={index}
-                                        className="relative flex h-full items-center"
+                                        style={{ position: 'relative', display: 'flex', height: '100%', alignItems: 'center' }}
                                     >
                                         <Link
                                             href={item.href!}
-                                            className={[
-                                                navigationMenuTriggerStyle(),
-                                                'h-9 cursor-pointer px-3',
-                                            ]
-                                                .filter(Boolean)
-                                                .join(' ')}
-                                            style={
-                                                isSameUrl(
-                                                    page.url,
-                                                    item.href!,
-                                                )
-                                                    ? {
-                                                          color: 'var(--color-neutral-900)',
-                                                      }
-                                                    : undefined
-                                            }
+                                            style={{
+                                                ...(navigationMenuTriggerStyle() ? {} : {}),
+                                                display: 'inline-flex',
+                                                alignItems: 'center',
+                                                height: 36,
+                                                cursor: 'pointer',
+                                                paddingLeft: 12,
+                                                paddingRight: 12,
+                                                fontSize: '0.875rem',
+                                                fontWeight: 500,
+                                                textDecoration: 'none',
+                                                color: isSameUrl(page.url, item.href!)
+                                                    ? 'var(--mui-palette-text-primary)'
+                                                    : 'inherit',
+                                            }}
                                         >
                                             {item.icon && (
                                                 <Icon
                                                     iconNode={item.icon}
-                                                    className="mr-2 h-4 w-4"
+                                                    style={{ ...iconSmall, marginRight: 8 }}
                                                 />
                                             )}
                                             {item.title}
@@ -304,9 +319,9 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                             <Button
                                 variant="ghost"
                                 size="icon"
-                                className="group h-9 w-9 cursor-pointer"
+                                style={{ width: 36, height: 36, cursor: 'pointer' }}
                             >
-                                <Search className="!size-5 opacity-80 group-hover:opacity-100" />
+                                <Search style={{ width: 20, height: 20, opacity: 0.8 }} />
                             </Button>
                             <NotificationBell />
                             <Box
@@ -365,7 +380,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                                     {item.icon && (
                                                         <Icon
                                                             iconNode={item.icon}
-                                                            className="size-5 opacity-80 group-hover:opacity-100"
+                                                            style={{ width: 20, height: 20, opacity: 0.8 }}
                                                         />
                                                     )}
                                                 </Box>
@@ -382,20 +397,20 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                             <DropdownMenuTrigger asChild>
                                 <Button
                                     variant="ghost"
-                                    className="size-10 rounded-full p-1"
+                                    style={{ width: 40, height: 40, borderRadius: '50%', padding: 4 }}
                                 >
-                                    <Avatar className="size-8 overflow-hidden rounded-full">
+                                    <Avatar style={{ width: 32, height: 32, overflow: 'hidden', borderRadius: '50%' }}>
                                         <AvatarImage
                                             src={auth.user.avatar}
                                             alt={auth.user.name}
                                         />
-                                        <AvatarFallback className="rounded-lg bg-neutral-200 text-black dark:bg-neutral-700 dark:text-white">
+                                        <AvatarFallback style={{ borderRadius: 8 }}>
                                             {getInitials(auth.user.name)}
                                         </AvatarFallback>
                                     </Avatar>
                                 </Button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent className="w-56" align="end">
+                            <DropdownMenuContent style={{ width: 224 }} align="end">
                                 <UserMenuContent user={auth.user} />
                             </DropdownMenuContent>
                         </DropdownMenu>

@@ -207,7 +207,7 @@ export default function UserShow({ user, canDelete }: Props) {
 
                 {/* User Profile Header */}
                 <Card>
-                    <CardHeader className="pb-4">
+                    <CardHeader style={{ paddingBottom: 16 }}>
                         <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
                             {user.avatar ? (
                                 <Box
@@ -239,14 +239,14 @@ export default function UserShow({ user, canDelete }: Props) {
                                     {user.is_popular && (
                                         <Badge
                                             variant="outline"
-                                            className="gap-1"
+                                            style={{ gap: 4 }}
                                         >
                                             <Heart style={{ width: 12, height: 12, fill: 'currentColor' }} />
                                             Popular
                                         </Badge>
                                     )}
                                 </Box>
-                                <CardDescription className="mt-1">
+                                <CardDescription style={{ marginTop: 4 }}>
                                     {user.email}
                                 </CardDescription>
                             </Box>
@@ -257,7 +257,7 @@ export default function UserShow({ user, canDelete }: Props) {
                 {/* Basic Information */}
                 <Card>
                     <CardHeader>
-                        <CardTitle className="text-lg">
+                        <CardTitle style={{ fontSize: '1.125rem' }}>
                             Basic Information
                         </CardTitle>
                     </CardHeader>
@@ -275,7 +275,7 @@ export default function UserShow({ user, canDelete }: Props) {
                                     {user.email_verified_at ? (
                                         <Badge
                                             variant="outline"
-                                            className="mt-1 gap-1 text-xs"
+                                            style={{ marginTop: 4, gap: 4, fontSize: '0.75rem' }}
                                         >
                                             <CheckCircle style={{ width: 12, height: 12 }} />{' '}
                                             Verified
@@ -283,7 +283,7 @@ export default function UserShow({ user, canDelete }: Props) {
                                     ) : (
                                         <Badge
                                             variant="secondary"
-                                            className="mt-1 gap-1 text-xs"
+                                            style={{ marginTop: 4, gap: 4, fontSize: '0.75rem' }}
                                         >
                                             <XCircle style={{ width: 12, height: 12 }} /> Not
                                             Verified
@@ -304,7 +304,7 @@ export default function UserShow({ user, canDelete }: Props) {
                                     {user.phone && user.phone_verified_at && (
                                         <Badge
                                             variant="outline"
-                                            className="mt-1 gap-1 text-xs"
+                                            style={{ marginTop: 4, gap: 4, fontSize: '0.75rem' }}
                                         >
                                             <CheckCircle style={{ width: 12, height: 12 }} />{' '}
                                             Verified
@@ -401,7 +401,7 @@ export default function UserShow({ user, canDelete }: Props) {
                                     {user.is_popular ? (
                                         <Badge
                                             variant="outline"
-                                            className="mt-1 gap-1 text-xs"
+                                            style={{ marginTop: 4, gap: 4, fontSize: '0.75rem' }}
                                         >
                                             <CheckCircle style={{ width: 12, height: 12 }} />
                                             Yes
@@ -409,7 +409,7 @@ export default function UserShow({ user, canDelete }: Props) {
                                     ) : (
                                         <Badge
                                             variant="secondary"
-                                            className="mt-1 gap-1 text-xs"
+                                            style={{ marginTop: 4, gap: 4, fontSize: '0.75rem' }}
                                         >
                                             <XCircle style={{ width: 12, height: 12 }} />
                                             No
@@ -440,7 +440,7 @@ export default function UserShow({ user, canDelete }: Props) {
                         {user.interests && user.interests.length > 0 && (
                             <Card>
                                 <CardHeader>
-                                    <CardTitle className="flex items-center gap-2 text-lg">
+                                    <CardTitle style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '1.125rem' }}>
                                         <Heart style={{ width: 20, height: 20 }} />
                                         Interests
                                     </CardTitle>
@@ -451,7 +451,7 @@ export default function UserShow({ user, canDelete }: Props) {
                                             <Badge
                                                 key={interest.id}
                                                 variant="secondary"
-                                                className="gap-1"
+                                                style={{ gap: 4 }}
                                             >
                                                 {interest.icon && (
                                                     <span>{interest.icon}</span>
@@ -468,7 +468,7 @@ export default function UserShow({ user, canDelete }: Props) {
                             user.personality_traits.length > 0 && (
                                 <Card>
                                     <CardHeader>
-                                        <CardTitle className="flex items-center gap-2 text-lg">
+                                        <CardTitle style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '1.125rem' }}>
                                             <UserIcon style={{ width: 20, height: 20 }} />
                                             Personality Traits
                                         </CardTitle>
@@ -480,7 +480,7 @@ export default function UserShow({ user, canDelete }: Props) {
                                                     <Badge
                                                         key={trait.id}
                                                         variant="outline"
-                                                        className="gap-1"
+                                                        style={{ gap: 4 }}
                                                     >
                                                         {trait.icon && (
                                                             <span>
@@ -503,7 +503,7 @@ export default function UserShow({ user, canDelete }: Props) {
                     user.vendor_application?.ghana_card_back && (
                         <Card>
                             <CardHeader>
-                                <CardTitle className="flex items-center gap-2 text-lg">
+                                <CardTitle style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '1.125rem' }}>
                                     <UserIcon style={{ width: 20, height: 20 }} />
                                     Ghana Card Images
                                 </CardTitle>
@@ -676,7 +676,7 @@ export default function UserShow({ user, canDelete }: Props) {
                         user.vendor_application.tin_document) && (
                         <Card>
                             <CardHeader>
-                                <CardTitle className="flex items-center gap-2 text-lg">
+                                <CardTitle style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '1.125rem' }}>
                                     <Briefcase style={{ width: 20, height: 20 }} />
                                     Business Documents
                                 </CardTitle>
@@ -745,7 +745,7 @@ export default function UserShow({ user, canDelete }: Props) {
                         user.vendor_application.mobile_money_number) && (
                         <Card>
                             <CardHeader>
-                                <CardTitle className="flex items-center gap-2 text-lg">
+                                <CardTitle style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '1.125rem' }}>
                                     <UserIcon style={{ width: 20, height: 20 }} />
                                     Unregistered Vendor Verification
                                 </CardTitle>
@@ -848,7 +848,7 @@ export default function UserShow({ user, canDelete }: Props) {
                         user.vendor_application.twitter_handle) && (
                         <Card>
                             <CardHeader>
-                                <CardTitle className="flex items-center gap-2 text-lg">
+                                <CardTitle style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '1.125rem' }}>
                                     <Users style={{ width: 20, height: 20 }} />
                                     Social Media
                                 </CardTitle>
@@ -919,8 +919,8 @@ export default function UserShow({ user, canDelete }: Props) {
                         {/* Stats Overview */}
                         <Box sx={{ display: 'grid', gap: 2, gridTemplateColumns: { md: 'repeat(3, 1fr)' } }}>
                             <Card>
-                                <CardHeader className="pb-3">
-                                    <CardTitle className="text-sm font-medium text-muted-foreground">
+                                <CardHeader style={{ paddingBottom: 12 }}>
+                                    <CardTitle style={{ fontSize: '0.875rem', fontWeight: 500, color: 'gray' }}>
                                         Total Shops
                                     </CardTitle>
                                 </CardHeader>
@@ -935,8 +935,8 @@ export default function UserShow({ user, canDelete }: Props) {
                             </Card>
 
                             <Card>
-                                <CardHeader className="pb-3">
-                                    <CardTitle className="text-sm font-medium text-muted-foreground">
+                                <CardHeader style={{ paddingBottom: 12 }}>
+                                    <CardTitle style={{ fontSize: '0.875rem', fontWeight: 500, color: 'gray' }}>
                                         Total Products
                                     </CardTitle>
                                 </CardHeader>
@@ -951,8 +951,8 @@ export default function UserShow({ user, canDelete }: Props) {
                             </Card>
 
                             <Card>
-                                <CardHeader className="pb-3">
-                                    <CardTitle className="text-sm font-medium text-muted-foreground">
+                                <CardHeader style={{ paddingBottom: 12 }}>
+                                    <CardTitle style={{ fontSize: '0.875rem', fontWeight: 500, color: 'gray' }}>
                                         Total Services
                                     </CardTitle>
                                 </CardHeader>
@@ -971,7 +971,7 @@ export default function UserShow({ user, canDelete }: Props) {
                         {user.shops && user.shops.length > 0 && (
                             <Card>
                                 <CardHeader>
-                                    <CardTitle className="flex items-center gap-2">
+                                    <CardTitle style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                                         <Store style={{ width: 20, height: 20 }} />
                                         Shops
                                     </CardTitle>
@@ -1059,7 +1059,7 @@ export default function UserShow({ user, canDelete }: Props) {
                                     setData('rejection_reason', e.target.value)
                                 }
                                 rows={5}
-                                className="resize-none"
+                                style={{ resize: 'none' }}
                             />
                             {data.rejection_reason &&
                                 data.rejection_reason.length < 10 && (

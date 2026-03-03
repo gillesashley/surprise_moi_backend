@@ -386,7 +386,7 @@ export default function VendorApplicationsIndex({
                                         onChange={(e) =>
                                             setSearchTerm(e.target.value)
                                         }
-                                        className="pl-9"
+                                        style={{ paddingLeft: 36 }}
                                     />
                                 </Box>
                             </Box>
@@ -691,10 +691,10 @@ export default function VendorApplicationsIndex({
                                     rejectForm.setData('reason', e.target.value)
                                 }
                                 rows={4}
-                                className={
+                                style={
                                     rejectForm.errors.reason
-                                        ? 'border-red-500'
-                                        : ''
+                                        ? { borderColor: '#ef4444' }
+                                        : undefined
                                 }
                             />
                             {rejectForm.errors.reason && (

@@ -101,7 +101,7 @@ export default function UserEdit({ user, roles, canEditRole }: Props) {
                                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                         <Label>Profile Image</Label>
                                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                            <Avatar className="h-16 w-16">
+                                            <Avatar style={{ width: 64, height: 64 }}>
                                                 <AvatarImage
                                                     src={
                                                         avatarPreview ||
@@ -110,7 +110,7 @@ export default function UserEdit({ user, roles, canEditRole }: Props) {
                                                     }
                                                     alt={user.name}
                                                 />
-                                                <AvatarFallback className="text-lg">
+                                                <AvatarFallback style={{ fontSize: '1.125rem' }}>
                                                     {user.name
                                                         .split(' ')
                                                         .map((n) => n[0])
@@ -124,7 +124,7 @@ export default function UserEdit({ user, roles, canEditRole }: Props) {
                                                     name="avatar"
                                                     type="file"
                                                     accept="image/*"
-                                                    className="cursor-pointer"
+                                                    style={{ cursor: 'pointer' }}
                                                     onChange={
                                                         handleAvatarChange
                                                     }
@@ -358,7 +358,7 @@ export default function UserEdit({ user, roles, canEditRole }: Props) {
                                         />
                                         <Label
                                             htmlFor="is_popular"
-                                            className="cursor-pointer font-normal"
+                                            style={{ cursor: 'pointer', fontWeight: 400 }}
                                         >
                                             Mark as Popular
                                         </Label>

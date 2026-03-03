@@ -76,16 +76,16 @@ export default function AuthCardLayout({
                         gap: 3,
                     }}
                 >
-                    <Card className="rounded-xl">
-                        <CardHeader className="px-10 pt-8 pb-0 text-center">
-                            <CardTitle className="text-xl">
+                    <Card style={{ borderRadius: 12 }}>
+                        <CardHeader style={{ paddingLeft: 40, paddingRight: 40, paddingTop: 32, paddingBottom: 0, textAlign: 'center' }}>
+                            <CardTitle style={{ fontSize: '1.25rem' }}>
                                 {title}
                             </CardTitle>
                             <CardDescription>
                                 {description}
                             </CardDescription>
                         </CardHeader>
-                        <CardContent className="px-10 py-8">
+                        <CardContent style={{ paddingLeft: 40, paddingRight: 40, paddingTop: 32, paddingBottom: 32 }}>
                             {children}
                         </CardContent>
                     </Card>

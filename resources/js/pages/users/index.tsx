@@ -160,7 +160,7 @@ export default function UsersIndex({ users, canDelete, filters }: Props) {
                                     onChange={(e) =>
                                         setSearchTerm(e.target.value)
                                     }
-                                    className="pl-9"
+                                    style={{ paddingLeft: 36 }}
                                 />
                             </Box>
                         </Box>

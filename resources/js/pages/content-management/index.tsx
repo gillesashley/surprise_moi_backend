@@ -14,6 +14,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
+import Box from '@mui/material/Box';
 import { Head } from '@inertiajs/react';
 import { FolderKanban, Heart, Music, Sparkles } from 'lucide-react';
 import * as React from 'react';
@@ -110,17 +111,16 @@ export default function ContentManagementIndex({
     const [currentTab, setCurrentTab] = React.useState(activeTab);
 
     const handleTabChange = (value: string) => {
-        // Update local state immediately for responsive UI
         setCurrentTab(value);
-
-        // Update URL without making a full page request
         window.history.replaceState({}, '', `/content-management?tab=${value}`);
     };
+
+    const iconStyle = { width: 16, height: 16 };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Content Management" />
-            <div className="flex h-full flex-1 flex-col gap-4 p-4">
+            <Box sx={{ display: 'flex', flex: 1, flexDirection: 'column', gap: 2, p: 2 }}>
                 <Card>
                     <CardHeader>
                         <CardTitle>Content Management</CardTitle>
@@ -134,51 +134,51 @@ export default function ContentManagementIndex({
                             value={currentTab}
                             onValueChange={handleTabChange}
                         >
-                            <TabsList className="grid w-full grid-cols-5">
+                            <TabsList style={{ display: 'grid', width: '100%', gridTemplateColumns: 'repeat(5, 1fr)' }}>
                                 <TabsTrigger
                                     value="categories"
-                                    className="flex items-center gap-2"
+                                    style={{ display: 'flex', alignItems: 'center', gap: 8 }}
                                 >
-                                    <FolderKanban className="size-4" />
-                                    <span className="hidden sm:inline">
+                                    <FolderKanban style={iconStyle} />
+                                    <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
                                         Categories
-                                    </span>
+                                    </Box>
                                 </TabsTrigger>
                                 <TabsTrigger
                                     value="interests"
-                                    className="flex items-center gap-2"
+                                    style={{ display: 'flex', alignItems: 'center', gap: 8 }}
                                 >
-                                    <Heart className="size-4" />
-                                    <span className="hidden sm:inline">
+                                    <Heart style={iconStyle} />
+                                    <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
                                         Interests
-                                    </span>
+                                    </Box>
                                 </TabsTrigger>
                                 <TabsTrigger
                                     value="traits"
-                                    className="flex items-center gap-2"
+                                    style={{ display: 'flex', alignItems: 'center', gap: 8 }}
                                 >
-                                    <Sparkles className="size-4" />
-                                    <span className="hidden sm:inline">
+                                    <Sparkles style={iconStyle} />
+                                    <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
                                         Traits
-                                    </span>
+                                    </Box>
                                 </TabsTrigger>
                                 <TabsTrigger
                                     value="music"
-                                    className="flex items-center gap-2"
+                                    style={{ display: 'flex', alignItems: 'center', gap: 8 }}
                                 >
-                                    <Music className="size-4" />
-                                    <span className="hidden sm:inline">
+                                    <Music style={iconStyle} />
+                                    <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
                                         Music
-                                    </span>
+                                    </Box>
                                 </TabsTrigger>
                                 <TabsTrigger
                                     value="bespoke"
-                                    className="flex items-center gap-2"
+                                    style={{ display: 'flex', alignItems: 'center', gap: 8 }}
                                 >
-                                    <Sparkles className="size-4" />
-                                    <span className="hidden sm:inline">
+                                    <Sparkles style={iconStyle} />
+                                    <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
                                         Bespoke
-                                    </span>
+                                    </Box>
                                 </TabsTrigger>
                             </TabsList>
 
@@ -225,7 +225,7 @@ export default function ContentManagementIndex({
                         </Tabs>
                     </CardContent>
                 </Card>
-            </div>
+            </Box>
 
             <CategoryDetailsModal
                 category={viewingCategory}
