@@ -25,17 +25,19 @@ import {
     LayoutGrid,
     List,
     Megaphone,
+    MonitorPlay,
     Settings2,
     Target,
     UserCheck,
     Users,
+    Wallet,
 } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const getNavItemsForRole = (role: string): NavItem[] => {
     // Admin & Super Admin - full access with organized groups
     if (role === 'admin' || role === 'super_admin') {
-        return [
+        const items: NavItem[] = [
             {
                 title: 'Dashboard',
                 href: dashboard(),
@@ -43,13 +45,12 @@ const getNavItemsForRole = (role: string): NavItem[] => {
             },
             {
                 title: 'User Management',
-                href: '#', // Parent item - not directly navigable
                 icon: Users,
                 items: [
                     {
                         title: 'Users',
                         href: usersIndex(),
-                        icon: Users,
+                        icon: UserCheck,
                     },
                     {
                         title: 'Vendor Applications',
@@ -60,7 +61,6 @@ const getNavItemsForRole = (role: string): NavItem[] => {
             },
             {
                 title: 'Financial',
-                href: '#', // Parent item
                 icon: DollarSign,
                 items: [
                     {
@@ -82,13 +82,12 @@ const getNavItemsForRole = (role: string): NavItem[] => {
             },
             {
                 title: 'Marketing',
-                href: '#', // Parent item
                 icon: Megaphone,
                 items: [
                     {
                         title: 'Advertisements',
                         href: '/dashboard/advertisements',
-                        icon: Megaphone,
+                        icon: MonitorPlay,
                     },
                     {
                         title: 'Targets',
@@ -104,7 +103,6 @@ const getNavItemsForRole = (role: string): NavItem[] => {
             },
             {
                 title: 'Support',
-                href: '#',
                 icon: AlertTriangle,
                 items: [
                     {
@@ -119,12 +117,17 @@ const getNavItemsForRole = (role: string): NavItem[] => {
                 href: contentManagementIndex.url(),
                 icon: Settings2,
             },
-            {
+        ];
+
+        if (role === 'super_admin') {
+            items.push({
                 title: 'Jobs',
                 href: '/dashboard/jobs',
                 icon: BarChart3,
-            },
-        ];
+            });
+        }
+
+        return items;
     }
 
     // Influencer - referrals, earnings, payouts
@@ -137,7 +140,6 @@ const getNavItemsForRole = (role: string): NavItem[] => {
             },
             {
                 title: 'Performance',
-                href: '#',
                 icon: DollarSign,
                 items: [
                     {
@@ -148,7 +150,7 @@ const getNavItemsForRole = (role: string): NavItem[] => {
                     {
                         title: 'My Earnings',
                         href: '/influencer/earnings',
-                        icon: DollarSign,
+                        icon: Wallet,
                     },
                     {
                         title: 'Payouts',
@@ -170,7 +172,6 @@ const getNavItemsForRole = (role: string): NavItem[] => {
             },
             {
                 title: 'Work & Earnings',
-                href: '#',
                 icon: DollarSign,
                 items: [
                     {
@@ -181,7 +182,7 @@ const getNavItemsForRole = (role: string): NavItem[] => {
                     {
                         title: 'My Earnings',
                         href: '/field-agent/earnings',
-                        icon: DollarSign,
+                        icon: Wallet,
                     },
                     {
                         title: 'Payouts',
@@ -203,7 +204,6 @@ const getNavItemsForRole = (role: string): NavItem[] => {
             },
             {
                 title: 'Work & Earnings',
-                href: '#',
                 icon: DollarSign,
                 items: [
                     {
@@ -214,7 +214,7 @@ const getNavItemsForRole = (role: string): NavItem[] => {
                     {
                         title: 'My Earnings',
                         href: '/marketer/earnings',
-                        icon: DollarSign,
+                        icon: Wallet,
                     },
                     {
                         title: 'Payouts',

@@ -15,20 +15,41 @@ import {
 } from '@/components/ui/sidebar';
 import { resolveUrl } from '@/lib/utils';
 import { type NavItem } from '@/types';
-import { Link, usePage } from '@inertiajs/react';
+import { type InertiaLinkProps, Link, usePage } from '@inertiajs/react';
 import { ChevronRight } from 'lucide-react';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
+
+const STORAGE_KEY = 'sidebar-open-items';
+
+function getStoredOpenItems(): string[] {
+    try {
+        const stored = sessionStorage.getItem(STORAGE_KEY);
+        return stored ? JSON.parse(stored) : [];
+    } catch {
+        return [];
+    }
+}
 
 export function NavMain({ items = [] }: { items: NavItem[] }) {
     const page = usePage();
-    const [openItems, setOpenItems] = useState<string[]>([]);
+    const [openItems, setOpenItems] = useState<string[]>(getStoredOpenItems);
 
-    const toggleItem = (title: string) => {
-        setOpenItems((prev) =>
-            prev.includes(title)
+    const toggleItem = useCallback((title: string) => {
+        setOpenItems((prev) => {
+            const next = prev.includes(title)
                 ? prev.filter((item) => item !== title)
-                : [...prev, title],
-        );
+                : [...prev, title];
+            sessionStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+            return next;
+        });
+    }, []);
+
+    const isActive = (href?: InertiaLinkProps['href']): boolean => {
+        if (!href) return false;
+        const resolved = resolveUrl(href);
+        return resolved === '/dashboard'
+            ? page.url === resolved
+            : page.url.startsWith(resolved);
     };
 
     // Check if any child item is active
@@ -36,12 +57,7 @@ export function NavMain({ items = [] }: { items: NavItem[] }) {
         if (!item.items) {
             return false;
         }
-        return item.items.some((child) => {
-            const resolved = resolveUrl(child.href);
-            return resolved === '/dashboard'
-                ? page.url === resolved
-                : page.url.startsWith(resolved);
-        });
+        return item.items.some((child) => isActive(child.href));
     };
 
     return (
@@ -83,27 +99,17 @@ export function NavMain({ items = [] }: { items: NavItem[] }) {
                                     <CollapsibleContent>
                                         <SidebarMenuSub>
                                             {item.items.map((subItem) => {
-                                                const resolved = resolveUrl(
-                                                    subItem.href,
-                                                );
-                                                const active =
-                                                    resolved === '/dashboard'
-                                                        ? page.url === resolved
-                                                        : page.url.startsWith(
-                                                              resolved,
-                                                          );
-
                                                 return (
                                                     <SidebarMenuSubItem
-                                                        key={subItem.title}
+                                                        key={subItem.href ? resolveUrl(subItem.href) : subItem.title}
                                                     >
                                                         <SidebarMenuSubButton
                                                             asChild
-                                                            isActive={active}
+                                                            isActive={isActive(subItem.href)}
                                                         >
                                                             <Link
                                                                 href={
-                                                                    subItem.href
+                                                                    subItem.href!
                                                                 }
                                                                 prefetch
                                                             >
@@ -128,20 +134,14 @@ export function NavMain({ items = [] }: { items: NavItem[] }) {
                     }
 
                     // Regular menu item without children
-                    const resolved = resolveUrl(item.href);
-                    const active =
-                        resolved === '/dashboard'
-                            ? page.url === resolved
-                            : page.url.startsWith(resolved);
-
                     return (
-                        <SidebarMenuItem key={item.title}>
+                        <SidebarMenuItem key={item.href ? resolveUrl(item.href) : item.title}>
                             <SidebarMenuButton
                                 asChild
-                                isActive={active}
+                                isActive={isActive(item.href)}
                                 tooltip={{ children: item.title }}
                             >
-                                <Link href={item.href} prefetch>
+                                <Link href={item.href!} prefetch>
                                     {item.icon && <item.icon />}
                                     <span>{item.title}</span>
                                 </Link>
