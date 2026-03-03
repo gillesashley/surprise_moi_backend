@@ -1,4 +1,5 @@
 import { useId } from 'react';
+import { useTheme } from '@mui/material/styles';
 
 interface PlaceholderPatternProps {
     className?: string;
@@ -6,15 +7,17 @@ interface PlaceholderPatternProps {
 
 export function PlaceholderPattern({ className }: PlaceholderPatternProps) {
     const patternId = useId();
+    const theme = useTheme();
+    const strokeColor = theme.palette.divider;
 
     return (
         <svg className={className} fill="none">
             <defs>
                 <pattern id={patternId} x="0" y="0" width="10" height="10" patternUnits="userSpaceOnUse">
-                    <path d="M-3 13 15-5M-5 5l18-18M-1 21 17 3"></path>
+                    <path d="M-3 13 15-5M-5 5l18-18M-1 21 17 3" stroke={strokeColor} />
                 </pattern>
             </defs>
-            <rect stroke="none" fill={`url(#${patternId})`} width="100%" height="100%"></rect>
+            <rect stroke="none" fill={`url(#${patternId})`} width="100%" height="100%" />
         </svg>
     );
 }
