@@ -33,6 +33,9 @@ import {
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, router } from '@inertiajs/react';
+import Box from '@mui/material/Box';
+import Chip from '@mui/material/Chip';
+import Typography from '@mui/material/Typography';
 import {
     AlertCircleIcon,
     CheckCircle,
@@ -94,31 +97,59 @@ function getStatusBadge(status: string) {
     switch (status) {
         case 'pending':
             return (
-                <Badge className="bg-orange-100 text-orange-800 hover:bg-orange-100">
-                    <AlertCircleIcon className="mr-1 h-3 w-3" />
-                    Pending
-                </Badge>
+                <Chip
+                    label={
+                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                            <AlertCircleIcon style={{ marginRight: 4, width: 12, height: 12 }} />
+                            Pending
+                        </Box>
+                    }
+                    color="warning"
+                    size="small"
+                    variant="outlined"
+                />
             );
         case 'approved':
             return (
-                <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100">
-                    <CheckCircle className="mr-1 h-3 w-3" />
-                    Approved
-                </Badge>
+                <Chip
+                    label={
+                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                            <CheckCircle style={{ marginRight: 4, width: 12, height: 12 }} />
+                            Approved
+                        </Box>
+                    }
+                    color="info"
+                    size="small"
+                    variant="outlined"
+                />
             );
         case 'paid':
             return (
-                <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
-                    <CheckCircle className="mr-1 h-3 w-3" />
-                    Paid
-                </Badge>
+                <Chip
+                    label={
+                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                            <CheckCircle style={{ marginRight: 4, width: 12, height: 12 }} />
+                            Paid
+                        </Box>
+                    }
+                    color="success"
+                    size="small"
+                    variant="outlined"
+                />
             );
         case 'rejected':
             return (
-                <Badge className="bg-red-100 text-red-800 hover:bg-red-100">
-                    <XCircle className="mr-1 h-3 w-3" />
-                    Rejected
-                </Badge>
+                <Chip
+                    label={
+                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                            <XCircle style={{ marginRight: 4, width: 12, height: 12 }} />
+                            Rejected
+                        </Box>
+                    }
+                    color="error"
+                    size="small"
+                    variant="outlined"
+                />
             );
         default:
             return <Badge>{status}</Badge>;
@@ -291,23 +322,23 @@ export default function VendorPayouts({
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Vendor Payouts" />
 
-            <div className="space-y-6 p-6">
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, p: 3 }}>
                 {/* Statistics Cards */}
-                <div className="grid gap-4 md:grid-cols-4">
+                <Box sx={{ display: 'grid', gap: 2, gridTemplateColumns: { md: 'repeat(4, 1fr)' } }}>
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                             <CardTitle className="text-sm font-medium">
                                 Pending
                             </CardTitle>
-                            <AlertCircleIcon className="h-4 w-4 text-orange-600" />
+                            <AlertCircleIcon style={{ width: 16, height: 16, color: 'var(--color-orange-600)' }} />
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold">
+                            <Box sx={{ fontSize: '1.5rem', fontWeight: 700 }}>
                                 {data.statistics.total_pending}
-                            </div>
-                            <p className="text-xs text-muted-foreground">
+                            </Box>
+                            <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
                                 GHS {data.statistics.pending_amount}
-                            </p>
+                            </Typography>
                         </CardContent>
                     </Card>
 
@@ -316,15 +347,15 @@ export default function VendorPayouts({
                             <CardTitle className="text-sm font-medium">
                                 Approved
                             </CardTitle>
-                            <CheckCircle className="h-4 w-4 text-blue-600" />
+                            <CheckCircle style={{ width: 16, height: 16, color: 'var(--color-blue-600)' }} />
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold">
+                            <Box sx={{ fontSize: '1.5rem', fontWeight: 700 }}>
                                 {data.statistics.total_approved}
-                            </div>
-                            <p className="text-xs text-muted-foreground">
+                            </Box>
+                            <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
                                 Awaiting payment
-                            </p>
+                            </Typography>
                         </CardContent>
                     </Card>
 
@@ -333,15 +364,15 @@ export default function VendorPayouts({
                             <CardTitle className="text-sm font-medium">
                                 Paid
                             </CardTitle>
-                            <CheckCircle className="h-4 w-4 text-green-600" />
+                            <CheckCircle style={{ width: 16, height: 16, color: 'var(--color-green-600)' }} />
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold">
+                            <Box sx={{ fontSize: '1.5rem', fontWeight: 700 }}>
                                 {data.statistics.total_paid}
-                            </div>
-                            <p className="text-xs text-muted-foreground">
+                            </Box>
+                            <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
                                 Successfully paid
-                            </p>
+                            </Typography>
                         </CardContent>
                     </Card>
 
@@ -350,29 +381,29 @@ export default function VendorPayouts({
                             <CardTitle className="text-sm font-medium">
                                 Rejected
                             </CardTitle>
-                            <XCircle className="h-4 w-4 text-red-600" />
+                            <XCircle style={{ width: 16, height: 16, color: 'var(--color-red-600)' }} />
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold">
+                            <Box sx={{ fontSize: '1.5rem', fontWeight: 700 }}>
                                 {data.statistics.total_rejected}
-                            </div>
-                            <p className="text-xs text-muted-foreground">
+                            </Box>
+                            <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
                                 Requests rejected
-                            </p>
+                            </Typography>
                         </CardContent>
                     </Card>
-                </div>
+                </Box>
 
                 {/* Main Content */}
                 <Card>
                     <CardHeader>
-                        <div className="flex items-center justify-between">
-                            <div>
+                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <Box>
                                 <CardTitle>Payout Requests</CardTitle>
                                 <CardDescription>
                                     Manage vendor payout requests
                                 </CardDescription>
-                            </div>
+                            </Box>
                             <Button
                                 variant="outline"
                                 size="sm"
@@ -380,16 +411,16 @@ export default function VendorPayouts({
                                     router.get('/dashboard/vendor-payouts')
                                 }
                             >
-                                <RefreshCw className="mr-2 h-4 w-4" />
+                                <RefreshCw style={{ marginRight: 8, width: 16, height: 16 }} />
                                 Refresh
                             </Button>
-                        </div>
+                        </Box>
                     </CardHeader>
 
                     <CardContent className="space-y-4">
                         {/* Filter */}
-                        <div className="flex gap-2">
-                            <Filter className="mt-2.5 h-4 w-4 text-muted-foreground" />
+                        <Box sx={{ display: 'flex', gap: 1 }}>
+                            <Filter style={{ marginTop: 10, width: 16, height: 16, color: 'var(--muted-foreground)' }} />
                             <Select
                                 value={statusFilter}
                                 onValueChange={handleFilterChange}
@@ -413,10 +444,10 @@ export default function VendorPayouts({
                                     </SelectItem>
                                 </SelectContent>
                             </Select>
-                        </div>
+                        </Box>
 
                         {/* Table */}
-                        <div className="rounded-lg border">
+                        <Box sx={{ borderRadius: 2, border: 1, borderColor: 'divider' }}>
                             <Table>
                                 <TableHeader className="bg-muted/50">
                                     <TableRow>
@@ -438,9 +469,9 @@ export default function VendorPayouts({
                                                 colSpan={7}
                                                 className="py-8 text-center"
                                             >
-                                                <p className="text-muted-foreground">
+                                                <Typography sx={{ color: 'text.secondary' }}>
                                                     No payout requests found
-                                                </p>
+                                                </Typography>
                                             </TableCell>
                                         </TableRow>
                                     ) : (
@@ -450,14 +481,14 @@ export default function VendorPayouts({
                                                     {payout.request_number}
                                                 </TableCell>
                                                 <TableCell>
-                                                    <div>
-                                                        <p className="font-medium">
+                                                    <Box>
+                                                        <Typography sx={{ fontWeight: 500 }}>
                                                             {payout.user_name}
-                                                        </p>
-                                                        <p className="text-xs text-muted-foreground">
+                                                        </Typography>
+                                                        <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
                                                             {payout.user_email}
-                                                        </p>
-                                                    </div>
+                                                        </Typography>
+                                                    </Box>
                                                 </TableCell>
                                                 <TableCell className="font-bold">
                                                     {payout.currency}{' '}
@@ -505,7 +536,7 @@ export default function VendorPayouts({
                                                             }
                                                         }}
                                                     >
-                                                        <ChevronRight className="h-4 w-4" />
+                                                        <ChevronRight style={{ width: 16, height: 16 }} />
                                                     </Button>
                                                 </TableCell>
                                             </TableRow>
@@ -513,10 +544,10 @@ export default function VendorPayouts({
                                     )}
                                 </TableBody>
                             </Table>
-                        </div>
+                        </Box>
                     </CardContent>
                 </Card>
-            </div>
+            </Box>
 
             {/* Approve Dialog */}
             <Dialog
@@ -528,33 +559,33 @@ export default function VendorPayouts({
                         <DialogTitle>Approve Payout Request</DialogTitle>
                         <DialogDescription>
                             {selectedPayout && (
-                                <div className="mt-4 space-y-2">
-                                    <p>
+                                <Box sx={{ mt: 2, display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                    <Typography>
                                         <strong>Vendor:</strong>{' '}
                                         {selectedPayout.user_name}
-                                    </p>
-                                    <p>
+                                    </Typography>
+                                    <Typography>
                                         <strong>Amount:</strong>{' '}
                                         {selectedPayout.currency}{' '}
                                         {parseFloat(
                                             selectedPayout.amount,
                                         ).toFixed(2)}
-                                    </p>
-                                    <p>
+                                    </Typography>
+                                    <Typography>
                                         <strong>Mobile Money:</strong>{' '}
                                         {selectedPayout.mobile_money_number} (
                                         {selectedPayout.mobile_money_provider})
-                                    </p>
-                                </div>
+                                    </Typography>
+                                </Box>
                             )}
                         </DialogDescription>
                     </DialogHeader>
 
-                    <div className="space-y-4">
-                        <div>
-                            <label className="mb-2 block text-sm font-medium">
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                        <Box>
+                            <Box component="label" sx={{ display: 'block', mb: 1, fontSize: '0.875rem', fontWeight: 500 }}>
                                 Admin Notes (Optional)
-                            </label>
+                            </Box>
                             <Input
                                 placeholder="Add notes about this approval..."
                                 value={approvalNotes}
@@ -562,9 +593,9 @@ export default function VendorPayouts({
                                     setApprovalNotes(e.target.value)
                                 }
                             />
-                        </div>
+                        </Box>
 
-                        <div className="flex justify-end gap-3">
+                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1.5 }}>
                             <Button
                                 variant="outline"
                                 onClick={() => setShowApproveDialog(false)}
@@ -578,8 +609,8 @@ export default function VendorPayouts({
                             >
                                 {loading ? 'Approving...' : 'Approve Payout'}
                             </Button>
-                        </div>
-                    </div>
+                        </Box>
+                    </Box>
                 </DialogContent>
             </Dialog>
 
@@ -593,33 +624,33 @@ export default function VendorPayouts({
                         <DialogTitle>Mark as Paid</DialogTitle>
                         <DialogDescription>
                             {selectedPayout && (
-                                <div className="mt-4 space-y-2">
-                                    <p>
+                                <Box sx={{ mt: 2, display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                    <Typography>
                                         <strong>Vendor:</strong>{' '}
                                         {selectedPayout.user_name}
-                                    </p>
-                                    <p>
+                                    </Typography>
+                                    <Typography>
                                         <strong>Amount:</strong>{' '}
                                         {selectedPayout.currency}{' '}
                                         {parseFloat(
                                             selectedPayout.amount,
                                         ).toFixed(2)}
-                                    </p>
-                                    <p>
+                                    </Typography>
+                                    <Typography>
                                         <strong>Mobile Money:</strong>{' '}
                                         {selectedPayout.mobile_money_number} (
                                         {selectedPayout.mobile_money_provider})
-                                    </p>
-                                </div>
+                                    </Typography>
+                                </Box>
                             )}
                         </DialogDescription>
                     </DialogHeader>
 
-                    <div className="space-y-4">
-                        <div>
-                            <label className="mb-2 block text-sm font-medium">
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                        <Box>
+                            <Box component="label" sx={{ display: 'block', mb: 1, fontSize: '0.875rem', fontWeight: 500 }}>
                                 Payment Reference *
-                            </label>
+                            </Box>
                             <Input
                                 placeholder="e.g., MOMO-REF-XXXXXXXXXX"
                                 value={paymentReference}
@@ -627,12 +658,12 @@ export default function VendorPayouts({
                                     setPaymentReference(e.target.value)
                                 }
                             />
-                            <p className="mt-1 text-xs text-muted-foreground">
+                            <Typography sx={{ mt: 0.5, fontSize: '0.75rem', color: 'text.secondary' }}>
                                 Enter the mobile money transaction reference
-                            </p>
-                        </div>
+                            </Typography>
+                        </Box>
 
-                        <div className="flex justify-end gap-3">
+                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1.5 }}>
                             <Button
                                 variant="outline"
                                 onClick={() => setShowMarkPaidDialog(false)}
@@ -646,8 +677,8 @@ export default function VendorPayouts({
                             >
                                 {loading ? 'Processing...' : 'Mark as Paid'}
                             </Button>
-                        </div>
-                    </div>
+                        </Box>
+                    </Box>
                 </DialogContent>
             </Dialog>
 
@@ -662,11 +693,11 @@ export default function VendorPayouts({
                         </DialogDescription>
                     </DialogHeader>
 
-                    <div className="space-y-4">
-                        <div>
-                            <label className="mb-2 block text-sm font-medium">
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                        <Box>
+                            <Box component="label" sx={{ display: 'block', mb: 1, fontSize: '0.875rem', fontWeight: 500 }}>
                                 Rejection Reason *
-                            </label>
+                            </Box>
                             <Input
                                 placeholder="Why is this payout being rejected?"
                                 value={rejectionReason}
@@ -674,9 +705,9 @@ export default function VendorPayouts({
                                     setRejectionReason(e.target.value)
                                 }
                             />
-                        </div>
+                        </Box>
 
-                        <div className="flex justify-end gap-3">
+                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1.5 }}>
                             <Button
                                 variant="outline"
                                 onClick={() => setShowRejectDialog(false)}
@@ -691,8 +722,8 @@ export default function VendorPayouts({
                             >
                                 {loading ? 'Rejecting...' : 'Reject Payout'}
                             </Button>
-                        </div>
-                    </div>
+                        </Box>
+                    </Box>
                 </DialogContent>
             </Dialog>
         </AppLayout>

@@ -27,6 +27,9 @@ import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router, useForm } from '@inertiajs/react';
+import Box from '@mui/material/Box';
+import Chip from '@mui/material/Chip';
+import Typography from '@mui/material/Typography';
 import {
     ArrowDown,
     ArrowUp,
@@ -86,26 +89,26 @@ const breadcrumbs: BreadcrumbItem[] = [
 const getStatusBadge = (status: string) => {
     const variants: Record<
         string,
-        { color: string; icon: React.ReactNode; label: string }
+        { color: 'warning' | 'info' | 'success' | 'error'; icon: React.ReactNode; label: string }
     > = {
         pending: {
-            color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
-            icon: <Clock className="mr-1 h-3 w-3" />,
+            color: 'warning',
+            icon: <Clock style={{ marginRight: 4, width: 12, height: 12 }} />,
             label: 'Pending Review',
         },
         under_review: {
-            color: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
-            icon: <FileCheck className="mr-1 h-3 w-3" />,
+            color: 'info',
+            icon: <FileCheck style={{ marginRight: 4, width: 12, height: 12 }} />,
             label: 'Under Review',
         },
         approved: {
-            color: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
-            icon: <CheckCircle className="mr-1 h-3 w-3" />,
+            color: 'success',
+            icon: <CheckCircle style={{ marginRight: 4, width: 12, height: 12 }} />,
             label: 'Approved',
         },
         rejected: {
-            color: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
-            icon: <XCircle className="mr-1 h-3 w-3" />,
+            color: 'error',
+            icon: <XCircle style={{ marginRight: 4, width: 12, height: 12 }} />,
             label: 'Rejected',
         },
     };
@@ -113,10 +116,17 @@ const getStatusBadge = (status: string) => {
     const config = variants[status] || variants.pending;
 
     return (
-        <Badge className={`${config.color} flex items-center`}>
-            {config.icon}
-            {config.label}
-        </Badge>
+        <Chip
+            label={
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    {config.icon}
+                    {config.label}
+                </Box>
+            }
+            color={config.color}
+            size="small"
+            variant="outlined"
+        />
     );
 };
 
@@ -252,9 +262,9 @@ export default function VendorApplicationsIndex({
     const getSortIcon = (column: string) => {
         if (filters.sort_by !== column) return null;
         return filters.sort_order === 'asc' ? (
-            <ArrowUp className="ml-1 inline size-4" />
+            <ArrowUp style={{ marginLeft: 4, display: 'inline', width: 16, height: 16 }} />
         ) : (
-            <ArrowDown className="ml-1 inline size-4" />
+            <ArrowDown style={{ marginLeft: 4, display: 'inline', width: 16, height: 16 }} />
         );
     };
 
@@ -302,35 +312,36 @@ export default function VendorApplicationsIndex({
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Vendor Applications" />
-            <div className="flex h-full flex-1 flex-col gap-4 p-4">
+            <Box sx={{ display: 'flex', height: '100%', flex: 1, flexDirection: 'column', gap: 2, p: 2 }}>
                 {/* New Submission Notification */}
                 {showNewSubmissionNotice && (
-                    <div className="rounded-md bg-blue-50 p-4 text-sm text-blue-800 dark:bg-blue-900/30 dark:text-blue-200 flex items-center justify-between">
-                        <span>✨ New vendor application received! Refreshing...</span>
-                        <button
+                    <Box sx={{ borderRadius: 1.5, bgcolor: 'info.light', p: 2, fontSize: '0.875rem', color: 'info.dark', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <Box component="span">✨ New vendor application received! Refreshing...</Box>
+                        <Box
+                            component="button"
                             onClick={() => {
                                 if (isDevelopment) {
                                     console.log('🎯 [VendorApplicationsIndex] Notification closed');
                                 }
                                 setShowNewSubmissionNotice(false);
                             }}
-                            className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                            sx={{ color: 'info.main', '&:hover': { color: 'info.dark' } }}
                         >
                             ✕
-                        </button>
-                    </div>
+                        </Box>
+                    </Box>
                 )}
                 <Card>
                     <CardHeader>
-                        <div className="flex flex-col gap-4">
-                            <div className="flex items-center justify-between">
-                                <div>
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                <Box>
                                     <CardTitle>Vendor Applications</CardTitle>
                                     <CardDescription>
                                         Review and manage vendor applications
                                     </CardDescription>
-                                </div>
-                                <div className="w-48">
+                                </Box>
+                                <Box sx={{ width: 192 }}>
                                     <Select
                                         value={statusFilter}
                                         onValueChange={handleStatusChange}
@@ -361,13 +372,13 @@ export default function VendorApplicationsIndex({
                                             ))}
                                         </SelectContent>
                                     </Select>
-                                </div>
-                            </div>
+                                </Box>
+                            </Box>
 
                             {/* Search Bar */}
-                            <div className="flex items-center gap-2">
-                                <div className="relative flex-1">
-                                    <Search className="absolute top-2.5 left-2.5 size-4 text-muted-foreground" />
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <Box sx={{ position: 'relative', flex: 1 }}>
+                                    <Search style={{ position: 'absolute', top: 10, left: 10, width: 16, height: 16, color: 'var(--muted-foreground)' }} />
                                     <Input
                                         type="search"
                                         placeholder="Search by name or email..."
@@ -377,26 +388,27 @@ export default function VendorApplicationsIndex({
                                         }
                                         className="pl-9"
                                     />
-                                </div>
-                            </div>
-                        </div>
+                                </Box>
+                            </Box>
+                        </Box>
                     </CardHeader>
                     <CardContent>
                         {applications.data.length === 0 ? (
-                            <div className="py-8 text-center text-muted-foreground">
+                            <Box sx={{ py: 4, textAlign: 'center', color: 'text.secondary' }}>
                                 No vendor applications found.
-                            </div>
+                            </Box>
                         ) : (
                             <>
-                                <div className="overflow-x-auto">
-                                    <table className="w-full">
+                                <Box sx={{ overflowX: 'auto' }}>
+                                    <Box component="table" sx={{ width: '100%' }}>
                                         <thead>
-                                            <tr className="border-b">
-                                                <th className="p-2 text-left text-sm font-medium">
+                                            <Box component="tr" sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                                                <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
                                                     Applicant
-                                                </th>
-                                                <th
-                                                    className="cursor-pointer p-2 text-left text-sm font-medium hover:bg-muted/50"
+                                                </Box>
+                                                <Box
+                                                    component="th"
+                                                    sx={{ cursor: 'pointer', p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500, '&:hover': { bgcolor: 'action.hover' } }}
                                                     onClick={() =>
                                                         handleSort(
                                                             'is_registered_vendor',
@@ -407,18 +419,20 @@ export default function VendorApplicationsIndex({
                                                     {getSortIcon(
                                                         'is_registered_vendor',
                                                     )}
-                                                </th>
-                                                <th
-                                                    className="cursor-pointer p-2 text-left text-sm font-medium hover:bg-muted/50"
+                                                </Box>
+                                                <Box
+                                                    component="th"
+                                                    sx={{ cursor: 'pointer', p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500, '&:hover': { bgcolor: 'action.hover' } }}
                                                     onClick={() =>
                                                         handleSort('status')
                                                     }
                                                 >
                                                     Status
                                                     {getSortIcon('status')}
-                                                </th>
-                                                <th
-                                                    className="cursor-pointer p-2 text-left text-sm font-medium hover:bg-muted/50"
+                                                </Box>
+                                                <Box
+                                                    component="th"
+                                                    sx={{ cursor: 'pointer', p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500, '&:hover': { bgcolor: 'action.hover' } }}
                                                     onClick={() =>
                                                         handleSort(
                                                             'completed_step',
@@ -429,9 +443,10 @@ export default function VendorApplicationsIndex({
                                                     {getSortIcon(
                                                         'completed_step',
                                                     )}
-                                                </th>
-                                                <th
-                                                    className="cursor-pointer p-2 text-left text-sm font-medium hover:bg-muted/50"
+                                                </Box>
+                                                <Box
+                                                    component="th"
+                                                    sx={{ cursor: 'pointer', p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500, '&:hover': { bgcolor: 'action.hover' } }}
                                                     onClick={() =>
                                                         handleSort(
                                                             'submitted_at',
@@ -442,38 +457,39 @@ export default function VendorApplicationsIndex({
                                                     {getSortIcon(
                                                         'submitted_at',
                                                     )}
-                                                </th>
-                                                <th className="p-2 text-right text-sm font-medium">
+                                                </Box>
+                                                <Box component="th" sx={{ p: 1, textAlign: 'right', fontSize: '0.875rem', fontWeight: 500 }}>
                                                     Actions
-                                                </th>
-                                            </tr>
+                                                </Box>
+                                            </Box>
                                         </thead>
                                         <tbody>
                                             {applications.data.map(
                                                 (application) => (
-                                                    <tr
+                                                    <Box
+                                                        component="tr"
                                                         key={application.id}
-                                                        className="border-b last:border-0"
+                                                        sx={{ borderBottom: 1, borderColor: 'divider', '&:last-child': { border: 0 } }}
                                                     >
-                                                        <td className="p-2">
-                                                            <div>
-                                                                <div className="font-medium">
+                                                        <Box component="td" sx={{ p: 1 }}>
+                                                            <Box>
+                                                                <Box sx={{ fontWeight: 500 }}>
                                                                     {
                                                                         application
                                                                             .user
                                                                             .name
                                                                     }
-                                                                </div>
-                                                                <div className="text-sm text-muted-foreground">
+                                                                </Box>
+                                                                <Box sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
                                                                     {
                                                                         application
                                                                             .user
                                                                             .email
                                                                     }
-                                                                </div>
-                                                            </div>
-                                                        </td>
-                                                        <td className="p-2">
+                                                                </Box>
+                                                            </Box>
+                                                        </Box>
+                                                        <Box component="td" sx={{ p: 1 }}>
                                                             <Badge
                                                                 variant={
                                                                     application.is_registered_vendor
@@ -485,36 +501,36 @@ export default function VendorApplicationsIndex({
                                                                     ? 'Registered'
                                                                     : 'Individual'}
                                                             </Badge>
-                                                        </td>
-                                                        <td className="p-2">
+                                                        </Box>
+                                                        <Box component="td" sx={{ p: 1 }}>
                                                             {getStatusBadge(
                                                                 application.status,
                                                             )}
-                                                        </td>
-                                                        <td className="p-2">
-                                                            <div className="text-sm">
+                                                        </Box>
+                                                        <Box component="td" sx={{ p: 1 }}>
+                                                            <Box sx={{ fontSize: '0.875rem' }}>
                                                                 {
                                                                     application.completed_step
                                                                 }
                                                                 /4 steps
-                                                            </div>
-                                                        </td>
-                                                        <td className="p-2">
+                                                            </Box>
+                                                        </Box>
+                                                        <Box component="td" sx={{ p: 1 }}>
                                                             {application.submitted_at ? (
-                                                                <div className="text-sm">
+                                                                <Box sx={{ fontSize: '0.875rem' }}>
                                                                     {new Date(
                                                                         application.submitted_at,
                                                                     ).toLocaleDateString()}
-                                                                </div>
+                                                                </Box>
                                                             ) : (
-                                                                <span className="text-sm text-muted-foreground">
+                                                                <Box component="span" sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
                                                                     Not
                                                                     submitted
-                                                                </span>
+                                                                </Box>
                                                             )}
-                                                        </td>
-                                                        <td className="p-2 text-right">
-                                                            <div className="flex justify-end gap-2">
+                                                        </Box>
+                                                        <Box component="td" sx={{ p: 1, textAlign: 'right' }}>
+                                                            <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
                                                                 {application.status ===
                                                                     'pending' &&
                                                                     application.submitted_at !==
@@ -529,7 +545,7 @@ export default function VendorApplicationsIndex({
                                                                                     )
                                                                                 }
                                                                             >
-                                                                                <ThumbsUp className="mr-2 size-4" />
+                                                                                <ThumbsUp style={{ marginRight: 8, width: 16, height: 16 }} />
                                                                                 Approve
                                                                             </Button>
                                                                             <Button
@@ -541,7 +557,7 @@ export default function VendorApplicationsIndex({
                                                                                     )
                                                                                 }
                                                                             >
-                                                                                <ThumbsDown className="mr-2 size-4" />
+                                                                                <ThumbsDown style={{ marginRight: 8, width: 16, height: 16 }} />
                                                                                 Reject
                                                                             </Button>
                                                                         </>
@@ -554,27 +570,27 @@ export default function VendorApplicationsIndex({
                                                                     <Link
                                                                         href={`/dashboard/vendor-applications/${application.id}`}
                                                                     >
-                                                                        <Eye className="mr-2 size-4" />
+                                                                        <Eye style={{ marginRight: 8, width: 16, height: 16 }} />
                                                                         View
                                                                     </Link>
                                                                 </Button>
-                                                            </div>
-                                                        </td>
-                                                    </tr>
+                                                            </Box>
+                                                        </Box>
+                                                    </Box>
                                                 ),
                                             )}
                                         </tbody>
-                                    </table>
-                                </div>
+                                    </Box>
+                                </Box>
 
                                 {/* Pagination */}
                                 {applications.last_page > 1 && (
-                                    <div className="mt-4 flex items-center justify-between">
-                                        <div className="text-sm text-muted-foreground">
+                                    <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                        <Box sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
                                             Showing {applications.data.length}{' '}
                                             of {applications.total} applications
-                                        </div>
-                                        <div className="flex gap-2">
+                                        </Box>
+                                        <Box sx={{ display: 'flex', gap: 1 }}>
                                             <Button
                                                 variant="outline"
                                                 size="sm"
@@ -607,8 +623,8 @@ export default function VendorApplicationsIndex({
                                             >
                                                 Next
                                             </Button>
-                                        </div>
-                                    </div>
+                                        </Box>
+                                    </Box>
                                 )}
                             </>
                         )}
@@ -643,7 +659,7 @@ export default function VendorApplicationsIndex({
                                 Cancel
                             </Button>
                             <Button onClick={confirmApprove}>
-                                <ThumbsUp className="mr-2 size-4" />
+                                <ThumbsUp style={{ marginRight: 8, width: 16, height: 16 }} />
                                 Approve Application
                             </Button>
                         </DialogFooter>
@@ -667,7 +683,7 @@ export default function VendorApplicationsIndex({
                                 . This will be sent to the applicant.
                             </DialogDescription>
                         </DialogHeader>
-                        <div className="py-4">
+                        <Box sx={{ py: 2 }}>
                             <Textarea
                                 placeholder="Enter rejection reason (minimum 10 characters)..."
                                 value={rejectForm.data.reason}
@@ -682,11 +698,11 @@ export default function VendorApplicationsIndex({
                                 }
                             />
                             {rejectForm.errors.reason && (
-                                <p className="mt-1 text-sm text-red-500">
+                                <Typography sx={{ mt: 0.5, fontSize: '0.875rem', color: 'error.main' }}>
                                     {rejectForm.errors.reason}
-                                </p>
+                                </Typography>
                             )}
-                        </div>
+                        </Box>
                         <DialogFooter>
                             <Button
                                 variant="outline"
@@ -705,7 +721,7 @@ export default function VendorApplicationsIndex({
                                     rejectForm.data.reason.length < 10
                                 }
                             >
-                                <ThumbsDown className="mr-2 size-4" />
+                                <ThumbsDown style={{ marginRight: 8, width: 16, height: 16 }} />
                                 {rejectForm.processing
                                     ? 'Rejecting...'
                                     : 'Reject Application'}
@@ -713,7 +729,7 @@ export default function VendorApplicationsIndex({
                         </DialogFooter>
                     </DialogContent>
                 </Dialog>
-            </div>
+            </Box>
         </AppLayout>
     );
 }

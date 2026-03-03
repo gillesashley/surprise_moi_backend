@@ -19,6 +19,8 @@ import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router, useForm } from '@inertiajs/react';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
 import {
     ArrowLeft,
     Briefcase,
@@ -143,17 +145,17 @@ export default function VendorApplicationShow({ application }: Props) {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={`Vendor Application - ${application.user.name}`} />
-            <div className="flex h-full flex-1 flex-col gap-4 overflow-auto p-4">
+            <Box sx={{ display: 'flex', height: '100%', flex: 1, flexDirection: 'column', gap: 2, overflow: 'auto', p: 2 }}>
                 {/* Header with actions */}
-                <div className="flex items-center justify-between">
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <Button variant="ghost" size="sm" asChild>
                         <Link href="/dashboard/vendor-applications">
-                            <ArrowLeft className="mr-2 size-4" />
+                            <ArrowLeft style={{ marginRight: 8, width: 16, height: 16 }} />
                             Back to Applications
                         </Link>
                     </Button>
                     {canApproveOrReject && (
-                        <div className="flex gap-2">
+                        <Box sx={{ display: 'flex', gap: 1 }}>
                             {application.status === 'pending' && (
                                 <Button
                                     variant="secondary"
@@ -168,7 +170,7 @@ export default function VendorApplicationShow({ application }: Props) {
                                 size="sm"
                                 onClick={() => setShowRejectDialog(true)}
                             >
-                                <XCircle className="mr-2 size-4" />
+                                <XCircle style={{ marginRight: 8, width: 16, height: 16 }} />
                                 Reject
                             </Button>
                             <Button
@@ -176,18 +178,18 @@ export default function VendorApplicationShow({ application }: Props) {
                                 size="sm"
                                 onClick={handleApprove}
                             >
-                                <CheckCircle className="mr-2 size-4" />
+                                <CheckCircle style={{ marginRight: 8, width: 16, height: 16 }} />
                                 Approve
                             </Button>
-                        </div>
+                        </Box>
                     )}
-                </div>
+                </Box>
 
                 {/* Application Summary */}
                 <Card>
                     <CardHeader>
-                        <div className="flex items-start justify-between">
-                            <div>
+                        <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+                            <Box>
                                 <CardTitle>{application.user.name}</CardTitle>
                                 <CardDescription>
                                     {application.user.email}
@@ -195,69 +197,69 @@ export default function VendorApplicationShow({ application }: Props) {
                                         <> • {application.user.phone}</>
                                     )}
                                 </CardDescription>
-                            </div>
-                            <div className="flex flex-col items-end gap-2">
+                            </Box>
+                            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 1 }}>
                                 {getStatusBadge(application.status)}
                                 <Badge variant="outline">
                                     {application.is_registered_vendor
                                         ? 'Registered Business'
                                         : 'Individual Vendor'}
                                 </Badge>
-                            </div>
-                        </div>
+                            </Box>
+                        </Box>
                     </CardHeader>
                     <CardContent>
-                        <div className="grid gap-4 md:grid-cols-3">
-                            <div>
-                                <p className="text-sm text-muted-foreground">
+                        <Box sx={{ display: 'grid', gap: 2, gridTemplateColumns: { md: 'repeat(3, 1fr)' } }}>
+                            <Box>
+                                <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
                                     Current Role
-                                </p>
-                                <p className="font-medium capitalize">
+                                </Typography>
+                                <Typography sx={{ fontWeight: 500, textTransform: 'capitalize' }}>
                                     {application.user.role}
-                                </p>
-                            </div>
-                            <div>
-                                <p className="text-sm text-muted-foreground">
+                                </Typography>
+                            </Box>
+                            <Box>
+                                <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
                                     Progress
-                                </p>
-                                <p className="font-medium">
+                                </Typography>
+                                <Typography sx={{ fontWeight: 500 }}>
                                     Step {application.completed_step} of 4
                                     completed
-                                </p>
-                            </div>
-                            <div>
-                                <p className="text-sm text-muted-foreground">
+                                </Typography>
+                            </Box>
+                            <Box>
+                                <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
                                     Submitted
-                                </p>
-                                <p className="font-medium">
+                                </Typography>
+                                <Typography sx={{ fontWeight: 500 }}>
                                     {application.submitted_at
                                         ? new Date(
                                               application.submitted_at,
                                           ).toLocaleDateString()
                                         : 'Not submitted'}
-                                </p>
-                            </div>
-                        </div>
+                                </Typography>
+                            </Box>
+                        </Box>
                         {application.reviewed_at && (
-                            <div className="mt-4 rounded-lg bg-muted p-3">
-                                <p className="text-sm text-muted-foreground">
+                            <Box sx={{ mt: 2, borderRadius: 2, bgcolor: 'action.hover', p: 1.5 }}>
+                                <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
                                     Reviewed by {application.reviewed_by?.name}{' '}
                                     on{' '}
                                     {new Date(
                                         application.reviewed_at,
                                     ).toLocaleDateString()}
-                                </p>
-                            </div>
+                                </Typography>
+                            </Box>
                         )}
                         {application.rejection_reason && (
-                            <div className="mt-4 rounded-lg bg-destructive/10 p-3">
-                                <p className="text-sm font-medium text-destructive">
+                            <Box sx={{ mt: 2, borderRadius: 2, bgcolor: 'error.light', opacity: 0.1, p: 1.5 }}>
+                                <Typography sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'error.main' }}>
                                     Rejection Reason:
-                                </p>
-                                <p className="mt-1 text-sm text-destructive/80">
+                                </Typography>
+                                <Typography sx={{ mt: 0.5, fontSize: '0.875rem', color: 'error.main', opacity: 0.8 }}>
                                     {application.rejection_reason}
-                                </p>
-                            </div>
+                                </Typography>
+                            </Box>
                         )}
                     </CardContent>
                 </Card>
@@ -268,7 +270,7 @@ export default function VendorApplicationShow({ application }: Props) {
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2 text-lg">
-                                <IdCard className="h-5 w-5" />
+                                <IdCard style={{ width: 20, height: 20 }} />
                                 Ghana Card
                             </CardTitle>
                             <CardDescription>
@@ -276,40 +278,42 @@ export default function VendorApplicationShow({ application }: Props) {
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <div className="grid gap-4 md:grid-cols-2">
+                            <Box sx={{ display: 'grid', gap: 2, gridTemplateColumns: { md: 'repeat(2, 1fr)' } }}>
                                 {application.ghana_card_front && (
-                                    <div className="space-y-2">
-                                        <h3 className="text-sm font-medium">
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                        <Typography variant="h6" sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
                                             Front of Ghana Card
-                                        </h3>
-                                        <div className="overflow-hidden rounded-lg border">
-                                            <img
+                                        </Typography>
+                                        <Box sx={{ overflow: 'hidden', borderRadius: 2, border: 1, borderColor: 'divider' }}>
+                                            <Box
+                                                component="img"
                                                 src={
                                                     application.ghana_card_front
                                                 }
                                                 alt="Ghana Card Front"
-                                                className="h-auto w-full object-cover"
+                                                sx={{ height: 'auto', width: '100%', objectFit: 'cover' }}
                                             />
-                                        </div>
-                                    </div>
+                                        </Box>
+                                    </Box>
                                 )}
                                 {application.ghana_card_back && (
-                                    <div className="space-y-2">
-                                        <h3 className="text-sm font-medium">
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                        <Typography variant="h6" sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
                                             Back of Ghana Card
-                                        </h3>
-                                        <div className="overflow-hidden rounded-lg border">
-                                            <img
+                                        </Typography>
+                                        <Box sx={{ overflow: 'hidden', borderRadius: 2, border: 1, borderColor: 'divider' }}>
+                                            <Box
+                                                component="img"
                                                 src={
                                                     application.ghana_card_back
                                                 }
                                                 alt="Ghana Card Back"
-                                                className="h-auto w-full object-cover"
+                                                sx={{ height: 'auto', width: '100%', objectFit: 'cover' }}
                                             />
-                                        </div>
-                                    </div>
+                                        </Box>
+                                    </Box>
                                 )}
-                            </div>
+                            </Box>
                         </CardContent>
                     </Card>
                 )}
@@ -321,7 +325,7 @@ export default function VendorApplicationShow({ application }: Props) {
                         <Card>
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2 text-lg">
-                                    <Briefcase className="h-5 w-5" />
+                                    <Briefcase style={{ width: 20, height: 20 }} />
                                     Business Documents
                                 </CardTitle>
                                 <CardDescription>
@@ -329,48 +333,50 @@ export default function VendorApplicationShow({ application }: Props) {
                                 </CardDescription>
                             </CardHeader>
                             <CardContent>
-                                <div className="grid gap-4 md:grid-cols-2">
+                                <Box sx={{ display: 'grid', gap: 2, gridTemplateColumns: { md: 'repeat(2, 1fr)' } }}>
                                     {application.business_certificate_document && (
-                                        <div className="space-y-2">
-                                            <h3 className="text-sm font-medium">
+                                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                            <Typography variant="h6" sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
                                                 Business Certificate
-                                            </h3>
-                                            <div className="overflow-hidden rounded-lg border p-4">
-                                                <a
+                                            </Typography>
+                                            <Box sx={{ overflow: 'hidden', borderRadius: 2, border: 1, borderColor: 'divider', p: 2 }}>
+                                                <Box
+                                                    component="a"
                                                     href={
                                                         application.business_certificate_document
                                                     }
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="flex items-center gap-2 text-sm text-primary hover:underline"
+                                                    sx={{ display: 'flex', alignItems: 'center', gap: 1, fontSize: '0.875rem', color: 'primary.main', '&:hover': { textDecoration: 'underline' } }}
                                                 >
-                                                    <Package className="h-4 w-4" />
+                                                    <Package style={{ width: 16, height: 16 }} />
                                                     View Business Certificate
-                                                </a>
-                                            </div>
-                                        </div>
+                                                </Box>
+                                            </Box>
+                                        </Box>
                                     )}
                                     {application.tin_document && (
-                                        <div className="space-y-2">
-                                            <h3 className="text-sm font-medium">
+                                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                            <Typography variant="h6" sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
                                                 TIN Document
-                                            </h3>
-                                            <div className="overflow-hidden rounded-lg border p-4">
-                                                <a
+                                            </Typography>
+                                            <Box sx={{ overflow: 'hidden', borderRadius: 2, border: 1, borderColor: 'divider', p: 2 }}>
+                                                <Box
+                                                    component="a"
                                                     href={
                                                         application.tin_document
                                                     }
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="flex items-center gap-2 text-sm text-primary hover:underline"
+                                                    sx={{ display: 'flex', alignItems: 'center', gap: 1, fontSize: '0.875rem', color: 'primary.main', '&:hover': { textDecoration: 'underline' } }}
                                                 >
-                                                    <Package className="h-4 w-4" />
+                                                    <Package style={{ width: 16, height: 16 }} />
                                                     View TIN Document
-                                                </a>
-                                            </div>
-                                        </div>
+                                                </Box>
+                                            </Box>
+                                        </Box>
                                     )}
-                                </div>
+                                </Box>
                             </CardContent>
                         </Card>
                     )}
@@ -383,7 +389,7 @@ export default function VendorApplicationShow({ application }: Props) {
                         <Card>
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2 text-lg">
-                                    <UserIcon className="h-5 w-5" />
+                                    <UserIcon style={{ width: 20, height: 20 }} />
                                     Individual Vendor Verification
                                 </CardTitle>
                                 <CardDescription>
@@ -391,73 +397,75 @@ export default function VendorApplicationShow({ application }: Props) {
                                 </CardDescription>
                             </CardHeader>
                             <CardContent>
-                                <div className="space-y-4">
+                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                                     {application.selfie_image && (
-                                        <div className="space-y-2">
-                                            <h3 className="text-sm font-medium">
+                                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                            <Typography variant="h6" sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
                                                 Selfie Verification
-                                            </h3>
-                                            <div className="overflow-hidden rounded-lg border">
-                                                <img
+                                            </Typography>
+                                            <Box sx={{ overflow: 'hidden', borderRadius: 2, border: 1, borderColor: 'divider' }}>
+                                                <Box
+                                                    component="img"
                                                     src={
                                                         application.selfie_image
                                                     }
                                                     alt="Vendor Selfie"
-                                                    className="h-auto max-w-sm object-cover"
+                                                    sx={{ height: 'auto', maxWidth: 384, objectFit: 'cover' }}
                                                 />
-                                            </div>
-                                        </div>
+                                            </Box>
+                                        </Box>
                                     )}
                                     {application.proof_of_business && (
-                                        <div className="space-y-2">
-                                            <h3 className="text-sm font-medium">
+                                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                            <Typography variant="h6" sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
                                                 Proof of Business
-                                            </h3>
-                                            <div className="overflow-hidden rounded-lg border p-4">
-                                                <a
+                                            </Typography>
+                                            <Box sx={{ overflow: 'hidden', borderRadius: 2, border: 1, borderColor: 'divider', p: 2 }}>
+                                                <Box
+                                                    component="a"
                                                     href={
                                                         application.proof_of_business
                                                     }
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="flex items-center gap-2 text-sm text-primary hover:underline"
+                                                    sx={{ display: 'flex', alignItems: 'center', gap: 1, fontSize: '0.875rem', color: 'primary.main', '&:hover': { textDecoration: 'underline' } }}
                                                 >
-                                                    <Package className="h-4 w-4" />
+                                                    <Package style={{ width: 16, height: 16 }} />
                                                     View Proof of Business
-                                                </a>
-                                            </div>
-                                        </div>
+                                                </Box>
+                                            </Box>
+                                        </Box>
                                     )}
                                     {application.mobile_money_number && (
-                                        <div className="space-y-2">
-                                            <h3 className="text-sm font-medium">
+                                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                            <Typography variant="h6" sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
                                                 Mobile Money Details
-                                            </h3>
-                                            <div className="overflow-hidden rounded-lg border p-4">
-                                                <div className="space-y-1">
-                                                    <p className="text-sm">
-                                                        <span className="font-medium">
+                                            </Typography>
+                                            <Box sx={{ overflow: 'hidden', borderRadius: 2, border: 1, borderColor: 'divider', p: 2 }}>
+                                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                                                    <Typography sx={{ fontSize: '0.875rem' }}>
+                                                        <Box component="span" sx={{ fontWeight: 500 }}>
                                                             Number:
-                                                        </span>{' '}
+                                                        </Box>{' '}
                                                         {
                                                             application.mobile_money_number
                                                         }
-                                                    </p>
+                                                    </Typography>
                                                     {application.mobile_money_provider && (
-                                                        <p className="text-sm">
-                                                            <span className="font-medium">
+                                                        <Typography sx={{ fontSize: '0.875rem' }}>
+                                                            <Box component="span" sx={{ fontWeight: 500 }}>
                                                                 Provider:
-                                                            </span>{' '}
+                                                            </Box>{' '}
                                                             <Badge variant="outline">
                                                                 {application.mobile_money_provider.toUpperCase()}
                                                             </Badge>
-                                                        </p>
+                                                        </Typography>
                                                     )}
-                                                </div>
-                                            </div>
-                                        </div>
+                                                </Box>
+                                            </Box>
+                                        </Box>
                                     )}
-                                </div>
+                                </Box>
                             </CardContent>
                         </Card>
                     )}
@@ -469,7 +477,7 @@ export default function VendorApplicationShow({ application }: Props) {
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2 text-lg">
-                                <Users className="h-5 w-5" />
+                                <Users style={{ width: 20, height: 20 }} />
                                 Social Media
                             </CardTitle>
                             <CardDescription>
@@ -477,38 +485,38 @@ export default function VendorApplicationShow({ application }: Props) {
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <div className="grid gap-3 md:grid-cols-3">
+                            <Box sx={{ display: 'grid', gap: 1.5, gridTemplateColumns: { md: 'repeat(3, 1fr)' } }}>
                                 {application.facebook_handle && (
-                                    <div className="rounded-lg border p-3">
-                                        <p className="text-xs text-muted-foreground">
+                                    <Box sx={{ borderRadius: 2, border: 1, borderColor: 'divider', p: 1.5 }}>
+                                        <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
                                             Facebook
-                                        </p>
-                                        <p className="text-sm font-medium">
+                                        </Typography>
+                                        <Typography sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
                                             {application.facebook_handle}
-                                        </p>
-                                    </div>
+                                        </Typography>
+                                    </Box>
                                 )}
                                 {application.instagram_handle && (
-                                    <div className="rounded-lg border p-3">
-                                        <p className="text-xs text-muted-foreground">
+                                    <Box sx={{ borderRadius: 2, border: 1, borderColor: 'divider', p: 1.5 }}>
+                                        <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
                                             Instagram
-                                        </p>
-                                        <p className="text-sm font-medium">
+                                        </Typography>
+                                        <Typography sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
                                             {application.instagram_handle}
-                                        </p>
-                                    </div>
+                                        </Typography>
+                                    </Box>
                                 )}
                                 {application.twitter_handle && (
-                                    <div className="rounded-lg border p-3">
-                                        <p className="text-xs text-muted-foreground">
+                                    <Box sx={{ borderRadius: 2, border: 1, borderColor: 'divider', p: 1.5 }}>
+                                        <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
                                             Twitter/X
-                                        </p>
-                                        <p className="text-sm font-medium">
+                                        </Typography>
+                                        <Typography sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
                                             {application.twitter_handle}
-                                        </p>
-                                    </div>
+                                        </Typography>
+                                    </Box>
                                 )}
-                            </div>
+                            </Box>
                         </CardContent>
                     </Card>
                 )}
@@ -518,7 +526,7 @@ export default function VendorApplicationShow({ application }: Props) {
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2 text-lg">
-                                <Package className="h-5 w-5" />
+                                <Package style={{ width: 20, height: 20 }} />
                                 Selected Bespoke Services
                             </CardTitle>
                             <CardDescription>
@@ -526,27 +534,27 @@ export default function VendorApplicationShow({ application }: Props) {
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <div className="grid gap-2 md:grid-cols-2 lg:grid-cols-3">
+                            <Box sx={{ display: 'grid', gap: 1, gridTemplateColumns: { md: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' } }}>
                                 {application.bespoke_services.map((service) => (
-                                    <div
+                                    <Box
                                         key={service.id}
-                                        className="rounded-lg border p-3"
+                                        sx={{ borderRadius: 2, border: 1, borderColor: 'divider', p: 1.5 }}
                                     >
-                                        <p className="font-medium">
+                                        <Typography sx={{ fontWeight: 500 }}>
                                             {service.name}
-                                        </p>
+                                        </Typography>
                                         {service.description && (
-                                            <p className="text-sm text-muted-foreground">
+                                            <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
                                                 {service.description}
-                                            </p>
+                                            </Typography>
                                         )}
-                                    </div>
+                                    </Box>
                                 ))}
-                            </div>
+                            </Box>
                         </CardContent>
                     </Card>
                 )}
-            </div>
+            </Box>
 
             {/* Reject Dialog */}
             <Dialog open={showRejectDialog} onOpenChange={setShowRejectDialog}>
@@ -559,7 +567,7 @@ export default function VendorApplicationShow({ application }: Props) {
                             message.
                         </DialogDescription>
                     </DialogHeader>
-                    <div className="py-4">
+                    <Box sx={{ py: 2 }}>
                         <Textarea
                             placeholder="Explain why this application is being rejected..."
                             value={data.rejection_reason}
@@ -571,11 +579,11 @@ export default function VendorApplicationShow({ application }: Props) {
                         />
                         {data.rejection_reason &&
                             data.rejection_reason.length < 10 && (
-                                <p className="mt-2 text-sm text-destructive">
+                                <Typography sx={{ mt: 1, fontSize: '0.875rem', color: 'error.main' }}>
                                     Please provide at least 10 characters
-                                </p>
+                                </Typography>
                             )}
-                    </div>
+                    </Box>
                     <DialogFooter>
                         <Button
                             variant="outline"
