@@ -78,7 +78,7 @@ class VendorApplicationController extends Controller
      */
     public function show(VendorApplication $vendorApplication)
     {
-        $vendorApplication->load(['user', 'reviewer', 'bespokeServices']);
+        $vendorApplication->load(['user', 'reviewer', 'bespokeServices', 'latestOnboardingPayment']);
 
         return Inertia::render('vendor-applications/show', [
             'application' => [
@@ -147,6 +147,30 @@ class VendorApplicationController extends Controller
                     'name' => $vendorApplication->reviewer->name,
                 ] : null,
                 'rejection_reason' => $vendorApplication->rejection_reason,
+
+                // Payment info
+                'payment_required' => $vendorApplication->payment_required,
+                'payment_completed' => $vendorApplication->payment_completed,
+                'payment_completed_at' => $vendorApplication->payment_completed_at?->toIso8601String(),
+                'onboarding_fee' => $vendorApplication->onboarding_fee,
+                'discount_amount' => $vendorApplication->discount_amount,
+                'final_amount' => $vendorApplication->final_amount,
+                'payment' => $vendorApplication->latestOnboardingPayment ? [
+                    'status' => $vendorApplication->latestOnboardingPayment->status,
+                    'amount' => $vendorApplication->latestOnboardingPayment->amount,
+                    'currency' => $vendorApplication->latestOnboardingPayment->currency,
+                    'channel' => $vendorApplication->latestOnboardingPayment->channel,
+                    'reference' => $vendorApplication->latestOnboardingPayment->reference,
+                    'card_last4' => $vendorApplication->latestOnboardingPayment->card_last4,
+                    'card_bank' => $vendorApplication->latestOnboardingPayment->card_bank,
+                    'mobile_money_number' => $vendorApplication->latestOnboardingPayment->mobile_money_number,
+                    'mobile_money_provider' => $vendorApplication->latestOnboardingPayment->mobile_money_provider,
+                    'paid_at' => $vendorApplication->latestOnboardingPayment->paid_at?->toIso8601String(),
+                    'failure_reason' => $vendorApplication->latestOnboardingPayment->failure_reason,
+                ] : null,
+
+                // Review eligibility
+                'can_be_reviewed' => $vendorApplication->canBeReviewed(),
             ],
         ]);
     }

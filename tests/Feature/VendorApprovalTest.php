@@ -419,4 +419,66 @@ class VendorApprovalTest extends TestCase
         $application->refresh();
         $this->assertEquals(VendorApplication::STATUS_UNDER_REVIEW, $application->status);
     }
+
+    public function test_show_page_includes_payment_data(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $applicant = User::factory()->create(['role' => 'customer']);
+
+        $application = VendorApplication::factory()
+            ->for($applicant)
+            ->readyToSubmit()
+            ->withPaymentCompleted()
+            ->pending()
+            ->create();
+
+        // Create an onboarding payment record
+        \App\Models\VendorOnboardingPayment::factory()
+            ->successful()
+            ->create([
+                'user_id' => $applicant->id,
+                'vendor_application_id' => $application->id,
+                'amount' => 100.00,
+                'currency' => 'GHS',
+                'channel' => 'card',
+                'card_last4' => '4321',
+                'card_bank' => 'Test Bank',
+            ]);
+
+        $response = $this->actingAs($admin)
+            ->get("/dashboard/vendor-applications/{$application->id}");
+
+        $response->assertStatus(200);
+        $response->assertInertia(fn ($page) => $page
+            ->component('vendor-applications/show')
+            ->has('application.payment')
+            ->where('application.payment.status', 'success')
+            ->where('application.payment.amount', 100)
+            ->where('application.payment.currency', 'GHS')
+            ->where('application.can_be_reviewed', true)
+            ->where('application.payment_completed', true)
+        );
+    }
+
+    public function test_show_page_includes_can_be_reviewed_flag(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $applicant = User::factory()->create(['role' => 'customer']);
+
+        $application = VendorApplication::factory()
+            ->for($applicant)
+            ->create([
+                'status' => VendorApplication::STATUS_PENDING,
+                'completed_step' => 2,
+                'submitted_at' => null,
+            ]);
+
+        $response = $this->actingAs($admin)
+            ->get("/dashboard/vendor-applications/{$application->id}");
+
+        $response->assertStatus(200);
+        $response->assertInertia(fn ($page) => $page
+            ->where('application.can_be_reviewed', false)
+        );
+    }
 }
