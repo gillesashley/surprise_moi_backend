@@ -8,8 +8,13 @@ interface IconProps extends Omit<LucideProps, 'ref'> {
 
 export function Icon({
     iconNode: IconComponent,
+    className,
     style,
     ...props
 }: IconProps) {
-    return <IconComponent style={{ width: 16, height: 16, ...style }} {...props} />;
+    const defaultStyle: CSSProperties = className
+        ? { ...style }
+        : { width: 16, height: 16, ...style };
+
+    return <IconComponent className={className} style={defaultStyle} {...props} />;
 }
