@@ -126,6 +126,7 @@ Route::prefix('v1')->group(function () {
 
     // Public product routes
     Route::get('/products', [\App\Http\Controllers\Api\V1\ProductController::class, 'index']);
+    Route::get('/products/by-slug/{slug}', [\App\Http\Controllers\Api\V1\ProductController::class, 'showBySlug']);
     Route::get('/products/{product}', [\App\Http\Controllers\Api\V1\ProductController::class, 'show']);
     Route::get('/products/{product}/reviews', [ReviewController::class, 'productReviews']);
 

@@ -187,6 +187,28 @@ class ProductController extends Controller
     }
 
     /**
+     * Display a product by its share slug.
+     */
+    public function showBySlug(string $slug)
+    {
+        $product = Product::with([
+            'category',
+            'vendor',
+            'shop',
+            'images',
+            'variants',
+            'tags',
+        ])->where('slug', $slug)->firstOrFail();
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'product' => new ProductDetailResource($product),
+            ],
+        ]);
+    }
+
+    /**
      * Store a newly created product.
      */
     public function store(\App\Http\Requests\Api\V1\Product\StoreProductRequest $request)
