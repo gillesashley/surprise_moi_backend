@@ -8,6 +8,7 @@ import {
 } from '@/components/ui/popover';
 import { NotificationDropdown } from './NotificationDropdown';
 import { useNotifications } from '@/hooks/useNotifications';
+import MuiBadge from '@mui/material/Badge';
 
 export function NotificationBell() {
     const [isOpen, setIsOpen] = useState(false);
@@ -16,16 +17,17 @@ export function NotificationBell() {
     return (
         <Popover open={isOpen} onOpenChange={setIsOpen}>
             <PopoverTrigger asChild>
-                <Button variant="ghost" size="icon" className="relative">
-                    <Bell className="h-5 w-5" />
-                    {unreadCount > 0 && (
-                        <span className="absolute -top-1 -right-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-destructive text-xs text-white">
-                            {unreadCount > 99 ? '99+' : unreadCount}
-                        </span>
-                    )}
-                </Button>
+                <MuiBadge
+                    badgeContent={unreadCount}
+                    color="error"
+                    max={99}
+                >
+                    <Button variant="ghost" size="icon">
+                        <Bell style={{ width: 20, height: 20 }} />
+                    </Button>
+                </MuiBadge>
             </PopoverTrigger>
-            <PopoverContent align="end" className="w-80 p-0" sideOffset={5}>
+            <PopoverContent align="end" style={{ width: 320, padding: 0 }}>
                 <NotificationDropdown onClose={() => setIsOpen(false)} />
             </PopoverContent>
         </Popover>

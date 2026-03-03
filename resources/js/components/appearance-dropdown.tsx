@@ -6,62 +6,88 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useAppearance } from '@/hooks/use-appearance';
+import Box from '@mui/material/Box';
 import { Monitor, Moon, Sun } from 'lucide-react';
-import { HTMLAttributes } from 'react';
 
 export default function AppearanceToggleDropdown({
-    className = '',
     ...props
-}: HTMLAttributes<HTMLDivElement>) {
+}: React.ComponentProps<typeof Box>) {
     const { appearance, updateAppearance } = useAppearance();
 
     const getCurrentIcon = () => {
         switch (appearance) {
             case 'dark':
-                return <Moon className="h-5 w-5" />;
+                return <Moon style={{ width: 20, height: 20 }} />;
             case 'light':
-                return <Sun className="h-5 w-5" />;
+                return <Sun style={{ width: 20, height: 20 }} />;
             default:
-                return <Monitor className="h-5 w-5" />;
+                return <Monitor style={{ width: 20, height: 20 }} />;
         }
     };
 
     return (
-        <div className={className} {...props}>
+        <Box {...props}>
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-9 w-9 rounded-md"
-                    >
+                    <Button variant="ghost" size="icon">
                         {getCurrentIcon()}
-                        <span className="sr-only">Toggle theme</span>
+                        <Box
+                            component="span"
+                            sx={{
+                                position: 'absolute',
+                                width: 1,
+                                height: 1,
+                                overflow: 'hidden',
+                                clip: 'rect(0,0,0,0)',
+                                whiteSpace: 'nowrap',
+                                border: 0,
+                            }}
+                        >
+                            Toggle theme
+                        </Box>
                     </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                     <DropdownMenuItem onClick={() => updateAppearance('light')}>
-                        <span className="flex items-center gap-2">
-                            <Sun className="h-5 w-5" />
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 1,
+                            }}
+                        >
+                            <Sun style={{ width: 20, height: 20 }} />
                             Light
-                        </span>
+                        </Box>
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => updateAppearance('dark')}>
-                        <span className="flex items-center gap-2">
-                            <Moon className="h-5 w-5" />
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 1,
+                            }}
+                        >
+                            <Moon style={{ width: 20, height: 20 }} />
                             Dark
-                        </span>
+                        </Box>
                     </DropdownMenuItem>
                     <DropdownMenuItem
                         onClick={() => updateAppearance('system')}
                     >
-                        <span className="flex items-center gap-2">
-                            <Monitor className="h-5 w-5" />
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 1,
+                            }}
+                        >
+                            <Monitor style={{ width: 20, height: 20 }} />
                             System
-                        </span>
+                        </Box>
                     </DropdownMenuItem>
                 </DropdownMenuContent>
             </DropdownMenu>
-        </div>
+        </Box>
     );
 }
