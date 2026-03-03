@@ -6,6 +6,7 @@ use App\Ai\Tools\SearchProducts;
 use App\Models\AiConversation;
 use App\Models\PartnerProfile;
 use Laravel\Ai\Attributes\MaxTokens;
+use Laravel\Ai\Attributes\Model;
 use Laravel\Ai\Attributes\Provider;
 use Laravel\Ai\Attributes\Temperature;
 use Laravel\Ai\Contracts\Agent;
@@ -15,6 +16,7 @@ use Laravel\Ai\Messages\Message;
 use Laravel\Ai\Promptable;
 
 #[Provider('gemini')]
+#[Model('gemini-2.5-flash')]
 #[Temperature(0.7)]
 #[MaxTokens(2048)]
 class GiftAssistant implements Agent, Conversational, HasTools
