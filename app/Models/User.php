@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\DB;
@@ -404,7 +405,7 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Get total unpaid earnings amount.
      * Sums all earnings that have status 'unpaid'.
-     * 
+     *
      * @return float Total amount in GHS
      */
     public function getTotalUnpaidEarnings(): float
@@ -415,7 +416,7 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Get total paid earnings amount.
      * Sums all earnings that have been successfully paid out.
-     * 
+     *
      * @return float Total amount in GHS
      */
     public function getTotalPaidEarnings(): float
@@ -426,7 +427,7 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Get total unread messages count across all conversations.
      * Combines unread counts from both customer and vendor conversations.
-     * 
+     *
      * @return int Total number of unread messages
      */
     public function getUnreadMessagesCount(): int
@@ -447,6 +448,22 @@ class User extends Authenticatable implements MustVerifyEmail
             \Illuminate\Support\Carbon::now()->addMinutes(60),
             ['id' => $this->id, 'hash' => sha1($this->email)]
         );
+    }
+
+    /**
+     * Get all partner profiles created by this user.
+     */
+    public function partnerProfiles(): HasMany
+    {
+        return $this->hasMany(PartnerProfile::class);
+    }
+
+    /**
+     * Get all AI conversations for this user.
+     */
+    public function aiConversations(): HasMany
+    {
+        return $this->hasMany(AiConversation::class);
     }
 
     /**
