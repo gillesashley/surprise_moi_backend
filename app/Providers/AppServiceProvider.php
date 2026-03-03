@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use App\Contracts\Sms\SmsProviderInterface;
+use App\Models\Product;
+use App\Observers\ProductObserver;
 use App\Services\KairosAfrikaSmsService;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -26,6 +28,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Product::observe(ProductObserver::class);
+
         // Configure morph map for polymorphic relationships
         Relation::morphMap([
             'product' => \App\Models\Product::class,

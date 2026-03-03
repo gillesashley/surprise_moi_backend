@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\V1\AccountController;
 use App\Http\Controllers\Api\V1\AddressController;
 use App\Http\Controllers\Api\V1\Admin\JobMonitorController;
 use App\Http\Controllers\Api\V1\AdvertisementController;
+use App\Http\Controllers\Api\V1\AiChatController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\CartController;
 use App\Http\Controllers\Api\V1\ChatController;
@@ -16,6 +17,7 @@ use App\Http\Controllers\Api\V1\LocationController;
 use App\Http\Controllers\Api\V1\MarketerDashboardController;
 use App\Http\Controllers\Api\V1\NotificationController;
 use App\Http\Controllers\Api\V1\OrderController;
+use App\Http\Controllers\Api\V1\PartnerProfileController;
 use App\Http\Controllers\Api\V1\PaymentController;
 use App\Http\Controllers\Api\V1\PayoutRequestController;
 use App\Http\Controllers\Api\V1\ProfileController;
@@ -272,6 +274,18 @@ Route::prefix('v1')->group(function () {
             // Unread count
             Route::get('/unread-count', [ChatController::class, 'unreadCount']);
         });
+
+        // AI Gift Assistant chat routes
+        Route::prefix('ai-chat')->group(function () {
+            Route::get('/conversations', [AiChatController::class, 'index']);
+            Route::post('/conversations', [AiChatController::class, 'store']);
+            Route::get('/conversations/{aiConversation}', [AiChatController::class, 'show']);
+            Route::post('/conversations/{aiConversation}/messages', [AiChatController::class, 'sendMessage']);
+            Route::delete('/conversations/{aiConversation}', [AiChatController::class, 'destroy']);
+        });
+
+        // Partner profile management
+        Route::apiResource('partner-profiles', PartnerProfileController::class);
 
         // Vendor Registration routes (multi-step wizard)
         Route::prefix('vendor-registration')->group(function () {
