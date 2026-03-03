@@ -26,8 +26,20 @@ export function UserMenuContent({ user }: UserMenuContentProps) {
 
     return (
         <>
-            <DropdownMenuLabel className="p-0 font-normal">
-                <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+            <DropdownMenuLabel style={{ padding: 0, fontWeight: 400 }}>
+                <div
+                    style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 8,
+                        paddingLeft: 4,
+                        paddingRight: 4,
+                        paddingTop: 6,
+                        paddingBottom: 6,
+                        textAlign: 'left',
+                        fontSize: '0.875rem',
+                    }}
+                >
                     <UserInfo user={user} showEmail={true} />
                 </div>
             </DropdownMenuLabel>
@@ -35,13 +47,13 @@ export function UserMenuContent({ user }: UserMenuContentProps) {
             <DropdownMenuGroup>
                 <DropdownMenuItem asChild>
                     <Link
-                        className="block w-full"
+                        style={{ display: 'block', width: '100%' }}
                         href={edit()}
                         as="button"
                         prefetch
                         onClick={cleanup}
                     >
-                        <Settings className="mr-2" />
+                        <Settings style={{ marginRight: 8 }} />
                         Settings
                     </Link>
                 </DropdownMenuItem>
@@ -49,13 +61,13 @@ export function UserMenuContent({ user }: UserMenuContentProps) {
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
                 <Link
-                    className="block w-full"
+                    style={{ display: 'block', width: '100%' }}
                     href={logout()}
                     as="button"
                     onClick={handleLogout}
                     data-test="logout-button"
                 >
-                    <LogOut className="mr-2" />
+                    <LogOut style={{ marginRight: 8 }} />
                     Log out
                 </Link>
             </DropdownMenuItem>

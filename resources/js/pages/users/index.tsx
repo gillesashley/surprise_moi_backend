@@ -15,6 +15,9 @@ import {
 } from '@/routes/users';
 import { type BreadcrumbItem, type PaginatedUsers } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
+import Box from '@mui/material/Box';
+import Chip from '@mui/material/Chip';
+import Typography from '@mui/material/Typography';
 import { ArrowDown, ArrowUp, Eye, Pencil, Search, Trash2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
@@ -43,16 +46,16 @@ const formatRole = (role: string) => {
         .join(' ');
 };
 
-const getRoleBadgeColor = (role: string) => {
+const getRoleBadgeColor = (role: string): 'error' | 'secondary' | 'info' | 'default' => {
     switch (role) {
         case 'super_admin':
-            return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
+            return 'error';
         case 'admin':
-            return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200';
+            return 'secondary';
         case 'vendor':
-            return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
+            return 'info';
         default:
-            return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200';
+            return 'default';
     }
 };
 
@@ -128,16 +131,16 @@ export default function UsersIndex({ users, canDelete, filters }: Props) {
     const getSortIcon = (column: string) => {
         if (filters.sort_by !== column) return null;
         return filters.sort_order === 'asc' ? (
-            <ArrowUp className="ml-1 inline size-4" />
+            <ArrowUp style={{ marginLeft: 4, display: 'inline', width: 16, height: 16 }} />
         ) : (
-            <ArrowDown className="ml-1 inline size-4" />
+            <ArrowDown style={{ marginLeft: 4, display: 'inline', width: 16, height: 16 }} />
         );
     };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="User Management" />
-            <div className="flex h-full flex-1 flex-col gap-4 p-4">
+            <Box sx={{ display: 'flex', height: '100%', flex: 1, flexDirection: 'column', gap: 2, p: 2 }}>
                 <Card>
                     <CardHeader>
                         <CardTitle>User Management</CardTitle>
@@ -147,9 +150,9 @@ export default function UsersIndex({ users, canDelete, filters }: Props) {
                     </CardHeader>
                     <CardContent>
                         {/* Search Bar */}
-                        <div className="mb-4 flex items-center gap-2">
-                            <div className="relative flex-1">
-                                <Search className="absolute top-2.5 left-2.5 size-4 text-muted-foreground" />
+                        <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <Box sx={{ position: 'relative', flex: 1 }}>
+                                <Search style={{ position: 'absolute', top: 10, left: 10, width: 16, height: 16, color: 'var(--muted-foreground)' }} />
                                 <Input
                                     type="search"
                                     placeholder="Search by name, email, or phone..."
@@ -157,83 +160,88 @@ export default function UsersIndex({ users, canDelete, filters }: Props) {
                                     onChange={(e) =>
                                         setSearchTerm(e.target.value)
                                     }
-                                    className="pl-9"
+                                    style={{ paddingLeft: 36 }}
                                 />
-                            </div>
-                        </div>
+                            </Box>
+                        </Box>
 
-                        <div className="overflow-x-auto">
-                            <table className="w-full">
+                        <Box sx={{ overflowX: 'auto' }}>
+                            <Box component="table" sx={{ width: '100%' }}>
                                 <thead>
-                                    <tr className="border-b">
-                                        <th
-                                            className="cursor-pointer p-2 text-left text-sm font-medium hover:bg-muted/50"
+                                    <Box component="tr" sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                                        <Box
+                                            component="th"
+                                            sx={{ cursor: 'pointer', p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500, '&:hover': { bgcolor: 'action.hover' } }}
                                             onClick={() => handleSort('name')}
                                         >
                                             Name{getSortIcon('name')}
-                                        </th>
-                                        <th
-                                            className="cursor-pointer p-2 text-left text-sm font-medium hover:bg-muted/50"
+                                        </Box>
+                                        <Box
+                                            component="th"
+                                            sx={{ cursor: 'pointer', p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500, '&:hover': { bgcolor: 'action.hover' } }}
                                             onClick={() => handleSort('email')}
                                         >
                                             Email{getSortIcon('email')}
-                                        </th>
-                                        <th
-                                            className="cursor-pointer p-2 text-left text-sm font-medium hover:bg-muted/50"
+                                        </Box>
+                                        <Box
+                                            component="th"
+                                            sx={{ cursor: 'pointer', p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500, '&:hover': { bgcolor: 'action.hover' } }}
                                             onClick={() => handleSort('phone')}
                                         >
                                             Phone{getSortIcon('phone')}
-                                        </th>
-                                        <th
-                                            className="cursor-pointer p-2 text-left text-sm font-medium hover:bg-muted/50"
+                                        </Box>
+                                        <Box
+                                            component="th"
+                                            sx={{ cursor: 'pointer', p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500, '&:hover': { bgcolor: 'action.hover' } }}
                                             onClick={() => handleSort('role')}
                                         >
                                             Role{getSortIcon('role')}
-                                        </th>
-                                        <th
-                                            className="cursor-pointer p-2 text-left text-sm font-medium hover:bg-muted/50"
+                                        </Box>
+                                        <Box
+                                            component="th"
+                                            sx={{ cursor: 'pointer', p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500, '&:hover': { bgcolor: 'action.hover' } }}
                                             onClick={() =>
                                                 handleSort('created_at')
                                             }
                                         >
                                             Joined{getSortIcon('created_at')}
-                                        </th>
-                                        <th className="p-2 text-right text-sm font-medium">
+                                        </Box>
+                                        <Box component="th" sx={{ p: 1, textAlign: 'right', fontSize: '0.875rem', fontWeight: 500 }}>
                                             Actions
-                                        </th>
-                                    </tr>
+                                        </Box>
+                                    </Box>
                                 </thead>
                                 <tbody>
                                     {users.data.map((user) => (
-                                        <tr
+                                        <Box
+                                            component="tr"
                                             key={user.id}
-                                            className="border-b last:border-0 hover:bg-muted/50"
+                                            sx={{ borderBottom: 1, borderColor: 'divider', '&:last-child': { border: 0 }, '&:hover': { bgcolor: 'action.hover' } }}
                                         >
-                                            <td className="p-2 text-sm">
+                                            <Box component="td" sx={{ p: 1, fontSize: '0.875rem' }}>
                                                 {user.name}
-                                            </td>
-                                            <td className="p-2 text-sm">
+                                            </Box>
+                                            <Box component="td" sx={{ p: 1, fontSize: '0.875rem' }}>
                                                 {user.email}
-                                            </td>
-                                            <td className="p-2 text-sm">
+                                            </Box>
+                                            <Box component="td" sx={{ p: 1, fontSize: '0.875rem' }}>
                                                 {user.phone || '-'}
-                                            </td>
-                                            <td className="p-2 text-sm">
-                                                <span
-                                                    className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${getRoleBadgeColor(user.role || 'customer')}`}
-                                                >
-                                                    {formatRole(
-                                                        user.role || 'customer',
-                                                    )}
-                                                </span>
-                                            </td>
-                                            <td className="p-2 text-sm">
+                                            </Box>
+                                            <Box component="td" sx={{ p: 1, fontSize: '0.875rem' }}>
+                                                <Chip
+                                                    label={formatRole(user.role || 'customer')}
+                                                    color={getRoleBadgeColor(user.role || 'customer')}
+                                                    size="small"
+                                                    variant="outlined"
+                                                />
+                                            </Box>
+                                            <Box component="td" sx={{ p: 1, fontSize: '0.875rem' }}>
                                                 {new Date(
                                                     user.created_at,
                                                 ).toLocaleDateString()}
-                                            </td>
-                                            <td className="p-2">
-                                                <div className="flex justify-end gap-2">
+                                            </Box>
+                                            <Box component="td" sx={{ p: 1 }}>
+                                                <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
                                                     <Button
                                                         variant="ghost"
                                                         size="sm"
@@ -244,7 +252,7 @@ export default function UsersIndex({ users, canDelete, filters }: Props) {
                                                                 user.id,
                                                             )}
                                                         >
-                                                            <Eye className="size-4" />
+                                                            <Eye style={{ width: 16, height: 16 }} />
                                                         </Link>
                                                     </Button>
                                                     <Button
@@ -257,7 +265,7 @@ export default function UsersIndex({ users, canDelete, filters }: Props) {
                                                                 user.id,
                                                             )}
                                                         >
-                                                            <Pencil className="size-4" />
+                                                            <Pencil style={{ width: 16, height: 16 }} />
                                                         </Link>
                                                     </Button>
                                                     {canDelete && (
@@ -271,25 +279,25 @@ export default function UsersIndex({ users, canDelete, filters }: Props) {
                                                                 )
                                                             }
                                                         >
-                                                            <Trash2 className="size-4 text-destructive" />
+                                                            <Trash2 style={{ width: 16, height: 16, color: 'var(--destructive)' }} />
                                                         </Button>
                                                     )}
-                                                </div>
-                                            </td>
-                                        </tr>
+                                                </Box>
+                                            </Box>
+                                        </Box>
                                     ))}
                                 </tbody>
-                            </table>
-                        </div>
+                            </Box>
+                        </Box>
 
                         {/* Pagination */}
                         {users.last_page > 1 && (
-                            <div className="mt-4 flex items-center justify-between">
-                                <p className="text-sm text-muted-foreground">
+                            <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
                                     Showing {users.data.length} of {users.total}{' '}
                                     users
-                                </p>
-                                <div className="flex gap-2">
+                                </Typography>
+                                <Box sx={{ display: 'flex', gap: 1 }}>
                                     <Button
                                         variant="outline"
                                         size="sm"
@@ -302,10 +310,10 @@ export default function UsersIndex({ users, canDelete, filters }: Props) {
                                     >
                                         Previous
                                     </Button>
-                                    <span className="flex items-center px-2 text-sm">
+                                    <Box component="span" sx={{ display: 'flex', alignItems: 'center', px: 1, fontSize: '0.875rem' }}>
                                         Page {users.current_page} of{' '}
                                         {users.last_page}
-                                    </span>
+                                    </Box>
                                     <Button
                                         variant="outline"
                                         size="sm"
@@ -321,12 +329,12 @@ export default function UsersIndex({ users, canDelete, filters }: Props) {
                                     >
                                         Next
                                     </Button>
-                                </div>
-                            </div>
+                                </Box>
+                            </Box>
                         )}
                     </CardContent>
                 </Card>
-            </div>
+            </Box>
         </AppLayout>
     );
 }

@@ -1,10 +1,21 @@
 import { Button } from '@/components/ui/button';
 import { Pagination } from '@/components/ui/pagination';
 import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@/components/ui/table';
+import {
     create as bespokeServiceCreate,
     destroy as bespokeServiceDestroy,
     edit as bespokeServiceEdit,
 } from '@/routes/dashboard/bespoke-services';
+import Box from '@mui/material/Box';
+import Chip from '@mui/material/Chip';
+import Typography from '@mui/material/Typography';
 import { Link, router } from '@inertiajs/react';
 import { Pencil, Plus, Trash2 } from 'lucide-react';
 
@@ -53,119 +64,136 @@ export function BespokeServicesTab({
     };
 
     return (
-        <div className="mt-6">
-            <div className="mb-4 flex items-center justify-between">
-                <h3 className="text-lg font-semibold">Bespoke Services</h3>
+        <Box sx={{ mt: 3 }}>
+            <Box
+                sx={{
+                    mb: 2,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                }}
+            >
+                <Typography variant="h6" fontWeight={600}>
+                    Bespoke Services
+                </Typography>
                 {canCreate && (
                     <Button asChild>
                         <Link href={bespokeServiceCreate.url()}>
-                            <Plus className="mr-2 size-4" />
+                            <Plus style={{ width: 16, height: 16, marginRight: 8 }} />
                             Add Service
                         </Link>
                     </Button>
                 )}
-            </div>
-            <div className="overflow-x-auto">
-                <table className="w-full">
-                    <thead>
-                        <tr className="border-b">
-                            <th className="p-2 text-left text-sm font-medium">
-                                Name
-                            </th>
-                            <th className="p-2 text-left text-sm font-medium">
-                                Slug
-                            </th>
-                            <th className="p-2 text-left text-sm font-medium">
-                                Vendors
-                            </th>
-                            <th className="p-2 text-left text-sm font-medium">
-                                Status
-                            </th>
-                            <th className="p-2 text-left text-sm font-medium">
-                                Order
-                            </th>
-                            <th className="p-2 text-right text-sm font-medium">
-                                Actions
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {bespokeServices.data.map((service) => (
-                            <tr
-                                key={service.id}
-                                className="border-b last:border-0 hover:bg-muted/50"
-                            >
-                                <td className="p-2 text-sm font-medium">
+            </Box>
+            <Table>
+                <TableHeader>
+                    <TableRow>
+                        <TableHead>Name</TableHead>
+                        <TableHead>Slug</TableHead>
+                        <TableHead>Vendors</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Order</TableHead>
+                        <TableHead style={{ textAlign: 'right' }}>
+                            Actions
+                        </TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {bespokeServices.data.map((service) => (
+                        <TableRow key={service.id}>
+                            <TableCell>
+                                <Typography variant="body2" fontWeight={500}>
                                     {service.name}
-                                </td>
-                                <td className="p-2 text-sm text-muted-foreground">
+                                </Typography>
+                            </TableCell>
+                            <TableCell>
+                                <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                >
                                     {service.slug}
-                                </td>
-                                <td className="p-2 text-sm">
+                                </Typography>
+                            </TableCell>
+                            <TableCell>
+                                <Typography variant="body2">
                                     {service.vendor_applications_count}
-                                </td>
-                                <td className="p-2 text-sm">
-                                    <span
-                                        className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
-                                            service.is_active
-                                                ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                                                : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200'
-                                        }`}
-                                    >
-                                        {service.is_active
+                                </Typography>
+                            </TableCell>
+                            <TableCell>
+                                <Chip
+                                    label={
+                                        service.is_active
                                             ? 'Active'
-                                            : 'Inactive'}
-                                    </span>
-                                </td>
-                                <td className="p-2 text-sm">
+                                            : 'Inactive'
+                                    }
+                                    size="small"
+                                    color={
+                                        service.is_active
+                                            ? 'success'
+                                            : 'default'
+                                    }
+                                    variant="outlined"
+                                />
+                            </TableCell>
+                            <TableCell>
+                                <Typography variant="body2">
                                     {service.sort_order}
-                                </td>
-                                <td className="p-2">
-                                    <div className="flex justify-end gap-2">
+                                </Typography>
+                            </TableCell>
+                            <TableCell>
+                                <Box
+                                    sx={{
+                                        display: 'flex',
+                                        justifyContent: 'flex-end',
+                                        gap: 1,
+                                    }}
+                                >
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        asChild
+                                    >
+                                        <Link
+                                            href={bespokeServiceEdit.url(
+                                                service.id,
+                                            )}
+                                        >
+                                            <Pencil style={{ width: 16, height: 16 }} />
+                                        </Link>
+                                    </Button>
+                                    {canDelete && (
                                         <Button
                                             variant="ghost"
                                             size="sm"
-                                            asChild
-                                        >
-                                            <Link
-                                                href={bespokeServiceEdit.url(
+                                            onClick={() =>
+                                                handleDelete(
                                                     service.id,
-                                                )}
-                                            >
-                                                <Pencil className="size-4" />
-                                            </Link>
+                                                    service.name,
+                                                )
+                                            }
+                                        >
+                                            <Trash2 style={{ width: 16, height: 16, color: 'var(--mui-palette-error-main, #d32f2f)' }} />
                                         </Button>
-                                        {canDelete && (
-                                            <Button
-                                                variant="ghost"
-                                                size="sm"
-                                                onClick={() =>
-                                                    handleDelete(
-                                                        service.id,
-                                                        service.name,
-                                                    )
-                                                }
-                                            >
-                                                <Trash2 className="size-4 text-destructive" />
-                                            </Button>
-                                        )}
-                                    </div>
-                                </td>
-                            </tr>
-                        ))}
-                        {bespokeServices.data.length === 0 && (
-                            <tr>
-                                <td
-                                    colSpan={6}
-                                    className="p-4 text-center text-muted-foreground"
+                                    )}
+                                </Box>
+                            </TableCell>
+                        </TableRow>
+                    ))}
+                    {bespokeServices.data.length === 0 && (
+                        <TableRow>
+                            <TableCell colSpan={6}>
+                                <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                    sx={{ textAlign: 'center', p: 2 }}
                                 >
                                     No bespoke services found
-                                </td>
-                            </tr>
-                        )}
-                    </tbody>
-                </table>
-            </div>
+                                </Typography>
+                            </TableCell>
+                        </TableRow>
+                    )}
+                </TableBody>
+            </Table>
             <Pagination
                 currentPage={bespokeServices.current_page}
                 lastPage={bespokeServices.last_page}
@@ -176,6 +204,6 @@ export function BespokeServicesTab({
                     });
                 }}
             />
-        </div>
+        </Box>
     );
 }

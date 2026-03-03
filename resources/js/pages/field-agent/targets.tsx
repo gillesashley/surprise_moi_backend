@@ -16,6 +16,9 @@ import {
 } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
+import Box from '@mui/material/Box';
+import LinearProgress from '@mui/material/LinearProgress';
+import Typography from '@mui/material/Typography';
 import { Head } from '@inertiajs/react';
 import { Calendar, Target } from 'lucide-react';
 
@@ -86,13 +89,15 @@ export default function FieldAgentTargets({ targets }: Props) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="My Targets" />
 
-            <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto p-6">
-                <div>
-                    <h1 className="text-3xl font-bold">My Targets</h1>
-                    <p className="mt-1 text-muted-foreground">
+            <Box sx={{ display: 'flex', flex: 1, flexDirection: 'column', gap: 3, overflowX: 'auto', p: 3 }}>
+                <Box>
+                    <Typography variant="h4" fontWeight={700}>
+                        My Targets
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
                         Track your assigned targets and progress
-                    </p>
-                </div>
+                    </Typography>
+                </Box>
 
                 <Card>
                     <CardHeader>
@@ -104,12 +109,12 @@ export default function FieldAgentTargets({ targets }: Props) {
                     </CardHeader>
                     <CardContent>
                         {targets.data.length === 0 ? (
-                            <div className="py-12 text-center">
-                                <p className="text-muted-foreground">
+                            <Box sx={{ py: 6, textAlign: 'center' }}>
+                                <Typography color="text.secondary">
                                     No targets assigned yet. Check back later
                                     for new assignments!
-                                </p>
-                            </div>
+                                </Typography>
+                            </Box>
                         ) : (
                             <Table>
                                 <TableHeader>
@@ -129,37 +134,28 @@ export default function FieldAgentTargets({ targets }: Props) {
                                         );
                                         return (
                                             <TableRow key={target.id}>
-                                                <TableCell className="font-medium">
+                                                <TableCell style={{ fontWeight: 500 }}>
                                                     {formatTargetType(
                                                         target.target_type,
                                                     )}
                                                 </TableCell>
                                                 <TableCell>
-                                                    <div className="space-y-1">
-                                                        <div className="flex items-center gap-2">
-                                                            <Target className="h-4 w-4 text-muted-foreground" />
-                                                            <span className="text-sm font-medium">
-                                                                {
-                                                                    target.current_value
-                                                                }{' '}
-                                                                /{' '}
-                                                                {
-                                                                    target.target_value
-                                                                }
-                                                            </span>
-                                                        </div>
-                                                        <div className="h-2 w-full overflow-hidden rounded-full bg-secondary">
-                                                            <div
-                                                                className="h-full bg-primary transition-all"
-                                                                style={{
-                                                                    width: `${progress}%`,
-                                                                }}
-                                                            />
-                                                        </div>
-                                                        <span className="text-xs text-muted-foreground">
+                                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                            <Target style={{ width: 16, height: 16, color: 'gray' }} />
+                                                            <Typography variant="body2" fontWeight={500}>
+                                                                {target.current_value} / {target.target_value}
+                                                            </Typography>
+                                                        </Box>
+                                                        <LinearProgress
+                                                            variant="determinate"
+                                                            value={progress}
+                                                            sx={{ borderRadius: 1, height: 8 }}
+                                                        />
+                                                        <Typography variant="caption" color="text.secondary">
                                                             {progress}%
-                                                        </span>
-                                                    </div>
+                                                        </Typography>
+                                                    </Box>
                                                 </TableCell>
                                                 <TableCell>
                                                     {target.period}
@@ -170,20 +166,17 @@ export default function FieldAgentTargets({ targets }: Props) {
                                                     )}
                                                 </TableCell>
                                                 <TableCell>
-                                                    <div className="flex flex-col gap-1 text-sm">
-                                                        <div className="flex items-center gap-2">
-                                                            <Calendar className="h-3 w-3 text-muted-foreground" />
-                                                            {formatDate(
-                                                                target.start_date,
-                                                            )}
-                                                        </div>
-                                                        <span className="text-muted-foreground">
-                                                            to{' '}
-                                                            {formatDate(
-                                                                target.end_date,
-                                                            )}
-                                                        </span>
-                                                    </div>
+                                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                            <Calendar style={{ width: 12, height: 12, color: 'gray' }} />
+                                                            <Typography variant="body2">
+                                                                {formatDate(target.start_date)}
+                                                            </Typography>
+                                                        </Box>
+                                                        <Typography variant="body2" color="text.secondary">
+                                                            to {formatDate(target.end_date)}
+                                                        </Typography>
+                                                    </Box>
                                                 </TableCell>
                                             </TableRow>
                                         );
@@ -193,7 +186,7 @@ export default function FieldAgentTargets({ targets }: Props) {
                         )}
                     </CardContent>
                 </Card>
-            </div>
+            </Box>
         </AppLayout>
     );
 }

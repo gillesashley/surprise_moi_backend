@@ -1,10 +1,4 @@
 import { InertiaLinkProps } from '@inertiajs/react';
-import { type ClassValue, clsx } from 'clsx';
-import { twMerge } from 'tailwind-merge';
-
-export function cn(...inputs: ClassValue[]) {
-    return twMerge(clsx(inputs));
-}
 
 export function isSameUrl(
     url1: NonNullable<InertiaLinkProps['href']>,

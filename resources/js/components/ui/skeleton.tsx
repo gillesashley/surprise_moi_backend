@@ -1,10 +1,17 @@
-import { cn } from "@/lib/utils"
+import * as React from "react"
+import MuiSkeleton, { type SkeletonProps } from "@mui/material/Skeleton"
 
-function Skeleton({ className, ...props }: React.ComponentProps<"div">) {
+interface SkeletonComponentProps extends SkeletonProps {
+  className?: string
+}
+
+function Skeleton({ className, ...props }: SkeletonComponentProps) {
   return (
-    <div
+    <MuiSkeleton
       data-slot="skeleton"
-      className={cn("bg-primary/10 animate-pulse rounded-md", className)}
+      variant="rounded"
+      animation="pulse"
+      className={className}
       {...props}
     />
   )

@@ -11,6 +11,8 @@ import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Form, Head, Link } from '@inertiajs/react';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
 import { ArrowLeft } from 'lucide-react';
 
 interface User {
@@ -45,15 +47,15 @@ export default function TargetCreate({
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Create Target" />
-            <div className="flex h-full flex-1 flex-col gap-4 p-4">
-                <div className="flex items-center justify-between">
+            <Box sx={{ display: 'flex', height: '100%', flex: 1, flexDirection: 'column', gap: 2, p: 2 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <Button variant="ghost" size="sm" asChild>
                         <Link href="/targets">
-                            <ArrowLeft className="mr-2 size-4" />
+                            <ArrowLeft style={{ marginRight: 8, width: 16, height: 16 }} />
                             Back to Targets
                         </Link>
                     </Button>
-                </div>
+                </Box>
 
                 <Card>
                     <CardHeader>
@@ -65,16 +67,30 @@ export default function TargetCreate({
                     <CardContent>
                         <Form action="/targets" method="post" resetOnSuccess>
                             {({ errors, processing }) => (
-                                <div className="space-y-4">
-                                    <div className="space-y-2">
+                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                         <Label htmlFor="user_id">
                                             Assign To
                                         </Label>
-                                        <select
+                                        <Box
+                                            component="select"
                                             id="user_id"
                                             name="user_id"
                                             required
-                                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+                                            sx={{
+                                                display: 'flex',
+                                                height: 40,
+                                                width: '100%',
+                                                borderRadius: 1,
+                                                border: 1,
+                                                borderColor: 'divider',
+                                                bgcolor: 'background.paper',
+                                                px: 1.5,
+                                                py: 1,
+                                                fontSize: { xs: '1rem', md: '0.875rem' },
+                                                '&:focus-visible': { outline: 'none', ring: 2, ringColor: 'primary.main' },
+                                                '&:disabled': { cursor: 'not-allowed', opacity: 0.5 },
+                                            }}
                                         >
                                             <option value="">
                                                 Select a user...
@@ -88,23 +104,37 @@ export default function TargetCreate({
                                                     {user.email}
                                                 </option>
                                             ))}
-                                        </select>
+                                        </Box>
                                         {errors.user_id && (
-                                            <p className="text-sm text-destructive">
+                                            <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
                                                 {errors.user_id}
-                                            </p>
+                                            </Typography>
                                         )}
-                                    </div>
+                                    </Box>
 
-                                    <div className="space-y-2">
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                         <Label htmlFor="target_type">
                                             Target Type
                                         </Label>
-                                        <select
+                                        <Box
+                                            component="select"
                                             id="target_type"
                                             name="target_type"
                                             required
-                                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+                                            sx={{
+                                                display: 'flex',
+                                                height: 40,
+                                                width: '100%',
+                                                borderRadius: 1,
+                                                border: 1,
+                                                borderColor: 'divider',
+                                                bgcolor: 'background.paper',
+                                                px: 1.5,
+                                                py: 1,
+                                                fontSize: { xs: '1rem', md: '0.875rem' },
+                                                '&:focus-visible': { outline: 'none', ring: 2, ringColor: 'primary.main' },
+                                                '&:disabled': { cursor: 'not-allowed', opacity: 0.5 },
+                                            }}
                                         >
                                             <option value="">
                                                 Select target type...
@@ -119,16 +149,16 @@ export default function TargetCreate({
                                                     </option>
                                                 ),
                                             )}
-                                        </select>
+                                        </Box>
                                         {errors.target_type && (
-                                            <p className="text-sm text-destructive">
+                                            <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
                                                 {errors.target_type}
-                                            </p>
+                                            </Typography>
                                         )}
-                                    </div>
+                                    </Box>
 
-                                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                                        <div className="space-y-2">
+                                    <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' }, gap: 2 }}>
+                                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                             <Label htmlFor="target_value">
                                                 Target Value
                                             </Label>
@@ -141,13 +171,13 @@ export default function TargetCreate({
                                                 placeholder="e.g., 10 or 10000"
                                             />
                                             {errors.target_value && (
-                                                <p className="text-sm text-destructive">
+                                                <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
                                                     {errors.target_value}
-                                                </p>
+                                                </Typography>
                                             )}
-                                        </div>
+                                        </Box>
 
-                                        <div className="space-y-2">
+                                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                             <Label htmlFor="bonus_amount">
                                                 Bonus Amount (GH₵)
                                             </Label>
@@ -160,14 +190,14 @@ export default function TargetCreate({
                                                 placeholder="e.g., 500"
                                             />
                                             {errors.bonus_amount && (
-                                                <p className="text-sm text-destructive">
+                                                <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
                                                     {errors.bonus_amount}
-                                                </p>
+                                                </Typography>
                                             )}
-                                        </div>
-                                    </div>
+                                        </Box>
+                                    </Box>
 
-                                    <div className="space-y-2">
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                         <Label htmlFor="overachievement_rate">
                                             Overachievement Rate (%)
                                         </Label>
@@ -180,26 +210,40 @@ export default function TargetCreate({
                                             max="100"
                                             placeholder="e.g., 10"
                                         />
-                                        <p className="text-sm text-muted-foreground">
+                                        <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
                                             Additional bonus percentage for
                                             exceeding the target
-                                        </p>
+                                        </Typography>
                                         {errors.overachievement_rate && (
-                                            <p className="text-sm text-destructive">
+                                            <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
                                                 {errors.overachievement_rate}
-                                            </p>
+                                            </Typography>
                                         )}
-                                    </div>
+                                    </Box>
 
-                                    <div className="space-y-2">
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                         <Label htmlFor="period_type">
                                             Period Type
                                         </Label>
-                                        <select
+                                        <Box
+                                            component="select"
                                             id="period_type"
                                             name="period_type"
                                             required
-                                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+                                            sx={{
+                                                display: 'flex',
+                                                height: 40,
+                                                width: '100%',
+                                                borderRadius: 1,
+                                                border: 1,
+                                                borderColor: 'divider',
+                                                bgcolor: 'background.paper',
+                                                px: 1.5,
+                                                py: 1,
+                                                fontSize: { xs: '1rem', md: '0.875rem' },
+                                                '&:focus-visible': { outline: 'none', ring: 2, ringColor: 'primary.main' },
+                                                '&:disabled': { cursor: 'not-allowed', opacity: 0.5 },
+                                            }}
                                         >
                                             <option value="">
                                                 Select period...
@@ -215,16 +259,16 @@ export default function TargetCreate({
                                                         period.slice(1)}
                                                 </option>
                                             ))}
-                                        </select>
+                                        </Box>
                                         {errors.period_type && (
-                                            <p className="text-sm text-destructive">
+                                            <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
                                                 {errors.period_type}
-                                            </p>
+                                            </Typography>
                                         )}
-                                    </div>
+                                    </Box>
 
-                                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                                        <div className="space-y-2">
+                                    <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' }, gap: 2 }}>
+                                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                             <Label htmlFor="start_date">
                                                 Start Date
                                             </Label>
@@ -235,13 +279,13 @@ export default function TargetCreate({
                                                 required
                                             />
                                             {errors.start_date && (
-                                                <p className="text-sm text-destructive">
+                                                <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
                                                     {errors.start_date}
-                                                </p>
+                                                </Typography>
                                             )}
-                                        </div>
+                                        </Box>
 
-                                        <div className="space-y-2">
+                                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                             <Label htmlFor="end_date">
                                                 End Date
                                             </Label>
@@ -252,32 +296,45 @@ export default function TargetCreate({
                                                 required
                                             />
                                             {errors.end_date && (
-                                                <p className="text-sm text-destructive">
+                                                <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
                                                     {errors.end_date}
-                                                </p>
+                                                </Typography>
                                             )}
-                                        </div>
-                                    </div>
+                                        </Box>
+                                    </Box>
 
-                                    <div className="space-y-2">
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                         <Label htmlFor="notes">
                                             Notes (Optional)
                                         </Label>
-                                        <textarea
+                                        <Box
+                                            component="textarea"
                                             id="notes"
                                             name="notes"
                                             rows={3}
-                                            className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
                                             placeholder="Additional notes about this target..."
+                                            sx={{
+                                                display: 'flex',
+                                                width: '100%',
+                                                borderRadius: 1,
+                                                border: 1,
+                                                borderColor: 'divider',
+                                                bgcolor: 'background.paper',
+                                                px: 1.5,
+                                                py: 1,
+                                                fontSize: { xs: '1rem', md: '0.875rem' },
+                                                '&:focus-visible': { outline: 'none', ring: 2, ringColor: 'primary.main' },
+                                                '&:disabled': { cursor: 'not-allowed', opacity: 0.5 },
+                                            }}
                                         />
                                         {errors.notes && (
-                                            <p className="text-sm text-destructive">
+                                            <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
                                                 {errors.notes}
-                                            </p>
+                                            </Typography>
                                         )}
-                                    </div>
+                                    </Box>
 
-                                    <div className="flex gap-2">
+                                    <Box sx={{ display: 'flex', gap: 1 }}>
                                         <Button
                                             type="submit"
                                             disabled={processing}
@@ -293,13 +350,13 @@ export default function TargetCreate({
                                         >
                                             <Link href="/targets">Cancel</Link>
                                         </Button>
-                                    </div>
-                                </div>
+                                    </Box>
+                                </Box>
                             )}
                         </Form>
                     </CardContent>
                 </Card>
-            </div>
+            </Box>
         </AppLayout>
     );
 }

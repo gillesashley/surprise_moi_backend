@@ -9,6 +9,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import AuthLayout from '@/layouts/auth-layout';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
 
 export default function Register() {
     return (
@@ -21,12 +23,12 @@ export default function Register() {
                 {...store.form()}
                 resetOnSuccess={['password', 'password_confirmation']}
                 disableWhileProcessing
-                className="flex flex-col gap-6"
+                style={{ display: 'flex', flexDirection: 'column', gap: 24 }}
             >
                 {({ processing, errors }) => (
                     <>
-                        <div className="grid gap-6">
-                            <div className="grid gap-2">
+                        <Box sx={{ display: 'grid', gap: 3 }}>
+                            <Box sx={{ display: 'grid', gap: 1 }}>
                                 <Label htmlFor="name">Name</Label>
                                 <Input
                                     id="name"
@@ -38,13 +40,10 @@ export default function Register() {
                                     name="name"
                                     placeholder="Full name"
                                 />
-                                <InputError
-                                    message={errors.name}
-                                    className="mt-2"
-                                />
-                            </div>
+                                <InputError message={errors.name} />
+                            </Box>
 
-                            <div className="grid gap-2">
+                            <Box sx={{ display: 'grid', gap: 1 }}>
                                 <Label htmlFor="email">Email address</Label>
                                 <Input
                                     id="email"
@@ -56,9 +55,9 @@ export default function Register() {
                                     placeholder="email@example.com"
                                 />
                                 <InputError message={errors.email} />
-                            </div>
+                            </Box>
 
-                            <div className="grid gap-2">
+                            <Box sx={{ display: 'grid', gap: 1 }}>
                                 <Label htmlFor="password">Password</Label>
                                 <Input
                                     id="password"
@@ -70,9 +69,9 @@ export default function Register() {
                                     placeholder="Password"
                                 />
                                 <InputError message={errors.password} />
-                            </div>
+                            </Box>
 
-                            <div className="grid gap-2">
+                            <Box sx={{ display: 'grid', gap: 1 }}>
                                 <Label htmlFor="password_confirmation">
                                     Confirm password
                                 </Label>
@@ -88,25 +87,25 @@ export default function Register() {
                                 <InputError
                                     message={errors.password_confirmation}
                                 />
-                            </div>
+                            </Box>
 
                             <Button
                                 type="submit"
-                                className="mt-2 w-full"
+                                sx={{ mt: 1, width: '100%' }}
                                 tabIndex={5}
                                 data-test="register-user-button"
                             >
                                 {processing && <Spinner />}
                                 Create account
                             </Button>
-                        </div>
+                        </Box>
 
-                        <div className="text-center text-sm text-muted-foreground">
+                        <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center' }}>
                             Already have an account?{' '}
                             <TextLink href={login()} tabIndex={6}>
                                 Log in
                             </TextLink>
-                        </div>
+                        </Typography>
                     </>
                 )}
             </Form>

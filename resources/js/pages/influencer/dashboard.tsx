@@ -9,6 +9,8 @@ import {
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, usePage } from '@inertiajs/react';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
 import {
     CheckCircle,
     Clock,
@@ -87,21 +89,38 @@ function StatCard({
     iconBgColor,
 }: StatCardProps) {
     return (
-        <div
-            className={`relative overflow-hidden rounded-xl p-6 shadow-sm transition-all duration-200 hover:shadow-md ${bgColor}`}
+        <Box
+            sx={{
+                position: 'relative',
+                overflow: 'hidden',
+                borderRadius: 3,
+                p: 3,
+                boxShadow: 1,
+                transition: 'all 0.2s',
+                '&:hover': { boxShadow: 3 },
+                bgcolor: 'background.paper',
+            }}
         >
-            <div className="flex items-start justify-between">
-                <div className="space-y-2">
-                    <p className="text-sm font-medium text-muted-foreground">
+            <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                    <Typography variant="body2" fontWeight={500} color="text.secondary">
                         {title}
-                    </p>
-                    <p className="text-3xl font-bold tracking-tight">{value}</p>
-                </div>
-                <div className={`rounded-lg p-3 ${iconBgColor}`}>
-                    <Icon className="h-6 w-6 text-white" />
-                </div>
-            </div>
-        </div>
+                    </Typography>
+                    <Typography variant="h4" fontWeight={700} sx={{ letterSpacing: '-0.02em' }}>
+                        {value}
+                    </Typography>
+                </Box>
+                <Box
+                    sx={{
+                        borderRadius: 2,
+                        p: 1.5,
+                        bgcolor: iconBgColor,
+                    }}
+                >
+                    <Icon style={{ width: 24, height: 24, color: 'white' }} />
+                </Box>
+            </Box>
+        </Box>
     );
 }
 
@@ -136,12 +155,14 @@ function getStatusBadge(status: string) {
         icon: Clock,
     };
 
-    const Icon = config.icon;
+    const StatusIcon = config.icon;
 
     return (
-        <Badge variant={config.variant} className="flex items-center gap-1">
-            <Icon className="h-3 w-3" />
-            {config.label}
+        <Badge variant={config.variant}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                <StatusIcon style={{ width: 12, height: 12 }} />
+                {config.label}
+            </Box>
         </Badge>
     );
 }
@@ -167,53 +188,74 @@ export default function InfluencerDashboard({
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Influencer Dashboard" />
 
-            <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto p-6">
+            <Box sx={{ display: 'flex', height: '100%', flex: 1, flexDirection: 'column', gap: 3, overflowX: 'auto', p: 3 }}>
                 {/* Welcome Section */}
-                <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-primary to-secondary p-6 text-white shadow-lg">
-                    <div className="relative z-10">
-                        <h2 className="text-2xl font-bold">
+                <Box
+                    sx={{
+                        position: 'relative',
+                        overflow: 'hidden',
+                        borderRadius: 3,
+                        background: (theme) =>
+                            `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
+                        p: 3,
+                        color: 'white',
+                        boxShadow: 3,
+                    }}
+                >
+                    <Box sx={{ position: 'relative', zIndex: 1 }}>
+                        <Typography variant="h5" fontWeight={700}>
                             Welcome back, {auth.user?.name}!
-                        </h2>
-                        <p className="mt-2 text-white/80">
+                        </Typography>
+                        <Typography sx={{ mt: 1, color: 'rgba(255,255,255,0.8)' }}>
                             Track your referrals, earnings, and grow your
                             income.
-                        </p>
-                    </div>
-                </div>
+                        </Typography>
+                    </Box>
+                </Box>
 
                 {/* Stats Grid */}
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <Box
+                    sx={{
+                        display: 'grid',
+                        gap: 2,
+                        gridTemplateColumns: {
+                            xs: '1fr',
+                            sm: 'repeat(2, 1fr)',
+                            lg: 'repeat(4, 1fr)',
+                        },
+                    }}
+                >
                     <StatCard
                         title="Total Referrals"
                         value={stats.total_referrals}
                         icon={Users}
                         bgColor="bg-card"
-                        iconBgColor="bg-blue-500"
+                        iconBgColor="#3b82f6"
                     />
                     <StatCard
                         title="Active Referrals"
                         value={stats.active_referrals}
                         icon={CheckCircle}
                         bgColor="bg-card"
-                        iconBgColor="bg-green-500"
+                        iconBgColor="#22c55e"
                     />
                     <StatCard
                         title="Total Earnings"
                         value={`GHS ${stats.total_earnings.toFixed(2)}`}
                         icon={DollarSign}
                         bgColor="bg-card"
-                        iconBgColor="bg-purple-500"
+                        iconBgColor="#a855f7"
                     />
                     <StatCard
                         title="Pending Earnings"
                         value={`GHS ${stats.pending_earnings.toFixed(2)}`}
                         icon={Clock}
                         bgColor="bg-card"
-                        iconBgColor="bg-orange-500"
+                        iconBgColor="#f97316"
                     />
-                </div>
+                </Box>
 
-                <div className="grid gap-6 lg:grid-cols-2">
+                <Box sx={{ display: 'grid', gap: 3, gridTemplateColumns: { lg: 'repeat(2, 1fr)' } }}>
                     {/* Referral Codes */}
                     <Card>
                         <CardHeader>
@@ -223,31 +265,39 @@ export default function InfluencerDashboard({
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <div className="space-y-4">
+                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                                 {referral_codes.length === 0 ? (
-                                    <p className="text-sm text-muted-foreground">
+                                    <Typography variant="body2" color="text.secondary">
                                         No referral codes yet. Create one to get
                                         started!
-                                    </p>
+                                    </Typography>
                                 ) : (
                                     referral_codes.map((code) => (
-                                        <div
+                                        <Box
                                             key={code.id}
-                                            className="flex items-center justify-between rounded-lg border p-4"
+                                            sx={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'space-between',
+                                                borderRadius: 2,
+                                                border: 1,
+                                                borderColor: 'divider',
+                                                p: 2,
+                                            }}
                                         >
-                                            <div className="flex items-center gap-3">
-                                                <Code className="h-5 w-5 text-primary" />
-                                                <div>
-                                                    <p className="font-mono font-bold">
+                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                                                <Code style={{ width: 20, height: 20 }} />
+                                                <Box>
+                                                    <Typography fontWeight={700} sx={{ fontFamily: 'monospace' }}>
                                                         {code.code}
-                                                    </p>
-                                                    <p className="text-sm text-muted-foreground">
+                                                    </Typography>
+                                                    <Typography variant="body2" color="text.secondary">
                                                         Used: {code.usage_count}
                                                         {code.max_uses &&
                                                             ` / ${code.max_uses}`}
-                                                    </p>
-                                                </div>
-                                            </div>
+                                                    </Typography>
+                                                </Box>
+                                            </Box>
                                             {code.is_active ? (
                                                 <Badge variant="default">
                                                     Active
@@ -257,10 +307,10 @@ export default function InfluencerDashboard({
                                                     Inactive
                                                 </Badge>
                                             )}
-                                        </div>
+                                        </Box>
                                     ))
                                 )}
-                            </div>
+                            </Box>
                         </CardContent>
                     </Card>
 
@@ -273,33 +323,33 @@ export default function InfluencerDashboard({
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <div className="space-y-4">
+                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                                 {recent_referrals.length === 0 ? (
-                                    <p className="text-sm text-muted-foreground">
+                                    <Typography variant="body2" color="text.secondary">
                                         No referrals yet
-                                    </p>
+                                    </Typography>
                                 ) : (
                                     recent_referrals.map((referral) => (
-                                        <div
+                                        <Box
                                             key={referral.id}
-                                            className="flex items-center justify-between"
+                                            sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
                                         >
-                                            <div>
-                                                <p className="font-medium">
+                                            <Box>
+                                                <Typography fontWeight={500}>
                                                     {referral.vendor.name}
-                                                </p>
-                                                <p className="text-sm text-muted-foreground">
+                                                </Typography>
+                                                <Typography variant="body2" color="text.secondary">
                                                     {referral.vendor.email}
-                                                </p>
-                                            </div>
+                                                </Typography>
+                                            </Box>
                                             {getStatusBadge(referral.status)}
-                                        </div>
+                                        </Box>
                                     ))
                                 )}
-                            </div>
+                            </Box>
                         </CardContent>
                     </Card>
-                </div>
+                </Box>
 
                 {/* Recent Earnings */}
                 <Card>
@@ -310,37 +360,37 @@ export default function InfluencerDashboard({
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <div className="space-y-4">
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                             {recent_earnings.length === 0 ? (
-                                <p className="text-sm text-muted-foreground">
+                                <Typography variant="body2" color="text.secondary">
                                     No earnings yet
-                                </p>
+                                </Typography>
                             ) : (
                                 recent_earnings.map((earning) => (
-                                    <div
+                                    <Box
                                         key={earning.id}
-                                        className="flex items-center justify-between"
+                                        sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
                                     >
-                                        <div>
-                                            <p className="font-medium">
+                                        <Box>
+                                            <Typography fontWeight={500}>
                                                 {earning.currency}{' '}
                                                 {earning.amount.toFixed(2)}
-                                            </p>
-                                            <p className="text-sm text-muted-foreground">
+                                            </Typography>
+                                            <Typography variant="body2" color="text.secondary">
                                                 {earning.earning_type.replace(
                                                     '_',
                                                     ' ',
                                                 )}
-                                            </p>
-                                        </div>
+                                            </Typography>
+                                        </Box>
                                         {getStatusBadge(earning.status)}
-                                    </div>
+                                    </Box>
                                 ))
                             )}
-                        </div>
+                        </Box>
                     </CardContent>
                 </Card>
-            </div>
+            </Box>
         </AppLayout>
     );
 }

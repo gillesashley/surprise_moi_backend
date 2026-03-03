@@ -1,3 +1,4 @@
+import Box from '@mui/material/Box';
 import { SidebarInset } from '@/components/ui/sidebar';
 import * as React from 'react';
 
@@ -15,11 +16,22 @@ export function AppContent({
     }
 
     return (
-        <main
-            className="mx-auto flex h-full w-full max-w-7xl flex-1 flex-col gap-4 rounded-xl"
+        <Box
+            component="main"
+            sx={{
+                mx: 'auto',
+                display: 'flex',
+                height: '100%',
+                width: '100%',
+                maxWidth: 1280,
+                flex: 1,
+                flexDirection: 'column',
+                gap: 2,
+                borderRadius: 3,
+            }}
             {...props}
         >
             {children}
-        </main>
+        </Box>
     );
 }

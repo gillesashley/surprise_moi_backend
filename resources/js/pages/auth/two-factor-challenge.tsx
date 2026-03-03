@@ -9,6 +9,8 @@ import {
 import { OTP_MAX_LENGTH } from '@/hooks/use-two-factor-auth';
 import AuthLayout from '@/layouts/auth-layout';
 import { store } from '@/routes/two-factor/login/index';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
 import { Form, Head } from '@inertiajs/react';
 import { REGEXP_ONLY_DIGITS } from 'input-otp';
 import { useMemo, useState } from 'react';
@@ -52,10 +54,10 @@ export default function TwoFactorChallenge() {
         >
             <Head title="Two-Factor Authentication" />
 
-            <div className="space-y-6">
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
                 <Form
                     {...store.form()}
-                    className="space-y-4"
+                    style={{ display: 'flex', flexDirection: 'column', gap: 16 }}
                     resetOnError
                     resetOnSuccess={!showRecoveryInput}
                 >
@@ -75,8 +77,8 @@ export default function TwoFactorChallenge() {
                                     />
                                 </>
                             ) : (
-                                <div className="flex flex-col items-center justify-center space-y-3 text-center">
-                                    <div className="flex w-full items-center justify-center">
+                                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 1.5, textAlign: 'center' }}>
+                                    <Box sx={{ display: 'flex', width: '100%', alignItems: 'center', justifyContent: 'center' }}>
                                         <InputOTP
                                             name="code"
                                             maxLength={OTP_MAX_LENGTH}
@@ -97,35 +99,49 @@ export default function TwoFactorChallenge() {
                                                 )}
                                             </InputOTPGroup>
                                         </InputOTP>
-                                    </div>
+                                    </Box>
                                     <InputError message={errors.code} />
-                                </div>
+                                </Box>
                             )}
 
                             <Button
                                 type="submit"
-                                className="w-full"
+                                sx={{ width: '100%' }}
                                 disabled={processing}
                             >
                                 Continue
                             </Button>
 
-                            <div className="text-center text-sm text-muted-foreground">
+                            <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center' }}>
                                 <span>or you can </span>
-                                <button
+                                <Box
+                                    component="button"
                                     type="button"
-                                    className="cursor-pointer text-foreground underline decoration-neutral-300 underline-offset-4 transition-colors duration-300 ease-out hover:decoration-current! dark:decoration-neutral-500"
                                     onClick={() =>
                                         toggleRecoveryMode(clearErrors)
                                     }
+                                    sx={{
+                                        cursor: 'pointer',
+                                        color: 'text.primary',
+                                        textDecoration: 'underline',
+                                        textUnderlineOffset: '4px',
+                                        transition: 'text-decoration-color 0.3s ease-out',
+                                        background: 'none',
+                                        border: 'none',
+                                        padding: 0,
+                                        font: 'inherit',
+                                        '&:hover': {
+                                            textDecorationColor: 'currentcolor',
+                                        },
+                                    }}
                                 >
                                     {authConfigContent.toggleText}
-                                </button>
-                            </div>
+                                </Box>
+                            </Typography>
                         </>
                     )}
                 </Form>
-            </div>
+            </Box>
         </AuthLayout>
     );
 }

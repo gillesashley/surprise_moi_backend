@@ -1,12 +1,14 @@
 import { Appearance, useAppearance } from '@/hooks/use-appearance';
-import { cn } from '@/lib/utils';
+import Box from '@mui/material/Box';
+import ToggleButton from '@mui/material/ToggleButton';
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import { LucideIcon, Monitor, Moon, Sun } from 'lucide-react';
-import { HTMLAttributes } from 'react';
+import { type SxProps, type Theme } from '@mui/material/styles';
 
 export default function AppearanceToggleTab({
-    className = '',
+    sx: sxProp,
     ...props
-}: HTMLAttributes<HTMLDivElement>) {
+}: { sx?: SxProps<Theme> } & Omit<React.ComponentProps<typeof Box>, 'sx'>) {
     const { appearance, updateAppearance } = useAppearance();
 
     const tabs: { value: Appearance; icon: LucideIcon; label: string }[] = [
@@ -16,28 +18,69 @@ export default function AppearanceToggleTab({
     ];
 
     return (
-        <div
-            className={cn(
-                'inline-flex gap-1 rounded-lg bg-neutral-100 p-1 dark:bg-neutral-800',
-                className,
-            )}
+        <ToggleButtonGroup
+            value={appearance}
+            exclusive
+            onChange={(_e, newValue) => {
+                if (newValue !== null) {
+                    updateAppearance(newValue as Appearance);
+                }
+            }}
+            sx={[
+                {
+                    display: 'inline-flex',
+                    gap: 0.5,
+                    borderRadius: 2,
+                    bgcolor: 'action.hover',
+                    p: 0.5,
+                    '& .MuiToggleButtonGroup-grouped': {
+                        border: 0,
+                        '&:not(:first-of-type)': {
+                            borderRadius: 1,
+                            ml: 0,
+                        },
+                        '&:first-of-type': {
+                            borderRadius: 1,
+                        },
+                    },
+                },
+                ...(Array.isArray(sxProp) ? sxProp : sxProp ? [sxProp] : []),
+            ]}
             {...props}
         >
             {tabs.map(({ value, icon: Icon, label }) => (
-                <button
+                <ToggleButton
                     key={value}
-                    onClick={() => updateAppearance(value)}
-                    className={cn(
-                        'flex items-center rounded-md px-3.5 py-1.5 transition-colors',
-                        appearance === value
-                            ? 'bg-white shadow-xs dark:bg-neutral-700 dark:text-neutral-100'
-                            : 'text-neutral-500 hover:bg-neutral-200/60 hover:text-black dark:text-neutral-400 dark:hover:bg-neutral-700/60',
-                    )}
+                    value={value}
+                    sx={{
+                        px: 1.75,
+                        py: 0.75,
+                        textTransform: 'none',
+                        transition: 'background-color 0.15s, color 0.15s',
+                        color: 'text.secondary',
+                        '&:hover': {
+                            bgcolor: 'action.hover',
+                            color: 'text.primary',
+                        },
+                        '&.Mui-selected': {
+                            bgcolor: 'background.paper',
+                            boxShadow: 1,
+                            color: 'text.primary',
+                            '&:hover': {
+                                bgcolor: 'background.paper',
+                            },
+                        },
+                    }}
                 >
-                    <Icon className="-ml-1 h-4 w-4" />
-                    <span className="ml-1.5 text-sm">{label}</span>
-                </button>
+                    <Icon style={{ width: 16, height: 16, marginLeft: -4 }} />
+                    <Box
+                        component="span"
+                        sx={{ ml: 0.75, fontSize: '0.875rem' }}
+                    >
+                        {label}
+                    </Box>
+                </ToggleButton>
             ))}
-        </div>
+        </ToggleButtonGroup>
     );
 }

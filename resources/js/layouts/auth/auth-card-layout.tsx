@@ -7,6 +7,7 @@ import {
     CardTitle,
 } from '@/components/ui/card';
 import { home } from '@/routes';
+import Box from '@mui/material/Box';
 import { Link } from '@inertiajs/react';
 import { type PropsWithChildren } from 'react';
 
@@ -20,29 +21,76 @@ export default function AuthCardLayout({
     description?: string;
 }>) {
     return (
-        <div className="flex min-h-svh flex-col items-center justify-center gap-6 bg-muted p-6 md:p-10">
-            <div className="flex w-full max-w-md flex-col gap-6">
+        <Box
+            sx={{
+                display: 'flex',
+                minHeight: '100svh',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 3,
+                bgcolor: 'action.hover',
+                p: { xs: 3, md: 5 },
+            }}
+        >
+            <Box
+                sx={{
+                    display: 'flex',
+                    width: '100%',
+                    maxWidth: '28rem',
+                    flexDirection: 'column',
+                    gap: 3,
+                }}
+            >
                 <Link
                     href={home()}
-                    className="flex items-center gap-2 self-center font-medium"
+                    style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                        alignSelf: 'center',
+                        fontWeight: 500,
+                        textDecoration: 'none',
+                        color: 'inherit',
+                    }}
                 >
-                    <div className="flex h-9 w-9 items-center justify-center">
-                        <AppLogoIcon className="size-9 fill-current text-black dark:text-white" />
-                    </div>
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            height: 36,
+                            width: 36,
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                        }}
+                    >
+                        <AppLogoIcon
+                            style={{ width: 36, height: 36 }}
+                        />
+                    </Box>
                 </Link>
 
-                <div className="flex flex-col gap-6">
-                    <Card className="rounded-xl">
-                        <CardHeader className="px-10 pt-8 pb-0 text-center">
-                            <CardTitle className="text-xl">{title}</CardTitle>
-                            <CardDescription>{description}</CardDescription>
+                <Box
+                    sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: 3,
+                    }}
+                >
+                    <Card style={{ borderRadius: 12 }}>
+                        <CardHeader style={{ paddingLeft: 40, paddingRight: 40, paddingTop: 32, paddingBottom: 0, textAlign: 'center' }}>
+                            <CardTitle style={{ fontSize: '1.25rem' }}>
+                                {title}
+                            </CardTitle>
+                            <CardDescription>
+                                {description}
+                            </CardDescription>
                         </CardHeader>
-                        <CardContent className="px-10 py-8">
+                        <CardContent style={{ paddingLeft: 40, paddingRight: 40, paddingTop: 32, paddingBottom: 32 }}>
                             {children}
                         </CardContent>
                     </Card>
-                </div>
-            </div>
-        </div>
+                </Box>
+            </Box>
+        </Box>
     );
 }

@@ -1,48 +1,58 @@
 import * as React from "react"
-import * as AvatarPrimitive from "@radix-ui/react-avatar"
+import Box from "@mui/material/Box"
 
-import { cn } from "@/lib/utils"
-
-function Avatar({
-  className,
-  ...props
-}: React.ComponentProps<typeof AvatarPrimitive.Root>) {
+function Avatar({ className, ...props }: React.ComponentProps<"span">) {
   return (
-    <AvatarPrimitive.Root
+    <Box
+      component="span"
       data-slot="avatar"
-      className={cn(
-        "relative flex size-8 shrink-0 overflow-hidden rounded-full",
-        className
-      )}
+      className={className}
+      sx={{
+        position: "relative",
+        display: "flex",
+        width: 32,
+        height: 32,
+        flexShrink: 0,
+        overflow: "hidden",
+        borderRadius: "50%",
+      }}
       {...props}
     />
   )
 }
 
-function AvatarImage({
-  className,
-  ...props
-}: React.ComponentProps<typeof AvatarPrimitive.Image>) {
+function AvatarImage({ className, ...props }: React.ComponentProps<"img">) {
   return (
-    <AvatarPrimitive.Image
+    <Box
+      component="img"
       data-slot="avatar-image"
-      className={cn("aspect-square size-full", className)}
+      className={className}
+      sx={{
+        aspectRatio: "1/1",
+        width: "100%",
+        height: "100%",
+        objectFit: "cover",
+      }}
       {...props}
     />
   )
 }
 
-function AvatarFallback({
-  className,
-  ...props
-}: React.ComponentProps<typeof AvatarPrimitive.Fallback>) {
+function AvatarFallback({ className, ...props }: React.ComponentProps<"span">) {
   return (
-    <AvatarPrimitive.Fallback
+    <Box
+      component="span"
       data-slot="avatar-fallback"
-      className={cn(
-        "bg-muted flex size-full items-center justify-center rounded-full",
-        className
-      )}
+      className={className}
+      sx={{
+        display: "flex",
+        width: "100%",
+        height: "100%",
+        alignItems: "center",
+        justifyContent: "center",
+        borderRadius: "50%",
+        bgcolor: "action.hover",
+      }}
       {...props}
     />
   )

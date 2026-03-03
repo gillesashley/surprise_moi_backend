@@ -17,6 +17,8 @@ import {
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/react';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
 import { Calendar } from 'lucide-react';
 
 interface Referral {
@@ -76,13 +78,13 @@ export default function InfluencerReferrals({ referrals }: Props) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="My Referrals" />
 
-            <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto p-6">
-                <div>
-                    <h1 className="text-3xl font-bold">My Referrals</h1>
-                    <p className="mt-1 text-muted-foreground">
+            <Box sx={{ display: 'flex', height: '100%', flex: 1, flexDirection: 'column', gap: 3, overflowX: 'auto', p: 3 }}>
+                <Box>
+                    <Typography variant="h4" fontWeight={700}>My Referrals</Typography>
+                    <Typography color="text.secondary" sx={{ mt: 0.5 }}>
                         Track all vendors you've referred to the platform
-                    </p>
-                </div>
+                    </Typography>
+                </Box>
 
                 <Card>
                     <CardHeader>
@@ -94,12 +96,12 @@ export default function InfluencerReferrals({ referrals }: Props) {
                     </CardHeader>
                     <CardContent>
                         {referrals.data.length === 0 ? (
-                            <div className="py-12 text-center">
-                                <p className="text-muted-foreground">
+                            <Box sx={{ py: 6, textAlign: 'center' }}>
+                                <Typography color="text.secondary">
                                     No referrals yet. Share your referral code
                                     to get started!
-                                </p>
-                            </div>
+                                </Typography>
+                            </Box>
                         ) : (
                             <Table>
                                 <TableHeader>
@@ -114,19 +116,28 @@ export default function InfluencerReferrals({ referrals }: Props) {
                                 <TableBody>
                                     {referrals.data.map((referral) => (
                                         <TableRow key={referral.id}>
-                                            <TableCell className="font-medium">
+                                            <TableCell sx={{ fontWeight: 500 }}>
                                                 {referral.vendor.name}
                                             </TableCell>
                                             <TableCell>
                                                 {referral.vendor.email}
                                             </TableCell>
                                             <TableCell>
-                                                <code className="rounded bg-muted px-2 py-1 text-sm">
+                                                <Box
+                                                    component="code"
+                                                    sx={{
+                                                        borderRadius: 1,
+                                                        bgcolor: 'action.hover',
+                                                        px: 1,
+                                                        py: 0.5,
+                                                        fontSize: '0.875rem',
+                                                    }}
+                                                >
                                                     {
                                                         referral.referral_code
                                                             .code
                                                     }
-                                                </code>
+                                                </Box>
                                             </TableCell>
                                             <TableCell>
                                                 {getStatusBadge(
@@ -134,12 +145,12 @@ export default function InfluencerReferrals({ referrals }: Props) {
                                                 )}
                                             </TableCell>
                                             <TableCell>
-                                                <div className="flex items-center gap-2">
-                                                    <Calendar className="h-4 w-4 text-muted-foreground" />
+                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                    <Calendar style={{ width: 16, height: 16, color: 'gray' }} />
                                                     {formatDate(
                                                         referral.created_at,
                                                     )}
-                                                </div>
+                                                </Box>
                                             </TableCell>
                                         </TableRow>
                                     ))}
@@ -148,7 +159,7 @@ export default function InfluencerReferrals({ referrals }: Props) {
                         )}
                     </CardContent>
                 </Card>
-            </div>
+            </Box>
         </AppLayout>
     );
 }

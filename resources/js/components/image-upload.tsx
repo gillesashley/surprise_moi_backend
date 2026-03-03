@@ -1,6 +1,9 @@
 'use client';
 
 import { Label } from '@/components/ui/label';
+import Box from '@mui/material/Box';
+import IconButton from '@mui/material/IconButton';
+import Typography from '@mui/material/Typography';
 import { Upload, X } from 'lucide-react';
 import { useState } from 'react';
 
@@ -85,62 +88,111 @@ export default function ImageUpload({
     };
 
     return (
-        <div className="space-y-2">
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
             <Label htmlFor={name}>{label}</Label>
-            <div className="flex flex-col gap-4">
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                 <input
                     id={name}
                     name={name}
                     type="file"
                     accept={acceptedFormats.join(',')}
                     onChange={handleFileChange}
-                    className="hidden"
+                    style={{ display: 'none' }}
                 />
-                <label
+                <Box
+                    component="label"
                     htmlFor={name}
-                    className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-input px-6 py-8 transition-colors hover:border-primary hover:bg-accent"
+                    sx={{
+                        display: 'flex',
+                        cursor: 'pointer',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: 1,
+                        borderRadius: 2,
+                        border: '2px dashed',
+                        borderColor: 'divider',
+                        px: 3,
+                        py: 4,
+                        transition: 'all 0.2s',
+                        '&:hover': {
+                            borderColor: 'primary.main',
+                            bgcolor: 'action.hover',
+                        },
+                    }}
                 >
-                    <Upload className="size-6 text-muted-foreground" />
-                    <div className="text-center">
-                        <p className="text-sm font-medium text-foreground">
+                    <Box sx={{ color: 'text.secondary' }}>
+                        <Upload style={{ width: 24, height: 24, color: 'inherit' }} />
+                    </Box>
+                    <Box sx={{ textAlign: 'center' }}>
+                        <Typography
+                            variant="body2"
+                            sx={{ fontWeight: 500, color: 'text.primary' }}
+                        >
                             Click to upload or drag and drop
-                        </p>
-                        <p className="text-xs text-muted-foreground">
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
                             PNG, JPG, JPEG or WebP up to {maxSizeMB}MB
-                        </p>
-                    </div>
-                </label>
+                        </Typography>
+                    </Box>
+                </Box>
 
                 {preview && (
-                    <div className="relative">
-                        <img
+                    <Box sx={{ position: 'relative' }}>
+                        <Box
+                            component="img"
                             src={preview}
                             alt="Preview"
-                            className="h-auto w-full max-w-xs rounded-lg border border-input object-cover"
+                            sx={{
+                                height: 'auto',
+                                width: '100%',
+                                maxWidth: 320,
+                                borderRadius: 2,
+                                border: 1,
+                                borderColor: 'divider',
+                                objectFit: 'cover',
+                            }}
                         />
                         {fileName && (
-                            <p className="mt-2 text-xs text-muted-foreground">
+                            <Typography
+                                variant="caption"
+                                color="text.secondary"
+                                sx={{ mt: 1, display: 'block' }}
+                            >
                                 {fileName}
-                            </p>
+                            </Typography>
                         )}
-                        <button
-                            type="button"
+                        <IconButton
                             onClick={clearImage}
-                            className="absolute top-2 right-2 rounded-full bg-destructive p-1 text-destructive-foreground transition-colors hover:bg-destructive/90"
+                            sx={{
+                                position: 'absolute',
+                                top: 8,
+                                right: 8,
+                                bgcolor: 'error.main',
+                                color: 'error.contrastText',
+                                p: 0.5,
+                                '&:hover': {
+                                    bgcolor: 'error.dark',
+                                },
+                            }}
                         >
-                            <X className="size-4" />
-                        </button>
-                    </div>
+                            <X style={{ width: 16, height: 16 }} />
+                        </IconButton>
+                    </Box>
                 )}
 
                 {helperText && (
-                    <p className="text-xs text-muted-foreground">
+                    <Typography variant="caption" color="text.secondary">
                         {helperText}
-                    </p>
+                    </Typography>
                 )}
 
-                {error && <p className="text-sm text-destructive">{error}</p>}
-            </div>
-        </div>
+                {error && (
+                    <Typography variant="body2" color="error">
+                        {error}
+                    </Typography>
+                )}
+            </Box>
+        </Box>
     );
 }

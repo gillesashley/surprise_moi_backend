@@ -215,7 +215,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
  * @see app/Http/Controllers/Api/V1/ReportController.php:72
  * @route '/api/v1/reports/{report}'
  */
-export const show = (args: { report: number | { id: number } } | [report: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+export const show = (args: { report: string | number | { id: string | number } } | [report: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
     url: show.url(args, options),
     method: 'get',
 })
@@ -230,7 +230,7 @@ show.definition = {
  * @see app/Http/Controllers/Api/V1/ReportController.php:72
  * @route '/api/v1/reports/{report}'
  */
-show.url = (args: { report: number | { id: number } } | [report: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
+show.url = (args: { report: string | number | { id: string | number } } | [report: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { report: args }
     }
@@ -263,7 +263,7 @@ show.url = (args: { report: number | { id: number } } | [report: number | { id: 
  * @see app/Http/Controllers/Api/V1/ReportController.php:72
  * @route '/api/v1/reports/{report}'
  */
-show.get = (args: { report: number | { id: number } } | [report: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+show.get = (args: { report: string | number | { id: string | number } } | [report: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
     url: show.url(args, options),
     method: 'get',
 })
@@ -272,7 +272,7 @@ show.get = (args: { report: number | { id: number } } | [report: number | { id: 
  * @see app/Http/Controllers/Api/V1/ReportController.php:72
  * @route '/api/v1/reports/{report}'
  */
-show.head = (args: { report: number | { id: number } } | [report: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+show.head = (args: { report: string | number | { id: string | number } } | [report: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     url: show.url(args, options),
     method: 'head',
 })
@@ -282,7 +282,7 @@ show.head = (args: { report: number | { id: number } } | [report: number | { id:
  * @see app/Http/Controllers/Api/V1/ReportController.php:72
  * @route '/api/v1/reports/{report}'
  */
-    const showForm = (args: { report: number | { id: number } } | [report: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    const showForm = (args: { report: string | number | { id: string | number } } | [report: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
         action: show.url(args, options),
         method: 'get',
     })
@@ -292,7 +292,7 @@ show.head = (args: { report: number | { id: number } } | [report: number | { id:
  * @see app/Http/Controllers/Api/V1/ReportController.php:72
  * @route '/api/v1/reports/{report}'
  */
-        showForm.get = (args: { report: number | { id: number } } | [report: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+        showForm.get = (args: { report: string | number | { id: string | number } } | [report: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
             action: show.url(args, options),
             method: 'get',
         })
@@ -301,7 +301,7 @@ show.head = (args: { report: number | { id: number } } | [report: number | { id:
  * @see app/Http/Controllers/Api/V1/ReportController.php:72
  * @route '/api/v1/reports/{report}'
  */
-        showForm.head = (args: { report: number | { id: number } } | [report: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+        showForm.head = (args: { report: string | number | { id: string | number } } | [report: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
             action: show.url(args, {
                         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
                             _method: 'HEAD',
@@ -317,7 +317,7 @@ show.head = (args: { report: number | { id: number } } | [report: number | { id:
  * @see app/Http/Controllers/Api/V1/ReportController.php:94
  * @route '/api/v1/reports/{report}/cancel'
  */
-export const cancel = (args: { report: number | { id: number } } | [report: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+export const cancel = (args: { report: string | number | { id: string | number } } | [report: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: cancel.url(args, options),
     method: 'post',
 })
@@ -332,7 +332,7 @@ cancel.definition = {
  * @see app/Http/Controllers/Api/V1/ReportController.php:94
  * @route '/api/v1/reports/{report}/cancel'
  */
-cancel.url = (args: { report: number | { id: number } } | [report: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
+cancel.url = (args: { report: string | number | { id: string | number } } | [report: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { report: args }
     }
@@ -365,7 +365,7 @@ cancel.url = (args: { report: number | { id: number } } | [report: number | { id
  * @see app/Http/Controllers/Api/V1/ReportController.php:94
  * @route '/api/v1/reports/{report}/cancel'
  */
-cancel.post = (args: { report: number | { id: number } } | [report: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+cancel.post = (args: { report: string | number | { id: string | number } } | [report: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: cancel.url(args, options),
     method: 'post',
 })
@@ -375,7 +375,7 @@ cancel.post = (args: { report: number | { id: number } } | [report: number | { i
  * @see app/Http/Controllers/Api/V1/ReportController.php:94
  * @route '/api/v1/reports/{report}/cancel'
  */
-    const cancelForm = (args: { report: number | { id: number } } | [report: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    const cancelForm = (args: { report: string | number | { id: string | number } } | [report: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
         action: cancel.url(args, options),
         method: 'post',
     })
@@ -385,7 +385,7 @@ cancel.post = (args: { report: number | { id: number } } | [report: number | { i
  * @see app/Http/Controllers/Api/V1/ReportController.php:94
  * @route '/api/v1/reports/{report}/cancel'
  */
-        cancelForm.post = (args: { report: number | { id: number } } | [report: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+        cancelForm.post = (args: { report: string | number | { id: string | number } } | [report: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
             action: cancel.url(args, options),
             method: 'post',
         })

@@ -19,6 +19,8 @@ import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Form, Head, Link } from '@inertiajs/react';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
 import { ArrowLeft } from 'lucide-react';
 
 interface Target {
@@ -77,16 +79,16 @@ export default function TargetEdit({
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={`Edit Target #${target.id}`} />
 
-            <div className="flex h-full flex-1 flex-col gap-4 p-4">
-                <div className="flex items-center justify-between">
-                    <h1 className="text-3xl font-bold">Edit Target</h1>
+            <Box sx={{ display: 'flex', height: '100%', flex: 1, flexDirection: 'column', gap: 2, p: 2 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <Typography variant="h4" sx={{ fontWeight: 700 }}>Edit Target</Typography>
                     <Button variant="outline" asChild>
                         <Link href={`/dashboard/targets/${target.id}`}>
-                            <ArrowLeft className="mr-2 size-4" />
+                            <ArrowLeft style={{ marginRight: 8, width: 16, height: 16 }} />
                             Back to Details
                         </Link>
                     </Button>
-                </div>
+                </Box>
 
                 <Card>
                     <CardHeader>
@@ -100,39 +102,36 @@ export default function TargetEdit({
                         <Form
                             action={`/dashboard/targets/${target.id}`}
                             method="put"
-                            className="space-y-6"
                         >
                             {({ errors, processing }) => (
-                                <>
-                                    <div className="space-y-2">
+                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                         <Label>Assigned To</Label>
                                         <Input
                                             value={`${target.user.name} (${target.user.email})`}
                                             disabled
-                                            className="bg-muted"
                                         />
-                                        <p className="text-sm text-muted-foreground">
+                                        <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
                                             User assignment cannot be changed
                                             after creation
-                                        </p>
-                                    </div>
+                                        </Typography>
+                                    </Box>
 
-                                    <div className="space-y-2">
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                         <Label>Target Type</Label>
                                         <Input
                                             value={
                                                 targetTypes[target.target_type]
                                             }
                                             disabled
-                                            className="bg-muted"
                                         />
-                                        <p className="text-sm text-muted-foreground">
+                                        <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
                                             Target type cannot be changed after
                                             creation
-                                        </p>
-                                    </div>
+                                        </Typography>
+                                    </Box>
 
-                                    <div className="space-y-2">
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                         <Label htmlFor="target_value">
                                             Target Value *
                                         </Label>
@@ -145,13 +144,13 @@ export default function TargetEdit({
                                             required
                                         />
                                         {errors.target_value && (
-                                            <p className="text-sm text-red-600">
+                                            <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
                                                 {errors.target_value}
-                                            </p>
+                                            </Typography>
                                         )}
-                                    </div>
+                                    </Box>
 
-                                    <div className="space-y-2">
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                         <Label htmlFor="bonus_amount">
                                             Bonus Amount (GHS) *
                                         </Label>
@@ -164,13 +163,13 @@ export default function TargetEdit({
                                             required
                                         />
                                         {errors.bonus_amount && (
-                                            <p className="text-sm text-red-600">
+                                            <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
                                                 {errors.bonus_amount}
-                                            </p>
+                                            </Typography>
                                         )}
-                                    </div>
+                                    </Box>
 
-                                    <div className="space-y-2">
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                         <Label htmlFor="overachievement_rate">
                                             Overachievement Rate (%)
                                         </Label>
@@ -186,13 +185,13 @@ export default function TargetEdit({
                                             }
                                         />
                                         {errors.overachievement_rate && (
-                                            <p className="text-sm text-red-600">
+                                            <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
                                                 {errors.overachievement_rate}
-                                            </p>
+                                            </Typography>
                                         )}
-                                    </div>
+                                    </Box>
 
-                                    <div className="space-y-2">
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                         <Label htmlFor="end_date">
                                             End Date *
                                         </Label>
@@ -206,13 +205,13 @@ export default function TargetEdit({
                                             required
                                         />
                                         {errors.end_date && (
-                                            <p className="text-sm text-red-600">
+                                            <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
                                                 {errors.end_date}
-                                            </p>
+                                            </Typography>
                                         )}
-                                    </div>
+                                    </Box>
 
-                                    <div className="space-y-2">
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                         <Label htmlFor="status">Status *</Label>
                                         <Select
                                             name="status"
@@ -238,13 +237,13 @@ export default function TargetEdit({
                                             </SelectContent>
                                         </Select>
                                         {errors.status && (
-                                            <p className="text-sm text-red-600">
+                                            <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
                                                 {errors.status}
-                                            </p>
+                                            </Typography>
                                         )}
-                                    </div>
+                                    </Box>
 
-                                    <div className="space-y-2">
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                         <Label htmlFor="notes">Notes</Label>
                                         <Textarea
                                             id="notes"
@@ -254,13 +253,13 @@ export default function TargetEdit({
                                             placeholder="Optional notes about this target..."
                                         />
                                         {errors.notes && (
-                                            <p className="text-sm text-red-600">
+                                            <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
                                                 {errors.notes}
-                                            </p>
+                                            </Typography>
                                         )}
-                                    </div>
+                                    </Box>
 
-                                    <div className="flex justify-end gap-3">
+                                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1.5 }}>
                                         <Button
                                             variant="outline"
                                             type="button"
@@ -280,13 +279,13 @@ export default function TargetEdit({
                                                 ? 'Updating...'
                                                 : 'Update Target'}
                                         </Button>
-                                    </div>
-                                </>
+                                    </Box>
+                                </Box>
                             )}
                         </Form>
                     </CardContent>
                 </Card>
-            </div>
+            </Box>
         </AppLayout>
     );
 }

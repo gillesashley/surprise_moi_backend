@@ -1,4 +1,6 @@
 import { Button } from '@/components/ui/button';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import * as React from 'react';
 
@@ -28,7 +30,6 @@ export function Pagination({
     const getPageNumbers = () => {
         const delta = 2;
         const range = [];
-        const rangeWithDots = [];
 
         for (
             let i = Math.max(2, currentPage - delta);
@@ -62,11 +63,25 @@ export function Pagination({
     const pageNumbers = getPageNumbers();
 
     return (
-        <div className="flex items-center justify-between gap-2 border-t pt-4">
-            <div className="text-sm text-muted-foreground">
+        <Box
+            data-slot="pagination"
+            sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: 1,
+                borderTop: '1px solid',
+                borderColor: 'divider',
+                pt: 2,
+            }}
+        >
+            <Typography
+                variant="body2"
+                sx={{ color: 'text.secondary' }}
+            >
                 Page {currentPage} of {lastPage}
-            </div>
-            <div className="flex items-center gap-2">
+            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <Button
                     variant="outline"
                     size="sm"
@@ -77,13 +92,20 @@ export function Pagination({
                     Previous
                 </Button>
 
-                <div className="flex items-center gap-1">
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                     {pageNumbers.map((page, idx) => (
                         <React.Fragment key={idx}>
                             {page === '...' ? (
-                                <span className="px-2 text-sm text-muted-foreground">
+                                <Typography
+                                    component="span"
+                                    variant="body2"
+                                    sx={{
+                                        px: 1,
+                                        color: 'text.secondary',
+                                    }}
+                                >
                                     ...
-                                </span>
+                                </Typography>
                             ) : (
                                 <Button
                                     variant={
@@ -101,7 +123,7 @@ export function Pagination({
                             )}
                         </React.Fragment>
                     ))}
-                </div>
+                </Box>
 
                 <Button
                     variant="outline"
@@ -112,7 +134,7 @@ export function Pagination({
                     Next
                     <ChevronRight className="size-4" />
                 </Button>
-            </div>
-        </div>
+            </Box>
+        </Box>
     );
 }

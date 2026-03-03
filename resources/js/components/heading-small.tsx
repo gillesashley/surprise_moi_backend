@@ -1,3 +1,6 @@
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+
 export default function HeadingSmall({
     title,
     description,
@@ -6,11 +9,15 @@ export default function HeadingSmall({
     description?: string;
 }) {
     return (
-        <header>
-            <h3 className="mb-0.5 text-base font-medium">{title}</h3>
+        <Box component="header">
+            <Typography variant="subtitle1" sx={{ fontWeight: 500, mb: 0.25 }}>
+                {title}
+            </Typography>
             {description && (
-                <p className="text-sm text-muted-foreground">{description}</p>
+                <Typography variant="body2" color="text.secondary">
+                    {description}
+                </Typography>
             )}
-        </header>
+        </Box>
     );
 }

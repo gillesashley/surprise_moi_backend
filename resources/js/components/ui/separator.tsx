@@ -1,23 +1,27 @@
 import * as React from "react"
-import * as SeparatorPrimitive from "@radix-ui/react-separator"
+import Divider, { type DividerProps } from "@mui/material/Divider"
 
-import { cn } from "@/lib/utils"
+interface SeparatorProps extends Omit<DividerProps, "orientation"> {
+  orientation?: "horizontal" | "vertical"
+  decorative?: boolean
+  className?: string
+}
 
 function Separator({
   className,
   orientation = "horizontal",
   decorative = true,
   ...props
-}: React.ComponentProps<typeof SeparatorPrimitive.Root>) {
+}: SeparatorProps) {
   return (
-    <SeparatorPrimitive.Root
+    <Divider
       data-slot="separator-root"
-      decorative={decorative}
       orientation={orientation}
-      className={cn(
-        "bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px",
-        className
-      )}
+      aria-hidden={decorative}
+      className={className}
+      sx={{
+        flexShrink: 0,
+      }}
       {...props}
     />
   )

@@ -1,5 +1,10 @@
 import { submit } from '@/actions/App/Http/Controllers/AccountDeletionController';
 import { type SharedData } from '@/types';
+import Alert from '@mui/material/Alert';
+import Box from '@mui/material/Box';
+import MuiButton from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
+import Typography from '@mui/material/Typography';
 import { Head, useForm, usePage } from '@inertiajs/react';
 import { AlertTriangle, Gift, Shield, Trash2 } from 'lucide-react';
 
@@ -18,122 +23,225 @@ export default function AccountDeletion() {
     return (
         <>
             <Head title="Request Account Deletion" />
-            <div className="min-h-screen bg-gradient-to-br from-primary/10 via-background to-accent/10">
-                <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-                    <div className="container mx-auto flex h-16 items-center justify-between px-4">
-                        <div className="flex items-center gap-2">
-                            <Gift className="h-6 w-6 text-primary" />
-                            <span className="text-xl font-bold">
+            <Box
+                sx={{
+                    minHeight: '100vh',
+                    background: (theme) =>
+                        `linear-gradient(135deg, ${theme.palette.primary.main}1a, ${theme.palette.background.default}, ${theme.palette.secondary.main}1a)`,
+                }}
+            >
+                <Box
+                    component="header"
+                    sx={{
+                        borderBottom: 1,
+                        borderColor: 'divider',
+                        bgcolor: 'rgba(255,255,255,0.95)',
+                        backdropFilter: 'blur(8px)',
+                    }}
+                >
+                    <Box
+                        sx={{
+                            maxWidth: 1200,
+                            mx: 'auto',
+                            display: 'flex',
+                            height: 64,
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            px: 2,
+                        }}
+                    >
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <Gift style={{ width: 24, height: 24 }} />
+                            <Typography variant="h6" fontWeight={700}>
                                 SurpriseMoi
-                            </span>
-                        </div>
-                    </div>
-                </header>
+                            </Typography>
+                        </Box>
+                    </Box>
+                </Box>
 
-                <main className="container mx-auto px-4 py-12">
-                    <div className="mx-auto max-w-lg">
-                        <div className="mb-8 text-center">
-                            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-destructive/10">
-                                <Trash2 className="h-8 w-8 text-destructive" />
-                            </div>
-                            <h1 className="mb-2 text-3xl font-bold">
+                <Box component="main" sx={{ maxWidth: 1200, mx: 'auto', px: 2, py: 6 }}>
+                    <Box sx={{ mx: 'auto', maxWidth: 512 }}>
+                        <Box sx={{ mb: 4, textAlign: 'center' }}>
+                            <Box
+                                sx={{
+                                    mx: 'auto',
+                                    mb: 2,
+                                    display: 'flex',
+                                    width: 64,
+                                    height: 64,
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    borderRadius: '50%',
+                                    bgcolor: 'error.main',
+                                    opacity: 0.1,
+                                    position: 'relative',
+                                }}
+                            >
+                                <Trash2 style={{ width: 32, height: 32 }} />
+                            </Box>
+                            <Typography variant="h4" fontWeight={700} sx={{ mb: 1 }}>
                                 Request Account Deletion
-                            </h1>
-                            <p className="text-muted-foreground">
+                            </Typography>
+                            <Typography color="text.secondary">
                                 Delete your SurpriseMoi account and all
                                 associated data
-                            </p>
-                        </div>
+                            </Typography>
+                        </Box>
 
                         {status && (
-                            <div className="mb-6 rounded-lg border border-success/20 bg-success/10 p-4 text-center text-success">
+                            <Alert severity="success" sx={{ mb: 3 }}>
                                 {status}
-                            </div>
+                            </Alert>
                         )}
 
-                        <div className="mb-6 rounded-lg border border-border bg-card p-6 shadow-sm">
-                            <div className="mb-4 flex items-start gap-3">
-                                <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-destructive" />
-                                <div>
-                                    <h2 className="mb-2 font-semibold text-destructive">
-                                        Warning: This action is irreversible
-                                    </h2>
-                                    <ul className="space-y-1 text-sm text-muted-foreground">
-                                        <li>
-                                            Your profile and personal
-                                            information will be deleted
-                                        </li>
-                                        <li>
-                                            Your order history and saved data
-                                            will be removed
-                                        </li>
-                                        <li>
-                                            Any active orders or pending
-                                            transactions may be affected
-                                        </li>
-                                        <li>This action cannot be undone</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-
-                        <form onSubmit={handleSubmit} className="space-y-4">
-                            <div>
-                                <label
-                                    htmlFor="email"
-                                    className="mb-2 block text-sm font-medium"
-                                >
-                                    Email Address
-                                </label>
-                                <input
-                                    type="email"
-                                    id="email"
-                                    value={data.email}
-                                    onChange={(e) =>
-                                        setData('email', e.target.value)
-                                    }
-                                    placeholder="Enter your registered email"
-                                    required
-                                    className="w-full rounded-md border border-input bg-background px-4 py-3 text-sm focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none"
+                        <Box
+                            sx={{
+                                mb: 3,
+                                borderRadius: 2,
+                                border: 1,
+                                borderColor: 'divider',
+                                bgcolor: 'background.paper',
+                                p: 3,
+                                boxShadow: 1,
+                            }}
+                        >
+                            <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5 }}>
+                                <AlertTriangle
+                                    style={{
+                                        width: 20,
+                                        height: 20,
+                                        marginTop: 2,
+                                        flexShrink: 0,
+                                    }}
                                 />
-                            </div>
+                                <Box>
+                                    <Typography
+                                        variant="subtitle2"
+                                        color="error"
+                                        fontWeight={600}
+                                        sx={{ mb: 1 }}
+                                    >
+                                        Warning: This action is irreversible
+                                    </Typography>
+                                    <Box
+                                        component="ul"
+                                        sx={{
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            gap: 0.5,
+                                            pl: 0,
+                                            listStyle: 'none',
+                                        }}
+                                    >
+                                        {[
+                                            'Your profile and personal information will be deleted',
+                                            'Your order history and saved data will be removed',
+                                            'Any active orders or pending transactions may be affected',
+                                            'This action cannot be undone',
+                                        ].map((item) => (
+                                            <Typography
+                                                component="li"
+                                                variant="body2"
+                                                color="text.secondary"
+                                                key={item}
+                                            >
+                                                {item}
+                                            </Typography>
+                                        ))}
+                                    </Box>
+                                </Box>
+                            </Box>
+                        </Box>
 
-                            <button
+                        <Box
+                            component="form"
+                            onSubmit={handleSubmit}
+                            sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}
+                        >
+                            <TextField
+                                type="email"
+                                id="email"
+                                label="Email Address"
+                                value={data.email}
+                                onChange={(e) => setData('email', e.target.value)}
+                                placeholder="Enter your registered email"
+                                required
+                                fullWidth
+                                size="small"
+                            />
+
+                            <MuiButton
                                 type="submit"
+                                variant="contained"
+                                color="error"
                                 disabled={processing}
-                                className="w-full rounded-md bg-destructive px-6 py-3 text-sm font-semibold text-destructive-foreground transition-colors hover:bg-destructive/90 disabled:opacity-50"
+                                fullWidth
+                                sx={{ py: 1.5 }}
                             >
                                 {processing
                                     ? 'Processing...'
                                     : 'Delete My Account'}
-                            </button>
-                        </form>
+                            </MuiButton>
+                        </Box>
 
-                        <div className="mt-6 flex items-start gap-3 rounded-lg bg-muted/50 p-4">
-                            <Shield className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
-                            <div className="text-sm text-muted-foreground">
-                                <p className="font-medium">
+                        <Box
+                            sx={{
+                                mt: 3,
+                                display: 'flex',
+                                alignItems: 'flex-start',
+                                gap: 1.5,
+                                borderRadius: 2,
+                                bgcolor: 'action.hover',
+                                p: 2,
+                            }}
+                        >
+                            <Shield
+                                style={{
+                                    width: 20,
+                                    height: 20,
+                                    marginTop: 2,
+                                    flexShrink: 0,
+                                }}
+                            />
+                            <Box>
+                                <Typography variant="body2" fontWeight={500}>
                                     Your Privacy Matters
-                                </p>
-                                <p>
+                                </Typography>
+                                <Typography variant="body2" color="text.secondary">
                                     We take your privacy seriously. Your data
                                     will be permanently removed from our systems
                                     in accordance with our privacy policy.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </main>
+                                </Typography>
+                            </Box>
+                        </Box>
+                    </Box>
+                </Box>
 
-                <footer className="border-t bg-background/95 backdrop-blur">
-                    <div className="container mx-auto px-4 py-8 text-center text-sm text-muted-foreground">
-                        <p>
+                <Box
+                    component="footer"
+                    sx={{
+                        borderTop: 1,
+                        borderColor: 'divider',
+                        bgcolor: 'rgba(255,255,255,0.95)',
+                        backdropFilter: 'blur(8px)',
+                    }}
+                >
+                    <Box
+                        sx={{
+                            maxWidth: 1200,
+                            mx: 'auto',
+                            px: 2,
+                            py: 4,
+                            textAlign: 'center',
+                        }}
+                    >
+                        <Typography variant="body2" color="text.secondary">
                             &copy; {new Date().getFullYear()} SurpriseMoi. All
                             rights reserved.
-                        </p>
-                    </div>
-                </footer>
-            </div>
+                        </Typography>
+                    </Box>
+                </Box>
+            </Box>
         </>
     );
 }

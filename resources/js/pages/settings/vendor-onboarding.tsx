@@ -14,6 +14,8 @@ import AppLayout from '@/layouts/app-layout';
 import SettingsLayout from '@/layouts/settings/layout';
 import { index } from '@/routes/settings/vendor-onboarding';
 import { type BreadcrumbItem } from '@/types';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
 import { Form, Head } from '@inertiajs/react';
 
 interface Settings {
@@ -56,7 +58,7 @@ export default function VendorOnboarding({ settings }: Props) {
             <Head title="Vendor onboarding settings" />
 
             <SettingsLayout>
-                <div className="space-y-6">
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
                     <HeadingSmall
                         title="Vendor onboarding settings"
                         description="Configure vendor tier fees and commission rates"
@@ -68,7 +70,7 @@ export default function VendorOnboarding({ settings }: Props) {
                         options={{
                             preserveScroll: true,
                         }}
-                        className="space-y-6"
+                        style={{ display: 'flex', flexDirection: 'column', gap: 24 }}
                     >
                         {({ errors, processing, recentlySuccessful }) => (
                             <>
@@ -84,77 +86,75 @@ export default function VendorOnboarding({ settings }: Props) {
                                             business documentation
                                         </CardDescription>
                                     </CardHeader>
-                                    <CardContent className="space-y-4">
-                                        <div className="grid gap-2">
-                                            <Label htmlFor="vendor_tier1_onboarding_fee">
-                                                Onboarding Fee (GHS)
-                                            </Label>
+                                    <CardContent>
+                                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                                            <Box sx={{ display: 'grid', gap: 1 }}>
+                                                <Label htmlFor="vendor_tier1_onboarding_fee">
+                                                    Onboarding Fee (GHS)
+                                                </Label>
 
-                                            <Input
-                                                id="vendor_tier1_onboarding_fee"
-                                                name="vendor_tier1_onboarding_fee"
-                                                type="number"
-                                                step="0.01"
-                                                min="0"
-                                                className="mt-1 block w-full"
-                                                defaultValue={
-                                                    settings
+                                                <Input
+                                                    id="vendor_tier1_onboarding_fee"
+                                                    name="vendor_tier1_onboarding_fee"
+                                                    type="number"
+                                                    step="0.01"
+                                                    min="0"
+                                                    defaultValue={
+                                                        settings
+                                                            .vendor_tier1_onboarding_fee
+                                                            ?.value || '150.00'
+                                                    }
+                                                    required
+                                                />
+
+                                                <Typography variant="body2" color="text.secondary">
+                                                    {settings
                                                         .vendor_tier1_onboarding_fee
-                                                        ?.value || '150.00'
-                                                }
-                                                required
-                                            />
+                                                        ?.description ||
+                                                        'Tier 1 vendor onboarding fee'}
+                                                </Typography>
 
-                                            <p className="text-sm text-muted-foreground">
-                                                {settings
-                                                    .vendor_tier1_onboarding_fee
-                                                    ?.description ||
-                                                    'Tier 1 vendor onboarding fee'}
-                                            </p>
+                                                <InputError
+                                                    message={
+                                                        errors.vendor_tier1_onboarding_fee
+                                                    }
+                                                />
+                                            </Box>
 
-                                            <InputError
-                                                className="mt-2"
-                                                message={
-                                                    errors.vendor_tier1_onboarding_fee
-                                                }
-                                            />
-                                        </div>
+                                            <Box sx={{ display: 'grid', gap: 1 }}>
+                                                <Label htmlFor="vendor_tier1_commission_rate">
+                                                    Commission Rate (%)
+                                                </Label>
 
-                                        <div className="grid gap-2">
-                                            <Label htmlFor="vendor_tier1_commission_rate">
-                                                Commission Rate (%)
-                                            </Label>
+                                                <Input
+                                                    id="vendor_tier1_commission_rate"
+                                                    name="vendor_tier1_commission_rate"
+                                                    type="number"
+                                                    step="0.01"
+                                                    min="0"
+                                                    max="100"
+                                                    defaultValue={
+                                                        settings
+                                                            .vendor_tier1_commission_rate
+                                                            ?.value || '12.00'
+                                                    }
+                                                    required
+                                                />
 
-                                            <Input
-                                                id="vendor_tier1_commission_rate"
-                                                name="vendor_tier1_commission_rate"
-                                                type="number"
-                                                step="0.01"
-                                                min="0"
-                                                max="100"
-                                                className="mt-1 block w-full"
-                                                defaultValue={
-                                                    settings
+                                                <Typography variant="body2" color="text.secondary">
+                                                    {settings
                                                         .vendor_tier1_commission_rate
-                                                        ?.value || '12.00'
-                                                }
-                                                required
-                                            />
+                                                        ?.description ||
+                                                        'Tier 1 vendor commission rate percentage'}
+                                                </Typography>
 
-                                            <p className="text-sm text-muted-foreground">
-                                                {settings
-                                                    .vendor_tier1_commission_rate
-                                                    ?.description ||
-                                                    'Tier 1 vendor commission rate percentage'}
-                                            </p>
-
-                                            <InputError
-                                                className="mt-2"
-                                                message={
-                                                    errors.vendor_tier1_commission_rate
-                                                }
-                                            />
-                                        </div>
+                                                <InputError
+                                                    message={
+                                                        errors.vendor_tier1_commission_rate
+                                                    }
+                                                />
+                                            </Box>
+                                        </Box>
                                     </CardContent>
                                 </Card>
 
@@ -170,95 +170,93 @@ export default function VendorOnboarding({ settings }: Props) {
                                             business documentation
                                         </CardDescription>
                                     </CardHeader>
-                                    <CardContent className="space-y-4">
-                                        <div className="grid gap-2">
-                                            <Label htmlFor="vendor_tier2_onboarding_fee">
-                                                Onboarding Fee (GHS)
-                                            </Label>
+                                    <CardContent>
+                                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                                            <Box sx={{ display: 'grid', gap: 1 }}>
+                                                <Label htmlFor="vendor_tier2_onboarding_fee">
+                                                    Onboarding Fee (GHS)
+                                                </Label>
 
-                                            <Input
-                                                id="vendor_tier2_onboarding_fee"
-                                                name="vendor_tier2_onboarding_fee"
-                                                type="number"
-                                                step="0.01"
-                                                min="0"
-                                                className="mt-1 block w-full"
-                                                defaultValue={
-                                                    settings
+                                                <Input
+                                                    id="vendor_tier2_onboarding_fee"
+                                                    name="vendor_tier2_onboarding_fee"
+                                                    type="number"
+                                                    step="0.01"
+                                                    min="0"
+                                                    defaultValue={
+                                                        settings
+                                                            .vendor_tier2_onboarding_fee
+                                                            ?.value || '100.00'
+                                                    }
+                                                    required
+                                                />
+
+                                                <Typography variant="body2" color="text.secondary">
+                                                    {settings
                                                         .vendor_tier2_onboarding_fee
-                                                        ?.value || '100.00'
-                                                }
-                                                required
-                                            />
+                                                        ?.description ||
+                                                        'Tier 2 vendor onboarding fee'}
+                                                </Typography>
 
-                                            <p className="text-sm text-muted-foreground">
-                                                {settings
-                                                    .vendor_tier2_onboarding_fee
-                                                    ?.description ||
-                                                    'Tier 2 vendor onboarding fee'}
-                                            </p>
+                                                <InputError
+                                                    message={
+                                                        errors.vendor_tier2_onboarding_fee
+                                                    }
+                                                />
+                                            </Box>
 
-                                            <InputError
-                                                className="mt-2"
-                                                message={
-                                                    errors.vendor_tier2_onboarding_fee
-                                                }
-                                            />
-                                        </div>
+                                            <Box sx={{ display: 'grid', gap: 1 }}>
+                                                <Label htmlFor="vendor_tier2_commission_rate">
+                                                    Commission Rate (%)
+                                                </Label>
 
-                                        <div className="grid gap-2">
-                                            <Label htmlFor="vendor_tier2_commission_rate">
-                                                Commission Rate (%)
-                                            </Label>
+                                                <Input
+                                                    id="vendor_tier2_commission_rate"
+                                                    name="vendor_tier2_commission_rate"
+                                                    type="number"
+                                                    step="0.01"
+                                                    min="0"
+                                                    max="100"
+                                                    defaultValue={
+                                                        settings
+                                                            .vendor_tier2_commission_rate
+                                                            ?.value || '8.00'
+                                                    }
+                                                    required
+                                                />
 
-                                            <Input
-                                                id="vendor_tier2_commission_rate"
-                                                name="vendor_tier2_commission_rate"
-                                                type="number"
-                                                step="0.01"
-                                                min="0"
-                                                max="100"
-                                                className="mt-1 block w-full"
-                                                defaultValue={
-                                                    settings
+                                                <Typography variant="body2" color="text.secondary">
+                                                    {settings
                                                         .vendor_tier2_commission_rate
-                                                        ?.value || '8.00'
-                                                }
-                                                required
-                                            />
+                                                        ?.description ||
+                                                        'Tier 2 vendor commission rate percentage'}
+                                                </Typography>
 
-                                            <p className="text-sm text-muted-foreground">
-                                                {settings
-                                                    .vendor_tier2_commission_rate
-                                                    ?.description ||
-                                                    'Tier 2 vendor commission rate percentage'}
-                                            </p>
-
-                                            <InputError
-                                                className="mt-2"
-                                                message={
-                                                    errors.vendor_tier2_commission_rate
-                                                }
-                                            />
-                                        </div>
+                                                <InputError
+                                                    message={
+                                                        errors.vendor_tier2_commission_rate
+                                                    }
+                                                />
+                                            </Box>
+                                        </Box>
                                     </CardContent>
                                 </Card>
 
-                                <div className="flex items-center gap-4">
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                                     <Button type="submit" disabled={processing}>
                                         {processing ? 'Saving...' : 'Save'}
                                     </Button>
 
                                     {recentlySuccessful && (
-                                        <p className="text-sm text-muted-foreground">
+                                        <Typography variant="body2" color="text.secondary">
                                             Saved.
-                                        </p>
+                                        </Typography>
                                     )}
-                                </div>
+                                </Box>
                             </>
                         )}
                     </Form>
-                </div>
+                </Box>
             </SettingsLayout>
         </AppLayout>
     );

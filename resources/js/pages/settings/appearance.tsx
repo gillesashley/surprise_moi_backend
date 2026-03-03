@@ -1,4 +1,5 @@
 import { Head } from '@inertiajs/react';
+import Box from '@mui/material/Box';
 
 import AppearanceTabs from '@/components/appearance-tabs';
 import HeadingSmall from '@/components/heading-small';
@@ -21,13 +22,13 @@ export default function Appearance() {
             <Head title="Appearance settings" />
 
             <SettingsLayout>
-                <div className="space-y-6">
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
                     <HeadingSmall
                         title="Appearance settings"
                         description="Update your account's appearance settings"
                     />
                     <AppearanceTabs />
-                </div>
+                </Box>
             </SettingsLayout>
         </AppLayout>
     );

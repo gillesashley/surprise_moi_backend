@@ -8,6 +8,8 @@ import AppLayout from '@/layouts/app-layout';
 import SettingsLayout from '@/layouts/settings/layout';
 import { disable, enable, show } from '@/routes/two-factor';
 import { type BreadcrumbItem } from '@/types';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
 import { Form, Head } from '@inertiajs/react';
 import { ShieldBan, ShieldCheck } from 'lucide-react';
 import { useState } from 'react';
@@ -44,20 +46,20 @@ export default function TwoFactor({
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Two-Factor Authentication" />
             <SettingsLayout>
-                <div className="space-y-6">
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
                     <HeadingSmall
                         title="Two-Factor Authentication"
                         description="Manage your two-factor authentication settings"
                     />
                     {twoFactorEnabled ? (
-                        <div className="flex flex-col items-start justify-start space-y-4">
+                        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 2 }}>
                             <Badge variant="default">Enabled</Badge>
-                            <p className="text-muted-foreground">
+                            <Typography variant="body2" color="text.secondary">
                                 With two-factor authentication enabled, you will
                                 be prompted for a secure, random pin during
                                 login, which you can retrieve from the
                                 TOTP-supported application on your phone.
-                            </p>
+                            </Typography>
 
                             <TwoFactorRecoveryCodes
                                 recoveryCodesList={recoveryCodesList}
@@ -65,7 +67,7 @@ export default function TwoFactor({
                                 errors={errors}
                             />
 
-                            <div className="relative inline">
+                            <Box sx={{ position: 'relative', display: 'inline' }}>
                                 <Form {...disable.form()}>
                                     {({ processing }) => (
                                         <Button
@@ -77,19 +79,19 @@ export default function TwoFactor({
                                         </Button>
                                     )}
                                 </Form>
-                            </div>
-                        </div>
+                            </Box>
+                        </Box>
                     ) : (
-                        <div className="flex flex-col items-start justify-start space-y-4">
+                        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 2 }}>
                             <Badge variant="destructive">Disabled</Badge>
-                            <p className="text-muted-foreground">
+                            <Typography variant="body2" color="text.secondary">
                                 When you enable two-factor authentication, you
                                 will be prompted for a secure pin during login.
                                 This pin can be retrieved from a TOTP-supported
                                 application on your phone.
-                            </p>
+                            </Typography>
 
-                            <div>
+                            <Box>
                                 {hasSetupData ? (
                                     <Button
                                         onClick={() => setShowSetupModal(true)}
@@ -115,8 +117,8 @@ export default function TwoFactor({
                                         )}
                                     </Form>
                                 )}
-                            </div>
-                        </div>
+                            </Box>
+                        </Box>
                     )}
 
                     <TwoFactorSetupModal
@@ -130,7 +132,7 @@ export default function TwoFactor({
                         fetchSetupData={fetchSetupData}
                         errors={errors}
                     />
-                </div>
+                </Box>
             </SettingsLayout>
         </AppLayout>
     );

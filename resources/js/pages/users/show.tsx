@@ -24,6 +24,8 @@ import {
 } from '@/routes/users';
 import { type BreadcrumbItem, type User } from '@/types';
 import { Head, Link, router, useForm } from '@inertiajs/react';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
 import {
     ArrowLeft,
     Briefcase,
@@ -175,18 +177,18 @@ export default function UserShow({ user, canDelete }: Props) {
     return (
         <AppLayout breadcrumbs={breadcrumbs(user)}>
             <Head title={`User: ${user.name}`} />
-            <div className="flex h-full flex-1 flex-col gap-4 overflow-auto p-4">
-                <div className="flex items-center justify-between">
+            <Box sx={{ display: 'flex', height: '100%', flex: 1, flexDirection: 'column', gap: 2, overflow: 'auto', p: 2 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <Button variant="ghost" size="sm" asChild>
                         <Link href={usersIndex.url()}>
-                            <ArrowLeft className="mr-2 size-4" />
+                            <ArrowLeft style={{ marginRight: 8, width: 16, height: 16 }} />
                             Back to Users
                         </Link>
                     </Button>
-                    <div className="flex gap-2">
+                    <Box sx={{ display: 'flex', gap: 1 }}>
                         <Button variant="outline" size="sm" asChild>
                             <Link href={userEdit.url(user.id)}>
-                                <Pencil className="mr-2 size-4" />
+                                <Pencil style={{ marginRight: 8, width: 16, height: 16 }} />
                                 Edit
                             </Link>
                         </Button>
@@ -196,30 +198,31 @@ export default function UserShow({ user, canDelete }: Props) {
                                 size="sm"
                                 onClick={handleDelete}
                             >
-                                <Trash2 className="mr-2 size-4" />
+                                <Trash2 style={{ marginRight: 8, width: 16, height: 16 }} />
                                 Delete
                             </Button>
                         )}
-                    </div>
-                </div>
+                    </Box>
+                </Box>
 
                 {/* User Profile Header */}
                 <Card>
-                    <CardHeader className="pb-4">
-                        <div className="flex items-start gap-4">
+                    <CardHeader style={{ paddingBottom: 16 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
                             {user.avatar ? (
-                                <img
+                                <Box
+                                    component="img"
                                     src={user.avatar}
                                     alt={user.name}
-                                    className="h-16 w-16 rounded-full object-cover"
+                                    sx={{ width: 64, height: 64, borderRadius: '50%', objectFit: 'cover' }}
                                 />
                             ) : (
-                                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary">
-                                    <UserIcon className="h-8 w-8" />
-                                </div>
+                                <Box sx={{ display: 'flex', width: 64, height: 64, alignItems: 'center', justifyContent: 'center', borderRadius: '50%', bgcolor: 'primary.light', color: 'primary.main' }}>
+                                    <UserIcon style={{ width: 32, height: 32 }} />
+                                </Box>
                             )}
-                            <div className="flex-1">
-                                <div className="flex items-center gap-2">
+                            <Box sx={{ flex: 1 }}>
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                     <CardTitle>{user.name}</CardTitle>
                                     <Badge
                                         variant={
@@ -236,195 +239,195 @@ export default function UserShow({ user, canDelete }: Props) {
                                     {user.is_popular && (
                                         <Badge
                                             variant="outline"
-                                            className="gap-1"
+                                            style={{ gap: 4 }}
                                         >
-                                            <Heart className="h-3 w-3 fill-current" />
+                                            <Heart style={{ width: 12, height: 12, fill: 'currentColor' }} />
                                             Popular
                                         </Badge>
                                     )}
-                                </div>
-                                <CardDescription className="mt-1">
+                                </Box>
+                                <CardDescription style={{ marginTop: 4 }}>
                                     {user.email}
                                 </CardDescription>
-                            </div>
-                        </div>
+                            </Box>
+                        </Box>
                     </CardHeader>
                 </Card>
 
                 {/* Basic Information */}
                 <Card>
                     <CardHeader>
-                        <CardTitle className="text-lg">
+                        <CardTitle style={{ fontSize: '1.125rem' }}>
                             Basic Information
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                            <div className="flex items-start gap-3">
-                                <Mail className="mt-0.5 h-4 w-4 text-muted-foreground" />
-                                <div>
-                                    <h3 className="text-sm font-medium">
+                        <Box sx={{ display: 'grid', gap: 2, gridTemplateColumns: { md: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' } }}>
+                            <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5 }}>
+                                <Mail style={{ marginTop: 2, width: 16, height: 16, color: 'var(--muted-foreground)' }} />
+                                <Box>
+                                    <Typography variant="h6" sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
                                         Email
-                                    </h3>
-                                    <p className="text-sm text-muted-foreground">
+                                    </Typography>
+                                    <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
                                         {user.email}
-                                    </p>
+                                    </Typography>
                                     {user.email_verified_at ? (
                                         <Badge
                                             variant="outline"
-                                            className="mt-1 gap-1 text-xs"
+                                            style={{ marginTop: 4, gap: 4, fontSize: '0.75rem' }}
                                         >
-                                            <CheckCircle className="h-3 w-3" />{' '}
+                                            <CheckCircle style={{ width: 12, height: 12 }} />{' '}
                                             Verified
                                         </Badge>
                                     ) : (
                                         <Badge
                                             variant="secondary"
-                                            className="mt-1 gap-1 text-xs"
+                                            style={{ marginTop: 4, gap: 4, fontSize: '0.75rem' }}
                                         >
-                                            <XCircle className="h-3 w-3" /> Not
+                                            <XCircle style={{ width: 12, height: 12 }} /> Not
                                             Verified
                                         </Badge>
                                     )}
-                                </div>
-                            </div>
+                                </Box>
+                            </Box>
 
-                            <div className="flex items-start gap-3">
-                                <Phone className="mt-0.5 h-4 w-4 text-muted-foreground" />
-                                <div>
-                                    <h3 className="text-sm font-medium">
+                            <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5 }}>
+                                <Phone style={{ marginTop: 2, width: 16, height: 16, color: 'var(--muted-foreground)' }} />
+                                <Box>
+                                    <Typography variant="h6" sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
                                         Phone
-                                    </h3>
-                                    <p className="text-sm text-muted-foreground">
+                                    </Typography>
+                                    <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
                                         {user.phone || 'Not provided'}
-                                    </p>
+                                    </Typography>
                                     {user.phone && user.phone_verified_at && (
                                         <Badge
                                             variant="outline"
-                                            className="mt-1 gap-1 text-xs"
+                                            style={{ marginTop: 4, gap: 4, fontSize: '0.75rem' }}
                                         >
-                                            <CheckCircle className="h-3 w-3" />{' '}
+                                            <CheckCircle style={{ width: 12, height: 12 }} />{' '}
                                             Verified
                                         </Badge>
                                     )}
-                                </div>
-                            </div>
+                                </Box>
+                            </Box>
 
-                            <div className="flex items-start gap-3">
-                                <Calendar className="mt-0.5 h-4 w-4 text-muted-foreground" />
-                                <div>
-                                    <h3 className="text-sm font-medium">
+                            <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5 }}>
+                                <Calendar style={{ marginTop: 2, width: 16, height: 16, color: 'var(--muted-foreground)' }} />
+                                <Box>
+                                    <Typography variant="h6" sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
                                         Date of Birth
-                                    </h3>
-                                    <p className="text-sm text-muted-foreground">
+                                    </Typography>
+                                    <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
                                         {user.date_of_birth
                                             ? new Date(
                                                   user.date_of_birth,
                                               ).toLocaleDateString()
                                             : 'Not provided'}
-                                    </p>
-                                </div>
-                            </div>
+                                    </Typography>
+                                </Box>
+                            </Box>
 
-                            <div className="flex items-start gap-3">
-                                <UserIcon className="mt-0.5 h-4 w-4 text-muted-foreground" />
-                                <div>
-                                    <h3 className="text-sm font-medium">
+                            <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5 }}>
+                                <UserIcon style={{ marginTop: 2, width: 16, height: 16, color: 'var(--muted-foreground)' }} />
+                                <Box>
+                                    <Typography variant="h6" sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
                                         Gender
-                                    </h3>
-                                    <p className="text-sm text-muted-foreground capitalize">
+                                    </Typography>
+                                    <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary', textTransform: 'capitalize' }}>
                                         {user.gender || 'Not provided'}
-                                    </p>
-                                </div>
-                            </div>
+                                    </Typography>
+                                </Box>
+                            </Box>
 
                             {user.favorite_color && (
-                                <div className="flex items-start gap-3">
-                                    <Palette className="mt-0.5 h-4 w-4 text-muted-foreground" />
-                                    <div>
-                                        <h3 className="text-sm font-medium">
+                                <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5 }}>
+                                    <Palette style={{ marginTop: 2, width: 16, height: 16, color: 'var(--muted-foreground)' }} />
+                                    <Box>
+                                        <Typography variant="h6" sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
                                             Favorite Color
-                                        </h3>
-                                        <div className="mt-1 flex items-center gap-2">
-                                            <div
-                                                className="h-4 w-4 rounded border"
+                                        </Typography>
+                                        <Box sx={{ mt: 0.5, display: 'flex', alignItems: 'center', gap: 1 }}>
+                                            <Box
+                                                sx={{ width: 16, height: 16, borderRadius: 1, border: 1, borderColor: 'divider' }}
                                                 style={{
                                                     backgroundColor:
                                                         user.favorite_color,
                                                 }}
                                             />
-                                            <p className="text-sm text-muted-foreground capitalize">
+                                            <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary', textTransform: 'capitalize' }}>
                                                 {user.favorite_color}
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
+                                            </Typography>
+                                        </Box>
+                                    </Box>
+                                </Box>
                             )}
 
                             {user.favorite_music_genre && (
-                                <div className="flex items-start gap-3">
-                                    <Music className="mt-0.5 h-4 w-4 text-muted-foreground" />
-                                    <div>
-                                        <h3 className="text-sm font-medium">
+                                <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5 }}>
+                                    <Music style={{ marginTop: 2, width: 16, height: 16, color: 'var(--muted-foreground)' }} />
+                                    <Box>
+                                        <Typography variant="h6" sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
                                             Favorite Music Genre
-                                        </h3>
-                                        <p className="text-sm text-muted-foreground capitalize">
+                                        </Typography>
+                                        <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary', textTransform: 'capitalize' }}>
                                             {user.favorite_music_genre}
-                                        </p>
-                                    </div>
-                                </div>
+                                        </Typography>
+                                    </Box>
+                                </Box>
                             )}
 
-                            <div className="flex items-start gap-3">
-                                <Calendar className="mt-0.5 h-4 w-4 text-muted-foreground" />
-                                <div>
-                                    <h3 className="text-sm font-medium">
+                            <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5 }}>
+                                <Calendar style={{ marginTop: 2, width: 16, height: 16, color: 'var(--muted-foreground)' }} />
+                                <Box>
+                                    <Typography variant="h6" sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
                                         Joined
-                                    </h3>
-                                    <p className="text-sm text-muted-foreground">
+                                    </Typography>
+                                    <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
                                         {new Date(
                                             user.created_at,
                                         ).toLocaleDateString()}
-                                    </p>
-                                </div>
-                            </div>
+                                    </Typography>
+                                </Box>
+                            </Box>
 
-                            <div className="flex items-start gap-3">
-                                <Heart className="mt-0.5 h-4 w-4 text-muted-foreground" />
-                                <div>
-                                    <h3 className="text-sm font-medium">
+                            <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5 }}>
+                                <Heart style={{ marginTop: 2, width: 16, height: 16, color: 'var(--muted-foreground)' }} />
+                                <Box>
+                                    <Typography variant="h6" sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
                                         Popular
-                                    </h3>
+                                    </Typography>
                                     {user.is_popular ? (
                                         <Badge
                                             variant="outline"
-                                            className="mt-1 gap-1 text-xs"
+                                            style={{ marginTop: 4, gap: 4, fontSize: '0.75rem' }}
                                         >
-                                            <CheckCircle className="h-3 w-3" />
+                                            <CheckCircle style={{ width: 12, height: 12 }} />
                                             Yes
                                         </Badge>
                                     ) : (
                                         <Badge
                                             variant="secondary"
-                                            className="mt-1 gap-1 text-xs"
+                                            style={{ marginTop: 4, gap: 4, fontSize: '0.75rem' }}
                                         >
-                                            <XCircle className="h-3 w-3" />
+                                            <XCircle style={{ width: 12, height: 12 }} />
                                             No
                                         </Badge>
                                     )}
-                                </div>
-                            </div>
-                        </div>
+                                </Box>
+                            </Box>
+                        </Box>
 
                         {user.bio && (
-                            <div className="mt-4 border-t pt-4">
-                                <h3 className="mb-2 text-sm font-medium">
+                            <Box sx={{ mt: 2, borderTop: 1, borderColor: 'divider', pt: 2 }}>
+                                <Typography variant="h6" sx={{ mb: 1, fontSize: '0.875rem', fontWeight: 500 }}>
                                     Bio
-                                </h3>
-                                <p className="text-sm text-muted-foreground">
+                                </Typography>
+                                <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
                                     {user.bio}
-                                </p>
-                            </div>
+                                </Typography>
+                            </Box>
                         )}
                     </CardContent>
                 </Card>
@@ -433,22 +436,22 @@ export default function UserShow({ user, canDelete }: Props) {
                 {(user.interests && user.interests.length > 0) ||
                 (user.personality_traits &&
                     user.personality_traits.length > 0) ? (
-                    <div className="grid gap-4 md:grid-cols-2">
+                    <Box sx={{ display: 'grid', gap: 2, gridTemplateColumns: { md: 'repeat(2, 1fr)' } }}>
                         {user.interests && user.interests.length > 0 && (
                             <Card>
                                 <CardHeader>
-                                    <CardTitle className="flex items-center gap-2 text-lg">
-                                        <Heart className="h-5 w-5" />
+                                    <CardTitle style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '1.125rem' }}>
+                                        <Heart style={{ width: 20, height: 20 }} />
                                         Interests
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent>
-                                    <div className="flex flex-wrap gap-2">
+                                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
                                         {user.interests.map((interest) => (
                                             <Badge
                                                 key={interest.id}
                                                 variant="secondary"
-                                                className="gap-1"
+                                                style={{ gap: 4 }}
                                             >
                                                 {interest.icon && (
                                                     <span>{interest.icon}</span>
@@ -456,7 +459,7 @@ export default function UserShow({ user, canDelete }: Props) {
                                                 {interest.name}
                                             </Badge>
                                         ))}
-                                    </div>
+                                    </Box>
                                 </CardContent>
                             </Card>
                         )}
@@ -465,19 +468,19 @@ export default function UserShow({ user, canDelete }: Props) {
                             user.personality_traits.length > 0 && (
                                 <Card>
                                     <CardHeader>
-                                        <CardTitle className="flex items-center gap-2 text-lg">
-                                            <UserIcon className="h-5 w-5" />
+                                        <CardTitle style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '1.125rem' }}>
+                                            <UserIcon style={{ width: 20, height: 20 }} />
                                             Personality Traits
                                         </CardTitle>
                                     </CardHeader>
                                     <CardContent>
-                                        <div className="flex flex-wrap gap-2">
+                                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
                                             {user.personality_traits.map(
                                                 (trait) => (
                                                     <Badge
                                                         key={trait.id}
                                                         variant="outline"
-                                                        className="gap-1"
+                                                        style={{ gap: 4 }}
                                                     >
                                                         {trait.icon && (
                                                             <span>
@@ -488,11 +491,11 @@ export default function UserShow({ user, canDelete }: Props) {
                                                     </Badge>
                                                 ),
                                             )}
-                                        </div>
+                                        </Box>
                                     </CardContent>
                                 </Card>
                             )}
-                    </div>
+                    </Box>
                 ) : null}
 
                 {/* Ghana Card Images */}
@@ -500,33 +503,33 @@ export default function UserShow({ user, canDelete }: Props) {
                     user.vendor_application?.ghana_card_back && (
                         <Card>
                             <CardHeader>
-                                <CardTitle className="flex items-center gap-2 text-lg">
-                                    <UserIcon className="h-5 w-5" />
+                                <CardTitle style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '1.125rem' }}>
+                                    <UserIcon style={{ width: 20, height: 20 }} />
                                     Ghana Card Images
                                 </CardTitle>
                                 <CardDescription>
                                     Uploaded identification documents for vendor
                                     application
                                     {user.vendor_application.submitted_at && (
-                                        <span className="ml-1">
+                                        <Box component="span" sx={{ ml: 0.5 }}>
                                             (Submitted on{' '}
                                             {new Date(
                                                 user.vendor_application.submitted_at,
                                             ).toLocaleDateString()}
                                             )
-                                        </span>
+                                        </Box>
                                     )}
                                 </CardDescription>
                             </CardHeader>
                             <CardContent>
                                 {/* Application Status Banner */}
-                                <div className="mb-4 rounded-lg border p-4">
-                                    <div className="flex items-start justify-between">
-                                        <div className="space-y-1">
-                                            <h4 className="text-sm font-medium">
+                                <Box sx={{ mb: 2, borderRadius: 2, border: 1, borderColor: 'divider', p: 2 }}>
+                                    <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+                                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                                            <Typography variant="h6" sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
                                                 Application Status
-                                            </h4>
-                                            <div className="flex items-center gap-2">
+                                            </Typography>
+                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                                 <Badge
                                                     variant={
                                                         user.vendor_application
@@ -550,28 +553,28 @@ export default function UserShow({ user, canDelete }: Props) {
                                                         .replace(/_/g, ' ')
                                                         .toUpperCase()}
                                                 </Badge>
-                                                <span className="text-sm text-muted-foreground">
+                                                <Box component="span" sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
                                                     Step{' '}
                                                     {
                                                         user.vendor_application
                                                             .completed_step
                                                     }{' '}
                                                     of 4 completed
-                                                </span>
-                                            </div>
-                                        </div>
-                                        <div className="flex flex-col items-end gap-2">
+                                                </Box>
+                                            </Box>
+                                        </Box>
+                                        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 1 }}>
                                             {user.vendor_application
                                                 .reviewed_at && (
-                                                <p className="text-sm text-muted-foreground">
+                                                <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
                                                     Reviewed:{' '}
                                                     {new Date(
                                                         user.vendor_application.reviewed_at,
                                                     ).toLocaleDateString()}
-                                                </p>
+                                                </Typography>
                                             )}
                                             {canApproveOrReject && (
-                                                <div className="flex gap-2">
+                                                <Box sx={{ display: 'flex', gap: 1 }}>
                                                     <Button
                                                         variant="destructive"
                                                         size="sm"
@@ -581,7 +584,7 @@ export default function UserShow({ user, canDelete }: Props) {
                                                             )
                                                         }
                                                     >
-                                                        <XCircle className="mr-2 size-4" />
+                                                        <XCircle style={{ marginRight: 8, width: 16, height: 16 }} />
                                                         Reject
                                                     </Button>
                                                     <Button
@@ -595,29 +598,29 @@ export default function UserShow({ user, canDelete }: Props) {
                                                             )
                                                         }
                                                     >
-                                                        <CheckCircle className="mr-2 size-4" />
+                                                        <CheckCircle style={{ marginRight: 8, width: 16, height: 16 }} />
                                                         Approve
                                                     </Button>
-                                                </div>
+                                                </Box>
                                             )}
-                                        </div>
-                                    </div>
+                                        </Box>
+                                    </Box>
                                     {user.vendor_application
                                         .rejection_reason && (
-                                        <div className="mt-3 rounded-md bg-destructive/10 p-3">
-                                            <p className="text-sm font-medium text-destructive">
+                                        <Box sx={{ mt: 1.5, borderRadius: 1.5, bgcolor: 'error.light', opacity: 0.1, p: 1.5 }}>
+                                            <Typography sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'error.main' }}>
                                                 Rejection Reason:
-                                            </p>
-                                            <p className="mt-1 text-sm text-destructive/80">
+                                            </Typography>
+                                            <Typography sx={{ mt: 0.5, fontSize: '0.875rem', color: 'error.main', opacity: 0.8 }}>
                                                 {
                                                     user.vendor_application
                                                         .rejection_reason
                                                 }
-                                            </p>
-                                        </div>
+                                            </Typography>
+                                        </Box>
                                     )}
-                                    <div className="mt-3">
-                                        <p className="text-xs text-muted-foreground">
+                                    <Box sx={{ mt: 1.5 }}>
+                                        <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
                                             Vendor Type:{' '}
                                             <Badge variant="outline">
                                                 {user.vendor_application
@@ -625,42 +628,44 @@ export default function UserShow({ user, canDelete }: Props) {
                                                     ? 'Registered Business'
                                                     : 'Unregistered Vendor'}
                                             </Badge>
-                                        </p>
-                                    </div>
-                                </div>
+                                        </Typography>
+                                    </Box>
+                                </Box>
 
-                                <div className="grid gap-4 md:grid-cols-2">
-                                    <div className="space-y-2">
-                                        <h3 className="text-sm font-medium">
+                                <Box sx={{ display: 'grid', gap: 2, gridTemplateColumns: { md: 'repeat(2, 1fr)' } }}>
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                        <Typography variant="h6" sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
                                             Front of Ghana Card
-                                        </h3>
-                                        <div className="overflow-hidden rounded-lg border">
-                                            <img
+                                        </Typography>
+                                        <Box sx={{ overflow: 'hidden', borderRadius: 2, border: 1, borderColor: 'divider' }}>
+                                            <Box
+                                                component="img"
                                                 src={
                                                     user.vendor_application
                                                         .ghana_card_front
                                                 }
                                                 alt="Ghana Card Front"
-                                                className="h-auto w-full object-cover"
+                                                sx={{ height: 'auto', width: '100%', objectFit: 'cover' }}
                                             />
-                                        </div>
-                                    </div>
-                                    <div className="space-y-2">
-                                        <h3 className="text-sm font-medium">
+                                        </Box>
+                                    </Box>
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                        <Typography variant="h6" sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
                                             Back of Ghana Card
-                                        </h3>
-                                        <div className="overflow-hidden rounded-lg border">
-                                            <img
+                                        </Typography>
+                                        <Box sx={{ overflow: 'hidden', borderRadius: 2, border: 1, borderColor: 'divider' }}>
+                                            <Box
+                                                component="img"
                                                 src={
                                                     user.vendor_application
                                                         .ghana_card_back
                                                 }
                                                 alt="Ghana Card Back"
-                                                className="h-auto w-full object-cover"
+                                                sx={{ height: 'auto', width: '100%', objectFit: 'cover' }}
                                             />
-                                        </div>
-                                    </div>
-                                </div>
+                                        </Box>
+                                    </Box>
+                                </Box>
                             </CardContent>
                         </Card>
                     )}
@@ -671,8 +676,8 @@ export default function UserShow({ user, canDelete }: Props) {
                         user.vendor_application.tin_document) && (
                         <Card>
                             <CardHeader>
-                                <CardTitle className="flex items-center gap-2 text-lg">
-                                    <Briefcase className="h-5 w-5" />
+                                <CardTitle style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '1.125rem' }}>
+                                    <Briefcase style={{ width: 20, height: 20 }} />
                                     Business Documents
                                 </CardTitle>
                                 <CardDescription>
@@ -680,52 +685,54 @@ export default function UserShow({ user, canDelete }: Props) {
                                 </CardDescription>
                             </CardHeader>
                             <CardContent>
-                                <div className="grid gap-4 md:grid-cols-2">
+                                <Box sx={{ display: 'grid', gap: 2, gridTemplateColumns: { md: 'repeat(2, 1fr)' } }}>
                                     {user.vendor_application
                                         .business_certificate_document && (
-                                        <div className="space-y-2">
-                                            <h3 className="text-sm font-medium">
+                                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                            <Typography variant="h6" sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
                                                 Business Certificate
-                                            </h3>
-                                            <div className="overflow-hidden rounded-lg border p-4">
-                                                <a
+                                            </Typography>
+                                            <Box sx={{ overflow: 'hidden', borderRadius: 2, border: 1, borderColor: 'divider', p: 2 }}>
+                                                <Box
+                                                    component="a"
                                                     href={
                                                         user.vendor_application
                                                             .business_certificate_document
                                                     }
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="flex items-center gap-2 text-sm text-primary hover:underline"
+                                                    sx={{ display: 'flex', alignItems: 'center', gap: 1, fontSize: '0.875rem', color: 'primary.main', '&:hover': { textDecoration: 'underline' } }}
                                                 >
-                                                    <Package className="h-4 w-4" />
+                                                    <Package style={{ width: 16, height: 16 }} />
                                                     View Business Certificate
                                                     (PDF)
-                                                </a>
-                                            </div>
-                                        </div>
+                                                </Box>
+                                            </Box>
+                                        </Box>
                                     )}
                                     {user.vendor_application.tin_document && (
-                                        <div className="space-y-2">
-                                            <h3 className="text-sm font-medium">
+                                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                            <Typography variant="h6" sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
                                                 TIN Document
-                                            </h3>
-                                            <div className="overflow-hidden rounded-lg border p-4">
-                                                <a
+                                            </Typography>
+                                            <Box sx={{ overflow: 'hidden', borderRadius: 2, border: 1, borderColor: 'divider', p: 2 }}>
+                                                <Box
+                                                    component="a"
                                                     href={
                                                         user.vendor_application
                                                             .tin_document
                                                     }
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="flex items-center gap-2 text-sm text-primary hover:underline"
+                                                    sx={{ display: 'flex', alignItems: 'center', gap: 1, fontSize: '0.875rem', color: 'primary.main', '&:hover': { textDecoration: 'underline' } }}
                                                 >
-                                                    <Package className="h-4 w-4" />
+                                                    <Package style={{ width: 16, height: 16 }} />
                                                     View TIN Document (PDF)
-                                                </a>
-                                            </div>
-                                        </div>
+                                                </Box>
+                                            </Box>
+                                        </Box>
                                     )}
-                                </div>
+                                </Box>
                             </CardContent>
                         </Card>
                     )}
@@ -738,8 +745,8 @@ export default function UserShow({ user, canDelete }: Props) {
                         user.vendor_application.mobile_money_number) && (
                         <Card>
                             <CardHeader>
-                                <CardTitle className="flex items-center gap-2 text-lg">
-                                    <UserIcon className="h-5 w-5" />
+                                <CardTitle style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '1.125rem' }}>
+                                    <UserIcon style={{ width: 20, height: 20 }} />
                                     Unregistered Vendor Verification
                                 </CardTitle>
                                 <CardDescription>
@@ -748,86 +755,88 @@ export default function UserShow({ user, canDelete }: Props) {
                                 </CardDescription>
                             </CardHeader>
                             <CardContent>
-                                <div className="space-y-4">
+                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                                     {/* Selfie Image */}
                                     {user.vendor_application.selfie_image && (
-                                        <div className="space-y-2">
-                                            <h3 className="text-sm font-medium">
+                                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                            <Typography variant="h6" sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
                                                 Selfie Verification
-                                            </h3>
-                                            <div className="overflow-hidden rounded-lg border">
-                                                <img
+                                            </Typography>
+                                            <Box sx={{ overflow: 'hidden', borderRadius: 2, border: 1, borderColor: 'divider' }}>
+                                                <Box
+                                                    component="img"
                                                     src={
                                                         user.vendor_application
                                                             .selfie_image
                                                     }
                                                     alt="Vendor Selfie"
-                                                    className="h-auto max-w-sm object-cover"
+                                                    sx={{ height: 'auto', maxWidth: 384, objectFit: 'cover' }}
                                                 />
-                                            </div>
-                                        </div>
+                                            </Box>
+                                        </Box>
                                     )}
 
                                     {/* Proof of Business */}
                                     {user.vendor_application
                                         .proof_of_business && (
-                                        <div className="space-y-2">
-                                            <h3 className="text-sm font-medium">
+                                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                            <Typography variant="h6" sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
                                                 Proof of Business
-                                            </h3>
-                                            <div className="overflow-hidden rounded-lg border p-4">
-                                                <a
+                                            </Typography>
+                                            <Box sx={{ overflow: 'hidden', borderRadius: 2, border: 1, borderColor: 'divider', p: 2 }}>
+                                                <Box
+                                                    component="a"
                                                     href={
                                                         user.vendor_application
                                                             .proof_of_business
                                                     }
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="flex items-center gap-2 text-sm text-primary hover:underline"
+                                                    sx={{ display: 'flex', alignItems: 'center', gap: 1, fontSize: '0.875rem', color: 'primary.main', '&:hover': { textDecoration: 'underline' } }}
                                                 >
-                                                    <Package className="h-4 w-4" />
+                                                    <Package style={{ width: 16, height: 16 }} />
                                                     View Proof of Business
                                                     Document
-                                                </a>
-                                            </div>
-                                        </div>
+                                                </Box>
+                                            </Box>
+                                        </Box>
                                     )}
 
                                     {/* Mobile Money Details */}
                                     {user.vendor_application
                                         .mobile_money_number && (
-                                        <div className="space-y-2">
-                                            <h3 className="text-sm font-medium">
+                                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                            <Typography variant="h6" sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
                                                 Mobile Money Details
-                                            </h3>
-                                            <div className="overflow-hidden rounded-lg border p-4">
-                                                <div className="space-y-1">
-                                                    <p className="text-sm">
-                                                        <span className="font-medium">
+                                            </Typography>
+                                            <Box sx={{ overflow: 'hidden', borderRadius: 2, border: 1, borderColor: 'divider', p: 2 }}>
+                                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                                                    <Typography sx={{ fontSize: '0.875rem' }}>
+                                                        <Box component="span" sx={{ fontWeight: 500 }}>
                                                             Number:
-                                                        </span>{' '}
+                                                        </Box>{' '}
                                                         {
                                                             user
                                                                 .vendor_application
                                                                 .mobile_money_number
                                                         }
-                                                    </p>
+                                                    </Typography>
                                                     {user.vendor_application
                                                         .mobile_money_provider && (
-                                                        <p className="text-sm">
-                                                            <span className="font-medium">
+                                                        <Typography sx={{ fontSize: '0.875rem' }}>
+                                                            <Box component="span" sx={{ fontWeight: 500 }}>
                                                                 Provider:
-                                                            </span>{' '}
+                                                            </Box>{' '}
                                                             <Badge variant="outline">
                                                                 {user.vendor_application.mobile_money_provider.toUpperCase()}
                                                             </Badge>
-                                                        </p>
+                                                        </Typography>
                                                     )}
-                                                </div>
-                                            </div>
-                                        </div>
+                                                </Box>
+                                            </Box>
+                                        </Box>
                                     )}
-                                </div>
+                                </Box>
                             </CardContent>
                         </Card>
                     )}
@@ -839,8 +848,8 @@ export default function UserShow({ user, canDelete }: Props) {
                         user.vendor_application.twitter_handle) && (
                         <Card>
                             <CardHeader>
-                                <CardTitle className="flex items-center gap-2 text-lg">
-                                    <Users className="h-5 w-5" />
+                                <CardTitle style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '1.125rem' }}>
+                                    <Users style={{ width: 20, height: 20 }} />
                                     Social Media
                                 </CardTitle>
                                 <CardDescription>
@@ -848,122 +857,122 @@ export default function UserShow({ user, canDelete }: Props) {
                                 </CardDescription>
                             </CardHeader>
                             <CardContent>
-                                <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+                                <Box sx={{ display: 'grid', gap: 1.5, gridTemplateColumns: { md: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' } }}>
                                     {user.vendor_application
                                         .facebook_handle && (
-                                        <div className="flex items-center gap-2 rounded-lg border p-3">
-                                            <Package className="h-4 w-4 text-primary" />
-                                            <div>
-                                                <p className="text-xs text-muted-foreground">
+                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, borderRadius: 2, border: 1, borderColor: 'divider', p: 1.5 }}>
+                                            <Package style={{ width: 16, height: 16, color: 'var(--primary)' }} />
+                                            <Box>
+                                                <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
                                                     Facebook
-                                                </p>
-                                                <p className="text-sm font-medium">
+                                                </Typography>
+                                                <Typography sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
                                                     {
                                                         user.vendor_application
                                                             .facebook_handle
                                                     }
-                                                </p>
-                                            </div>
-                                        </div>
+                                                </Typography>
+                                            </Box>
+                                        </Box>
                                     )}
                                     {user.vendor_application
                                         .instagram_handle && (
-                                        <div className="flex items-center gap-2 rounded-lg border p-3">
-                                            <Package className="h-4 w-4 text-accent" />
-                                            <div>
-                                                <p className="text-xs text-muted-foreground">
+                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, borderRadius: 2, border: 1, borderColor: 'divider', p: 1.5 }}>
+                                            <Package style={{ width: 16, height: 16, color: 'var(--accent)' }} />
+                                            <Box>
+                                                <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
                                                     Instagram
-                                                </p>
-                                                <p className="text-sm font-medium">
+                                                </Typography>
+                                                <Typography sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
                                                     {
                                                         user.vendor_application
                                                             .instagram_handle
                                                     }
-                                                </p>
-                                            </div>
-                                        </div>
+                                                </Typography>
+                                            </Box>
+                                        </Box>
                                     )}
                                     {user.vendor_application.twitter_handle && (
-                                        <div className="flex items-center gap-2 rounded-lg border p-3">
-                                            <Package className="h-4 w-4 text-success" />
-                                            <div>
-                                                <p className="text-xs text-muted-foreground">
+                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, borderRadius: 2, border: 1, borderColor: 'divider', p: 1.5 }}>
+                                            <Package style={{ width: 16, height: 16, color: 'var(--success)' }} />
+                                            <Box>
+                                                <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
                                                     Twitter/X
-                                                </p>
-                                                <p className="text-sm font-medium">
+                                                </Typography>
+                                                <Typography sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
                                                     {
                                                         user.vendor_application
                                                             .twitter_handle
                                                     }
-                                                </p>
-                                            </div>
-                                        </div>
+                                                </Typography>
+                                            </Box>
+                                        </Box>
                                     )}
-                                </div>
+                                </Box>
                             </CardContent>
                         </Card>
                     )}
 
                 {/* Vendor Information */}
                 {user.role === 'vendor' && (
-                    <div className="grid gap-4">
+                    <Box sx={{ display: 'grid', gap: 2 }}>
                         {/* Stats Overview */}
-                        <div className="grid gap-4 md:grid-cols-3">
+                        <Box sx={{ display: 'grid', gap: 2, gridTemplateColumns: { md: 'repeat(3, 1fr)' } }}>
                             <Card>
-                                <CardHeader className="pb-3">
-                                    <CardTitle className="text-sm font-medium text-muted-foreground">
+                                <CardHeader style={{ paddingBottom: 12 }}>
+                                    <CardTitle style={{ fontSize: '0.875rem', fontWeight: 500, color: 'gray' }}>
                                         Total Shops
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent>
-                                    <div className="flex items-center gap-2">
-                                        <Store className="h-5 w-5 text-primary" />
-                                        <span className="text-2xl font-bold">
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                        <Store style={{ width: 20, height: 20, color: 'var(--primary)' }} />
+                                        <Box component="span" sx={{ fontSize: '1.5rem', fontWeight: 700 }}>
                                             {user.shops?.length || 0}
-                                        </span>
-                                    </div>
+                                        </Box>
+                                    </Box>
                                 </CardContent>
                             </Card>
 
                             <Card>
-                                <CardHeader className="pb-3">
-                                    <CardTitle className="text-sm font-medium text-muted-foreground">
+                                <CardHeader style={{ paddingBottom: 12 }}>
+                                    <CardTitle style={{ fontSize: '0.875rem', fontWeight: 500, color: 'gray' }}>
                                         Total Products
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent>
-                                    <div className="flex items-center gap-2">
-                                        <Package className="h-5 w-5 text-accent" />
-                                        <span className="text-2xl font-bold">
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                        <Package style={{ width: 20, height: 20, color: 'var(--accent)' }} />
+                                        <Box component="span" sx={{ fontSize: '1.5rem', fontWeight: 700 }}>
                                             {user.products_count || 0}
-                                        </span>
-                                    </div>
+                                        </Box>
+                                    </Box>
                                 </CardContent>
                             </Card>
 
                             <Card>
-                                <CardHeader className="pb-3">
-                                    <CardTitle className="text-sm font-medium text-muted-foreground">
+                                <CardHeader style={{ paddingBottom: 12 }}>
+                                    <CardTitle style={{ fontSize: '0.875rem', fontWeight: 500, color: 'gray' }}>
                                         Total Services
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent>
-                                    <div className="flex items-center gap-2">
-                                        <Briefcase className="h-5 w-5 text-success" />
-                                        <span className="text-2xl font-bold">
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                        <Briefcase style={{ width: 20, height: 20, color: 'var(--success)' }} />
+                                        <Box component="span" sx={{ fontSize: '1.5rem', fontWeight: 700 }}>
                                             {user.services_count || 0}
-                                        </span>
-                                    </div>
+                                        </Box>
+                                    </Box>
                                 </CardContent>
                             </Card>
-                        </div>
+                        </Box>
 
                         {/* Shops List */}
                         {user.shops && user.shops.length > 0 && (
                             <Card>
                                 <CardHeader>
-                                    <CardTitle className="flex items-center gap-2">
-                                        <Store className="h-5 w-5" />
+                                    <CardTitle style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                        <Store style={{ width: 20, height: 20 }} />
                                         Shops
                                     </CardTitle>
                                     <CardDescription>
@@ -971,17 +980,17 @@ export default function UserShow({ user, canDelete }: Props) {
                                     </CardDescription>
                                 </CardHeader>
                                 <CardContent>
-                                    <div className="space-y-3">
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
                                         {user.shops.map((shop) => (
-                                            <div
+                                            <Box
                                                 key={shop.id}
-                                                className="flex items-center justify-between rounded-lg border p-4"
+                                                sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderRadius: 2, border: 1, borderColor: 'divider', p: 2 }}
                                             >
-                                                <div className="flex-1">
-                                                    <div className="flex items-center gap-2">
-                                                        <h4 className="font-medium">
+                                                <Box sx={{ flex: 1 }}>
+                                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                        <Typography variant="h6" sx={{ fontWeight: 500 }}>
                                                             {shop.name}
-                                                        </h4>
+                                                        </Typography>
                                                         <Badge
                                                             variant={
                                                                 shop.is_active
@@ -993,39 +1002,39 @@ export default function UserShow({ user, canDelete }: Props) {
                                                                 ? 'Active'
                                                                 : 'Inactive'}
                                                         </Badge>
-                                                    </div>
+                                                    </Box>
                                                     {shop.location && (
-                                                        <p className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">
-                                                            <MapPin className="h-3 w-3" />
+                                                        <Typography sx={{ mt: 0.5, display: 'flex', alignItems: 'center', gap: 0.5, fontSize: '0.875rem', color: 'text.secondary' }}>
+                                                            <MapPin style={{ width: 12, height: 12 }} />
                                                             {shop.location}
-                                                        </p>
+                                                        </Typography>
                                                     )}
-                                                    <div className="mt-2 flex gap-4 text-sm text-muted-foreground">
-                                                        <span className="flex items-center gap-1">
-                                                            <Package className="h-3 w-3" />
+                                                    <Box sx={{ mt: 1, display: 'flex', gap: 2, fontSize: '0.875rem', color: 'text.secondary' }}>
+                                                        <Box component="span" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                                            <Package style={{ width: 12, height: 12 }} />
                                                             {
                                                                 shop.products_count
                                                             }{' '}
                                                             products
-                                                        </span>
-                                                        <span className="flex items-center gap-1">
-                                                            <Briefcase className="h-3 w-3" />
+                                                        </Box>
+                                                        <Box component="span" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                                            <Briefcase style={{ width: 12, height: 12 }} />
                                                             {
                                                                 shop.services_count
                                                             }{' '}
                                                             services
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                                        </Box>
+                                                    </Box>
+                                                </Box>
+                                            </Box>
                                         ))}
-                                    </div>
+                                    </Box>
                                 </CardContent>
                             </Card>
                         )}
-                    </div>
+                    </Box>
                 )}
-            </div>
+            </Box>
 
             {/* Reject Dialog */}
             {user.vendor_application && (
@@ -1042,7 +1051,7 @@ export default function UserShow({ user, canDelete }: Props) {
                                 see this message.
                             </DialogDescription>
                         </DialogHeader>
-                        <div className="py-4">
+                        <Box sx={{ py: 2 }}>
                             <Textarea
                                 placeholder="Explain why this application is being rejected..."
                                 value={data.rejection_reason}
@@ -1050,15 +1059,15 @@ export default function UserShow({ user, canDelete }: Props) {
                                     setData('rejection_reason', e.target.value)
                                 }
                                 rows={5}
-                                className="resize-none"
+                                style={{ resize: 'none' }}
                             />
                             {data.rejection_reason &&
                                 data.rejection_reason.length < 10 && (
-                                    <p className="mt-2 text-sm text-destructive">
+                                    <Typography sx={{ mt: 1, fontSize: '0.875rem', color: 'error.main' }}>
                                         Please provide at least 10 characters
-                                    </p>
+                                    </Typography>
                                 )}
-                        </div>
+                        </Box>
                         <DialogFooter>
                             <Button
                                 variant="outline"

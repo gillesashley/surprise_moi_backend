@@ -1,10 +1,20 @@
 import { Button } from '@/components/ui/button';
 import { Pagination } from '@/components/ui/pagination';
 import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@/components/ui/table';
+import {
     create as personalityTraitCreate,
     destroy as personalityTraitDestroy,
     edit as personalityTraitEdit,
 } from '@/routes/dashboard/personality-traits';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
 import { Link, router } from '@inertiajs/react';
 import { Pencil, Plus, Trash2 } from 'lucide-react';
 
@@ -48,97 +58,110 @@ export function PersonalityTraitsTab({
     };
 
     return (
-        <div className="mt-6">
-            <div className="mb-4 flex items-center justify-between">
-                <h3 className="text-lg font-semibold">Personality Traits</h3>
+        <Box sx={{ mt: 3 }}>
+            <Box
+                sx={{
+                    mb: 2,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                }}
+            >
+                <Typography variant="h6" fontWeight={600}>
+                    Personality Traits
+                </Typography>
                 {canCreate && (
                     <Button asChild>
                         <Link href={personalityTraitCreate.url()}>
-                            <Plus className="mr-2 size-4" />
+                            <Plus style={{ width: 16, height: 16, marginRight: 8 }} />
                             Add Trait
                         </Link>
                     </Button>
                 )}
-            </div>
-            <div className="overflow-x-auto">
-                <table className="w-full">
-                    <thead>
-                        <tr className="border-b">
-                            <th className="p-2 text-left text-sm font-medium">
-                                Name
-                            </th>
-                            <th className="p-2 text-left text-sm font-medium">
-                                Icon
-                            </th>
-                            <th className="p-2 text-left text-sm font-medium">
-                                Users
-                            </th>
-                            <th className="p-2 text-right text-sm font-medium">
-                                Actions
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {personalityTraits.data.map((trait) => (
-                            <tr
-                                key={trait.id}
-                                className="border-b last:border-0 hover:bg-muted/50"
-                            >
-                                <td className="p-2 text-sm font-medium">
+            </Box>
+            <Table>
+                <TableHeader>
+                    <TableRow>
+                        <TableHead>Name</TableHead>
+                        <TableHead>Icon</TableHead>
+                        <TableHead>Users</TableHead>
+                        <TableHead style={{ textAlign: 'right' }}>
+                            Actions
+                        </TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {personalityTraits.data.map((trait) => (
+                        <TableRow key={trait.id}>
+                            <TableCell>
+                                <Typography variant="body2" fontWeight={500}>
                                     {trait.name}
-                                </td>
-                                <td className="p-2 text-sm">
+                                </Typography>
+                            </TableCell>
+                            <TableCell>
+                                <Typography variant="body2">
                                     {trait.icon || '-'}
-                                </td>
-                                <td className="p-2 text-sm">
+                                </Typography>
+                            </TableCell>
+                            <TableCell>
+                                <Typography variant="body2">
                                     {trait.users_count}
-                                </td>
-                                <td className="p-2">
-                                    <div className="flex justify-end gap-2">
+                                </Typography>
+                            </TableCell>
+                            <TableCell>
+                                <Box
+                                    sx={{
+                                        display: 'flex',
+                                        justifyContent: 'flex-end',
+                                        gap: 1,
+                                    }}
+                                >
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        asChild
+                                    >
+                                        <Link
+                                            href={personalityTraitEdit.url(
+                                                trait.id,
+                                            )}
+                                        >
+                                            <Pencil style={{ width: 16, height: 16 }} />
+                                        </Link>
+                                    </Button>
+                                    {canDelete && (
                                         <Button
                                             variant="ghost"
                                             size="sm"
-                                            asChild
-                                        >
-                                            <Link
-                                                href={personalityTraitEdit.url(
+                                            onClick={() =>
+                                                handleDelete(
                                                     trait.id,
-                                                )}
-                                            >
-                                                <Pencil className="size-4" />
-                                            </Link>
+                                                    trait.name,
+                                                )
+                                            }
+                                        >
+                                            <Trash2 style={{ width: 16, height: 16, color: 'var(--mui-palette-error-main, #d32f2f)' }} />
                                         </Button>
-                                        {canDelete && (
-                                            <Button
-                                                variant="ghost"
-                                                size="sm"
-                                                onClick={() =>
-                                                    handleDelete(
-                                                        trait.id,
-                                                        trait.name,
-                                                    )
-                                                }
-                                            >
-                                                <Trash2 className="size-4 text-destructive" />
-                                            </Button>
-                                        )}
-                                    </div>
-                                </td>
-                            </tr>
-                        ))}
-                        {personalityTraits.data.length === 0 && (
-                            <tr>
-                                <td
-                                    colSpan={4}
-                                    className="p-4 text-center text-muted-foreground"
+                                    )}
+                                </Box>
+                            </TableCell>
+                        </TableRow>
+                    ))}
+                    {personalityTraits.data.length === 0 && (
+                        <TableRow>
+                            <TableCell colSpan={4}>
+                                <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                    sx={{ textAlign: 'center', p: 2 }}
                                 >
                                     No personality traits found
-                                </td>
-                            </tr>
-                        )}
-                    </tbody>
-                </table>
-            </div>
+                                </Typography>
+                            </TableCell>
+                        </TableRow>
+                    )}
+                </TableBody>
+            </Table>
             <Pagination
                 currentPage={personalityTraits.current_page}
                 lastPage={personalityTraits.last_page}
@@ -149,6 +172,6 @@ export function PersonalityTraitsTab({
                     });
                 }}
             />
-        </div>
+        </Box>
     );
 }

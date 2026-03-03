@@ -1,7 +1,10 @@
 import { Bell, Check, Trash2 } from 'lucide-react';
 import { useNotifications } from '@/hooks/useNotifications';
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import IconButton from '@mui/material/IconButton';
+import MuiButton from '@mui/material/Button';
+import { alpha } from '@mui/material/styles';
 
 interface NotificationDropdownProps {
     onClose: () => void;
@@ -31,87 +34,189 @@ export function NotificationDropdown({ onClose }: NotificationDropdownProps) {
     };
 
     return (
-        <div className="flex flex-col">
-            <div className="flex items-center justify-between border-b px-4 py-3">
-                <h3 className="font-semibold">Notifications</h3>
+        <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+            <Box
+                sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    borderBottom: 1,
+                    borderColor: 'divider',
+                    px: 2,
+                    py: 1.5,
+                }}
+            >
+                <Typography sx={{ fontWeight: 600 }}>Notifications</Typography>
                 {unreadCount > 0 && (
-                    <Button
-                        variant="ghost"
-                        size="sm"
+                    <MuiButton
+                        variant="text"
+                        size="small"
                         onClick={handleMarkAllRead}
-                        className="text-xs"
+                        sx={{ fontSize: '0.75rem', textTransform: 'none' }}
                     >
-                        <Check className="mr-1 h-3 w-3" />
+                        <Check style={{ width: 12, height: 12, marginRight: 4 }} />
                         Mark all read
-                    </Button>
+                    </MuiButton>
                 )}
-            </div>
+            </Box>
 
-            <div className="h-80 overflow-y-auto">
+            <Box sx={{ height: 320, overflowY: 'auto' }}>
                 {isLoading ? (
-                    <div className="flex items-center justify-center p-4">
-                        <span className="text-sm text-muted-foreground">
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            p: 2,
+                        }}
+                    >
+                        <Typography
+                            variant="body2"
+                            sx={{ color: 'text.secondary' }}
+                        >
                             Loading...
-                        </span>
-                    </div>
+                        </Typography>
+                    </Box>
                 ) : notifications.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center p-4 text-center">
-                        <Bell className="mb-2 h-8 w-8 text-muted-foreground" />
-                        <span className="text-sm text-muted-foreground">
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            p: 2,
+                            textAlign: 'center',
+                        }}
+                    >
+                        <Bell
+                            style={{
+                                width: 32,
+                                height: 32,
+                                marginBottom: 8,
+                                color: 'var(--mui-palette-text-secondary)',
+                            }}
+                        />
+                        <Typography
+                            variant="body2"
+                            sx={{ color: 'text.secondary' }}
+                        >
                             No notifications yet
-                        </span>
-                    </div>
+                        </Typography>
+                    </Box>
                 ) : (
-                    <div className="divide-y">
+                    <Box
+                        sx={{
+                            '& > * + *': {
+                                borderTop: 1,
+                                borderColor: 'divider',
+                            },
+                        }}
+                    >
                         {notifications.map((notification) => (
-                            <div
+                            <Box
                                 key={notification.id}
                                 onClick={() =>
                                     handleNotificationClick(notification.id)
                                 }
-                                className={cn(
-                                    'flex cursor-pointer items-start gap-3 px-4 py-3 transition-colors hover:bg-accent',
-                                    !notification.read_at && 'bg-primary/5',
-                                )}
+                                sx={{
+                                    display: 'flex',
+                                    cursor: 'pointer',
+                                    alignItems: 'flex-start',
+                                    gap: 1.5,
+                                    px: 2,
+                                    py: 1.5,
+                                    transition: 'background-color 0.15s',
+                                    '&:hover': {
+                                        bgcolor: 'action.hover',
+                                    },
+                                    ...(!notification.read_at && {
+                                        bgcolor: (theme) =>
+                                            alpha(
+                                                theme.palette.primary.main,
+                                                0.05,
+                                            ),
+                                    }),
+                                }}
                             >
-                                <div className="flex-1 space-y-1">
-                                    <p
-                                        className={cn(
-                                            'text-sm',
-                                            !notification.read_at &&
-                                                'font-medium',
-                                        )}
+                                <Box
+                                    sx={{
+                                        flex: 1,
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        gap: 0.5,
+                                    }}
+                                >
+                                    <Typography
+                                        variant="body2"
+                                        sx={{
+                                            ...(!notification.read_at && {
+                                                fontWeight: 500,
+                                            }),
+                                        }}
                                     >
                                         {notification.title}
-                                    </p>
-                                    <p className="text-xs text-muted-foreground line-clamp-2">
+                                    </Typography>
+                                    <Typography
+                                        variant="caption"
+                                        sx={{
+                                            color: 'text.secondary',
+                                            display: '-webkit-box',
+                                            WebkitLineClamp: 2,
+                                            WebkitBoxOrient: 'vertical',
+                                            overflow: 'hidden',
+                                        }}
+                                    >
                                         {notification.message}
-                                    </p>
-                                    <p className="text-xs text-muted-foreground">
+                                    </Typography>
+                                    <Typography
+                                        variant="caption"
+                                        sx={{ color: 'text.secondary' }}
+                                    >
                                         {formatTimeAgo(notification.created_at)}
-                                    </p>
-                                </div>
-                                <div className="flex flex-col gap-1">
+                                    </Typography>
+                                </Box>
+                                <Box
+                                    sx={{
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        gap: 0.5,
+                                    }}
+                                >
                                     {!notification.read_at && (
-                                        <span className="h-2 w-2 rounded-full bg-primary" />
+                                        <Box
+                                            sx={{
+                                                width: 8,
+                                                height: 8,
+                                                borderRadius: '50%',
+                                                bgcolor: 'primary.main',
+                                            }}
+                                        />
                                     )}
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        className="h-6 w-6 opacity-50 hover:opacity-100"
+                                    <IconButton
+                                        size="small"
                                         onClick={(e) =>
                                             handleDelete(e, notification.id)
                                         }
+                                        sx={{
+                                            width: 24,
+                                            height: 24,
+                                            opacity: 0.5,
+                                            '&:hover': {
+                                                opacity: 1,
+                                            },
+                                        }}
                                     >
-                                        <Trash2 className="h-3 w-3" />
-                                    </Button>
-                                </div>
-                            </div>
+                                        <Trash2
+                                            style={{ width: 12, height: 12 }}
+                                        />
+                                    </IconButton>
+                                </Box>
+                            </Box>
                         ))}
-                    </div>
+                    </Box>
                 )}
-            </div>
-        </div>
+            </Box>
+        </Box>
     );
 }
 

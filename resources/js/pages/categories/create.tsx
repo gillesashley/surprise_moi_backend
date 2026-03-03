@@ -21,6 +21,8 @@ import AppLayout from '@/layouts/app-layout';
 import { store as categoryStore } from '@/routes/dashboard/categories';
 import { type BreadcrumbItem } from '@/types';
 import { Form, Head, Link } from '@inertiajs/react';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
 import { ArrowLeft } from 'lucide-react';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -38,19 +40,19 @@ export default function CategoryCreate() {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Create Category" />
-            <div className="flex h-full flex-1 flex-col gap-4 p-4">
-                <div className="flex items-center justify-between">
+            <Box sx={{ display: 'flex', height: '100%', flex: 1, flexDirection: 'column', gap: 2, p: 2 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <Button variant="ghost" size="sm" asChild>
                         <Link
                             href={ContentManagementController.index.url({
                                 query: { tab: 'categories' },
                             })}
                         >
-                            <ArrowLeft className="mr-2 size-4" />
+                            <ArrowLeft style={{ marginRight: 8, width: 16, height: 16 }} />
                             Back to Content Management
                         </Link>
                     </Button>
-                </div>
+                </Box>
 
                 <Card>
                     <CardHeader>
@@ -66,18 +68,18 @@ export default function CategoryCreate() {
                             encType="multipart/form-data"
                         >
                             {({ errors, processing }) => (
-                                <div className="space-y-4">
-                                    <div className="space-y-2">
+                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                         <Label htmlFor="name">Name</Label>
                                         <Input id="name" name="name" required />
                                         {errors.name && (
-                                            <p className="text-sm text-destructive">
+                                            <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
                                                 {errors.name}
-                                            </p>
+                                            </Typography>
                                         )}
-                                    </div>
+                                    </Box>
 
-                                    <div className="space-y-2">
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                         <Label htmlFor="type">Type</Label>
                                         <Select
                                             name="type"
@@ -97,29 +99,43 @@ export default function CategoryCreate() {
                                             </SelectContent>
                                         </Select>
                                         {errors.type && (
-                                            <p className="text-sm text-destructive">
+                                            <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
                                                 {errors.type}
-                                            </p>
+                                            </Typography>
                                         )}
-                                    </div>
+                                    </Box>
 
-                                    <div className="space-y-2">
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                         <Label htmlFor="description">
                                             Description
                                         </Label>
-                                        <textarea
+                                        <Box
+                                            component="textarea"
                                             id="description"
                                             name="description"
                                             rows={3}
                                             placeholder="Detailed description for this category"
-                                            className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+                                            sx={{
+                                                display: 'flex',
+                                                minHeight: 80,
+                                                width: '100%',
+                                                borderRadius: 1,
+                                                border: 1,
+                                                borderColor: 'divider',
+                                                bgcolor: 'background.paper',
+                                                px: 1.5,
+                                                py: 1,
+                                                fontSize: { xs: '1rem', md: '0.875rem' },
+                                                '&:focus-visible': { outline: 'none', ring: 2, ringColor: 'primary.main' },
+                                                '&:disabled': { cursor: 'not-allowed', opacity: 0.5 },
+                                            }}
                                         />
                                         {errors.description && (
-                                            <p className="text-sm text-destructive">
+                                            <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
                                                 {errors.description}
-                                            </p>
+                                            </Typography>
                                         )}
-                                    </div>
+                                    </Box>
 
                                     <ImageUpload
                                         name="image"
@@ -128,19 +144,19 @@ export default function CategoryCreate() {
                                         error={errors.image as string}
                                     />
 
-                                    <div className="space-y-2">
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                         <Label htmlFor="icon">
                                             Icon (emoji)
                                         </Label>
                                         <Input id="icon" name="icon" />
                                         {errors.icon && (
-                                            <p className="text-sm text-destructive">
+                                            <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
                                                 {errors.icon}
-                                            </p>
+                                            </Typography>
                                         )}
-                                    </div>
+                                    </Box>
 
-                                    <div className="space-y-2">
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                         <Label htmlFor="sort_order">
                                             Sort Order
                                         </Label>
@@ -151,27 +167,28 @@ export default function CategoryCreate() {
                                             defaultValue="0"
                                         />
                                         {errors.sort_order && (
-                                            <p className="text-sm text-destructive">
+                                            <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
                                                 {errors.sort_order}
-                                            </p>
+                                            </Typography>
                                         )}
-                                    </div>
+                                    </Box>
 
-                                    <div className="flex items-center gap-2">
-                                        <input
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                        <Box
+                                            component="input"
                                             type="checkbox"
                                             id="is_active"
                                             name="is_active"
                                             value="1"
                                             defaultChecked
-                                            className="size-4"
+                                            sx={{ width: 16, height: 16 }}
                                         />
                                         <Label htmlFor="is_active">
                                             Active
                                         </Label>
-                                    </div>
+                                    </Box>
 
-                                    <div className="flex gap-2">
+                                    <Box sx={{ display: 'flex', gap: 1 }}>
                                         <Button
                                             type="submit"
                                             disabled={processing}
@@ -197,13 +214,13 @@ export default function CategoryCreate() {
                                                 Cancel
                                             </Link>
                                         </Button>
-                                    </div>
-                                </div>
+                                    </Box>
+                                </Box>
                             )}
                         </Form>
                     </CardContent>
                 </Card>
-            </div>
+            </Box>
         </AppLayout>
     );
 }

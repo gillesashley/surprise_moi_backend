@@ -16,6 +16,8 @@ import {
 } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
 import { Head } from '@inertiajs/react';
 import { Calendar, DollarSign } from 'lucide-react';
 
@@ -97,62 +99,64 @@ export default function FieldAgentPayouts({ payoutRequests }: Props) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Payouts" />
 
-            <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto p-6">
-                <div>
-                    <h1 className="text-3xl font-bold">Payout Requests</h1>
-                    <p className="mt-1 text-muted-foreground">
+            <Box sx={{ display: 'flex', flex: 1, flexDirection: 'column', gap: 3, overflowX: 'auto', p: 3 }}>
+                <Box>
+                    <Typography variant="h4" fontWeight={700}>
+                        Payout Requests
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
                         Manage your withdrawal requests
-                    </p>
-                </div>
+                    </Typography>
+                </Box>
 
-                <div className="grid gap-4 md:grid-cols-3">
+                <Box sx={{ display: 'grid', gap: 2, gridTemplateColumns: { md: 'repeat(3, 1fr)' } }}>
                     <Card>
-                        <CardHeader className="pb-3">
-                            <CardTitle className="text-sm font-medium">
+                        <CardHeader style={{ paddingBottom: 12 }}>
+                            <CardTitle style={{ fontSize: '0.875rem', fontWeight: 500 }}>
                                 Total Requested
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <div className="flex items-center gap-2">
-                                <DollarSign className="h-5 w-5 text-muted-foreground" />
-                                <span className="text-2xl font-bold">
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <DollarSign style={{ width: 20, height: 20, color: 'gray' }} />
+                                <Typography variant="h5" fontWeight={700}>
                                     GHS {totalRequested.toFixed(2)}
-                                </span>
-                            </div>
+                                </Typography>
+                            </Box>
                         </CardContent>
                     </Card>
                     <Card>
-                        <CardHeader className="pb-3">
-                            <CardTitle className="text-sm font-medium">
+                        <CardHeader style={{ paddingBottom: 12 }}>
+                            <CardTitle style={{ fontSize: '0.875rem', fontWeight: 500 }}>
                                 Total Paid
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <div className="flex items-center gap-2">
-                                <DollarSign className="h-5 w-5 text-green-600" />
-                                <span className="text-2xl font-bold text-green-600">
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <DollarSign style={{ width: 20, height: 20, color: '#16a34a' }} />
+                                <Typography variant="h5" fontWeight={700} sx={{ color: '#16a34a' }}>
                                     GHS {totalPaid.toFixed(2)}
-                                </span>
-                            </div>
+                                </Typography>
+                            </Box>
                         </CardContent>
                     </Card>
                     <Card>
-                        <CardHeader className="pb-3">
-                            <CardTitle className="text-sm font-medium">
+                        <CardHeader style={{ paddingBottom: 12 }}>
+                            <CardTitle style={{ fontSize: '0.875rem', fontWeight: 500 }}>
                                 Pending Requests
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <span className="text-2xl font-bold text-orange-600">
+                            <Typography variant="h5" fontWeight={700} sx={{ color: '#ea580c' }}>
                                 {
                                     payoutRequests.data.filter(
                                         (p) => p.status === 'pending',
                                     ).length
                                 }
-                            </span>
+                            </Typography>
                         </CardContent>
                     </Card>
-                </div>
+                </Box>
 
                 <Card>
                     <CardHeader>
@@ -164,12 +168,12 @@ export default function FieldAgentPayouts({ payoutRequests }: Props) {
                     </CardHeader>
                     <CardContent>
                         {payoutRequests.data.length === 0 ? (
-                            <div className="py-12 text-center">
-                                <p className="text-muted-foreground">
+                            <Box sx={{ py: 6, textAlign: 'center' }}>
+                                <Typography color="text.secondary">
                                     No payout requests yet. Submit a request
                                     when you have approved earnings!
-                                </p>
-                            </div>
+                                </Typography>
+                            </Box>
                         ) : (
                             <Table>
                                 <TableHeader>
@@ -184,7 +188,7 @@ export default function FieldAgentPayouts({ payoutRequests }: Props) {
                                 <TableBody>
                                     {payoutRequests.data.map((payout) => (
                                         <TableRow key={payout.id}>
-                                            <TableCell className="font-semibold">
+                                            <TableCell style={{ fontWeight: 600 }}>
                                                 {formatCurrency(
                                                     payout.amount,
                                                     payout.currency,
@@ -199,12 +203,12 @@ export default function FieldAgentPayouts({ payoutRequests }: Props) {
                                                 {getStatusBadge(payout.status)}
                                             </TableCell>
                                             <TableCell>
-                                                <div className="flex items-center gap-2">
-                                                    <Calendar className="h-4 w-4 text-muted-foreground" />
+                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                    <Calendar style={{ width: 16, height: 16, color: 'gray' }} />
                                                     {formatDate(
                                                         payout.created_at,
                                                     )}
-                                                </div>
+                                                </Box>
                                             </TableCell>
                                             <TableCell>
                                                 {payout.paid_at
@@ -218,7 +222,7 @@ export default function FieldAgentPayouts({ payoutRequests }: Props) {
                         )}
                     </CardContent>
                 </Card>
-            </div>
+            </Box>
         </AppLayout>
     );
 }

@@ -10,6 +10,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
 import { Form, Head } from '@inertiajs/react';
 
 interface Settings {
@@ -36,13 +38,13 @@ export default function SettingsIndex({ settings }: Props) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="System Settings" />
 
-            <div className="flex h-full flex-1 flex-col gap-4 p-4">
-                <div>
-                    <h1 className="text-3xl font-bold">System Settings</h1>
-                    <p className="text-muted-foreground">
+            <Box sx={{ display: 'flex', height: '100%', flex: 1, flexDirection: 'column', gap: 2, p: 2 }}>
+                <Box>
+                    <Typography variant="h4" fontWeight={700}>System Settings</Typography>
+                    <Typography variant="body2" color="text.secondary">
                         Manage application-wide settings
-                    </p>
-                </div>
+                    </Typography>
+                </Box>
 
                 <Card>
                     <CardHeader>
@@ -55,11 +57,11 @@ export default function SettingsIndex({ settings }: Props) {
                         <Form
                             action="/dashboard/settings"
                             method="post"
-                            className="space-y-6"
+                            style={{ display: 'flex', flexDirection: 'column', gap: 24 }}
                         >
                             {({ errors, processing }) => (
                                 <>
-                                    <div className="space-y-2">
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                         <Label htmlFor="vendor_onboarding_fee">
                                             Vendor Onboarding Fee (GHS) *
                                         </Label>
@@ -75,20 +77,20 @@ export default function SettingsIndex({ settings }: Props) {
                                             }
                                             required
                                         />
-                                        <p className="text-sm text-muted-foreground">
+                                        <Typography variant="body2" color="text.secondary">
                                             {
                                                 settings.vendor_onboarding_fee
                                                     .description
                                             }
-                                        </p>
+                                        </Typography>
                                         {errors.vendor_onboarding_fee && (
-                                            <p className="text-sm text-red-600">
+                                            <Typography variant="body2" color="error.main">
                                                 {errors.vendor_onboarding_fee}
-                                            </p>
+                                            </Typography>
                                         )}
-                                    </div>
+                                    </Box>
 
-                                    <div className="flex justify-end">
+                                    <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
                                         <Button
                                             type="submit"
                                             disabled={processing}
@@ -97,13 +99,13 @@ export default function SettingsIndex({ settings }: Props) {
                                                 ? 'Saving...'
                                                 : 'Save Settings'}
                                         </Button>
-                                    </div>
+                                    </Box>
                                 </>
                             )}
                         </Form>
                     </CardContent>
                 </Card>
-            </div>
+            </Box>
         </AppLayout>
     );
 }

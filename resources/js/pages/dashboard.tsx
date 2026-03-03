@@ -10,6 +10,8 @@ import AppLayout from '@/layouts/app-layout';
 import { dashboard } from '@/routes';
 import { show as userShow } from '@/routes/users';
 import { type BreadcrumbItem, type SharedData } from '@/types';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
 import { Head, Link, usePage } from '@inertiajs/react';
 import {
     AlertCircle,
@@ -35,8 +37,7 @@ interface StatCardProps {
     icon: React.ElementType;
     trend?: string;
     trendUp?: boolean;
-    bgColor: string;
-    iconBgColor: string;
+    iconColor: string;
 }
 
 function StatCard({
@@ -45,57 +46,127 @@ function StatCard({
     icon: Icon,
     trend,
     trendUp,
-    bgColor,
-    iconBgColor,
+    iconColor,
 }: StatCardProps) {
     return (
-        <div
-            className={`relative overflow-hidden rounded-xl p-6 shadow-sm transition-all duration-200 hover:shadow-md ${bgColor}`}
+        <Box
+            sx={{
+                position: 'relative',
+                overflow: 'hidden',
+                borderRadius: 3,
+                p: 3,
+                boxShadow: 1,
+                border: 1,
+                borderColor: 'divider',
+                bgcolor: 'background.paper',
+                transition: 'all 0.2s',
+                '&:hover': { boxShadow: 3 },
+            }}
         >
-            <div className="flex items-start justify-between">
-                <div className="space-y-2">
-                    <p className="text-sm font-medium text-muted-foreground">
+            <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                    <Typography variant="body2" color="text.secondary" fontWeight={500}>
                         {title}
-                    </p>
-                    <p className="text-3xl font-bold tracking-tight">{value}</p>
+                    </Typography>
+                    <Typography variant="h4" fontWeight={700} sx={{ letterSpacing: '-0.02em' }}>
+                        {value}
+                    </Typography>
                     {trend && (
-                        <p
-                            className={`flex items-center text-sm font-medium ${trendUp ? 'text-success' : 'text-destructive'}`}
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                color: trendUp ? 'success.main' : 'error.main',
+                            }}
                         >
                             <TrendingUp
-                                className={`mr-1 h-4 w-4 ${!trendUp && 'rotate-180'}`}
+                                style={{
+                                    width: 16,
+                                    height: 16,
+                                    marginRight: 4,
+                                    transform: !trendUp ? 'rotate(180deg)' : undefined,
+                                }}
                             />
-                            {trend}
-                        </p>
+                            <Typography variant="body2" fontWeight={500}>
+                                {trend}
+                            </Typography>
+                        </Box>
                     )}
-                </div>
-                <div className={`rounded-lg p-3 ${iconBgColor}`}>
-                    <Icon className="h-6 w-6 text-white" />
-                </div>
-            </div>
-            <div className="absolute -right-4 -bottom-4 h-24 w-24 rounded-full bg-white/5" />
-        </div>
+                </Box>
+                <Box
+                    sx={{
+                        borderRadius: 2,
+                        p: 1.5,
+                        bgcolor: iconColor,
+                    }}
+                >
+                    <Icon style={{ width: 24, height: 24, color: 'white' }} />
+                </Box>
+            </Box>
+            <Box
+                sx={{
+                    position: 'absolute',
+                    right: -16,
+                    bottom: -16,
+                    width: 96,
+                    height: 96,
+                    borderRadius: '50%',
+                    bgcolor: 'rgba(255,255,255,0.05)',
+                }}
+            />
+        </Box>
     );
 }
 
 function WelcomeCard({ userName }: { userName: string }) {
     return (
-        <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-primary to-secondary p-6 text-white shadow-lg">
-            <div className="relative z-10">
-                <div className="flex items-center gap-2">
-                    <Sparkles className="h-6 w-6 text-accent" />
-                    <h2 className="text-2xl font-bold">
+        <Box
+            sx={{
+                position: 'relative',
+                overflow: 'hidden',
+                borderRadius: 3,
+                p: 3,
+                color: 'primary.contrastText',
+                boxShadow: 3,
+                background: (theme) =>
+                    `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
+            }}
+        >
+            <Box sx={{ position: 'relative', zIndex: 1 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Sparkles style={{ width: 24, height: 24 }} />
+                    <Typography variant="h5" fontWeight={700}>
                         Welcome back, {userName}!
-                    </h2>
-                </div>
-                <p className="mt-2 text-white/80">
+                    </Typography>
+                </Box>
+                <Typography variant="body1" sx={{ mt: 1, opacity: 0.8 }}>
                     Your SurpriseMoi dashboard is ready. Let's create some
                     amazing surprises today!
-                </p>
-            </div>
-            <div className="absolute -top-8 -right-8 h-40 w-40 rounded-full bg-white/10" />
-            <div className="absolute -bottom-8 -left-8 h-32 w-32 rounded-full bg-white/5" />
-        </div>
+                </Typography>
+            </Box>
+            <Box
+                sx={{
+                    position: 'absolute',
+                    top: -32,
+                    right: -32,
+                    width: 160,
+                    height: 160,
+                    borderRadius: '50%',
+                    bgcolor: 'rgba(255,255,255,0.1)',
+                }}
+            />
+            <Box
+                sx={{
+                    position: 'absolute',
+                    bottom: -32,
+                    left: -32,
+                    width: 128,
+                    height: 128,
+                    borderRadius: '50%',
+                    bgcolor: 'rgba(255,255,255,0.05)',
+                }}
+            />
+        </Box>
     );
 }
 
@@ -103,29 +174,50 @@ function QuickActionCard({
     title,
     description,
     icon: Icon,
-    bgColor,
     href,
 }: {
     title: string;
     description: string;
     icon: React.ElementType;
-    bgColor: string;
     href: string;
 }) {
     return (
-        <Link
-            href={href}
-            className={`group block rounded-xl p-5 transition-all duration-200 hover:scale-[1.02] hover:shadow-md ${bgColor}`}
-        >
-            <div className="flex items-center gap-4">
-                <div className="rounded-lg bg-white/20 p-3">
-                    <Icon className="h-6 w-6" />
-                </div>
-                <div>
-                    <h3 className="font-semibold">{title}</h3>
-                    <p className="text-sm opacity-80">{description}</p>
-                </div>
-            </div>
+        <Link href={href} style={{ textDecoration: 'none', color: 'inherit' }}>
+            <Box
+                sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 2,
+                    borderRadius: 3,
+                    p: 2.5,
+                    bgcolor: 'primary.main',
+                    color: 'primary.contrastText',
+                    transition: 'all 0.2s',
+                    '&:hover': {
+                        transform: 'scale(1.02)',
+                        boxShadow: 3,
+                        bgcolor: 'primary.dark',
+                    },
+                }}
+            >
+                <Box
+                    sx={{
+                        borderRadius: 2,
+                        p: 1.5,
+                        bgcolor: 'rgba(255,255,255,0.2)',
+                    }}
+                >
+                    <Icon style={{ width: 24, height: 24 }} />
+                </Box>
+                <Box>
+                    <Typography variant="subtitle2" fontWeight={600}>
+                        {title}
+                    </Typography>
+                    <Typography variant="body2" sx={{ opacity: 0.8 }}>
+                        {description}
+                    </Typography>
+                </Box>
+            </Box>
         </Link>
     );
 }
@@ -158,46 +250,82 @@ function RecentActivityCard() {
         },
     ];
 
+    const getActivityColor = (type: string) => {
+        switch (type) {
+            case 'order': return 'primary.main';
+            case 'user': return 'secondary.main';
+            case 'delivery': return 'success.main';
+            default: return 'info.main';
+        }
+    };
+
     return (
-        <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
-            <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold">
-                <div className="h-2 w-2 animate-pulse rounded-full bg-success" />
-                Recent Activity
-            </h3>
-            <div className="space-y-4">
+        <Box
+            sx={{
+                borderRadius: 3,
+                border: 1,
+                borderColor: 'divider',
+                bgcolor: 'background.paper',
+                p: 3,
+                boxShadow: 1,
+            }}
+        >
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                <Box
+                    sx={{
+                        width: 8,
+                        height: 8,
+                        borderRadius: '50%',
+                        bgcolor: 'success.main',
+                        animation: 'pulse 2s infinite',
+                        '@keyframes pulse': {
+                            '0%, 100%': { opacity: 1 },
+                            '50%': { opacity: 0.5 },
+                        },
+                    }}
+                />
+                <Typography variant="h6" fontWeight={600}>
+                    Recent Activity
+                </Typography>
+            </Box>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                 {activities.map((activity, index) => (
-                    <div
+                    <Box
                         key={index}
-                        className="flex items-center justify-between border-b border-border/50 pb-3 last:border-0"
+                        sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            borderBottom: index < activities.length - 1 ? 1 : 0,
+                            borderColor: 'divider',
+                            pb: index < activities.length - 1 ? 1.5 : 0,
+                        }}
                     >
-                        <div className="flex items-center gap-3">
-                            <div
-                                className={`h-2 w-2 rounded-full ${
-                                    activity.type === 'order'
-                                        ? 'bg-primary'
-                                        : activity.type === 'user'
-                                          ? 'bg-accent'
-                                          : activity.type === 'delivery'
-                                            ? 'bg-success'
-                                            : 'bg-chart-2'
-                                }`}
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                            <Box
+                                sx={{
+                                    width: 8,
+                                    height: 8,
+                                    borderRadius: '50%',
+                                    bgcolor: getActivityColor(activity.type),
+                                }}
                             />
-                            <div>
-                                <p className="text-sm font-medium">
+                            <Box>
+                                <Typography variant="body2" fontWeight={500}>
                                     {activity.action}
-                                </p>
-                                <p className="text-xs text-muted-foreground">
+                                </Typography>
+                                <Typography variant="caption" color="text.secondary">
                                     {activity.user}
-                                </p>
-                            </div>
-                        </div>
-                        <span className="text-xs text-muted-foreground">
+                                </Typography>
+                            </Box>
+                        </Box>
+                        <Typography variant="caption" color="text.secondary">
                             {activity.time}
-                        </span>
-                    </div>
+                        </Typography>
+                    </Box>
                 ))}
-            </div>
-        </div>
+            </Box>
+        </Box>
     );
 }
 
@@ -250,8 +378,8 @@ function VendorApplicationsCard({
         return (
             <Card>
                 <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        <Clock className="h-5 w-5" />
+                    <CardTitle style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <Clock style={{ width: 20, height: 20 }} />
                         Pending Vendor Applications
                     </CardTitle>
                     <CardDescription>
@@ -259,9 +387,9 @@ function VendorApplicationsCard({
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <p className="text-sm text-muted-foreground">
+                    <Typography variant="body2" color="text.secondary">
                         No pending applications at the moment.
-                    </p>
+                    </Typography>
                 </CardContent>
             </Card>
         );
@@ -270,10 +398,10 @@ function VendorApplicationsCard({
     return (
         <Card>
             <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                    <AlertCircle className="text-warning h-5 w-5" />
+                <CardTitle style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <AlertCircle style={{ width: 20, height: 20, color: 'orange' }} />
                     Pending Vendor Applications
-                    <Badge variant="destructive" className="ml-2">
+                    <Badge variant="destructive" style={{ marginLeft: 8 }}>
                         {applications.length}
                     </Badge>
                 </CardTitle>
@@ -282,51 +410,67 @@ function VendorApplicationsCard({
                 </CardDescription>
             </CardHeader>
             <CardContent>
-                <div className="space-y-3">
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
                     {applications.map((app) => (
                         <Link
                             key={app.id}
                             href={userShow.url(app.user.id)}
-                            className="block rounded-lg border p-4 transition-all hover:border-primary hover:shadow-md"
+                            style={{ textDecoration: 'none', color: 'inherit' }}
                         >
-                            <div className="flex items-center justify-between">
-                                <div className="flex-1">
-                                    <div className="flex items-center gap-2">
-                                        <h4 className="font-medium">
-                                            {app.user.name}
-                                        </h4>
-                                        <Badge
-                                            variant={
-                                                app.status === 'pending'
-                                                    ? 'secondary'
-                                                    : 'outline'
-                                            }
-                                        >
-                                            {app.status
-                                                .replace(/_/g, ' ')
-                                                .toUpperCase()}
-                                        </Badge>
-                                    </div>
-                                    <p className="text-sm text-muted-foreground">
-                                        {app.user.email}
-                                    </p>
-                                    <div className="mt-2 flex items-center gap-4 text-xs text-muted-foreground">
-                                        <span>Progress: {app.progress}</span>
-                                        {app.submitted_at && (
-                                            <span>
-                                                Submitted:{' '}
-                                                {new Date(
-                                                    app.submitted_at,
-                                                ).toLocaleDateString()}
-                                            </span>
-                                        )}
-                                    </div>
-                                </div>
-                                <TrendingUp className="h-5 w-5 text-primary" />
-                            </div>
+                            <Box
+                                sx={{
+                                    borderRadius: 2,
+                                    border: 1,
+                                    borderColor: 'divider',
+                                    p: 2,
+                                    transition: 'all 0.2s',
+                                    '&:hover': {
+                                        borderColor: 'primary.main',
+                                        boxShadow: 3,
+                                    },
+                                }}
+                            >
+                                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                    <Box sx={{ flex: 1 }}>
+                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                            <Typography variant="body2" fontWeight={500}>
+                                                {app.user.name}
+                                            </Typography>
+                                            <Badge
+                                                variant={
+                                                    app.status === 'pending'
+                                                        ? 'secondary'
+                                                        : 'outline'
+                                                }
+                                            >
+                                                {app.status
+                                                    .replace(/_/g, ' ')
+                                                    .toUpperCase()}
+                                            </Badge>
+                                        </Box>
+                                        <Typography variant="body2" color="text.secondary">
+                                            {app.user.email}
+                                        </Typography>
+                                        <Box sx={{ mt: 1, display: 'flex', alignItems: 'center', gap: 2 }}>
+                                            <Typography variant="caption" color="text.secondary">
+                                                Progress: {app.progress}
+                                            </Typography>
+                                            {app.submitted_at && (
+                                                <Typography variant="caption" color="text.secondary">
+                                                    Submitted:{' '}
+                                                    {new Date(
+                                                        app.submitted_at,
+                                                    ).toLocaleDateString()}
+                                                </Typography>
+                                            )}
+                                        </Box>
+                                    </Box>
+                                    <TrendingUp style={{ width: 20, height: 20 }} />
+                                </Box>
+                            </Box>
                         </Link>
                     ))}
-                </div>
+                </Box>
             </CardContent>
         </Card>
     );
@@ -338,7 +482,6 @@ export default function Dashboard({
 }: DashboardProps) {
     const { auth } = usePage<SharedData>().props;
 
-    // Default stats if not provided
     const dashboardStats: DashboardStats = stats || {
         totalUsers: { value: 0, trend: 0, trendUp: true },
         activeOrders: { value: 0, trend: 0, trendUp: true },
@@ -346,7 +489,6 @@ export default function Dashboard({
         revenue: { value: 0, trend: 0, trendUp: true },
     };
 
-    // Format currency
     const formatCurrency = (value: number) => {
         return new Intl.NumberFormat('en-GH', {
             style: 'currency',
@@ -356,7 +498,6 @@ export default function Dashboard({
         }).format(value);
     };
 
-    // Format number with commas
     const formatNumber = (value: number) => {
         return new Intl.NumberFormat('en-GH').format(value);
     };
@@ -364,12 +505,20 @@ export default function Dashboard({
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />
-            <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto p-6">
-                {/* Welcome Section */}
+            <Box sx={{ display: 'flex', flex: 1, flexDirection: 'column', gap: 3, overflowX: 'auto', p: 3 }}>
                 <WelcomeCard userName={auth.user.name.split(' ')[0]} />
 
-                {/* Stats Grid */}
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                <Box
+                    sx={{
+                        display: 'grid',
+                        gap: 2,
+                        gridTemplateColumns: {
+                            xs: '1fr',
+                            md: 'repeat(2, 1fr)',
+                            lg: 'repeat(4, 1fr)',
+                        },
+                    }}
+                >
                     <StatCard
                         title="Total Users"
                         value={formatNumber(dashboardStats.totalUsers.value)}
@@ -380,8 +529,7 @@ export default function Dashboard({
                                 : undefined
                         }
                         trendUp={dashboardStats.totalUsers.trendUp}
-                        bgColor="bg-card border border-border"
-                        iconBgColor="bg-primary"
+                        iconColor="primary.main"
                     />
                     <StatCard
                         title="Active Orders"
@@ -393,8 +541,7 @@ export default function Dashboard({
                                 : undefined
                         }
                         trendUp={dashboardStats.activeOrders.trendUp}
-                        bgColor="bg-card border border-border"
-                        iconBgColor="bg-accent"
+                        iconColor="secondary.main"
                     />
                     <StatCard
                         title="Surprises Sent"
@@ -406,8 +553,7 @@ export default function Dashboard({
                                 : undefined
                         }
                         trendUp={dashboardStats.surprisesSent.trendUp}
-                        bgColor="bg-card border border-border"
-                        iconBgColor="bg-success"
+                        iconColor="success.main"
                     />
                     <StatCard
                         title="Revenue"
@@ -419,43 +565,44 @@ export default function Dashboard({
                                 : undefined
                         }
                         trendUp={dashboardStats.revenue.trendUp}
-                        bgColor="bg-card border border-border"
-                        iconBgColor="bg-secondary"
+                        iconColor="info.main"
                     />
-                </div>
+                </Box>
 
-                {/* Quick Actions & Activity */}
-                <div className="grid gap-6 lg:grid-cols-3">
-                    {/* Quick Actions */}
-                    <div className="space-y-4">
-                        <h3 className="text-lg font-semibold">Quick Actions</h3>
-                        <div className="grid gap-4">
+                <Box
+                    sx={{
+                        display: 'grid',
+                        gap: 3,
+                        gridTemplateColumns: { lg: 'repeat(3, 1fr)' },
+                    }}
+                >
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                        <Typography variant="h6" fontWeight={600}>
+                            Quick Actions
+                        </Typography>
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                             <QuickActionCard
                                 title="Manage Users"
                                 description="View and manage user accounts"
                                 icon={Users}
-                                bgColor="bg-primary/10 text-primary hover:bg-primary/20"
                                 href="/dashboard/users"
                             />
                             <QuickActionCard
                                 title="Content Management"
                                 description="Update categories and content"
                                 icon={Package}
-                                bgColor="bg-accent/10 text-accent-foreground hover:bg-accent/20"
                                 href="/dashboard/content-management"
                             />
-                        </div>
-                    </div>
+                        </Box>
+                    </Box>
 
-                    {/* Recent Activity */}
                     <RecentActivityCard />
 
-                    {/* Vendor Applications - New */}
                     <VendorApplicationsCard
                         applications={pendingApplications}
                     />
-                </div>
-            </div>
+                </Box>
+            </Box>
         </AppLayout>
     );
 }

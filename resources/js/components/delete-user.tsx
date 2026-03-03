@@ -13,6 +13,9 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import { alpha } from '@mui/material/styles';
 import { Form } from '@inertiajs/react';
 import { useRef } from 'react';
 
@@ -20,18 +23,38 @@ export default function DeleteUser() {
     const passwordInput = useRef<HTMLInputElement>(null);
 
     return (
-        <div className="space-y-6">
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
             <HeadingSmall
                 title="Delete account"
                 description="Delete your account and all of its resources"
             />
-            <div className="space-y-4 rounded-lg border border-red-100 bg-red-50 p-4 dark:border-red-200/10 dark:bg-red-700/10">
-                <div className="relative space-y-0.5 text-red-600 dark:text-red-100">
-                    <p className="font-medium">Warning</p>
-                    <p className="text-sm">
+            <Box
+                sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 2,
+                    borderRadius: 2,
+                    border: 1,
+                    borderColor: 'error.light',
+                    bgcolor: (theme) =>
+                        alpha(theme.palette.error.main, 0.05),
+                    p: 2,
+                }}
+            >
+                <Box
+                    sx={{
+                        position: 'relative',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: 0.25,
+                        color: 'error.main',
+                    }}
+                >
+                    <Typography sx={{ fontWeight: 500 }}>Warning</Typography>
+                    <Typography variant="body2">
                         Please proceed with caution, this cannot be undone.
-                    </p>
-                </div>
+                    </Typography>
+                </Box>
 
                 <Dialog>
                     <DialogTrigger asChild>
@@ -60,14 +83,33 @@ export default function DeleteUser() {
                             }}
                             onError={() => passwordInput.current?.focus()}
                             resetOnSuccess
-                            className="space-y-6"
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: 24,
+                            }}
                         >
                             {({ resetAndClearErrors, processing, errors }) => (
                                 <>
-                                    <div className="grid gap-2">
+                                    <Box
+                                        sx={{
+                                            display: 'grid',
+                                            gap: 1,
+                                        }}
+                                    >
                                         <Label
                                             htmlFor="password"
-                                            className="sr-only"
+                                            style={{
+                                                position: 'absolute',
+                                                width: 1,
+                                                height: 1,
+                                                padding: 0,
+                                                margin: -1,
+                                                overflow: 'hidden',
+                                                clip: 'rect(0,0,0,0)',
+                                                whiteSpace: 'nowrap',
+                                                borderWidth: 0,
+                                            }}
                                         >
                                             Password
                                         </Label>
@@ -82,9 +124,9 @@ export default function DeleteUser() {
                                         />
 
                                         <InputError message={errors.password} />
-                                    </div>
+                                    </Box>
 
-                                    <DialogFooter className="gap-2">
+                                    <DialogFooter style={{ gap: 8 }}>
                                         <DialogClose asChild>
                                             <Button
                                                 variant="secondary"
@@ -114,7 +156,7 @@ export default function DeleteUser() {
                         </Form>
                     </DialogContent>
                 </Dialog>
-            </div>
-        </div>
+            </Box>
+        </Box>
     );
 }

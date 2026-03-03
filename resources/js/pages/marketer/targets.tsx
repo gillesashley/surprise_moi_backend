@@ -17,6 +17,8 @@ import {
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/react';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
 import { Calendar, Target, TrendingUp } from 'lucide-react';
 
 interface TargetItem {
@@ -91,13 +93,13 @@ export default function MarketerTargets({ targets }: Props) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="My Targets" />
 
-            <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto p-6">
-                <div>
-                    <h1 className="text-3xl font-bold">My Quarterly Targets</h1>
-                    <p className="mt-1 text-muted-foreground">
+            <Box sx={{ display: 'flex', height: '100%', flex: 1, flexDirection: 'column', gap: 3, overflowX: 'auto', p: 3 }}>
+                <Box>
+                    <Typography variant="h4" fontWeight={700}>My Quarterly Targets</Typography>
+                    <Typography color="text.secondary" sx={{ mt: 0.5 }}>
                         Track your quarterly targets and progress
-                    </p>
-                </div>
+                    </Typography>
+                </Box>
 
                 <Card>
                     <CardHeader>
@@ -109,12 +111,12 @@ export default function MarketerTargets({ targets }: Props) {
                     </CardHeader>
                     <CardContent>
                         {targets.data.length === 0 ? (
-                            <div className="py-12 text-center">
-                                <p className="text-muted-foreground">
+                            <Box sx={{ py: 6, textAlign: 'center' }}>
+                                <Typography color="text.secondary">
                                     No targets assigned yet. Check back later
                                     for new quarterly assignments!
-                                </p>
-                            </div>
+                                </Typography>
+                            </Box>
                         ) : (
                             <Table>
                                 <TableHeader>
@@ -135,25 +137,25 @@ export default function MarketerTargets({ targets }: Props) {
                                         return (
                                             <TableRow key={target.id}>
                                                 <TableCell>
-                                                    <div className="flex items-center gap-2">
-                                                        <TrendingUp className="h-4 w-4 text-muted-foreground" />
-                                                        <span className="font-medium">
+                                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                        <TrendingUp style={{ width: 16, height: 16, color: 'gray' }} />
+                                                        <Typography component="span" fontWeight={500}>
                                                             {getQuarterFromPeriod(
                                                                 target.period,
                                                             )}
-                                                        </span>
-                                                    </div>
+                                                        </Typography>
+                                                    </Box>
                                                 </TableCell>
-                                                <TableCell className="font-medium">
+                                                <TableCell sx={{ fontWeight: 500 }}>
                                                     {formatTargetType(
                                                         target.target_type,
                                                     )}
                                                 </TableCell>
                                                 <TableCell>
-                                                    <div className="space-y-1">
-                                                        <div className="flex items-center gap-2">
-                                                            <Target className="h-4 w-4 text-muted-foreground" />
-                                                            <span className="text-sm font-medium">
+                                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                            <Target style={{ width: 16, height: 16, color: 'gray' }} />
+                                                            <Typography variant="body2" fontWeight={500}>
                                                                 {
                                                                     target.current_value
                                                                 }{' '}
@@ -161,20 +163,32 @@ export default function MarketerTargets({ targets }: Props) {
                                                                 {
                                                                     target.target_value
                                                                 }
-                                                            </span>
-                                                        </div>
-                                                        <div className="h-2 w-full overflow-hidden rounded-full bg-secondary">
-                                                            <div
-                                                                className="h-full bg-primary transition-all"
+                                                            </Typography>
+                                                        </Box>
+                                                        <Box
+                                                            sx={{
+                                                                height: 8,
+                                                                width: '100%',
+                                                                overflow: 'hidden',
+                                                                borderRadius: 4,
+                                                                bgcolor: 'secondary.main',
+                                                            }}
+                                                        >
+                                                            <Box
+                                                                sx={{
+                                                                    height: '100%',
+                                                                    bgcolor: 'primary.main',
+                                                                    transition: 'all 0.2s',
+                                                                }}
                                                                 style={{
                                                                     width: `${progress}%`,
                                                                 }}
                                                             />
-                                                        </div>
-                                                        <span className="text-xs text-muted-foreground">
+                                                        </Box>
+                                                        <Typography variant="caption" color="text.secondary">
                                                             {progress}%
-                                                        </span>
-                                                    </div>
+                                                        </Typography>
+                                                    </Box>
                                                 </TableCell>
                                                 <TableCell>
                                                     {getStatusBadge(
@@ -182,20 +196,20 @@ export default function MarketerTargets({ targets }: Props) {
                                                     )}
                                                 </TableCell>
                                                 <TableCell>
-                                                    <div className="flex flex-col gap-1 text-sm">
-                                                        <div className="flex items-center gap-2">
-                                                            <Calendar className="h-3 w-3 text-muted-foreground" />
+                                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, fontSize: '0.875rem' }}>
+                                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                            <Calendar style={{ width: 12, height: 12, color: 'gray' }} />
                                                             {formatDate(
                                                                 target.start_date,
                                                             )}
-                                                        </div>
-                                                        <span className="text-muted-foreground">
+                                                        </Box>
+                                                        <Typography variant="body2" color="text.secondary">
                                                             to{' '}
                                                             {formatDate(
                                                                 target.end_date,
                                                             )}
-                                                        </span>
-                                                    </div>
+                                                        </Typography>
+                                                    </Box>
                                                 </TableCell>
                                             </TableRow>
                                         );
@@ -205,7 +219,7 @@ export default function MarketerTargets({ targets }: Props) {
                         )}
                     </CardContent>
                 </Card>
-            </div>
+            </Box>
         </AppLayout>
     );
 }

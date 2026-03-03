@@ -17,6 +17,8 @@ import {
 } from '@/routes/users';
 import { type BreadcrumbItem, type User } from '@/types';
 import { Form, Head, Link } from '@inertiajs/react';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
 import { ArrowLeft } from 'lucide-react';
 import { useState } from 'react';
 
@@ -67,15 +69,15 @@ export default function UserEdit({ user, roles, canEditRole }: Props) {
     return (
         <AppLayout breadcrumbs={breadcrumbs(user)}>
             <Head title={`Edit: ${user.name}`} />
-            <div className="flex h-full flex-1 flex-col gap-4 p-4">
-                <div className="flex items-center justify-between">
+            <Box sx={{ display: 'flex', height: '100%', flex: 1, flexDirection: 'column', gap: 2, p: 2 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <Button variant="ghost" size="sm" asChild>
                         <Link href={userShow.url(user.id)}>
-                            <ArrowLeft className="mr-2 size-4" />
+                            <ArrowLeft style={{ marginRight: 8, width: 16, height: 16 }} />
                             Back to User
                         </Link>
                     </Button>
-                </div>
+                </Box>
 
                 <Card>
                     <CardHeader>
@@ -94,12 +96,12 @@ export default function UserEdit({ user, roles, canEditRole }: Props) {
                             }}
                         >
                             {({ errors, processing, wasSuccessful }) => (
-                                <div className="space-y-4">
+                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                                     {/* Avatar Upload */}
-                                    <div className="space-y-2">
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                         <Label>Profile Image</Label>
-                                        <div className="flex items-center gap-4">
-                                            <Avatar className="h-16 w-16">
+                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                                            <Avatar style={{ width: 64, height: 64 }}>
                                                 <AvatarImage
                                                     src={
                                                         avatarPreview ||
@@ -108,7 +110,7 @@ export default function UserEdit({ user, roles, canEditRole }: Props) {
                                                     }
                                                     alt={user.name}
                                                 />
-                                                <AvatarFallback className="text-lg">
+                                                <AvatarFallback style={{ fontSize: '1.125rem' }}>
                                                     {user.name
                                                         .split(' ')
                                                         .map((n) => n[0])
@@ -116,31 +118,31 @@ export default function UserEdit({ user, roles, canEditRole }: Props) {
                                                         .toUpperCase()}
                                                 </AvatarFallback>
                                             </Avatar>
-                                            <div className="flex-1">
+                                            <Box sx={{ flex: 1 }}>
                                                 <Input
                                                     id="avatar"
                                                     name="avatar"
                                                     type="file"
                                                     accept="image/*"
-                                                    className="cursor-pointer"
+                                                    style={{ cursor: 'pointer' }}
                                                     onChange={
                                                         handleAvatarChange
                                                     }
                                                 />
-                                                <p className="mt-1 text-xs text-muted-foreground">
+                                                <Typography sx={{ mt: 0.5, fontSize: '0.75rem', color: 'text.secondary' }}>
                                                     Upload a new image (JPG,
                                                     PNG, GIF, max 2MB)
-                                                </p>
-                                            </div>
-                                        </div>
+                                                </Typography>
+                                            </Box>
+                                        </Box>
                                         {errors.avatar && (
-                                            <p className="text-sm text-destructive">
+                                            <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
                                                 {errors.avatar}
-                                            </p>
+                                            </Typography>
                                         )}
-                                    </div>
+                                    </Box>
 
-                                    <div className="space-y-2">
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                         <Label htmlFor="name">Name</Label>
                                         <Input
                                             id="name"
@@ -149,13 +151,13 @@ export default function UserEdit({ user, roles, canEditRole }: Props) {
                                             required
                                         />
                                         {errors.name && (
-                                            <p className="text-sm text-destructive">
+                                            <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
                                                 {errors.name}
-                                            </p>
+                                            </Typography>
                                         )}
-                                    </div>
+                                    </Box>
 
-                                    <div className="space-y-2">
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                         <Label htmlFor="email">Email</Label>
                                         <Input
                                             id="email"
@@ -165,13 +167,13 @@ export default function UserEdit({ user, roles, canEditRole }: Props) {
                                             required
                                         />
                                         {errors.email && (
-                                            <p className="text-sm text-destructive">
+                                            <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
                                                 {errors.email}
-                                            </p>
+                                            </Typography>
                                         )}
-                                    </div>
+                                    </Box>
 
-                                    <div className="space-y-2">
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                         <Label htmlFor="phone">Phone</Label>
                                         <Input
                                             id="phone"
@@ -179,43 +181,64 @@ export default function UserEdit({ user, roles, canEditRole }: Props) {
                                             defaultValue={user.phone || ''}
                                         />
                                         {errors.phone && (
-                                            <p className="text-sm text-destructive">
+                                            <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
                                                 {errors.phone}
-                                            </p>
+                                            </Typography>
                                         )}
-                                    </div>
+                                    </Box>
 
-                                    <div className="space-y-2">
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                         <Label htmlFor="role">Role</Label>
-                                        <select
+                                        <Box
+                                            component="select"
                                             id="role"
                                             name="role"
                                             defaultValue={
                                                 user.role || 'customer'
                                             }
                                             disabled={!canEditRole}
-                                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+                                            sx={{
+                                                display: 'flex',
+                                                height: 40,
+                                                width: '100%',
+                                                borderRadius: 1.5,
+                                                border: 1,
+                                                borderColor: 'divider',
+                                                bgcolor: 'background.paper',
+                                                px: 1.5,
+                                                py: 1,
+                                                fontSize: { xs: '1rem', md: '0.875rem' },
+                                                '&:focus-visible': {
+                                                    outline: '2px solid',
+                                                    outlineColor: 'primary.main',
+                                                    outlineOffset: 2,
+                                                },
+                                                '&:disabled': {
+                                                    cursor: 'not-allowed',
+                                                    opacity: 0.5,
+                                                },
+                                            }}
                                         >
                                             {roles.map((role) => (
                                                 <option key={role} value={role}>
                                                     {formatRole(role)}
                                                 </option>
                                             ))}
-                                        </select>
+                                        </Box>
                                         {!canEditRole && (
-                                            <p className="text-sm text-muted-foreground">
+                                            <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
                                                 You don't have permission to
                                                 change this user's role.
-                                            </p>
+                                            </Typography>
                                         )}
                                         {errors.role && (
-                                            <p className="text-sm text-destructive">
+                                            <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
                                                 {errors.role}
-                                            </p>
+                                            </Typography>
                                         )}
-                                    </div>
+                                    </Box>
 
-                                    <div className="space-y-2">
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                         <Label htmlFor="date_of_birth">
                                             Date of Birth
                                         </Label>
@@ -228,19 +251,40 @@ export default function UserEdit({ user, roles, canEditRole }: Props) {
                                             }
                                         />
                                         {errors.date_of_birth && (
-                                            <p className="text-sm text-destructive">
+                                            <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
                                                 {errors.date_of_birth}
-                                            </p>
+                                            </Typography>
                                         )}
-                                    </div>
+                                    </Box>
 
-                                    <div className="space-y-2">
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                         <Label htmlFor="gender">Gender</Label>
-                                        <select
+                                        <Box
+                                            component="select"
                                             id="gender"
                                             name="gender"
                                             defaultValue={user.gender || ''}
-                                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+                                            sx={{
+                                                display: 'flex',
+                                                height: 40,
+                                                width: '100%',
+                                                borderRadius: 1.5,
+                                                border: 1,
+                                                borderColor: 'divider',
+                                                bgcolor: 'background.paper',
+                                                px: 1.5,
+                                                py: 1,
+                                                fontSize: { xs: '1rem', md: '0.875rem' },
+                                                '&:focus-visible': {
+                                                    outline: '2px solid',
+                                                    outlineColor: 'primary.main',
+                                                    outlineOffset: 2,
+                                                },
+                                                '&:disabled': {
+                                                    cursor: 'not-allowed',
+                                                    opacity: 0.5,
+                                                },
+                                            }}
                                         >
                                             <option value="">
                                                 Select gender
@@ -250,37 +294,59 @@ export default function UserEdit({ user, roles, canEditRole }: Props) {
                                                 Female
                                             </option>
                                             <option value="other">Other</option>
-                                        </select>
+                                        </Box>
                                         {errors.gender && (
-                                            <p className="text-sm text-destructive">
+                                            <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
                                                 {errors.gender}
-                                            </p>
+                                            </Typography>
                                         )}
-                                    </div>
+                                    </Box>
 
-                                    <div className="space-y-2">
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                         <Label htmlFor="bio">Bio</Label>
-                                        <textarea
+                                        <Box
+                                            component="textarea"
                                             id="bio"
                                             name="bio"
                                             defaultValue={user.bio || ''}
                                             rows={4}
-                                            className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+                                            sx={{
+                                                display: 'flex',
+                                                minHeight: 80,
+                                                width: '100%',
+                                                borderRadius: 1.5,
+                                                border: 1,
+                                                borderColor: 'divider',
+                                                bgcolor: 'background.paper',
+                                                px: 1.5,
+                                                py: 1,
+                                                fontSize: { xs: '1rem', md: '0.875rem' },
+                                                '&:focus-visible': {
+                                                    outline: '2px solid',
+                                                    outlineColor: 'primary.main',
+                                                    outlineOffset: 2,
+                                                },
+                                                '&:disabled': {
+                                                    cursor: 'not-allowed',
+                                                    opacity: 0.5,
+                                                },
+                                            }}
                                         />
                                         {errors.bio && (
-                                            <p className="text-sm text-destructive">
+                                            <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
                                                 {errors.bio}
-                                            </p>
+                                            </Typography>
                                         )}
-                                    </div>
+                                    </Box>
 
-                                    <div className="flex items-center space-x-2">
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                         <input
                                             type="hidden"
                                             name="is_popular"
                                             value="0"
                                         />
-                                        <input
+                                        <Box
+                                            component="input"
                                             id="is_popular"
                                             name="is_popular"
                                             type="checkbox"
@@ -288,28 +354,28 @@ export default function UserEdit({ user, roles, canEditRole }: Props) {
                                             defaultChecked={
                                                 user.is_popular || false
                                             }
-                                            className="h-4 w-4 rounded border border-input"
+                                            sx={{ width: 16, height: 16, borderRadius: 1, border: 1, borderColor: 'divider' }}
                                         />
                                         <Label
                                             htmlFor="is_popular"
-                                            className="cursor-pointer font-normal"
+                                            style={{ cursor: 'pointer', fontWeight: 400 }}
                                         >
                                             Mark as Popular
                                         </Label>
                                         {errors.is_popular && (
-                                            <p className="text-sm text-destructive">
+                                            <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
                                                 {errors.is_popular}
-                                            </p>
+                                            </Typography>
                                         )}
-                                    </div>
+                                    </Box>
 
                                     {wasSuccessful && (
-                                        <p className="text-sm text-green-600">
+                                        <Typography sx={{ fontSize: '0.875rem', color: 'success.main' }}>
                                             User updated successfully!
-                                        </p>
+                                        </Typography>
                                     )}
 
-                                    <div className="flex gap-2">
+                                    <Box sx={{ display: 'flex', gap: 1 }}>
                                         <Button
                                             type="submit"
                                             disabled={processing}
@@ -327,13 +393,13 @@ export default function UserEdit({ user, roles, canEditRole }: Props) {
                                                 Cancel
                                             </Link>
                                         </Button>
-                                    </div>
-                                </div>
+                                    </Box>
+                                </Box>
                             )}
                         </Form>
                     </CardContent>
                 </Card>
-            </div>
+            </Box>
         </AppLayout>
     );
 }

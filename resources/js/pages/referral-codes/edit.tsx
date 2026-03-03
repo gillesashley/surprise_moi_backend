@@ -19,6 +19,8 @@ import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Form, Head, Link } from '@inertiajs/react';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
 import { ArrowLeft } from 'lucide-react';
 
 interface ReferralCode {
@@ -69,16 +71,16 @@ export default function ReferralCodeEdit({ code, influencers }: Props) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={`Edit Referral Code: ${code.code}`} />
 
-            <div className="flex h-full flex-1 flex-col gap-4 p-4">
-                <div className="flex items-center justify-between">
-                    <h1 className="text-3xl font-bold">Edit Referral Code</h1>
+            <Box sx={{ display: 'flex', height: '100%', flex: 1, flexDirection: 'column', gap: 2, p: 2 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <Typography variant="h4" sx={{ fontWeight: 700 }}>Edit Referral Code</Typography>
                     <Button variant="outline" asChild>
                         <Link href={`/dashboard/referral-codes/${code.id}`}>
-                            <ArrowLeft className="mr-2 size-4" />
+                            <ArrowLeft style={{ marginRight: 8, width: 16, height: 16 }} />
                             Back to Details
                         </Link>
                     </Button>
-                </div>
+                </Box>
 
                 <Card>
                     <CardHeader>
@@ -92,37 +94,34 @@ export default function ReferralCodeEdit({ code, influencers }: Props) {
                         <Form
                             action={`/dashboard/referral-codes/${code.id}`}
                             method="put"
-                            className="space-y-6"
                         >
                             {({ errors, processing }) => (
-                                <>
-                                    <div className="space-y-2">
+                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                         <Label>Referral Code</Label>
                                         <Input
                                             value={code.code}
                                             disabled
-                                            className="bg-muted font-mono"
                                         />
-                                        <p className="text-sm text-muted-foreground">
+                                        <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
                                             Code cannot be changed after
                                             creation
-                                        </p>
-                                    </div>
+                                        </Typography>
+                                    </Box>
 
-                                    <div className="space-y-2">
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                         <Label>Influencer</Label>
                                         <Input
                                             value={`${code.influencer.name} (${code.influencer.email})`}
                                             disabled
-                                            className="bg-muted"
                                         />
-                                        <p className="text-sm text-muted-foreground">
+                                        <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
                                             Influencer assignment cannot be
                                             changed after creation
-                                        </p>
-                                    </div>
+                                        </Typography>
+                                    </Box>
 
-                                    <div className="space-y-2">
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                         <Label htmlFor="description">
                                             Description
                                         </Label>
@@ -136,14 +135,14 @@ export default function ReferralCodeEdit({ code, influencers }: Props) {
                                             placeholder="Optional description for this referral code..."
                                         />
                                         {errors.description && (
-                                            <p className="text-sm text-red-600">
+                                            <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
                                                 {errors.description}
-                                            </p>
+                                            </Typography>
                                         )}
-                                    </div>
+                                    </Box>
 
-                                    <div className="grid gap-6 md:grid-cols-2">
-                                        <div className="space-y-2">
+                                    <Box sx={{ display: 'grid', gap: 3, gridTemplateColumns: { md: 'repeat(2, 1fr)' } }}>
+                                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                             <Label htmlFor="registration_bonus">
                                                 Registration Bonus (GHS) *
                                             </Label>
@@ -159,13 +158,13 @@ export default function ReferralCodeEdit({ code, influencers }: Props) {
                                                 required
                                             />
                                             {errors.registration_bonus && (
-                                                <p className="text-sm text-red-600">
+                                                <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
                                                     {errors.registration_bonus}
-                                                </p>
+                                                </Typography>
                                             )}
-                                        </div>
+                                        </Box>
 
-                                        <div className="space-y-2">
+                                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                             <Label htmlFor="commission_rate">
                                                 Commission Rate (%) *
                                             </Label>
@@ -182,14 +181,14 @@ export default function ReferralCodeEdit({ code, influencers }: Props) {
                                                 required
                                             />
                                             {errors.commission_rate && (
-                                                <p className="text-sm text-red-600">
+                                                <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
                                                     {errors.commission_rate}
-                                                </p>
+                                                </Typography>
                                             )}
-                                        </div>
-                                    </div>
+                                        </Box>
+                                    </Box>
 
-                                    <div className="space-y-2">
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                         <Label htmlFor="discount_percentage">
                                             Discount Percentage (%) *
                                         </Label>
@@ -205,18 +204,18 @@ export default function ReferralCodeEdit({ code, influencers }: Props) {
                                             }
                                             required
                                         />
-                                        <p className="text-sm text-muted-foreground">
+                                        <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
                                             Discount applied to vendors using
                                             this referral code
-                                        </p>
+                                        </Typography>
                                         {errors.discount_percentage && (
-                                            <p className="text-sm text-red-600">
+                                            <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
                                                 {errors.discount_percentage}
-                                            </p>
+                                            </Typography>
                                         )}
-                                    </div>
+                                    </Box>
 
-                                    <div className="space-y-2">
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                         <Label htmlFor="commission_duration_months">
                                             Commission Duration (Months) *
                                         </Label>
@@ -231,22 +230,22 @@ export default function ReferralCodeEdit({ code, influencers }: Props) {
                                             }
                                             required
                                         />
-                                        <p className="text-sm text-muted-foreground">
+                                        <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
                                             How long the influencer will receive
                                             commissions from referred vendors
                                             (1-120 months)
-                                        </p>
+                                        </Typography>
                                         {errors.commission_duration_months && (
-                                            <p className="text-sm text-red-600">
+                                            <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
                                                 {
                                                     errors.commission_duration_months
                                                 }
-                                            </p>
+                                            </Typography>
                                         )}
-                                    </div>
+                                    </Box>
 
-                                    <div className="grid gap-6 md:grid-cols-2">
-                                        <div className="space-y-2">
+                                    <Box sx={{ display: 'grid', gap: 3, gridTemplateColumns: { md: 'repeat(2, 1fr)' } }}>
+                                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                             <Label htmlFor="max_usages">
                                                 Maximum Usages
                                             </Label>
@@ -260,17 +259,17 @@ export default function ReferralCodeEdit({ code, influencers }: Props) {
                                                 }
                                                 placeholder="Unlimited"
                                             />
-                                            <p className="text-sm text-muted-foreground">
+                                            <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
                                                 Leave empty for unlimited usage
-                                            </p>
+                                            </Typography>
                                             {errors.max_usages && (
-                                                <p className="text-sm text-red-600">
+                                                <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
                                                     {errors.max_usages}
-                                                </p>
+                                                </Typography>
                                             )}
-                                        </div>
+                                        </Box>
 
-                                        <div className="space-y-2">
+                                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                             <Label htmlFor="expires_at">
                                                 Expiration Date
                                             </Label>
@@ -286,18 +285,18 @@ export default function ReferralCodeEdit({ code, influencers }: Props) {
                                                         : ''
                                                 }
                                             />
-                                            <p className="text-sm text-muted-foreground">
+                                            <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
                                                 Leave empty for no expiration
-                                            </p>
+                                            </Typography>
                                             {errors.expires_at && (
-                                                <p className="text-sm text-red-600">
+                                                <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
                                                     {errors.expires_at}
-                                                </p>
+                                                </Typography>
                                             )}
-                                        </div>
-                                    </div>
+                                        </Box>
+                                    </Box>
 
-                                    <div className="space-y-2">
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                         <Label htmlFor="is_active">
                                             Status *
                                         </Label>
@@ -321,13 +320,13 @@ export default function ReferralCodeEdit({ code, influencers }: Props) {
                                             </SelectContent>
                                         </Select>
                                         {errors.is_active && (
-                                            <p className="text-sm text-red-600">
+                                            <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
                                                 {errors.is_active}
-                                            </p>
+                                            </Typography>
                                         )}
-                                    </div>
+                                    </Box>
 
-                                    <div className="flex justify-end gap-3">
+                                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1.5 }}>
                                         <Button
                                             variant="outline"
                                             type="button"
@@ -347,13 +346,13 @@ export default function ReferralCodeEdit({ code, influencers }: Props) {
                                                 ? 'Updating...'
                                                 : 'Update Referral Code'}
                                         </Button>
-                                    </div>
-                                </>
+                                    </Box>
+                                </Box>
                             )}
                         </Form>
                     </CardContent>
                 </Card>
-            </div>
+            </Box>
         </AppLayout>
     );
 }

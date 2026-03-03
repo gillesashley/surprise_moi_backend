@@ -1,159 +1,348 @@
 import * as React from "react"
-import * as NavigationMenuPrimitive from "@radix-ui/react-navigation-menu"
-import { cva } from "class-variance-authority"
+import Box from "@mui/material/Box"
+import Popover from "@mui/material/Popover"
+import ButtonBase from "@mui/material/ButtonBase"
 import { ChevronDownIcon } from "lucide-react"
 
-import { cn } from "@/lib/utils"
+// ---------------------------------------------------------------------------
+// Context -- wires together the compound component tree
+// ---------------------------------------------------------------------------
+
+interface NavigationMenuContextValue {
+  activeItem: string | null
+  setActiveItem: (item: string | null) => void
+  anchorEl: HTMLElement | null
+  setAnchorEl: (el: HTMLElement | null) => void
+}
+
+const NavigationMenuContext = React.createContext<NavigationMenuContextValue>({
+  activeItem: null,
+  setActiveItem: () => {},
+  anchorEl: null,
+  setAnchorEl: () => {},
+})
+
+interface NavigationMenuItemContextValue {
+  itemId: string
+}
+
+const NavigationMenuItemContext = React.createContext<NavigationMenuItemContextValue>({
+  itemId: "",
+})
+
+// ---------------------------------------------------------------------------
+// navigationMenuTriggerStyle -- kept as a callable stub for export compat
+// ---------------------------------------------------------------------------
+
+/**
+ * Stub kept for export compatibility.
+ * Returns an empty string -- styling is now handled by MUI sx props.
+ */
+function navigationMenuTriggerStyle(): string {
+  return ""
+}
+
+// ---------------------------------------------------------------------------
+// NavigationMenu (root)
+// ---------------------------------------------------------------------------
+
+interface NavigationMenuProps extends React.ComponentProps<"nav"> {
+  viewport?: boolean
+}
 
 function NavigationMenu({
   className,
   children,
-  viewport = true,
+  viewport: _viewport = true,
   ...props
-}: React.ComponentProps<typeof NavigationMenuPrimitive.Root> & {
-  viewport?: boolean
-}) {
+}: NavigationMenuProps) {
+  const [activeItem, setActiveItem] = React.useState<string | null>(null)
+  const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null)
+
+  const value = React.useMemo(
+    () => ({ activeItem, setActiveItem, anchorEl, setAnchorEl }),
+    [activeItem, anchorEl],
+  )
+
   return (
-    <NavigationMenuPrimitive.Root
-      data-slot="navigation-menu"
-      data-viewport={viewport}
-      className={cn(
-        "group/navigation-menu relative flex max-w-max flex-1 items-center justify-center",
-        className
-      )}
-      {...props}
-    >
-      {children}
-      {viewport && <NavigationMenuViewport />}
-    </NavigationMenuPrimitive.Root>
+    <NavigationMenuContext.Provider value={value}>
+      <Box
+        component="nav"
+        data-slot="navigation-menu"
+        className={className}
+        sx={{
+          position: "relative",
+          display: "flex",
+          maxWidth: "max-content",
+          flex: 1,
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+        {...props}
+      >
+        {children}
+      </Box>
+    </NavigationMenuContext.Provider>
   )
 }
+
+// ---------------------------------------------------------------------------
+// NavigationMenuList
+// ---------------------------------------------------------------------------
 
 function NavigationMenuList({
   className,
+  children,
   ...props
-}: React.ComponentProps<typeof NavigationMenuPrimitive.List>) {
+}: React.ComponentProps<"ul">) {
   return (
-    <NavigationMenuPrimitive.List
+    <Box
+      component="ul"
       data-slot="navigation-menu-list"
-      className={cn(
-        "group flex flex-1 list-none items-center justify-center gap-1",
-        className
-      )}
+      className={className}
+      sx={{
+        display: "flex",
+        flex: 1,
+        listStyle: "none",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: "0.25rem",
+        m: 0,
+        p: 0,
+      }}
       {...props}
-    />
+    >
+      {children}
+    </Box>
   )
 }
+
+// ---------------------------------------------------------------------------
+// NavigationMenuItem
+// ---------------------------------------------------------------------------
+
+let itemIdCounter = 0
 
 function NavigationMenuItem({
   className,
+  children,
   ...props
-}: React.ComponentProps<typeof NavigationMenuPrimitive.Item>) {
+}: React.ComponentProps<"li">) {
+  const itemId = React.useMemo(() => `nav-menu-item-${++itemIdCounter}`, [])
+
   return (
-    <NavigationMenuPrimitive.Item
-      data-slot="navigation-menu-item"
-      className={cn("relative", className)}
-      {...props}
-    />
+    <NavigationMenuItemContext.Provider value={{ itemId }}>
+      <Box
+        component="li"
+        data-slot="navigation-menu-item"
+        className={className}
+        sx={{ position: "relative" }}
+        {...props}
+      >
+        {children}
+      </Box>
+    </NavigationMenuItemContext.Provider>
   )
 }
 
-const navigationMenuTriggerStyle = cva(
-  "group inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground disabled:pointer-events-none disabled:opacity-50 data-[active=true]:bg-accent/50 data-[state=open]:bg-accent/50 data-[active=true]:text-accent-foreground ring-ring/10 dark:ring-ring/20 dark:outline-ring/40 outline-ring/50 transition-[color,box-shadow] focus-visible:ring-4 focus-visible:outline-1"
-)
+// ---------------------------------------------------------------------------
+// NavigationMenuTrigger
+// ---------------------------------------------------------------------------
 
 function NavigationMenuTrigger({
   className,
   children,
   ...props
-}: React.ComponentProps<typeof NavigationMenuPrimitive.Trigger>) {
+}: React.ComponentProps<typeof ButtonBase>) {
+  const { activeItem, setActiveItem, setAnchorEl } =
+    React.useContext(NavigationMenuContext)
+  const { itemId } = React.useContext(NavigationMenuItemContext)
+  const isOpen = activeItem === itemId
+
+  const handleClick = React.useCallback(
+    (event: React.MouseEvent<HTMLElement>) => {
+      if (isOpen) {
+        setActiveItem(null)
+        setAnchorEl(null)
+      } else {
+        setActiveItem(itemId)
+        setAnchorEl(event.currentTarget)
+      }
+    },
+    [isOpen, itemId, setActiveItem, setAnchorEl],
+  )
+
   return (
-    <NavigationMenuPrimitive.Trigger
+    <ButtonBase
       data-slot="navigation-menu-trigger"
-      className={cn(navigationMenuTriggerStyle(), "group", className)}
+      data-state={isOpen ? "open" : "closed"}
+      className={className}
+      onClick={handleClick}
+      sx={{
+        display: "inline-flex",
+        height: 36,
+        width: "max-content",
+        alignItems: "center",
+        justifyContent: "center",
+        borderRadius: "0.375rem",
+        px: 2,
+        py: 1,
+        fontSize: "0.875rem",
+        fontWeight: 500,
+        transition: "color 150ms, background-color 150ms",
+        "&:hover": {
+          bgcolor: "action.hover",
+        },
+        ...(isOpen && {
+          bgcolor: "action.selected",
+        }),
+      }}
       {...props}
     >
       {children}{" "}
       <ChevronDownIcon
-        className="relative top-[1px] ml-1 size-3 transition duration-300 group-data-[state=open]:rotate-180"
+        style={{
+          position: "relative",
+          top: 1,
+          marginLeft: 4,
+          width: 12,
+          height: 12,
+          transition: "transform 300ms",
+          transform: isOpen ? "rotate(180deg)" : "rotate(0deg)",
+        }}
         aria-hidden="true"
       />
-    </NavigationMenuPrimitive.Trigger>
+    </ButtonBase>
   )
 }
+
+// ---------------------------------------------------------------------------
+// NavigationMenuContent -- dropdown rendered via MUI Popover
+// ---------------------------------------------------------------------------
+
+interface NavigationMenuContentProps extends React.ComponentProps<"div"> {}
 
 function NavigationMenuContent({
   className,
+  children,
   ...props
-}: React.ComponentProps<typeof NavigationMenuPrimitive.Content>) {
+}: NavigationMenuContentProps) {
+  const { activeItem, setActiveItem, anchorEl, setAnchorEl } =
+    React.useContext(NavigationMenuContext)
+  const { itemId } = React.useContext(NavigationMenuItemContext)
+  const isOpen = activeItem === itemId
+
+  const handleClose = React.useCallback(() => {
+    setActiveItem(null)
+    setAnchorEl(null)
+  }, [setActiveItem, setAnchorEl])
+
   return (
-    <NavigationMenuPrimitive.Content
+    <Popover
       data-slot="navigation-menu-content"
-      className={cn(
-        "data-[motion^=from-]:animate-in data-[motion^=to-]:animate-out data-[motion^=from-]:fade-in data-[motion^=to-]:fade-out data-[motion=from-end]:slide-in-from-right-52 data-[motion=from-start]:slide-in-from-left-52 data-[motion=to-end]:slide-out-to-right-52 data-[motion=to-start]:slide-out-to-left-52 top-0 left-0 w-full p-2 pr-2.5 md:absolute md:w-auto",
-        "group-data-[viewport=false]/navigation-menu:bg-popover group-data-[viewport=false]/navigation-menu:text-popover-foreground group-data-[viewport=false]/navigation-menu:data-[state=open]:animate-in group-data-[viewport=false]/navigation-menu:data-[state=closed]:animate-out group-data-[viewport=false]/navigation-menu:data-[state=closed]:zoom-out-95 group-data-[viewport=false]/navigation-menu:data-[state=open]:zoom-in-95 group-data-[viewport=false]/navigation-menu:data-[state=open]:fade-in-0 group-data-[viewport=false]/navigation-menu:data-[state=closed]:fade-out-0 group-data-[viewport=false]/navigation-menu:top-full group-data-[viewport=false]/navigation-menu:mt-1.5 group-data-[viewport=false]/navigation-menu:overflow-hidden group-data-[viewport=false]/navigation-menu:rounded-md group-data-[viewport=false]/navigation-menu:border group-data-[viewport=false]/navigation-menu:shadow group-data-[viewport=false]/navigation-menu:duration-200 **:data-[slot=navigation-menu-link]:focus:ring-0 **:data-[slot=navigation-menu-link]:focus:outline-none",
-        className
-      )}
-      {...props}
-    />
+      open={isOpen && Boolean(anchorEl)}
+      anchorEl={anchorEl}
+      onClose={handleClose}
+      anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+      transformOrigin={{ vertical: "top", horizontal: "left" }}
+      slotProps={{
+        paper: {
+          className,
+          sx: {
+            borderRadius: "0.375rem",
+            boxShadow: 6,
+            mt: 0.75,
+            p: 1,
+            pr: 1.25,
+            backgroundImage: "none",
+          },
+        },
+      }}
+      disableRestoreFocus
+    >
+      <div {...props}>{children}</div>
+    </Popover>
   )
 }
 
-function NavigationMenuViewport({
-  className,
-  ...props
-}: React.ComponentProps<typeof NavigationMenuPrimitive.Viewport>) {
-  return (
-    <div
-      className={cn(
-        "absolute top-full left-0 isolate z-50 flex justify-center"
-      )}
-    >
-      <NavigationMenuPrimitive.Viewport
-        data-slot="navigation-menu-viewport"
-        className={cn(
-          "origin-top-center bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-90 relative mt-1.5 h-[var(--radix-navigation-menu-viewport-height)] w-full overflow-hidden rounded-md border shadow md:w-[var(--radix-navigation-menu-viewport-width)]",
-          className
-        )}
-        {...props}
-      />
-    </div>
-  )
+// ---------------------------------------------------------------------------
+// NavigationMenuLink
+// ---------------------------------------------------------------------------
+
+interface NavigationMenuLinkProps extends React.ComponentProps<"a"> {
+  asChild?: boolean
+  active?: boolean
 }
 
 function NavigationMenuLink({
   className,
+  children,
+  asChild,
+  active,
   ...props
-}: React.ComponentProps<typeof NavigationMenuPrimitive.Link>) {
+}: NavigationMenuLinkProps) {
+  if (asChild && React.isValidElement(children)) {
+    return React.cloneElement(
+      children as React.ReactElement<Record<string, unknown>>,
+      {
+        "data-slot": "navigation-menu-link",
+        "data-active": active || undefined,
+        className,
+        ...props,
+      },
+    )
+  }
+
   return (
-    <NavigationMenuPrimitive.Link
+    <Box
+      component="a"
       data-slot="navigation-menu-link"
-      className={cn(
-        "hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground data-[active=true]:bg-accent/50 data-[active=true]:text-accent-foreground ring-ring/10 dark:ring-ring/20 dark:outline-ring/40 outline-ring/50 [&_svg:not([class*='text-'])]:text-muted-foreground flex flex-col gap-1 rounded-sm p-2 text-sm transition-[color,box-shadow] focus-visible:ring-4 focus-visible:outline-1 [&_svg:not([class*='size-'])]:size-4",
-        className
-      )}
+      data-active={active || undefined}
+      className={className}
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.25rem",
+        borderRadius: "0.25rem",
+        p: 1,
+        fontSize: "0.875rem",
+        transition: "color 150ms, background-color 150ms",
+        textDecoration: "none",
+        color: "text.primary",
+        "&:hover": {
+          bgcolor: "action.hover",
+        },
+        "& svg:not([class*='size-'])": {
+          width: "1rem",
+          height: "1rem",
+        },
+      }}
       {...props}
-    />
+    >
+      {children}
+    </Box>
   )
 }
 
-function NavigationMenuIndicator({
-  className,
-  ...props
-}: React.ComponentProps<typeof NavigationMenuPrimitive.Indicator>) {
-  return (
-    <NavigationMenuPrimitive.Indicator
-      data-slot="navigation-menu-indicator"
-      className={cn(
-        "data-[state=visible]:animate-in data-[state=hidden]:animate-out data-[state=hidden]:fade-out data-[state=visible]:fade-in top-full z-[1] flex h-1.5 items-end justify-center overflow-hidden",
-        className
-      )}
-      {...props}
-    >
-      <div className="bg-border relative top-[60%] h-2 w-2 rotate-45 rounded-tl-sm shadow-md" />
-    </NavigationMenuPrimitive.Indicator>
-  )
+// ---------------------------------------------------------------------------
+// NavigationMenuViewport -- MUI Popover handles positioning; this is a no-op
+// ---------------------------------------------------------------------------
+
+function NavigationMenuViewport(_props: React.ComponentProps<"div">) {
+  return null
 }
+
+// ---------------------------------------------------------------------------
+// NavigationMenuIndicator -- MUI handles its own indicators; this is a no-op
+// ---------------------------------------------------------------------------
+
+function NavigationMenuIndicator(_props: React.ComponentProps<"div">) {
+  return null
+}
+
+// ---------------------------------------------------------------------------
+// Exports
+// ---------------------------------------------------------------------------
 
 export {
   NavigationMenu,

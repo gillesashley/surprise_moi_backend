@@ -1,20 +1,27 @@
 import * as React from "react"
-import * as LabelPrimitive from "@radix-ui/react-label"
-
-import { cn } from "@/lib/utils"
+import FormLabel from "@mui/material/FormLabel"
 
 function Label({
   className,
+  color: _color,
   ...props
-}: React.ComponentProps<typeof LabelPrimitive.Root>) {
+}: React.ComponentProps<"label">) {
   return (
-    <LabelPrimitive.Root
+    <FormLabel
       data-slot="label"
-      className={cn(
-        "text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50",
-        className
-      )}
-      {...props}
+      className={className}
+      sx={{
+        fontSize: '0.875rem',
+        lineHeight: 1,
+        fontWeight: 500,
+        userSelect: 'none',
+        color: 'text.primary',
+        '&.Mui-disabled': {
+          pointerEvents: 'none',
+          opacity: 0.5,
+        },
+      }}
+      {...(props as Omit<React.ComponentProps<typeof FormLabel>, "color">)}
     />
   )
 }
