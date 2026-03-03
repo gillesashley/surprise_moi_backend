@@ -460,6 +460,38 @@ class VendorApprovalTest extends TestCase
         );
     }
 
+    public function test_index_page_includes_payment_status(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $applicant = User::factory()->create(['role' => 'customer']);
+
+        $application = VendorApplication::factory()
+            ->for($applicant)
+            ->readyToSubmit()
+            ->withPaymentCompleted()
+            ->pending()
+            ->create();
+
+        \App\Models\VendorOnboardingPayment::factory()
+            ->successful()
+            ->create([
+                'user_id' => $applicant->id,
+                'vendor_application_id' => $application->id,
+                'amount' => 100.00,
+            ]);
+
+        $response = $this->actingAs($admin)
+            ->get('/dashboard/vendor-applications');
+
+        $response->assertStatus(200);
+        $response->assertInertia(fn ($page) => $page
+            ->component('vendor-applications/index')
+            ->has('applications.data', 1)
+            ->where('applications.data.0.payment_status', 'success')
+            ->where('applications.data.0.payment_completed', true)
+        );
+    }
+
     public function test_show_page_includes_can_be_reviewed_flag(): void
     {
         $admin = User::factory()->create(['role' => 'admin']);

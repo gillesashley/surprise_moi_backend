@@ -18,7 +18,7 @@ class VendorApplicationController extends Controller
     public function index(Request $request)
     {
         $query = VendorApplication::query()
-            ->with('user:id,name,email')
+            ->with(['user:id,name,email', 'latestOnboardingPayment'])
             ->latest('submitted_at');
 
         // Filter by status if provided
@@ -62,6 +62,8 @@ class VendorApplicationController extends Controller
                 'reviewed_at' => $app->reviewed_at?->toIso8601String(),
                 'current_step' => $app->current_step,
                 'completed_step' => $app->completed_step,
+                'payment_completed' => $app->payment_completed,
+                'payment_status' => $app->latestOnboardingPayment?->status,
             ]),
             'filters' => [
                 'status' => $request->status,
