@@ -1,6 +1,8 @@
 import AppLogoIcon from '@/components/app-logo-icon';
 import { home } from '@/routes';
 import { type SharedData } from '@/types';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
 import { Link, usePage } from '@inertiajs/react';
 import { type PropsWithChildren } from 'react';
 
@@ -17,46 +19,144 @@ export default function AuthSplitLayout({
     const { name, quote } = usePage<SharedData>().props;
 
     return (
-        <div className="relative grid h-dvh flex-col items-center justify-center px-8 sm:px-0 lg:max-w-none lg:grid-cols-2 lg:px-0">
-            <div className="relative hidden h-full flex-col bg-muted p-10 text-white lg:flex dark:border-r">
-                <div className="absolute inset-0 bg-zinc-900" />
+        <Box
+            sx={{
+                position: 'relative',
+                display: 'grid',
+                height: '100dvh',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                px: { xs: 4, sm: 0 },
+                gridTemplateColumns: { lg: '1fr 1fr' },
+            }}
+        >
+            <Box
+                sx={{
+                    position: 'relative',
+                    display: { xs: 'none', lg: 'flex' },
+                    height: '100%',
+                    flexDirection: 'column',
+                    bgcolor: 'grey.900',
+                    p: 5,
+                    color: 'white',
+                    borderRight: { lg: 1 },
+                    borderColor: 'divider',
+                }}
+            >
+                <Box
+                    sx={{
+                        position: 'absolute',
+                        inset: 0,
+                        bgcolor: 'grey.900',
+                    }}
+                />
                 <Link
                     href={home()}
-                    className="relative z-20 flex items-center text-lg font-medium"
+                    style={{
+                        position: 'relative',
+                        zIndex: 20,
+                        display: 'flex',
+                        alignItems: 'center',
+                        fontSize: '1.125rem',
+                        fontWeight: 500,
+                        textDecoration: 'none',
+                        color: 'inherit',
+                    }}
                 >
-                    <AppLogoIcon className="mr-2 size-8 fill-current text-white" />
+                    <AppLogoIcon
+                        style={{
+                            marginRight: '0.5rem',
+                            width: 32,
+                            height: 32,
+                        }}
+                    />
                     {name}
                 </Link>
                 {quote && (
-                    <div className="relative z-20 mt-auto">
-                        <blockquote className="space-y-2">
-                            <p className="text-lg">
+                    <Box
+                        sx={{
+                            position: 'relative',
+                            zIndex: 20,
+                            mt: 'auto',
+                        }}
+                    >
+                        <Box component="blockquote" sx={{ '& > * + *': { mt: 1 } }}>
+                            <Typography
+                                variant="body1"
+                                sx={{ fontSize: '1.125rem' }}
+                            >
                                 &ldquo;{quote.message}&rdquo;
-                            </p>
-                            <footer className="text-sm text-neutral-300">
+                            </Typography>
+                            <Typography
+                                component="footer"
+                                variant="body2"
+                                sx={{ color: 'grey.400' }}
+                            >
                                 {quote.author}
-                            </footer>
-                        </blockquote>
-                    </div>
+                            </Typography>
+                        </Box>
+                    </Box>
                 )}
-            </div>
-            <div className="w-full lg:p-8">
-                <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
+            </Box>
+            <Box sx={{ width: '100%', p: { lg: 4 } }}>
+                <Box
+                    sx={{
+                        mx: 'auto',
+                        display: 'flex',
+                        width: { xs: '100%', sm: 350 },
+                        flexDirection: 'column',
+                        justifyContent: 'center',
+                        '& > * + *': { mt: 3 },
+                    }}
+                >
                     <Link
                         href={home()}
-                        className="relative z-20 flex items-center justify-center lg:hidden"
+                        style={{
+                            position: 'relative',
+                            zIndex: 20,
+                            textDecoration: 'none',
+                            color: 'inherit',
+                        }}
                     >
-                        <AppLogoIcon className="h-10 fill-current text-black sm:h-12" />
+                        <Box
+                            sx={{
+                                display: { xs: 'flex', lg: 'none' },
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                            }}
+                        >
+                            <AppLogoIcon
+                                style={{ height: 40 }}
+                            />
+                        </Box>
                     </Link>
-                    <div className="flex flex-col items-start gap-2 text-left sm:items-center sm:text-center">
-                        <h1 className="text-xl font-medium">{title}</h1>
-                        <p className="text-sm text-balance text-muted-foreground">
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: { xs: 'flex-start', sm: 'center' },
+                            gap: 1,
+                            textAlign: { xs: 'left', sm: 'center' },
+                        }}
+                    >
+                        <Typography
+                            variant="h5"
+                            sx={{ fontWeight: 500 }}
+                        >
+                            {title}
+                        </Typography>
+                        <Typography
+                            variant="body2"
+                            color="text.secondary"
+                            sx={{ textWrap: 'balance' }}
+                        >
                             {description}
-                        </p>
-                    </div>
+                        </Typography>
+                    </Box>
                     {children}
-                </div>
-            </div>
-        </div>
+                </Box>
+            </Box>
+        </Box>
     );
 }
