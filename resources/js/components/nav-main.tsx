@@ -61,7 +61,7 @@ export function NavMain({ items = [] }: { items: NavItem[] }) {
     };
 
     return (
-        <SidebarGroup className="px-2 py-0">
+        <SidebarGroup style={{ paddingLeft: 16, paddingRight: 16, paddingTop: 0, paddingBottom: 0 }}>
             <SidebarGroupLabel>Platform</SidebarGroupLabel>
             <SidebarMenu>
                 {items.map((item) => {
@@ -88,11 +88,13 @@ export function NavMain({ items = [] }: { items: NavItem[] }) {
                                             {item.icon && <item.icon />}
                                             <span>{item.title}</span>
                                             <ChevronRight
-                                                className={`ml-auto transition-transform duration-200 ${
-                                                    isOpen
-                                                        ? 'rotate-90'
-                                                        : 'rotate-0'
-                                                }`}
+                                                style={{
+                                                    marginLeft: 'auto',
+                                                    transition: 'transform 0.2s',
+                                                    transform: isOpen
+                                                        ? 'rotate(90deg)'
+                                                        : 'none',
+                                                }}
                                             />
                                         </SidebarMenuButton>
                                     </CollapsibleTrigger>

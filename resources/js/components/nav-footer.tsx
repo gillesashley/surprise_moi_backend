@@ -5,6 +5,7 @@ import {
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
+    useSidebar,
 } from '@/components/ui/sidebar';
 import { resolveUrl } from '@/lib/utils';
 import { type NavItem } from '@/types';
@@ -12,15 +13,21 @@ import { type ComponentPropsWithoutRef } from 'react';
 
 export function NavFooter({
     items,
-    className,
+    style,
     ...props
 }: ComponentPropsWithoutRef<typeof SidebarGroup> & {
     items: NavItem[];
 }) {
+    const { state } = useSidebar();
+    const isCollapsed = state === 'collapsed';
+
     return (
         <SidebarGroup
             {...props}
-            className={`group-data-[collapsible=icon]:p-0 ${className || ''}`}
+            style={{
+                ...(isCollapsed ? { padding: 0 } : {}),
+                ...style,
+            }}
         >
             <SidebarGroupContent>
                 <SidebarMenu>
@@ -28,7 +35,9 @@ export function NavFooter({
                         <SidebarMenuItem key={item.title}>
                             <SidebarMenuButton
                                 asChild
-                                className="text-neutral-600 hover:text-neutral-800 dark:text-neutral-300 dark:hover:text-neutral-100"
+                                style={{
+                                    color: 'inherit',
+                                }}
                             >
                                 <a
                                     href={resolveUrl(item.href)}
@@ -38,7 +47,10 @@ export function NavFooter({
                                     {item.icon && (
                                         <Icon
                                             iconNode={item.icon}
-                                            className="h-5 w-5"
+                                            style={{
+                                                width: 20,
+                                                height: 20,
+                                            }}
                                         />
                                     )}
                                     <span>{item.title}</span>
