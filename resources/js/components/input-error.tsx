@@ -1,17 +1,13 @@
-import { cn } from '@/lib/utils';
-import { type HTMLAttributes } from 'react';
+import Typography from '@mui/material/Typography';
 
 export default function InputError({
     message,
-    className = '',
-    ...props
-}: HTMLAttributes<HTMLParagraphElement> & { message?: string }) {
+}: {
+    message?: string;
+}) {
     return message ? (
-        <p
-            {...props}
-            className={cn('text-sm text-red-600 dark:text-red-400', className)}
-        >
+        <Typography variant="caption" color="error">
             {message}
-        </p>
+        </Typography>
     ) : null;
 }

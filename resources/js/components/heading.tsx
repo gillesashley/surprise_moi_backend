@@ -1,3 +1,6 @@
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+
 export default function Heading({
     title,
     description,
@@ -6,11 +9,15 @@ export default function Heading({
     description?: string;
 }) {
     return (
-        <div className="mb-8 space-y-0.5">
-            <h2 className="text-xl font-semibold tracking-tight">{title}</h2>
+        <Box sx={{ mb: 4, display: 'flex', flexDirection: 'column', gap: 0.25 }}>
+            <Typography variant="h5" fontWeight={600} sx={{ letterSpacing: '-0.01em' }}>
+                {title}
+            </Typography>
             {description && (
-                <p className="text-sm text-muted-foreground">{description}</p>
+                <Typography variant="body2" color="text.secondary">
+                    {description}
+                </Typography>
             )}
-        </div>
+        </Box>
     );
 }

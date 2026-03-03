@@ -1,4 +1,5 @@
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import Box from '@mui/material/Box';
 import { AlertCircleIcon } from 'lucide-react';
 
 export default function AlertError({
@@ -13,11 +14,18 @@ export default function AlertError({
             <AlertCircleIcon />
             <AlertTitle>{title || 'Something went wrong.'}</AlertTitle>
             <AlertDescription>
-                <ul className="list-inside list-disc text-sm">
+                <Box
+                    component="ul"
+                    sx={{
+                        listStyleType: 'disc',
+                        listStylePosition: 'inside',
+                        fontSize: '0.875rem',
+                    }}
+                >
                     {Array.from(new Set(errors)).map((error, index) => (
                         <li key={index}>{error}</li>
                     ))}
-                </ul>
+                </Box>
             </AlertDescription>
         </Alert>
     );

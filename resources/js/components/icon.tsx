@@ -1,15 +1,15 @@
-import { cn } from '@/lib/utils';
 import { type LucideProps } from 'lucide-react';
-import { type ComponentType } from 'react';
+import { type CSSProperties, type ComponentType } from 'react';
 
 interface IconProps extends Omit<LucideProps, 'ref'> {
     iconNode: ComponentType<LucideProps>;
+    style?: CSSProperties;
 }
 
 export function Icon({
     iconNode: IconComponent,
-    className,
+    style,
     ...props
 }: IconProps) {
-    return <IconComponent className={cn('h-4 w-4', className)} {...props} />;
+    return <IconComponent style={{ width: 16, height: 16, ...style }} {...props} />;
 }
