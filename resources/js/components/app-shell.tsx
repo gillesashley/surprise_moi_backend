@@ -1,3 +1,4 @@
+import Box from '@mui/material/Box';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { SharedData } from '@/types';
 import { usePage } from '@inertiajs/react';
@@ -12,7 +13,16 @@ export function AppShell({ children, variant = 'header' }: AppShellProps) {
 
     if (variant === 'header') {
         return (
-            <div className="flex min-h-screen w-full flex-col">{children}</div>
+            <Box
+                sx={{
+                    display: 'flex',
+                    minHeight: '100vh',
+                    width: '100%',
+                    flexDirection: 'column',
+                }}
+            >
+                {children}
+            </Box>
         );
     }
 
