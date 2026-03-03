@@ -17,6 +17,8 @@ import {
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/react';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
 import { Calendar, DollarSign } from 'lucide-react';
 
 interface Earning {
@@ -89,63 +91,63 @@ export default function FieldAgentEarnings({ earnings }: Props) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="My Earnings" />
 
-            <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto p-6">
-                <div>
-                    <h1 className="text-3xl font-bold">My Earnings</h1>
-                    <p className="mt-1 text-muted-foreground">
+            <Box sx={{ display: 'flex', height: '100%', flex: 1, flexDirection: 'column', gap: 3, overflowX: 'auto', p: 3 }}>
+                <Box>
+                    <Typography variant="h4" fontWeight={700}>My Earnings</Typography>
+                    <Typography color="text.secondary" sx={{ mt: 0.5 }}>
                         Track earnings from completed targets
-                    </p>
-                </div>
+                    </Typography>
+                </Box>
 
-                <div className="grid gap-4 md:grid-cols-3">
+                <Box sx={{ display: 'grid', gap: 2, gridTemplateColumns: { md: 'repeat(3, 1fr)' } }}>
                     <Card>
-                        <CardHeader className="pb-3">
-                            <CardTitle className="text-sm font-medium">
+                        <CardHeader sx={{ pb: 1.5 }}>
+                            <CardTitle sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
                                 Total Earnings
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <div className="flex items-center gap-2">
-                                <DollarSign className="h-5 w-5 text-muted-foreground" />
-                                <span className="text-2xl font-bold">
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <DollarSign style={{ width: 20, height: 20, color: 'gray' }} />
+                                <Typography variant="h5" fontWeight={700}>
                                     GHS {totalEarnings.toFixed(2)}
-                                </span>
-                            </div>
+                                </Typography>
+                            </Box>
                         </CardContent>
                     </Card>
                     <Card>
-                        <CardHeader className="pb-3">
-                            <CardTitle className="text-sm font-medium">
+                        <CardHeader sx={{ pb: 1.5 }}>
+                            <CardTitle sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
                                 Approved
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <span className="text-2xl font-bold text-green-600">
+                            <Typography variant="h5" fontWeight={700} color="success.main">
                                 {
                                     earnings.data.filter(
                                         (e) => e.status === 'approved',
                                     ).length
                                 }
-                            </span>
+                            </Typography>
                         </CardContent>
                     </Card>
                     <Card>
-                        <CardHeader className="pb-3">
-                            <CardTitle className="text-sm font-medium">
+                        <CardHeader sx={{ pb: 1.5 }}>
+                            <CardTitle sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
                                 Pending
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <span className="text-2xl font-bold text-orange-600">
+                            <Typography variant="h5" fontWeight={700} color="warning.main">
                                 {
                                     earnings.data.filter(
                                         (e) => e.status === 'pending',
                                     ).length
                                 }
-                            </span>
+                            </Typography>
                         </CardContent>
                     </Card>
-                </div>
+                </Box>
 
                 <Card>
                     <CardHeader>
@@ -157,12 +159,12 @@ export default function FieldAgentEarnings({ earnings }: Props) {
                     </CardHeader>
                     <CardContent>
                         {earnings.data.length === 0 ? (
-                            <div className="py-12 text-center">
-                                <p className="text-muted-foreground">
+                            <Box sx={{ py: 6, textAlign: 'center' }}>
+                                <Typography color="text.secondary">
                                     No earnings yet. Complete your targets to
                                     earn commissions!
-                                </p>
-                            </div>
+                                </Typography>
+                            </Box>
                         ) : (
                             <Table>
                                 <TableHeader>
@@ -176,12 +178,12 @@ export default function FieldAgentEarnings({ earnings }: Props) {
                                 <TableBody>
                                     {earnings.data.map((earning) => (
                                         <TableRow key={earning.id}>
-                                            <TableCell className="font-medium">
+                                            <TableCell sx={{ fontWeight: 500 }}>
                                                 {formatEarningType(
                                                     earning.earning_type,
                                                 )}
                                             </TableCell>
-                                            <TableCell className="font-semibold">
+                                            <TableCell sx={{ fontWeight: 600 }}>
                                                 {formatCurrency(
                                                     earning.amount,
                                                     earning.currency,
@@ -191,12 +193,12 @@ export default function FieldAgentEarnings({ earnings }: Props) {
                                                 {getStatusBadge(earning.status)}
                                             </TableCell>
                                             <TableCell>
-                                                <div className="flex items-center gap-2">
-                                                    <Calendar className="h-4 w-4 text-muted-foreground" />
+                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                    <Calendar style={{ width: 16, height: 16, color: 'gray' }} />
                                                     {formatDate(
                                                         earning.earned_at,
                                                     )}
-                                                </div>
+                                                </Box>
                                             </TableCell>
                                         </TableRow>
                                     ))}
@@ -205,7 +207,7 @@ export default function FieldAgentEarnings({ earnings }: Props) {
                         )}
                     </CardContent>
                 </Card>
-            </div>
+            </Box>
         </AppLayout>
     );
 }

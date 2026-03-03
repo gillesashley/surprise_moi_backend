@@ -10,6 +10,8 @@ import {
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, usePage } from '@inertiajs/react';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
 import { Calendar, CheckCircle, DollarSign, Target } from 'lucide-react';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -74,21 +76,38 @@ function StatCard({
     iconBgColor: string;
 }) {
     return (
-        <div
-            className={`relative overflow-hidden rounded-xl p-6 shadow-sm transition-all duration-200 hover:shadow-md ${bgColor}`}
+        <Box
+            sx={{
+                position: 'relative',
+                overflow: 'hidden',
+                borderRadius: 3,
+                p: 3,
+                boxShadow: 1,
+                transition: 'all 0.2s',
+                '&:hover': { boxShadow: 3 },
+                bgcolor: 'background.paper',
+            }}
         >
-            <div className="flex items-start justify-between">
-                <div className="space-y-2">
-                    <p className="text-sm font-medium text-muted-foreground">
+            <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                    <Typography variant="body2" fontWeight={500} color="text.secondary">
                         {title}
-                    </p>
-                    <p className="text-3xl font-bold tracking-tight">{value}</p>
-                </div>
-                <div className={`rounded-lg p-3 ${iconBgColor}`}>
-                    <Icon className="h-6 w-6 text-white" />
-                </div>
-            </div>
-        </div>
+                    </Typography>
+                    <Typography variant="h4" fontWeight={700} sx={{ letterSpacing: '-0.02em' }}>
+                        {value}
+                    </Typography>
+                </Box>
+                <Box
+                    sx={{
+                        borderRadius: 2,
+                        p: 1.5,
+                        bgcolor: iconBgColor,
+                    }}
+                >
+                    <Icon style={{ width: 24, height: 24, color: 'white' }} />
+                </Box>
+            </Box>
+        </Box>
     );
 }
 
@@ -115,50 +134,71 @@ export default function MarketerDashboard({
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Marketer Dashboard" />
 
-            <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto p-6">
+            <Box sx={{ display: 'flex', height: '100%', flex: 1, flexDirection: 'column', gap: 3, overflowX: 'auto', p: 3 }}>
                 {/* Welcome Section */}
-                <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-primary to-secondary p-6 text-white shadow-lg">
-                    <div className="relative z-10">
-                        <h2 className="text-2xl font-bold">
+                <Box
+                    sx={{
+                        position: 'relative',
+                        overflow: 'hidden',
+                        borderRadius: 3,
+                        background: (theme) =>
+                            `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
+                        p: 3,
+                        color: 'white',
+                        boxShadow: 3,
+                    }}
+                >
+                    <Box sx={{ position: 'relative', zIndex: 1 }}>
+                        <Typography variant="h5" fontWeight={700}>
                             Welcome back, {auth.user?.name}!
-                        </h2>
-                        <p className="mt-2 text-white/80">
+                        </Typography>
+                        <Typography sx={{ mt: 1, color: 'rgba(255,255,255,0.8)' }}>
                             Track your targets and quarterly earnings.
-                        </p>
-                    </div>
-                </div>
+                        </Typography>
+                    </Box>
+                </Box>
 
                 {/* Stats Grid */}
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <Box
+                    sx={{
+                        display: 'grid',
+                        gap: 2,
+                        gridTemplateColumns: {
+                            xs: '1fr',
+                            sm: 'repeat(2, 1fr)',
+                            lg: 'repeat(4, 1fr)',
+                        },
+                    }}
+                >
                     <StatCard
                         title="Active Targets"
                         value={stats.active_targets}
                         icon={Target}
                         bgColor="bg-card"
-                        iconBgColor="bg-blue-500"
+                        iconBgColor="#3b82f6"
                     />
                     <StatCard
                         title="Completed"
                         value={stats.completed_targets}
                         icon={CheckCircle}
                         bgColor="bg-card"
-                        iconBgColor="bg-green-500"
+                        iconBgColor="#22c55e"
                     />
                     <StatCard
                         title="Total Earnings"
                         value={`GHS ${stats.total_earnings.toFixed(2)}`}
                         icon={DollarSign}
                         bgColor="bg-card"
-                        iconBgColor="bg-purple-500"
+                        iconBgColor="#a855f7"
                     />
                     <StatCard
                         title={`Q${stats.current_quarter} ${stats.current_year} Earnings`}
                         value={`GHS ${stats.quarterly_earnings.toFixed(2)}`}
                         icon={Calendar}
                         bgColor="bg-card"
-                        iconBgColor="bg-orange-500"
+                        iconBgColor="#f97316"
                     />
-                </div>
+                </Box>
 
                 {/* Active Targets */}
                 <Card>
@@ -169,62 +209,82 @@ export default function MarketerDashboard({
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <div className="space-y-6">
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
                             {active_targets.length === 0 ? (
-                                <p className="text-sm text-muted-foreground">
+                                <Typography variant="body2" color="text.secondary">
                                     No active targets assigned yet
-                                </p>
+                                </Typography>
                             ) : (
                                 active_targets.map((target) => (
-                                    <div
+                                    <Box
                                         key={target.id}
-                                        className="space-y-2 rounded-lg border p-4"
+                                        sx={{
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            gap: 1,
+                                            borderRadius: 2,
+                                            border: 1,
+                                            borderColor: 'divider',
+                                            p: 2,
+                                        }}
                                     >
-                                        <div className="flex items-center justify-between">
-                                            <div>
-                                                <p className="font-medium">
+                                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                            <Box>
+                                                <Typography fontWeight={500}>
                                                     {target.target_type
                                                         .replace('_', ' ')
                                                         .toUpperCase()}
-                                                </p>
-                                                <p className="text-sm text-muted-foreground">
+                                                </Typography>
+                                                <Typography variant="body2" color="text.secondary">
                                                     Target:{' '}
                                                     {target.target_value} |
                                                     Current:{' '}
                                                     {target.current_value}
-                                                </p>
-                                            </div>
+                                                </Typography>
+                                            </Box>
                                             <Badge variant="default">
                                                 {target.completion_percentage.toFixed(
                                                     0,
                                                 )}
                                                 %
                                             </Badge>
-                                        </div>
-                                        <div className="h-2 w-full rounded-full bg-muted">
-                                            <div
-                                                className="h-2 rounded-full bg-primary transition-all"
+                                        </Box>
+                                        <Box
+                                            sx={{
+                                                height: 8,
+                                                width: '100%',
+                                                borderRadius: 4,
+                                                bgcolor: 'action.hover',
+                                            }}
+                                        >
+                                            <Box
+                                                sx={{
+                                                    height: 8,
+                                                    borderRadius: 4,
+                                                    bgcolor: 'primary.main',
+                                                    transition: 'all 0.2s',
+                                                }}
                                                 style={{
                                                     width: `${target.completion_percentage}%`,
                                                 }}
                                             />
-                                        </div>
-                                        <div className="flex justify-between text-sm text-muted-foreground">
-                                            <span>
+                                        </Box>
+                                        <Box sx={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem', color: 'text.secondary' }}>
+                                            <Typography variant="body2" color="text.secondary">
                                                 Ends:{' '}
                                                 {new Date(
                                                     target.end_date,
                                                 ).toLocaleDateString()}
-                                            </span>
-                                            <span>
+                                            </Typography>
+                                            <Typography variant="body2" color="text.secondary">
                                                 Sign-on Bonus: GHS{' '}
                                                 {target.base_bonus}
-                                            </span>
-                                        </div>
-                                    </div>
+                                            </Typography>
+                                        </Box>
+                                    </Box>
                                 ))
                             )}
-                        </div>
+                        </Box>
                     </CardContent>
                 </Card>
 
@@ -237,28 +297,28 @@ export default function MarketerDashboard({
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <div className="space-y-4">
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                             {recent_sign_on_bonuses.length === 0 ? (
-                                <p className="text-sm text-muted-foreground">
+                                <Typography variant="body2" color="text.secondary">
                                     No sign-on bonuses yet
-                                </p>
+                                </Typography>
                             ) : (
                                 recent_sign_on_bonuses.map((earning) => (
-                                    <div
+                                    <Box
                                         key={earning.id}
-                                        className="flex items-center justify-between"
+                                        sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
                                     >
-                                        <div>
-                                            <p className="font-medium">
+                                        <Box>
+                                            <Typography fontWeight={500}>
                                                 {earning.currency}{' '}
                                                 {earning.amount.toFixed(2)}
-                                            </p>
-                                            <p className="text-sm text-muted-foreground">
+                                            </Typography>
+                                            <Typography variant="body2" color="text.secondary">
                                                 {new Date(
                                                     earning.earned_at,
                                                 ).toLocaleDateString()}
-                                            </p>
-                                        </div>
+                                            </Typography>
+                                        </Box>
                                         <Badge
                                             variant={
                                                 earning.status === 'paid'
@@ -268,19 +328,19 @@ export default function MarketerDashboard({
                                         >
                                             {earning.status}
                                         </Badge>
-                                    </div>
+                                    </Box>
                                 ))
                             )}
-                        </div>
+                        </Box>
                     </CardContent>
                 </Card>
 
-                <Card className="bg-blue-50 dark:bg-blue-950">
+                <Card sx={{ bgcolor: 'info.50' }}>
                     <CardHeader>
                         <CardTitle>Quarterly Earnings Info</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <p className="text-sm text-muted-foreground">
+                        <Typography variant="body2" color="text.secondary">
                             Your sign-on bonuses are added to your quarterly
                             salary payment. Current quarter (Q
                             {stats.current_quarter} {stats.current_year})
@@ -288,10 +348,10 @@ export default function MarketerDashboard({
                             <strong>
                                 GHS {stats.quarterly_earnings.toFixed(2)}
                             </strong>
-                        </p>
+                        </Typography>
                     </CardContent>
                 </Card>
-            </div>
+            </Box>
         </AppLayout>
     );
 }
