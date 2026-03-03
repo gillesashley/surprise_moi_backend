@@ -1,7 +1,8 @@
+import Box from '@mui/material/Box';
+import Divider from '@mui/material/Divider';
 import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
-import { cn, isSameUrl, resolveUrl } from '@/lib/utils';
+import { isSameUrl, resolveUrl } from '@/lib/utils';
 import { edit as editAppearance } from '@/routes/appearance';
 import { edit } from '@/routes/profile';
 import { index as vendorOnboarding } from '@/routes/settings/vendor-onboarding';
@@ -64,47 +65,49 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
     const allNavItems = [...sidebarNavItems, ...getConditionalNavItems()];
 
     return (
-        <div className="px-4 py-6">
+        <Box sx={{ px: 2, py: 3 }}>
             <Heading
                 title="Settings"
                 description="Manage your profile and account settings"
             />
 
-            <div className="flex flex-col lg:flex-row lg:space-x-12">
-                <aside className="w-full max-w-xl lg:w-48">
-                    <nav className="flex flex-col space-y-1 space-x-0">
-                        {allNavItems.map((item, index) => (
-                            <Button
-                                key={`${resolveUrl(item.href)}-${index}`}
-                                size="sm"
-                                variant="ghost"
-                                asChild
-                                className={cn('w-full justify-start', {
-                                    'bg-muted': isSameUrl(
-                                        currentPath,
-                                        item.href,
-                                    ),
-                                })}
-                            >
-                                <Link href={item.href}>
-                                    {item.icon && (
-                                        <item.icon className="h-4 w-4" />
-                                    )}
-                                    {item.title}
-                                </Link>
-                            </Button>
-                        ))}
-                    </nav>
-                </aside>
+            <Box sx={{ display: 'flex', flexDirection: { xs: 'column', lg: 'row' }, gap: { lg: 6 } }}>
+                <Box component="aside" sx={{ width: '100%', maxWidth: { lg: 192 } }}>
+                    <Box component="nav" sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                        {allNavItems.map((item, index) => {
+                            const isActive = isSameUrl(currentPath, item.href);
+                            return (
+                                <Button
+                                    key={`${resolveUrl(item.href)}-${index}`}
+                                    size="sm"
+                                    variant="ghost"
+                                    asChild
+                                    sx={{
+                                        width: '100%',
+                                        justifyContent: 'flex-start',
+                                        ...(isActive && { bgcolor: 'action.selected' }),
+                                    }}
+                                >
+                                    <Link href={item.href}>
+                                        {item.icon && (
+                                            <item.icon style={{ width: 16, height: 16 }} />
+                                        )}
+                                        {item.title}
+                                    </Link>
+                                </Button>
+                            );
+                        })}
+                    </Box>
+                </Box>
 
-                <Separator className="my-6 lg:hidden" />
+                <Divider sx={{ my: 3, display: { lg: 'none' } }} />
 
-                <div className="flex-1 md:max-w-2xl">
-                    <section className="max-w-xl space-y-12">
+                <Box sx={{ flex: 1, maxWidth: { md: 672 } }}>
+                    <Box component="section" sx={{ maxWidth: 576, display: 'flex', flexDirection: 'column', gap: 6 }}>
                         {children}
-                    </section>
-                </div>
-            </div>
-        </div>
+                    </Box>
+                </Box>
+            </Box>
+        </Box>
     );
 }

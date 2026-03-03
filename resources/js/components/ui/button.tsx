@@ -9,6 +9,7 @@ interface ButtonProps extends Omit<React.ComponentProps<"button">, "color"> {
   variant?: ButtonVariant | null
   size?: ButtonSize | null
   asChild?: boolean
+  sx?: MuiButtonProps["sx"]
 }
 
 const variantMap: Record<string, { variant: MuiButtonProps["variant"]; color?: MuiButtonProps["color"]; sx?: MuiButtonProps["sx"] }> = {
@@ -63,6 +64,7 @@ function Button({
   children,
   disabled,
   type,
+  sx: externalSx,
   ...props
 }: ButtonProps) {
   const resolvedVariant = variant ?? "default"
@@ -76,6 +78,7 @@ function Button({
   const sxProp: MuiButtonProps["sx"] = [
     ...(mapped.sx ? (Array.isArray(mapped.sx) ? mapped.sx : [mapped.sx]) : []),
     ...(isIcon ? [iconSizeSx] : []),
+    ...(externalSx ? (Array.isArray(externalSx) ? externalSx : [externalSx]) : []),
   ]
 
   // Build common MUI props
