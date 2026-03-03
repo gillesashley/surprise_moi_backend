@@ -20,11 +20,15 @@ import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router, useForm } from '@inertiajs/react';
 import Box from '@mui/material/Box';
+import Chip from '@mui/material/Chip';
 import Typography from '@mui/material/Typography';
 import {
     ArrowLeft,
     Briefcase,
     CheckCircle,
+    CreditCard,
+    Download,
+    Eye,
     IdCard,
     Package,
     User as UserIcon,
@@ -32,6 +36,10 @@ import {
     XCircle,
 } from 'lucide-react';
 import { useState } from 'react';
+
+function isImageUrl(url: string): boolean {
+    return /\.(jpe?g|png|gif|webp)(\?|$)/i.test(url);
+}
 
 interface BespokeService {
     id: number;
@@ -74,6 +82,26 @@ interface Application {
         name: string;
     } | null;
     rejection_reason: string | null;
+    payment_required: boolean;
+    payment_completed: boolean;
+    payment_completed_at: string | null;
+    onboarding_fee: number | null;
+    discount_amount: number | null;
+    final_amount: number | null;
+    payment: {
+        status: string;
+        amount: number;
+        currency: string;
+        channel: string | null;
+        reference: string;
+        card_last4: string | null;
+        card_bank: string | null;
+        mobile_money_number: string | null;
+        mobile_money_provider: string | null;
+        paid_at: string | null;
+        failure_reason: string | null;
+    } | null;
+    can_be_reviewed: boolean;
 }
 
 interface Props {
@@ -95,6 +123,7 @@ const getStatusBadge = (status: string) => {
 
 export default function VendorApplicationShow({ application }: Props) {
     const [showRejectDialog, setShowRejectDialog] = useState(false);
+    const [previewDoc, setPreviewDoc] = useState<{ url: string; title: string } | null>(null);
     const { data, setData, post, processing } = useForm({
         rejection_reason: '',
     });
@@ -138,9 +167,8 @@ export default function VendorApplicationShow({ application }: Props) {
         );
     };
 
-    const canApproveOrReject = ['pending', 'under_review'].includes(
-        application.status,
-    );
+    const canApproveOrReject = application.can_be_reviewed
+        && ['pending', 'under_review'].includes(application.status);
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -181,6 +209,24 @@ export default function VendorApplicationShow({ application }: Props) {
                                 <CheckCircle style={{ marginRight: 8, width: 16, height: 16 }} />
                                 Approve
                             </Button>
+                        </Box>
+                    )}
+                    {!application.can_be_reviewed && ['pending', 'under_review'].includes(application.status) && (
+                        <Box sx={{ bgcolor: 'warning.light', color: 'warning.dark', borderRadius: 2, p: 1.5, fontSize: '0.875rem' }}>
+                            <Typography sx={{ fontWeight: 600, fontSize: '0.875rem', mb: 0.5 }}>
+                                Application Not Ready for Review
+                            </Typography>
+                            <Box component="ul" sx={{ m: 0, pl: 2 }}>
+                                {application.completed_step < 4 && (
+                                    <li>Steps incomplete: {application.completed_step}/4 completed</li>
+                                )}
+                                {application.payment_required && !application.payment_completed && (
+                                    <li>Payment not completed</li>
+                                )}
+                                {!application.submitted_at && (
+                                    <li>Application not submitted</li>
+                                )}
+                            </Box>
                         </Box>
                     )}
                 </Box>
@@ -264,6 +310,138 @@ export default function VendorApplicationShow({ application }: Props) {
                     </CardContent>
                 </Card>
 
+                {/* Payment Information */}
+                <Card>
+                    <CardHeader>
+                        <CardTitle style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '1.125rem' }}>
+                            <CreditCard style={{ width: 20, height: 20 }} />
+                            Payment Information
+                        </CardTitle>
+                        <CardDescription>
+                            Onboarding fee payment status
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        {!application.payment_required ? (
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <Chip label="Not Required" color="info" size="small" variant="outlined" />
+                                <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
+                                    Payment is not required for this application
+                                </Typography>
+                            </Box>
+                        ) : application.payment ? (
+                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                                <Box sx={{ display: 'grid', gap: 2, gridTemplateColumns: { md: 'repeat(3, 1fr)' } }}>
+                                    <Box>
+                                        <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
+                                            Status
+                                        </Typography>
+                                        <Box sx={{ mt: 0.5 }}>
+                                            <Chip
+                                                label={application.payment.status.charAt(0).toUpperCase() + application.payment.status.slice(1)}
+                                                color={
+                                                    application.payment.status === 'success' ? 'success'
+                                                    : application.payment.status === 'failed' ? 'error'
+                                                    : application.payment.status === 'pending' ? 'warning'
+                                                    : 'default'
+                                                }
+                                                size="small"
+                                            />
+                                        </Box>
+                                    </Box>
+                                    <Box>
+                                        <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
+                                            Amount
+                                        </Typography>
+                                        <Typography sx={{ fontWeight: 500 }}>
+                                            {application.payment.currency} {Number(application.payment.amount).toFixed(2)}
+                                        </Typography>
+                                    </Box>
+                                    <Box>
+                                        <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
+                                            Date Paid
+                                        </Typography>
+                                        <Typography sx={{ fontWeight: 500 }}>
+                                            {application.payment.paid_at
+                                                ? new Date(application.payment.paid_at).toLocaleDateString()
+                                                : 'Not yet paid'}
+                                        </Typography>
+                                    </Box>
+                                </Box>
+                                <Box sx={{ display: 'grid', gap: 2, gridTemplateColumns: { md: 'repeat(3, 1fr)' } }}>
+                                    <Box>
+                                        <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
+                                            Payment Method
+                                        </Typography>
+                                        <Typography sx={{ fontWeight: 500, textTransform: 'capitalize' }}>
+                                            {application.payment.channel
+                                                ? application.payment.channel.replace('_', ' ')
+                                                : 'N/A'}
+                                        </Typography>
+                                    </Box>
+                                    {application.payment.card_last4 && (
+                                        <Box>
+                                            <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
+                                                Card
+                                            </Typography>
+                                            <Typography sx={{ fontWeight: 500 }}>
+                                                **** {application.payment.card_last4}
+                                                {application.payment.card_bank && ` (${application.payment.card_bank})`}
+                                            </Typography>
+                                        </Box>
+                                    )}
+                                    {application.payment.mobile_money_number && (
+                                        <Box>
+                                            <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
+                                                Mobile Money
+                                            </Typography>
+                                            <Typography sx={{ fontWeight: 500 }}>
+                                                {application.payment.mobile_money_number}
+                                                {application.payment.mobile_money_provider && (
+                                                    <Badge variant="outline" style={{ marginLeft: 8 }}>
+                                                        {application.payment.mobile_money_provider.toUpperCase()}
+                                                    </Badge>
+                                                )}
+                                            </Typography>
+                                        </Box>
+                                    )}
+                                    <Box>
+                                        <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
+                                            Reference
+                                        </Typography>
+                                        <Typography sx={{ fontWeight: 500, fontFamily: 'monospace', fontSize: '0.8rem' }}>
+                                            {application.payment.reference}
+                                        </Typography>
+                                    </Box>
+                                </Box>
+                                {application.payment.failure_reason && (
+                                    <Box sx={{ borderRadius: 2, bgcolor: 'error.light', opacity: 0.1, p: 1.5 }}>
+                                        <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
+                                            Failure Reason: {application.payment.failure_reason}
+                                        </Typography>
+                                    </Box>
+                                )}
+                                {application.discount_amount && Number(application.discount_amount) > 0 && (
+                                    <Box sx={{ borderRadius: 2, bgcolor: 'action.hover', p: 1.5 }}>
+                                        <Typography sx={{ fontSize: '0.875rem' }}>
+                                            Original Fee: {application.payment.currency} {Number(application.onboarding_fee).toFixed(2)}
+                                            {' · '}Discount: -{application.payment.currency} {Number(application.discount_amount).toFixed(2)}
+                                            {' · '}Final: {application.payment.currency} {Number(application.final_amount).toFixed(2)}
+                                        </Typography>
+                                    </Box>
+                                )}
+                            </Box>
+                        ) : (
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <Chip label="Unpaid" color="warning" size="small" />
+                                <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
+                                    No payment has been made yet
+                                </Typography>
+                            </Box>
+                        )}
+                    </CardContent>
+                </Card>
+
                 {/* Ghana Card Documents */}
                 {(application.ghana_card_front ||
                     application.ghana_card_back) && (
@@ -341,15 +519,11 @@ export default function VendorApplicationShow({ application }: Props) {
                                             </Typography>
                                             <Box sx={{ overflow: 'hidden', borderRadius: 2, border: 1, borderColor: 'divider', p: 2 }}>
                                                 <Box
-                                                    component="a"
-                                                    href={
-                                                        application.business_certificate_document
-                                                    }
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    sx={{ display: 'flex', alignItems: 'center', gap: 1, fontSize: '0.875rem', color: 'primary.main', '&:hover': { textDecoration: 'underline' } }}
+                                                    component="button"
+                                                    onClick={() => setPreviewDoc({ url: application.business_certificate_document!, title: 'Business Certificate' })}
+                                                    sx={{ display: 'flex', alignItems: 'center', gap: 1, fontSize: '0.875rem', color: 'primary.main', bgcolor: 'transparent', border: 'none', cursor: 'pointer', p: 0, '&:hover': { textDecoration: 'underline' } }}
                                                 >
-                                                    <Package style={{ width: 16, height: 16 }} />
+                                                    <Eye style={{ width: 16, height: 16 }} />
                                                     View Business Certificate
                                                 </Box>
                                             </Box>
@@ -362,15 +536,11 @@ export default function VendorApplicationShow({ application }: Props) {
                                             </Typography>
                                             <Box sx={{ overflow: 'hidden', borderRadius: 2, border: 1, borderColor: 'divider', p: 2 }}>
                                                 <Box
-                                                    component="a"
-                                                    href={
-                                                        application.tin_document
-                                                    }
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    sx={{ display: 'flex', alignItems: 'center', gap: 1, fontSize: '0.875rem', color: 'primary.main', '&:hover': { textDecoration: 'underline' } }}
+                                                    component="button"
+                                                    onClick={() => setPreviewDoc({ url: application.tin_document!, title: 'TIN Document' })}
+                                                    sx={{ display: 'flex', alignItems: 'center', gap: 1, fontSize: '0.875rem', color: 'primary.main', bgcolor: 'transparent', border: 'none', cursor: 'pointer', p: 0, '&:hover': { textDecoration: 'underline' } }}
                                                 >
-                                                    <Package style={{ width: 16, height: 16 }} />
+                                                    <Eye style={{ width: 16, height: 16 }} />
                                                     View TIN Document
                                                 </Box>
                                             </Box>
@@ -422,15 +592,11 @@ export default function VendorApplicationShow({ application }: Props) {
                                             </Typography>
                                             <Box sx={{ overflow: 'hidden', borderRadius: 2, border: 1, borderColor: 'divider', p: 2 }}>
                                                 <Box
-                                                    component="a"
-                                                    href={
-                                                        application.proof_of_business
-                                                    }
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    sx={{ display: 'flex', alignItems: 'center', gap: 1, fontSize: '0.875rem', color: 'primary.main', '&:hover': { textDecoration: 'underline' } }}
+                                                    component="button"
+                                                    onClick={() => setPreviewDoc({ url: application.proof_of_business!, title: 'Proof of Business' })}
+                                                    sx={{ display: 'flex', alignItems: 'center', gap: 1, fontSize: '0.875rem', color: 'primary.main', bgcolor: 'transparent', border: 'none', cursor: 'pointer', p: 0, '&:hover': { textDecoration: 'underline' } }}
                                                 >
-                                                    <Package style={{ width: 16, height: 16 }} />
+                                                    <Eye style={{ width: 16, height: 16 }} />
                                                     View Proof of Business
                                                 </Box>
                                             </Box>
@@ -555,6 +721,50 @@ export default function VendorApplicationShow({ application }: Props) {
                     </Card>
                 )}
             </Box>
+
+            {/* Document Preview Dialog */}
+            <Dialog open={!!previewDoc} onOpenChange={(open) => { if (!open) { setPreviewDoc(null); } }}>
+                <DialogContent style={{ maxWidth: 900, width: '90vw' }}>
+                    <DialogHeader>
+                        <DialogTitle>{previewDoc?.title}</DialogTitle>
+                        <DialogDescription>
+                            Preview the uploaded document below
+                        </DialogDescription>
+                    </DialogHeader>
+                    {previewDoc && (
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                            <Box sx={{ overflow: 'auto', borderRadius: 2, border: 1, borderColor: 'divider', bgcolor: 'action.hover', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 300, maxHeight: '60vh' }}>
+                                {isImageUrl(previewDoc.url) ? (
+                                    <Box
+                                        component="img"
+                                        src={previewDoc.url}
+                                        alt={previewDoc.title}
+                                        sx={{ maxWidth: '100%', maxHeight: '60vh', objectFit: 'contain' }}
+                                    />
+                                ) : (
+                                    <Box
+                                        component="iframe"
+                                        src={previewDoc.url}
+                                        title={previewDoc.title}
+                                        sx={{ width: '100%', height: '60vh', border: 'none' }}
+                                    />
+                                )}
+                            </Box>
+                            <DialogFooter>
+                                <Button variant="outline" onClick={() => setPreviewDoc(null)}>
+                                    Close
+                                </Button>
+                                <Button asChild>
+                                    <a href={previewDoc.url} download target="_blank" rel="noopener noreferrer">
+                                        <Download style={{ marginRight: 8, width: 16, height: 16 }} />
+                                        Download
+                                    </a>
+                                </Button>
+                            </DialogFooter>
+                        </Box>
+                    )}
+                </DialogContent>
+            </Dialog>
 
             {/* Reject Dialog */}
             <Dialog open={showRejectDialog} onOpenChange={setShowRejectDialog}>
