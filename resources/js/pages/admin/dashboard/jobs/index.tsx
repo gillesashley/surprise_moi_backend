@@ -1,9 +1,11 @@
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, router } from '@inertiajs/react';
+import Box from '@mui/material/Box';
+import Chip from '@mui/material/Chip';
+import Typography from '@mui/material/Typography';
 import {
     AlertTriangle,
     CheckCircle,
@@ -100,33 +102,33 @@ export default function Index({
         });
     };
 
-    const getStatusColor = (status: string) => {
+    const getStatusColor = (status: string): 'error' | 'success' | 'info' | 'warning' | 'default' => {
         switch (status) {
             case 'completed':
-                return 'bg-green-100 text-green-800';
+                return 'success';
             case 'failed':
-                return 'bg-red-100 text-red-800';
+                return 'error';
             case 'processing':
-                return 'bg-blue-100 text-blue-800';
+                return 'info';
             case 'pending':
-                return 'bg-yellow-100 text-yellow-800';
+                return 'warning';
             default:
-                return 'bg-gray-100 text-gray-800';
+                return 'default';
         }
     };
 
     const getStatusIcon = (status: string) => {
         switch (status) {
             case 'completed':
-                return <CheckCircle className="h-4 w-4" />;
+                return <CheckCircle style={{ width: 16, height: 16 }} />;
             case 'failed':
-                return <XCircle className="h-4 w-4" />;
+                return <XCircle style={{ width: 16, height: 16 }} />;
             case 'processing':
-                return <RefreshCw className="h-4 w-4 animate-spin" />;
+                return <RefreshCw style={{ width: 16, height: 16, animation: 'spin 1s linear infinite' }} />;
             case 'pending':
-                return <Clock className="h-4 w-4" />;
+                return <Clock style={{ width: 16, height: 16 }} />;
             default:
-                return <AlertTriangle className="h-4 w-4" />;
+                return <AlertTriangle style={{ width: 16, height: 16 }} />;
         }
     };
 
@@ -138,94 +140,94 @@ export default function Index({
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Jobs Dashboard" />
 
-            <div className="flex h-full flex-1 flex-col gap-4 overflow-auto p-4">
+            <Box sx={{ display: 'flex', flex: 1, flexDirection: 'column', gap: 2, overflow: 'auto', p: 2, height: '100%' }}>
                 {/* Header */}
-                <div className="flex items-center justify-between">
-                    <div>
-                        <h1 className="text-2xl font-bold text-gray-900">
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <Box>
+                        <Typography variant="h5" sx={{ fontWeight: 700, color: 'text.primary' }}>
                             Jobs Dashboard
-                        </h1>
-                        <p className="text-gray-600">
+                        </Typography>
+                        <Typography sx={{ color: 'text.secondary' }}>
                             Monitor background job performance and status
-                        </p>
-                    </div>
+                        </Typography>
+                    </Box>
                     <Button
                         onClick={handleRefresh}
                         disabled={refreshing}
                         variant="outline"
                     >
                         <RefreshCw
-                            className={`mr-2 h-4 w-4 ${refreshing ? 'animate-spin' : ''}`}
+                            style={{ marginRight: 8, width: 16, height: 16, ...(refreshing ? { animation: 'spin 1s linear infinite' } : {}) }}
                         />
                         Refresh
                     </Button>
-                </div>
+                </Box>
 
                 {/* Statistics Cards */}
                 {statistics && (
-                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+                    <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)', lg: 'repeat(4, 1fr)' }, gap: 3 }}>
                         <Card>
-                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle className="text-sm font-medium">
+                            <CardHeader sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', pb: 1, '& > *': { my: 0 } }}>
+                                <CardTitle sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
                                     Total Failed Jobs
                                 </CardTitle>
-                                <XCircle className="h-4 w-4 text-red-600" />
+                                <XCircle style={{ width: 16, height: 16, color: '#dc2626' }} />
                             </CardHeader>
                             <CardContent>
-                                <div className="text-2xl font-bold">
+                                <Box sx={{ fontSize: '1.5rem', fontWeight: 700 }}>
                                     {statistics.total_failed}
-                                </div>
+                                </Box>
                             </CardContent>
                         </Card>
 
                         <Card>
-                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle className="text-sm font-medium">
+                            <CardHeader sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', pb: 1, '& > *': { my: 0 } }}>
+                                <CardTitle sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
                                     Recent Failures (24h)
                                 </CardTitle>
-                                <Clock className="h-4 w-4 text-yellow-600" />
+                                <Clock style={{ width: 16, height: 16, color: '#ca8a04' }} />
                             </CardHeader>
                             <CardContent>
-                                <div className="text-2xl font-bold">
+                                <Box sx={{ fontSize: '1.5rem', fontWeight: 700 }}>
                                     {statistics.recent_failures}
-                                </div>
+                                </Box>
                             </CardContent>
                         </Card>
 
                         <Card>
-                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle className="text-sm font-medium">
+                            <CardHeader sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', pb: 1, '& > *': { my: 0 } }}>
+                                <CardTitle sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
                                     Active Queues
                                 </CardTitle>
-                                <AlertTriangle className="h-4 w-4 text-orange-600" />
+                                <AlertTriangle style={{ width: 16, height: 16, color: '#ea580c' }} />
                             </CardHeader>
                             <CardContent>
-                                <div className="text-2xl font-bold">
+                                <Box sx={{ fontSize: '1.5rem', fontWeight: 700 }}>
                                     {
                                         Object.keys(statistics.by_queue || {})
                                             .length
                                     }
-                                </div>
+                                </Box>
                             </CardContent>
                         </Card>
 
                         <Card>
-                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle className="text-sm font-medium">
+                            <CardHeader sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', pb: 1, '& > *': { my: 0 } }}>
+                                <CardTitle sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
                                     Top Queue
                                 </CardTitle>
-                                <CheckCircle className="h-4 w-4 text-blue-600" />
+                                <CheckCircle style={{ width: 16, height: 16, color: '#2563eb' }} />
                             </CardHeader>
                             <CardContent>
-                                <div className="truncate text-2xl font-bold">
+                                <Box sx={{ fontSize: '1.5rem', fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                                     {Object.entries(
                                         statistics.by_queue || {},
                                     ).sort(
                                         (a, b) =>
                                             (b[1] as number) - (a[1] as number),
                                     )[0]?.[0] || 'N/A'}
-                                </div>
-                                <p className="text-xs text-muted-foreground">
+                                </Box>
+                                <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
                                     {Object.entries(
                                         statistics.by_queue || {},
                                     ).sort(
@@ -233,10 +235,10 @@ export default function Index({
                                             (b[1] as number) - (a[1] as number),
                                     )[0]?.[1] || 0}{' '}
                                     jobs
-                                </p>
+                                </Typography>
                             </CardContent>
                         </Card>
-                    </div>
+                    </Box>
                 )}
 
                 {/* Recent Jobs */}
@@ -245,15 +247,15 @@ export default function Index({
                         <CardTitle>Recent Jobs</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="min-h-96 rounded-lg border">
+                        <Box sx={{ minHeight: 384, borderRadius: 2, border: 1, borderColor: 'divider' }}>
                             {jobs.length === 0 ? (
-                                <div className="flex h-96 items-center justify-center">
-                                    <p className="text-gray-500">
+                                <Box sx={{ display: 'flex', height: 384, alignItems: 'center', justifyContent: 'center' }}>
+                                    <Typography sx={{ color: 'text.secondary' }}>
                                         No failed jobs found
-                                    </p>
-                                </div>
+                                    </Typography>
+                                </Box>
                             ) : (
-                                <div className="divide-y">
+                                <Box>
                                     {jobs.map((job) => {
                                         const status = 'failed';
                                         const jobName =
@@ -262,42 +264,50 @@ export default function Index({
                                             'Unknown Job';
 
                                         return (
-                                            <div
+                                            <Box
                                                 key={job.id}
-                                                className="flex items-center justify-between p-4 hover:bg-gray-50"
+                                                sx={{
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'space-between',
+                                                    p: 2,
+                                                    '&:hover': { bgcolor: 'action.hover' },
+                                                    borderBottom: 1,
+                                                    borderColor: 'divider',
+                                                    '&:last-child': { borderBottom: 0 },
+                                                }}
                                             >
-                                                <div className="flex items-center space-x-4">
+                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                                                     {getStatusIcon(status)}
-                                                    <div>
-                                                        <div className="flex items-center space-x-2">
-                                                            <span className="font-medium">
+                                                    <Box>
+                                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                            <Box component="span" sx={{ fontWeight: 500 }}>
                                                                 {jobName}
-                                                            </span>
-                                                            <Badge
-                                                                className={getStatusColor(
-                                                                    status,
-                                                                )}
-                                                            >
-                                                                {status}
-                                                            </Badge>
-                                                        </div>
-                                                        <div className="text-sm text-gray-500">
+                                                            </Box>
+                                                            <Chip
+                                                                label={status}
+                                                                color={getStatusColor(status)}
+                                                                size="small"
+                                                                variant="outlined"
+                                                            />
+                                                        </Box>
+                                                        <Box sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
                                                             Queue: {job.queue} •
                                                             Connection:{' '}
                                                             {job.connection}
-                                                        </div>
-                                                        <div className="text-xs text-gray-400">
+                                                        </Box>
+                                                        <Box sx={{ fontSize: '0.75rem', color: 'text.disabled' }}>
                                                             Failed:{' '}
                                                             {formatDate(
                                                                 job.failed_at,
                                                             )}
-                                                        </div>
+                                                        </Box>
                                                         {job.exception && (
-                                                            <div className="mt-2 max-w-md">
-                                                                <div className="rounded bg-red-50 px-2 py-1 text-xs text-red-700">
-                                                                    <span className="font-semibold">
+                                                            <Box sx={{ mt: 1, maxWidth: 448 }}>
+                                                                <Box sx={{ borderRadius: 1, bgcolor: 'error.lighter', px: 1, py: 0.5, fontSize: '0.75rem', color: 'error.dark' }}>
+                                                                    <Box component="span" sx={{ fontWeight: 600 }}>
                                                                         Error:{' '}
-                                                                    </span>
+                                                                    </Box>
                                                                     {job.exception
                                                                         .split(
                                                                             '\n',
@@ -311,42 +321,42 @@ export default function Index({
                                                                         .length >
                                                                         100 &&
                                                                         '...'}
-                                                                </div>
-                                                            </div>
+                                                                </Box>
+                                                            </Box>
                                                         )}
-                                                    </div>
-                                                </div>
-                                                <div className="text-right">
-                                                    <div className="text-sm text-gray-500">
+                                                    </Box>
+                                                </Box>
+                                                <Box sx={{ textAlign: 'right' }}>
+                                                    <Box sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
                                                         ID: {job.id}
-                                                    </div>
+                                                    </Box>
                                                     {job.payload?.data?.id && (
-                                                        <div className="text-xs text-gray-400">
+                                                        <Box sx={{ fontSize: '0.75rem', color: 'text.disabled' }}>
                                                             Entity ID:{' '}
                                                             {
                                                                 job.payload.data
                                                                     .id
                                                             }
-                                                        </div>
+                                                        </Box>
                                                     )}
-                                                </div>
-                                            </div>
+                                                </Box>
+                                            </Box>
                                         );
                                     })}
-                                </div>
+                                </Box>
                             )}
-                        </div>
+                        </Box>
 
                         {/* Pagination Controls */}
-                        <div className="mt-4 flex items-center justify-between border-t pt-4">
-                            <div className="text-sm text-gray-500">
+                        <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: 1, borderColor: 'divider', pt: 2 }}>
+                            <Box sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
                                 Showing {jobs.length} of {pagination.total} jobs
-                                <span className="ml-2">
+                                <Box component="span" sx={{ ml: 1 }}>
                                     (Page {pagination.current_page} of{' '}
                                     {pagination.total_pages})
-                                </span>
-                            </div>
-                            <div className="flex items-center gap-2">
+                                </Box>
+                            </Box>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                 <Button
                                     variant="outline"
                                     size="sm"
@@ -358,7 +368,7 @@ export default function Index({
                                         refreshing
                                     }
                                 >
-                                    <ChevronLeft className="mr-1 h-4 w-4" />
+                                    <ChevronLeft style={{ marginRight: 4, width: 16, height: 16 }} />
                                     Previous
                                 </Button>
                                 <Button
@@ -373,13 +383,13 @@ export default function Index({
                                     }
                                 >
                                     Next
-                                    <ChevronRight className="ml-1 h-4 w-4" />
+                                    <ChevronRight style={{ marginLeft: 4, width: 16, height: 16 }} />
                                 </Button>
-                            </div>
-                        </div>
+                            </Box>
+                        </Box>
                     </CardContent>
                 </Card>
-            </div>
+            </Box>
         </AppLayout>
     );
 }

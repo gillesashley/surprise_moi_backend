@@ -1,4 +1,3 @@
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
     Card,
@@ -18,6 +17,9 @@ import {
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
+import Box from '@mui/material/Box';
+import Chip from '@mui/material/Chip';
+import Typography from '@mui/material/Typography';
 import { AlertTriangle, Eye, Search } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
@@ -62,11 +64,21 @@ const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Reports & Conflicts', href: '/dashboard/reports' },
 ];
 
-const statusConfig: Record<string, { color: string; label: string }> = {
-    pending: { color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200', label: 'Pending' },
-    in_progress: { color: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200', label: 'In Progress' },
-    resolved: { color: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200', label: 'Resolved' },
-    cancelled: { color: 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200', label: 'Cancelled' },
+const statusChipColor = (status: string): 'warning' | 'info' | 'success' | 'default' => {
+    const map: Record<string, 'warning' | 'info' | 'success' | 'default'> = {
+        pending: 'warning',
+        in_progress: 'info',
+        resolved: 'success',
+        cancelled: 'default',
+    };
+    return map[status] || 'warning';
+};
+
+const statusLabel: Record<string, string> = {
+    pending: 'Pending',
+    in_progress: 'In Progress',
+    resolved: 'Resolved',
+    cancelled: 'Cancelled',
 };
 
 function formatCategory(value: string): string {
@@ -112,33 +124,33 @@ export default function ReportsIndex({ reports, filters, categories, statuses }:
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Reports & Conflicts" />
-            <div className="flex h-full flex-1 flex-col gap-4 p-4">
+            <Box sx={{ display: 'flex', flex: 1, flexDirection: 'column', gap: 2, p: 2, height: '100%' }}>
                 <Card>
                     <CardHeader>
-                        <div className="flex flex-col gap-4">
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-2">
-                                    <AlertTriangle className="h-5 w-5 text-orange-500" />
-                                    <div>
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                    <AlertTriangle style={{ width: 20, height: 20, color: '#f97316' }} />
+                                    <Box>
                                         <CardTitle>Reports & Conflicts</CardTitle>
                                         <CardDescription>Review and resolve user-submitted reports</CardDescription>
-                                    </div>
-                                </div>
-                                <Badge className="text-sm">{reports.total} total</Badge>
-                            </div>
-                            <div className="flex flex-col gap-2 sm:flex-row">
-                                <div className="relative flex-1">
-                                    <Search className="absolute top-2.5 left-2.5 h-4 w-4 text-muted-foreground" />
+                                    </Box>
+                                </Box>
+                                <Chip label={`${reports.total} total`} size="small" variant="outlined" />
+                            </Box>
+                            <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 1 }}>
+                                <Box sx={{ position: 'relative', flex: 1 }}>
+                                    <Search style={{ position: 'absolute', top: 10, left: 10, width: 16, height: 16, color: 'var(--muted-foreground)' }} />
                                     <Input
                                         type="search"
                                         placeholder="Search by report number or user..."
                                         value={searchTerm}
                                         onChange={(e) => setSearchTerm(e.target.value)}
-                                        className="pl-9"
+                                        style={{ paddingLeft: 36 }}
                                     />
-                                </div>
+                                </Box>
                                 <Select value={statusFilter} onValueChange={handleStatusChange}>
-                                    <SelectTrigger className="w-40">
+                                    <SelectTrigger style={{ width: 160 }}>
                                         <SelectValue placeholder="All statuses" />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -149,7 +161,7 @@ export default function ReportsIndex({ reports, filters, categories, statuses }:
                                     </SelectContent>
                                 </Select>
                                 <Select value={categoryFilter} onValueChange={handleCategoryChange}>
-                                    <SelectTrigger className="w-44">
+                                    <SelectTrigger style={{ width: 176 }}>
                                         <SelectValue placeholder="All categories" />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -159,67 +171,80 @@ export default function ReportsIndex({ reports, filters, categories, statuses }:
                                         ))}
                                     </SelectContent>
                                 </Select>
-                            </div>
-                        </div>
+                            </Box>
+                        </Box>
                     </CardHeader>
                     <CardContent>
                         {reports.data.length === 0 ? (
-                            <div className="py-12 text-center text-muted-foreground">
-                                <AlertTriangle className="mx-auto mb-2 h-8 w-8 opacity-40" />
-                                <p>No reports found.</p>
-                            </div>
+                            <Box sx={{ py: 6, textAlign: 'center', color: 'text.secondary' }}>
+                                <AlertTriangle style={{ margin: '0 auto 8px', width: 32, height: 32, opacity: 0.4 }} />
+                                <Typography>No reports found.</Typography>
+                            </Box>
                         ) : (
                             <>
-                                <div className="overflow-x-auto">
-                                    <table className="w-full">
+                                <Box sx={{ overflowX: 'auto' }}>
+                                    <Box component="table" sx={{ width: '100%' }}>
                                         <thead>
-                                            <tr className="border-b">
-                                                <th className="p-2 text-left text-sm font-medium">Report #</th>
-                                                <th className="p-2 text-left text-sm font-medium">User</th>
-                                                <th className="p-2 text-left text-sm font-medium">Category</th>
-                                                <th className="p-2 text-left text-sm font-medium">Status</th>
-                                                <th className="p-2 text-left text-sm font-medium">Order</th>
-                                                <th className="p-2 text-left text-sm font-medium">Date</th>
-                                                <th className="p-2 text-left text-sm font-medium">Actions</th>
-                                            </tr>
+                                            <Box component="tr" sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                                                <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>Report #</Box>
+                                                <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>User</Box>
+                                                <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>Category</Box>
+                                                <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>Status</Box>
+                                                <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>Order</Box>
+                                                <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>Date</Box>
+                                                <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>Actions</Box>
+                                            </Box>
                                         </thead>
                                         <tbody>
                                             {reports.data.map((report) => {
-                                                const sc = statusConfig[report.status] ?? statusConfig.pending;
                                                 return (
-                                                    <tr key={report.id} className="border-b last:border-0 hover:bg-muted/30">
-                                                        <td className="p-2 text-sm font-mono">{report.report_number}</td>
-                                                        <td className="p-2">
-                                                            <div className="text-sm font-medium">{report.user.name}</div>
-                                                            <div className="text-xs text-muted-foreground">{report.user.email}</div>
-                                                        </td>
-                                                        <td className="p-2 text-sm">{formatCategory(report.category)}</td>
-                                                        <td className="p-2">
-                                                            <Badge className={sc.color}>{sc.label}</Badge>
-                                                        </td>
-                                                        <td className="p-2 text-sm">{report.order_number ?? '—'}</td>
-                                                        <td className="p-2 text-sm text-muted-foreground">
-                                                            {report.created_at ? new Date(report.created_at).toLocaleDateString() : '—'}
-                                                        </td>
-                                                        <td className="p-2">
+                                                    <Box
+                                                        component="tr"
+                                                        key={report.id}
+                                                        sx={{
+                                                            borderBottom: 1,
+                                                            borderColor: 'divider',
+                                                            '&:last-child': { borderBottom: 0 },
+                                                            '&:hover': { bgcolor: 'action.hover' },
+                                                        }}
+                                                    >
+                                                        <Box component="td" sx={{ p: 1, fontSize: '0.875rem', fontFamily: 'monospace' }}>{report.report_number}</Box>
+                                                        <Box component="td" sx={{ p: 1 }}>
+                                                            <Box sx={{ fontSize: '0.875rem', fontWeight: 500 }}>{report.user.name}</Box>
+                                                            <Box sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>{report.user.email}</Box>
+                                                        </Box>
+                                                        <Box component="td" sx={{ p: 1, fontSize: '0.875rem' }}>{formatCategory(report.category)}</Box>
+                                                        <Box component="td" sx={{ p: 1 }}>
+                                                            <Chip
+                                                                label={statusLabel[report.status] || 'Pending'}
+                                                                color={statusChipColor(report.status)}
+                                                                size="small"
+                                                                variant="outlined"
+                                                            />
+                                                        </Box>
+                                                        <Box component="td" sx={{ p: 1, fontSize: '0.875rem' }}>{report.order_number ?? '\u2014'}</Box>
+                                                        <Box component="td" sx={{ p: 1, fontSize: '0.875rem', color: 'text.secondary' }}>
+                                                            {report.created_at ? new Date(report.created_at).toLocaleDateString() : '\u2014'}
+                                                        </Box>
+                                                        <Box component="td" sx={{ p: 1 }}>
                                                             <Button asChild variant="ghost" size="sm">
                                                                 <Link href={`/dashboard/reports/${report.id}`}>
-                                                                    <Eye className="mr-1 h-4 w-4" /> View
+                                                                    <Eye style={{ marginRight: 4, width: 16, height: 16 }} /> View
                                                                 </Link>
                                                             </Button>
-                                                        </td>
-                                                    </tr>
+                                                        </Box>
+                                                    </Box>
                                                 );
                                             })}
                                         </tbody>
-                                    </table>
-                                </div>
+                                    </Box>
+                                </Box>
                                 {reports.last_page > 1 && (
-                                    <div className="mt-4 flex items-center justify-between">
-                                        <p className="text-sm text-muted-foreground">
+                                    <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                        <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
                                             Page {reports.current_page} of {reports.last_page} ({reports.total} total)
-                                        </p>
-                                        <div className="flex gap-2">
+                                        </Typography>
+                                        <Box sx={{ display: 'flex', gap: 1 }}>
                                             <Button
                                                 variant="outline"
                                                 size="sm"
@@ -236,15 +261,14 @@ export default function ReportsIndex({ reports, filters, categories, statuses }:
                                             >
                                                 Next
                                             </Button>
-                                        </div>
-                                    </div>
+                                        </Box>
+                                    </Box>
                                 )}
                             </>
                         )}
                     </CardContent>
                 </Card>
-            </div>
+            </Box>
         </AppLayout>
     );
 }
-

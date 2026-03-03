@@ -1,4 +1,3 @@
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
     Card,
@@ -20,6 +19,9 @@ import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router, useForm } from '@inertiajs/react';
+import Box from '@mui/material/Box';
+import Chip from '@mui/material/Chip';
+import Typography from '@mui/material/Typography';
 import { ArrowLeft, CheckCircle, Clock, FileImage, Loader2, Package, User as UserIcon } from 'lucide-react';
 import { useState } from 'react';
 
@@ -60,11 +62,21 @@ const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Report Detail', href: '#' },
 ];
 
-const statusConfig: Record<string, { color: string; label: string }> = {
-    pending: { color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200', label: 'Pending' },
-    in_progress: { color: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200', label: 'In Progress' },
-    resolved: { color: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200', label: 'Resolved' },
-    cancelled: { color: 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200', label: 'Cancelled' },
+const statusChipColor = (status: string): 'warning' | 'info' | 'success' | 'default' => {
+    const map: Record<string, 'warning' | 'info' | 'success' | 'default'> = {
+        pending: 'warning',
+        in_progress: 'info',
+        resolved: 'success',
+        cancelled: 'default',
+    };
+    return map[status] || 'warning';
+};
+
+const statusLabel: Record<string, string> = {
+    pending: 'Pending',
+    in_progress: 'In Progress',
+    resolved: 'Resolved',
+    cancelled: 'Cancelled',
 };
 
 function formatCategory(value: string): string {
@@ -79,7 +91,6 @@ function formatFileSize(bytes: number): string {
 
 export default function ReportShow({ report }: Props) {
     const [resolveDialogOpen, setResolveDialogOpen] = useState(false);
-    const sc = statusConfig[report.status] ?? statusConfig.pending;
 
     const resolveForm = useForm({ resolution_notes: '' });
 
@@ -101,62 +112,67 @@ export default function ReportShow({ report }: Props) {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={`Report ${report.report_number}`} />
-            <div className="flex h-full flex-1 flex-col gap-4 p-4">
-                <div className="flex items-center justify-between">
+            <Box sx={{ display: 'flex', flex: 1, flexDirection: 'column', gap: 2, p: 2, height: '100%' }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <Button asChild variant="ghost" size="sm">
                         <Link href="/dashboard/reports">
-                            <ArrowLeft className="mr-1 h-4 w-4" /> Back to Reports
+                            <ArrowLeft style={{ marginRight: 4, width: 16, height: 16 }} /> Back to Reports
                         </Link>
                     </Button>
-                    <div className="flex gap-2">
+                    <Box sx={{ display: 'flex', gap: 1 }}>
                         {report.is_pending && (
                             <Button variant="outline" onClick={handleMarkInProgress}>
-                                <Clock className="mr-1 h-4 w-4" /> Mark In Progress
+                                <Clock style={{ marginRight: 4, width: 16, height: 16 }} /> Mark In Progress
                             </Button>
                         )}
                         {(report.is_pending || report.is_in_progress) && (
                             <Button onClick={() => setResolveDialogOpen(true)}>
-                                <CheckCircle className="mr-1 h-4 w-4" /> Resolve Report
+                                <CheckCircle style={{ marginRight: 4, width: 16, height: 16 }} /> Resolve Report
                             </Button>
                         )}
-                    </div>
-                </div>
+                    </Box>
+                </Box>
 
-                <div className="grid gap-4 lg:grid-cols-3">
+                <Box sx={{ display: 'grid', gap: 2, gridTemplateColumns: { xs: '1fr', lg: '2fr 1fr' } }}>
                     {/* Main info */}
-                    <div className="flex flex-col gap-4 lg:col-span-2">
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                         <Card>
                             <CardHeader>
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <CardTitle className="font-mono">{report.report_number}</CardTitle>
+                                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                    <Box>
+                                        <CardTitle sx={{ fontFamily: 'monospace' }}>{report.report_number}</CardTitle>
                                         <CardDescription>{formatCategory(report.category)}</CardDescription>
-                                    </div>
-                                    <Badge className={sc.color}>{sc.label}</Badge>
-                                </div>
+                                    </Box>
+                                    <Chip
+                                        label={statusLabel[report.status] || 'Pending'}
+                                        color={statusChipColor(report.status)}
+                                        size="small"
+                                        variant="outlined"
+                                    />
+                                </Box>
                             </CardHeader>
-                            <CardContent className="flex flex-col gap-4">
-                                <div>
-                                    <p className="mb-1 text-sm font-medium text-muted-foreground">Description</p>
-                                    <p className="text-sm leading-relaxed">{report.description}</p>
-                                </div>
+                            <CardContent sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                                <Box>
+                                    <Typography sx={{ mb: 0.5, fontSize: '0.875rem', fontWeight: 500, color: 'text.secondary' }}>Description</Typography>
+                                    <Typography sx={{ fontSize: '0.875rem', lineHeight: 1.7 }}>{report.description}</Typography>
+                                </Box>
                                 {report.cancellation_reason && (
-                                    <div className="rounded-md bg-gray-50 p-3 dark:bg-gray-900">
-                                        <p className="mb-1 text-sm font-medium text-muted-foreground">Cancellation Reason</p>
-                                        <p className="text-sm">{report.cancellation_reason}</p>
-                                    </div>
+                                    <Box sx={{ borderRadius: 1, bgcolor: 'action.hover', p: 1.5 }}>
+                                        <Typography sx={{ mb: 0.5, fontSize: '0.875rem', fontWeight: 500, color: 'text.secondary' }}>Cancellation Reason</Typography>
+                                        <Typography sx={{ fontSize: '0.875rem' }}>{report.cancellation_reason}</Typography>
+                                    </Box>
                                 )}
                                 {report.resolution_notes && (
-                                    <div className="rounded-md bg-green-50 p-3 dark:bg-green-950">
-                                        <p className="mb-1 text-sm font-medium text-green-700 dark:text-green-300">Resolution Notes</p>
-                                        <p className="text-sm">{report.resolution_notes}</p>
+                                    <Box sx={{ borderRadius: 1, bgcolor: 'success.lighter', p: 1.5 }}>
+                                        <Typography sx={{ mb: 0.5, fontSize: '0.875rem', fontWeight: 500, color: 'success.main' }}>Resolution Notes</Typography>
+                                        <Typography sx={{ fontSize: '0.875rem' }}>{report.resolution_notes}</Typography>
                                         {report.resolver && (
-                                            <p className="mt-1 text-xs text-muted-foreground">
+                                            <Typography sx={{ mt: 0.5, fontSize: '0.75rem', color: 'text.secondary' }}>
                                                 Resolved by {report.resolver.name}
                                                 {report.resolved_at && ` on ${new Date(report.resolved_at).toLocaleDateString()}`}
-                                            </p>
+                                            </Typography>
                                         )}
-                                    </div>
+                                    </Box>
                                 )}
                             </CardContent>
                         </Card>
@@ -165,75 +181,90 @@ export default function ReportShow({ report }: Props) {
                         {report.attachments.length > 0 && (
                             <Card>
                                 <CardHeader>
-                                    <CardTitle className="flex items-center gap-2 text-base">
-                                        <FileImage className="h-4 w-4" /> Attachments ({report.attachments.length})
+                                    <CardTitle sx={{ display: 'flex', alignItems: 'center', gap: 1, fontSize: '1rem' }}>
+                                        <FileImage style={{ width: 16, height: 16 }} /> Attachments ({report.attachments.length})
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent>
-                                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                                    <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, 1fr)', sm: 'repeat(3, 1fr)' }, gap: 1.5 }}>
                                         {report.attachments.map((att) => (
-                                            <a
+                                            <Box
+                                                component="a"
                                                 key={att.id}
                                                 href={att.url}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                className="group flex flex-col items-center gap-1 rounded-lg border p-3 text-center hover:bg-muted/50"
+                                                sx={{
+                                                    display: 'flex',
+                                                    flexDirection: 'column',
+                                                    alignItems: 'center',
+                                                    gap: 0.5,
+                                                    borderRadius: 2,
+                                                    border: 1,
+                                                    borderColor: 'divider',
+                                                    p: 1.5,
+                                                    textAlign: 'center',
+                                                    textDecoration: 'none',
+                                                    color: 'inherit',
+                                                    '&:hover': { bgcolor: 'action.hover' },
+                                                }}
                                             >
-                                                <img
+                                                <Box
+                                                    component="img"
                                                     src={att.url}
                                                     alt={att.file_name}
-                                                    className="h-20 w-full rounded object-cover"
-                                                    onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                                                    sx={{ height: 80, width: '100%', borderRadius: 1, objectFit: 'cover' }}
+                                                    onError={(e: React.SyntheticEvent<HTMLImageElement>) => { (e.target as HTMLImageElement).style.display = 'none'; }}
                                                 />
-                                                <span className="mt-1 truncate text-xs font-medium">{att.file_name}</span>
-                                                <span className="text-xs text-muted-foreground">{formatFileSize(att.file_size)}</span>
-                                            </a>
+                                                <Box component="span" sx={{ mt: 0.5, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: '0.75rem', fontWeight: 500, maxWidth: '100%' }}>{att.file_name}</Box>
+                                                <Box component="span" sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>{formatFileSize(att.file_size)}</Box>
+                                            </Box>
                                         ))}
-                                    </div>
+                                    </Box>
                                 </CardContent>
                             </Card>
                         )}
-                    </div>
+                    </Box>
 
                     {/* Sidebar info */}
-                    <div className="flex flex-col gap-4">
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                         <Card>
                             <CardHeader>
-                                <CardTitle className="flex items-center gap-2 text-base">
-                                    <UserIcon className="h-4 w-4" /> Submitted By
+                                <CardTitle sx={{ display: 'flex', alignItems: 'center', gap: 1, fontSize: '1rem' }}>
+                                    <UserIcon style={{ width: 16, height: 16 }} /> Submitted By
                                 </CardTitle>
                             </CardHeader>
-                            <CardContent className="flex flex-col gap-1 text-sm">
-                                <p className="font-medium">{report.user.name}</p>
-                                <p className="text-muted-foreground">{report.user.email}</p>
-                                {report.user.phone && <p className="text-muted-foreground">{report.user.phone}</p>}
+                            <CardContent sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, fontSize: '0.875rem' }}>
+                                <Typography sx={{ fontWeight: 500 }}>{report.user.name}</Typography>
+                                <Typography sx={{ color: 'text.secondary' }}>{report.user.email}</Typography>
+                                {report.user.phone && <Typography sx={{ color: 'text.secondary' }}>{report.user.phone}</Typography>}
                             </CardContent>
                         </Card>
 
                         {report.order && (
                             <Card>
                                 <CardHeader>
-                                    <CardTitle className="flex items-center gap-2 text-base">
-                                        <Package className="h-4 w-4" /> Related Order
+                                    <CardTitle sx={{ display: 'flex', alignItems: 'center', gap: 1, fontSize: '1rem' }}>
+                                        <Package style={{ width: 16, height: 16 }} /> Related Order
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent>
-                                    <p className="font-mono text-sm">{report.order.order_number}</p>
+                                    <Typography sx={{ fontFamily: 'monospace', fontSize: '0.875rem' }}>{report.order.order_number}</Typography>
                                 </CardContent>
                             </Card>
                         )}
 
                         <Card>
                             <CardHeader>
-                                <CardTitle className="text-base">Timeline</CardTitle>
+                                <CardTitle sx={{ fontSize: '1rem' }}>Timeline</CardTitle>
                             </CardHeader>
-                            <CardContent className="flex flex-col gap-1 text-sm text-muted-foreground">
-                                <p>Created: {report.created_at ? new Date(report.created_at).toLocaleString() : '—'}</p>
-                                <p>Updated: {report.updated_at ? new Date(report.updated_at).toLocaleString() : '—'}</p>
+                            <CardContent sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, fontSize: '0.875rem', color: 'text.secondary' }}>
+                                <Typography sx={{ color: 'text.secondary' }}>Created: {report.created_at ? new Date(report.created_at).toLocaleString() : '\u2014'}</Typography>
+                                <Typography sx={{ color: 'text.secondary' }}>Updated: {report.updated_at ? new Date(report.updated_at).toLocaleString() : '\u2014'}</Typography>
                             </CardContent>
                         </Card>
-                    </div>
-                </div>
+                    </Box>
+                </Box>
 
                 {/* Resolve Dialog */}
                 <Dialog open={resolveDialogOpen} onOpenChange={setResolveDialogOpen}>
@@ -244,7 +275,7 @@ export default function ReportShow({ report }: Props) {
                                 Provide resolution notes explaining how this report was handled.
                             </DialogDescription>
                         </DialogHeader>
-                        <div className="flex flex-col gap-2">
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                             <Label htmlFor="resolution_notes">Resolution Notes</Label>
                             <Textarea
                                 id="resolution_notes"
@@ -254,22 +285,21 @@ export default function ReportShow({ report }: Props) {
                                 onChange={(e) => resolveForm.setData('resolution_notes', e.target.value)}
                             />
                             {resolveForm.errors.resolution_notes && (
-                                <p className="text-sm text-destructive">{resolveForm.errors.resolution_notes}</p>
+                                <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>{resolveForm.errors.resolution_notes}</Typography>
                             )}
-                        </div>
+                        </Box>
                         <DialogFooter>
                             <Button variant="outline" onClick={() => setResolveDialogOpen(false)}>
                                 Cancel
                             </Button>
                             <Button onClick={handleResolve} disabled={resolveForm.processing}>
-                                {resolveForm.processing && <Loader2 className="mr-1 h-4 w-4 animate-spin" />}
+                                {resolveForm.processing && <Loader2 style={{ marginRight: 4, width: 16, height: 16, animation: 'spin 1s linear infinite' }} />}
                                 Resolve Report
                             </Button>
                         </DialogFooter>
                     </DialogContent>
                 </Dialog>
-            </div>
+            </Box>
         </AppLayout>
     );
 }
-

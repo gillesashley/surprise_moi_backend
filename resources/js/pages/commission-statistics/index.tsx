@@ -8,6 +8,8 @@ import {
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/react';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
 import { DollarSign, ShoppingCart, TrendingUp, Users } from 'lucide-react';
 import {
     CartesianGrid,
@@ -91,116 +93,116 @@ export default function CommissionStatistics({
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Commission Statistics" />
 
-            <div className="space-y-6 p-6">
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, p: 3 }}>
                 {/* Summary Cards */}
-                <div className="grid gap-4 md:grid-cols-5">
+                <Box sx={{ display: 'grid', gap: 2, gridTemplateColumns: { xs: '1fr', md: 'repeat(5, 1fr)' } }}>
                     <Card>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">
+                        <CardHeader sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', pb: 1, '& > *': { my: 0 } }}>
+                            <CardTitle sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
                                 Total Orders
                             </CardTitle>
-                            <ShoppingCart className="h-4 w-4 text-blue-600" />
+                            <ShoppingCart style={{ width: 16, height: 16, color: '#2563eb' }} />
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold">
+                            <Box sx={{ fontSize: '1.5rem', fontWeight: 700 }}>
                                 {stats.summary.total_orders}
-                            </div>
-                            <p className="text-xs text-muted-foreground">
+                            </Box>
+                            <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
                                 All time orders
-                            </p>
+                            </Typography>
                         </CardContent>
                     </Card>
 
                     <Card>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">
+                        <CardHeader sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', pb: 1, '& > *': { my: 0 } }}>
+                            <CardTitle sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
                                 Total Sales
                             </CardTitle>
-                            <DollarSign className="h-4 w-4 text-green-600" />
+                            <DollarSign style={{ width: 16, height: 16, color: '#16a34a' }} />
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold">
+                            <Box sx={{ fontSize: '1.5rem', fontWeight: 700 }}>
                                 GHS{' '}
                                 {parseFloat(
                                     stats.summary.total_order_value,
                                 ).toLocaleString('en-US', {
                                     maximumFractionDigits: 2,
                                 })}
-                            </div>
-                            <p className="text-xs text-muted-foreground">
+                            </Box>
+                            <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
                                 Gross revenue
-                            </p>
+                            </Typography>
                         </CardContent>
                     </Card>
 
-                    <Card className="border-purple-200 bg-gradient-to-br from-purple-50 to-purple-100">
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium text-purple-900">
+                    <Card sx={{ borderColor: '#e9d5ff', background: (theme) => `linear-gradient(135deg, #faf5ff, #f3e8ff)` }}>
+                        <CardHeader sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', pb: 1, '& > *': { my: 0 } }}>
+                            <CardTitle sx={{ fontSize: '0.875rem', fontWeight: 500, color: '#581c87' }}>
                                 Platform Commission
                             </CardTitle>
-                            <TrendingUp className="h-4 w-4 text-purple-600" />
+                            <TrendingUp style={{ width: 16, height: 16, color: '#9333ea' }} />
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold text-purple-900">
+                            <Box sx={{ fontSize: '1.5rem', fontWeight: 700, color: '#581c87' }}>
                                 GHS{' '}
                                 {parseFloat(
                                     stats.summary.total_commission_earned,
                                 ).toLocaleString('en-US', {
                                     maximumFractionDigits: 2,
                                 })}
-                            </div>
-                            <p className="text-xs text-purple-700">
+                            </Box>
+                            <Typography sx={{ fontSize: '0.75rem', color: '#7e22ce' }}>
                                 {stats.summary.average_commission_rate} average
                                 rate
-                            </p>
+                            </Typography>
                         </CardContent>
                     </Card>
 
                     <Card>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">
+                        <CardHeader sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', pb: 1, '& > *': { my: 0 } }}>
+                            <CardTitle sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
                                 Vendor Payouts
                             </CardTitle>
-                            <Users className="h-4 w-4 text-orange-600" />
+                            <Users style={{ width: 16, height: 16, color: '#ea580c' }} />
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold">
+                            <Box sx={{ fontSize: '1.5rem', fontWeight: 700 }}>
                                 GHS{' '}
                                 {parseFloat(
                                     stats.summary.total_vendor_payouts,
                                 ).toLocaleString('en-US', {
                                     maximumFractionDigits: 2,
                                 })}
-                            </div>
-                            <p className="text-xs text-muted-foreground">
+                            </Box>
+                            <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
                                 Paid to vendors
-                            </p>
+                            </Typography>
                         </CardContent>
                     </Card>
 
-                    <Card className="border-emerald-200 bg-gradient-to-br from-emerald-50 to-emerald-100">
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium text-emerald-900">
+                    <Card sx={{ borderColor: '#a7f3d0', background: (theme) => `linear-gradient(135deg, #ecfdf5, #d1fae5)` }}>
+                        <CardHeader sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', pb: 1, '& > *': { my: 0 } }}>
+                            <CardTitle sx={{ fontSize: '0.875rem', fontWeight: 500, color: '#064e3b' }}>
                                 Net Income
                             </CardTitle>
-                            <TrendingUp className="h-4 w-4 text-emerald-600" />
+                            <TrendingUp style={{ width: 16, height: 16, color: '#059669' }} />
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold text-emerald-900">
+                            <Box sx={{ fontSize: '1.5rem', fontWeight: 700, color: '#064e3b' }}>
                                 GHS{' '}
                                 {platformNet.toLocaleString('en-US', {
                                     maximumFractionDigits: 2,
                                 })}
-                            </div>
-                            <p className="text-xs text-emerald-700">
+                            </Box>
+                            <Typography sx={{ fontSize: '0.75rem', color: '#047857' }}>
                                 Commission - Payouts
-                            </p>
+                            </Typography>
                         </CardContent>
                     </Card>
-                </div>
+                </Box>
 
                 {/* Charts */}
-                <div className="grid gap-6 md:grid-cols-2">
+                <Box sx={{ display: 'grid', gap: 3, gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' } }}>
                     {/* Commission by Tier */}
                     <Card>
                         <CardHeader>
@@ -248,29 +250,29 @@ export default function CommissionStatistics({
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <div className="space-y-4">
+                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                                 {stats.tier_breakdown.map((tier, index) => (
-                                    <div
+                                    <Box
                                         key={index}
-                                        className="flex items-center justify-between rounded-lg bg-muted p-3"
+                                        sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderRadius: 2, bgcolor: 'action.selected', p: 1.5 }}
                                     >
-                                        <div>
-                                            <p className="font-medium">
+                                        <Box>
+                                            <Typography sx={{ fontWeight: 500 }}>
                                                 {tier.tier_name}
-                                            </p>
-                                            <p className="text-sm text-muted-foreground">
+                                            </Typography>
+                                            <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
                                                 {tier.order_count} orders
-                                            </p>
-                                        </div>
-                                        <div className="text-right">
-                                            <div className="text-lg font-bold">
+                                            </Typography>
+                                        </Box>
+                                        <Box sx={{ textAlign: 'right' }}>
+                                            <Box sx={{ fontSize: '1.125rem', fontWeight: 700 }}>
                                                 GHS{' '}
                                                 {parseFloat(
                                                     tier.commission_earned,
                                                 ).toFixed(2)}
-                                            </div>
-                                            <div
-                                                className="text-xs font-medium"
+                                            </Box>
+                                            <Box
+                                                sx={{ fontSize: '0.75rem', fontWeight: 500 }}
                                                 style={{
                                                     color: COLORS[
                                                         index % COLORS.length
@@ -288,14 +290,14 @@ export default function CommissionStatistics({
                                                     100
                                                 ).toFixed(1)}
                                                 %
-                                            </div>
-                                        </div>
-                                    </div>
+                                            </Box>
+                                        </Box>
+                                    </Box>
                                 ))}
-                            </div>
+                            </Box>
                         </CardContent>
                     </Card>
-                </div>
+                </Box>
 
                 {/* Monthly Trend */}
                 {trendChartData.length > 0 && (
@@ -356,53 +358,64 @@ export default function CommissionStatistics({
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <div className="space-y-4">
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                             {stats.top_vendors.map((vendor, index) => (
-                                <div
+                                <Box
                                     key={index}
-                                    className="flex items-center justify-between rounded-lg border p-3"
+                                    sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderRadius: 2, border: 1, borderColor: 'divider', p: 1.5 }}
                                 >
-                                    <div className="flex-1">
-                                        <div className="flex items-center gap-2">
-                                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-purple-600 text-sm font-bold text-white">
+                                    <Box sx={{ flex: 1 }}>
+                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                            <Box sx={{
+                                                display: 'flex',
+                                                width: 32,
+                                                height: 32,
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                borderRadius: '50%',
+                                                background: 'linear-gradient(135deg, #8b5cf6, #9333ea)',
+                                                fontSize: '0.875rem',
+                                                fontWeight: 700,
+                                                color: '#fff',
+                                            }}>
                                                 {index + 1}
-                                            </div>
-                                            <div>
-                                                <p className="font-medium">
+                                            </Box>
+                                            <Box>
+                                                <Typography sx={{ fontWeight: 500 }}>
                                                     {vendor.vendor_name}
-                                                </p>
-                                                <p className="text-sm text-muted-foreground">
+                                                </Typography>
+                                                <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
                                                     {vendor.order_count} orders
-                                                    • GHS{' '}
+                                                    {' \u2022 '}GHS{' '}
                                                     {parseFloat(
                                                         vendor.total_sales,
                                                     ).toLocaleString('en-US', {
                                                         maximumFractionDigits: 2,
                                                     })}{' '}
                                                     sales
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="text-right">
-                                        <div className="font-bold">
+                                                </Typography>
+                                            </Box>
+                                        </Box>
+                                    </Box>
+                                    <Box sx={{ textAlign: 'right' }}>
+                                        <Box sx={{ fontWeight: 700 }}>
                                             GHS{' '}
                                             {parseFloat(
                                                 vendor.commission_generated,
                                             ).toLocaleString('en-US', {
                                                 maximumFractionDigits: 2,
                                             })}
-                                        </div>
-                                        <p className="text-xs text-muted-foreground">
+                                        </Box>
+                                        <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
                                             commission
-                                        </p>
-                                    </div>
-                                </div>
+                                        </Typography>
+                                    </Box>
+                                </Box>
                             ))}
-                        </div>
+                        </Box>
                     </CardContent>
                 </Card>
-            </div>
+            </Box>
         </AppLayout>
     );
 }

@@ -1,4 +1,3 @@
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
     Card,
@@ -18,6 +17,9 @@ import {
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, router } from '@inertiajs/react';
+import Box from '@mui/material/Box';
+import Chip from '@mui/material/Chip';
+import Typography from '@mui/material/Typography';
 import {
     ChevronLeft,
     ChevronRight,
@@ -136,34 +138,31 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-const getStatusBadge = (status: string) => {
-    const variants: Record<string, string> = {
-        pending:
-            'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
-        confirmed:
-            'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
-        processing:
-            'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
-        fulfilled:
-            'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200',
-        delivered:
-            'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
-        cancelled: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
-        refunded:
-            'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200',
-        paid: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
-        unpaid: 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200',
-        approved:
-            'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
-        rejected: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
+const getStatusChipColor = (status: string): 'warning' | 'info' | 'secondary' | 'success' | 'error' | 'default' => {
+    const colorMap: Record<string, 'warning' | 'info' | 'secondary' | 'success' | 'error' | 'default'> = {
+        pending: 'warning',
+        confirmed: 'info',
+        processing: 'secondary',
+        fulfilled: 'info',
+        delivered: 'success',
+        cancelled: 'error',
+        refunded: 'default',
+        paid: 'success',
+        unpaid: 'default',
+        approved: 'info',
+        rejected: 'error',
     };
+    return colorMap[status] || 'warning';
+};
 
-    const color = variants[status] || variants.pending;
-
+const getStatusBadge = (status: string) => {
     return (
-        <Badge className={color}>
-            {status.charAt(0).toUpperCase() + status.slice(1)}
-        </Badge>
+        <Chip
+            label={status.charAt(0).toUpperCase() + status.slice(1)}
+            color={getStatusChipColor(status)}
+            size="small"
+            variant="outlined"
+        />
     );
 };
 
@@ -231,77 +230,77 @@ export default function TransactionsIndex({
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="All Transactions" />
-            <div className="flex h-full flex-1 flex-col gap-4 p-4">
+            <Box sx={{ display: 'flex', flex: 1, flexDirection: 'column', gap: 2, p: 2, height: '100%' }}>
                 {/* Statistics Cards */}
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                <Box sx={{ display: 'grid', gap: 2, gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)', lg: 'repeat(4, 1fr)' } }}>
                     <Card>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">
+                        <CardHeader sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', pb: 1, '& > *': { my: 0 } }}>
+                            <CardTitle sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
                                 Total Orders
                             </CardTitle>
-                            <ShoppingCart className="h-4 w-4 text-muted-foreground" />
+                            <ShoppingCart style={{ width: 16, height: 16, color: 'var(--muted-foreground)' }} />
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold">
+                            <Box sx={{ fontSize: '1.5rem', fontWeight: 700 }}>
                                 {statistics.total_orders}
-                            </div>
-                            <p className="text-xs text-muted-foreground">
+                            </Box>
+                            <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
                                 All time orders
-                            </p>
+                            </Typography>
                         </CardContent>
                     </Card>
 
                     <Card>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">
+                        <CardHeader sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', pb: 1, '& > *': { my: 0 } }}>
+                            <CardTitle sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
                                 Total Sales
                             </CardTitle>
-                            <DollarSign className="h-4 w-4 text-muted-foreground" />
+                            <DollarSign style={{ width: 16, height: 16, color: 'var(--muted-foreground)' }} />
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold">
+                            <Box sx={{ fontSize: '1.5rem', fontWeight: 700 }}>
                                 {formatCurrency(statistics.total_sales)}
-                            </div>
-                            <p className="text-xs text-muted-foreground">
+                            </Box>
+                            <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
                                 Gross revenue
-                            </p>
+                            </Typography>
                         </CardContent>
                     </Card>
 
                     <Card>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">
+                        <CardHeader sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', pb: 1, '& > *': { my: 0 } }}>
+                            <CardTitle sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
                                 Pending Orders
                             </CardTitle>
-                            <Package className="h-4 w-4 text-muted-foreground" />
+                            <Package style={{ width: 16, height: 16, color: 'var(--muted-foreground)' }} />
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold">
+                            <Box sx={{ fontSize: '1.5rem', fontWeight: 700 }}>
                                 {statistics.pending_orders}
-                            </div>
-                            <p className="text-xs text-muted-foreground">
+                            </Box>
+                            <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
                                 Awaiting processing
-                            </p>
+                            </Typography>
                         </CardContent>
                     </Card>
 
                     <Card>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">
+                        <CardHeader sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', pb: 1, '& > *': { my: 0 } }}>
+                            <CardTitle sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
                                 Delivered Orders
                             </CardTitle>
-                            <Truck className="h-4 w-4 text-muted-foreground" />
+                            <Truck style={{ width: 16, height: 16, color: 'var(--muted-foreground)' }} />
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold">
+                            <Box sx={{ fontSize: '1.5rem', fontWeight: 700 }}>
                                 {statistics.delivered_orders}
-                            </div>
-                            <p className="text-xs text-muted-foreground">
+                            </Box>
+                            <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
                                 Successfully delivered
-                            </p>
+                            </Typography>
                         </CardContent>
                     </Card>
-                </div>
+                </Box>
 
                 {/* Filters */}
                 <Card>
@@ -309,8 +308,8 @@ export default function TransactionsIndex({
                         <CardTitle>Filters</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="flex flex-wrap gap-4">
-                            <div className="w-[200px]">
+                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+                            <Box sx={{ width: 200 }}>
                                 <Select
                                     value={filters.type}
                                     onValueChange={(value) =>
@@ -329,9 +328,9 @@ export default function TransactionsIndex({
                                         </SelectItem>
                                     </SelectContent>
                                 </Select>
-                            </div>
+                            </Box>
 
-                            <div className="w-[200px]">
+                            <Box sx={{ width: 200 }}>
                                 <Select
                                     value={filters.status || 'all'}
                                     onValueChange={(value) =>
@@ -368,9 +367,9 @@ export default function TransactionsIndex({
                                         </SelectItem>
                                     </SelectContent>
                                 </Select>
-                            </div>
+                            </Box>
 
-                            <div className="w-[200px]">
+                            <Box sx={{ width: 200 }}>
                                 <Input
                                     type="date"
                                     placeholder="From Date"
@@ -382,9 +381,9 @@ export default function TransactionsIndex({
                                         )
                                     }
                                 />
-                            </div>
+                            </Box>
 
-                            <div className="w-[200px]">
+                            <Box sx={{ width: 200 }}>
                                 <Input
                                     type="date"
                                     placeholder="To Date"
@@ -396,122 +395,128 @@ export default function TransactionsIndex({
                                         )
                                     }
                                 />
-                            </div>
-                        </div>
+                            </Box>
+                        </Box>
                     </CardContent>
                 </Card>
 
                 {/* Orders Table */}
                 <Card>
                     <CardHeader>
-                        <div className="flex items-center justify-between">
-                            <div>
+                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <Box>
                                 <CardTitle>All Transactions</CardTitle>
                                 <CardDescription>
                                     Showing {orders.from || 0} to{' '}
                                     {orders.to || 0} of {orders.total} orders
                                 </CardDescription>
-                            </div>
-                        </div>
+                            </Box>
+                        </Box>
                     </CardHeader>
                     <CardContent>
                         {orders.data.length === 0 ? (
-                            <div className="py-8 text-center text-muted-foreground">
+                            <Box sx={{ py: 4, textAlign: 'center', color: 'text.secondary' }}>
                                 No transactions found.
-                            </div>
+                            </Box>
                         ) : (
                             <>
-                                <div className="overflow-x-auto">
-                                    <table className="w-full">
+                                <Box sx={{ overflowX: 'auto' }}>
+                                    <Box component="table" sx={{ width: '100%' }}>
                                         <thead>
-                                            <tr className="border-b">
-                                                <th className="p-2 text-left text-sm font-medium">
+                                            <Box component="tr" sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                                                <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
                                                     Order #
-                                                </th>
-                                                <th className="p-2 text-left text-sm font-medium">
+                                                </Box>
+                                                <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
                                                     Customer
-                                                </th>
-                                                <th className="p-2 text-left text-sm font-medium">
+                                                </Box>
+                                                <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
                                                     Product/Service
-                                                </th>
-                                                <th className="p-2 text-left text-sm font-medium">
+                                                </Box>
+                                                <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
                                                     Receiver
-                                                </th>
-                                                <th className="p-2 text-left text-sm font-medium">
+                                                </Box>
+                                                <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
                                                     Vendor
-                                                </th>
-                                                <th className="p-2 text-left text-sm font-medium">
+                                                </Box>
+                                                <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
                                                     Amount
-                                                </th>
-                                                <th className="p-2 text-left text-sm font-medium">
+                                                </Box>
+                                                <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
                                                     Delivery Date
-                                                </th>
-                                                <th className="p-2 text-left text-sm font-medium">
+                                                </Box>
+                                                <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
                                                     Delivered By
-                                                </th>
-                                                <th className="p-2 text-left text-sm font-medium">
+                                                </Box>
+                                                <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
                                                     Status
-                                                </th>
-                                            </tr>
+                                                </Box>
+                                            </Box>
                                         </thead>
                                         <tbody>
                                             {orders.data.map((order) => (
-                                                <tr
+                                                <Box
+                                                    component="tr"
                                                     key={order.id}
-                                                    className="border-b last:border-0 hover:bg-muted/50"
+                                                    sx={{
+                                                        borderBottom: 1,
+                                                        borderColor: 'divider',
+                                                        '&:last-child': { borderBottom: 0 },
+                                                        '&:hover': { bgcolor: 'action.hover' },
+                                                    }}
                                                 >
-                                                    <td className="p-2">
-                                                        <div className="text-sm font-medium">
+                                                    <Box component="td" sx={{ p: 1 }}>
+                                                        <Box sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
                                                             {
                                                                 order.transaction_number
                                                             }
-                                                        </div>
-                                                        <div className="text-xs text-muted-foreground">
+                                                        </Box>
+                                                        <Box sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
                                                             {formatDateTime(
                                                                 order.created_at,
                                                             )}
-                                                        </div>
-                                                    </td>
-                                                    <td className="p-2">
-                                                        <div className="flex items-center gap-2">
-                                                            <User className="h-4 w-4 text-muted-foreground" />
-                                                            <div>
-                                                                <div className="text-sm font-medium">
+                                                        </Box>
+                                                    </Box>
+                                                    <Box component="td" sx={{ p: 1 }}>
+                                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                            <User style={{ width: 16, height: 16, color: 'var(--muted-foreground)' }} />
+                                                            <Box>
+                                                                <Box sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
                                                                     {
                                                                         order
                                                                             .customer
                                                                             .name
                                                                     }
-                                                                </div>
+                                                                </Box>
                                                                 {order.customer
                                                                     .phone && (
-                                                                    <div className="text-xs text-muted-foreground">
+                                                                    <Box sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
                                                                         {
                                                                             order
                                                                                 .customer
                                                                                 .phone
                                                                         }
-                                                                    </div>
+                                                                    </Box>
                                                                 )}
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td className="p-2">
-                                                        <div className="text-sm">
+                                                            </Box>
+                                                        </Box>
+                                                    </Box>
+                                                    <Box component="td" sx={{ p: 1 }}>
+                                                        <Box sx={{ fontSize: '0.875rem' }}>
                                                             {order.items
                                                                 .length > 0 ? (
-                                                                <div>
-                                                                    <div className="font-medium">
+                                                                <Box>
+                                                                    <Box sx={{ fontWeight: 500 }}>
                                                                         {
                                                                             order
                                                                                 .items[0]
                                                                                 .name
                                                                         }
-                                                                    </div>
+                                                                    </Box>
                                                                     {order.items
                                                                         .length >
                                                                         1 && (
-                                                                        <div className="text-xs text-muted-foreground">
+                                                                        <Box sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
                                                                             +
                                                                             {order
                                                                                 .items
@@ -519,39 +524,39 @@ export default function TransactionsIndex({
                                                                                 1}{' '}
                                                                             more
                                                                             items
-                                                                        </div>
+                                                                        </Box>
                                                                     )}
-                                                                </div>
+                                                                </Box>
                                                             ) : (
-                                                                <span className="text-muted-foreground">
+                                                                <Box component="span" sx={{ color: 'text.secondary' }}>
                                                                     -
-                                                                </span>
+                                                                </Box>
                                                             )}
-                                                        </div>
-                                                    </td>
-                                                    <td className="p-2">
+                                                        </Box>
+                                                    </Box>
+                                                    <Box component="td" sx={{ p: 1 }}>
                                                         {order.receiver ? (
-                                                            <div>
-                                                                <div className="text-sm font-medium">
+                                                            <Box>
+                                                                <Box sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
                                                                     {
                                                                         order
                                                                             .receiver
                                                                             .name
                                                                     }
-                                                                </div>
+                                                                </Box>
                                                                 {order.receiver
                                                                     .phone && (
-                                                                    <div className="text-xs text-muted-foreground">
+                                                                    <Box sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
                                                                         {
                                                                             order
                                                                                 .receiver
                                                                                 .phone
                                                                         }
-                                                                    </div>
+                                                                    </Box>
                                                                 )}
                                                                 {order.receiver
                                                                     .address && (
-                                                                    <div className="max-w-[150px] truncate text-xs text-muted-foreground">
+                                                                    <Box sx={{ maxWidth: 150, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: '0.75rem', color: 'text.secondary' }}>
                                                                         {
                                                                             order
                                                                                 .receiver
@@ -565,123 +570,123 @@ export default function TransactionsIndex({
                                                                                 .address
                                                                                 .state
                                                                         }
-                                                                    </div>
+                                                                    </Box>
                                                                 )}
-                                                            </div>
+                                                            </Box>
                                                         ) : (
-                                                            <span className="text-muted-foreground">
+                                                            <Box component="span" sx={{ color: 'text.secondary' }}>
                                                                 -
-                                                            </span>
+                                                            </Box>
                                                         )}
-                                                    </td>
-                                                    <td className="p-2">
+                                                    </Box>
+                                                    <Box component="td" sx={{ p: 1 }}>
                                                         {order.vendor ? (
-                                                            <div>
-                                                                <div className="text-sm font-medium">
+                                                            <Box>
+                                                                <Box sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
                                                                     {
                                                                         order
                                                                             .vendor
                                                                             .name
                                                                     }
-                                                                </div>
+                                                                </Box>
                                                                 {order.vendor
                                                                     .phone && (
-                                                                    <div className="text-xs text-muted-foreground">
+                                                                    <Box sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
                                                                         {
                                                                             order
                                                                                 .vendor
                                                                                 .phone
                                                                         }
-                                                                    </div>
+                                                                    </Box>
                                                                 )}
-                                                            </div>
+                                                            </Box>
                                                         ) : (
-                                                            <span className="text-muted-foreground">
+                                                            <Box component="span" sx={{ color: 'text.secondary' }}>
                                                                 -
-                                                            </span>
+                                                            </Box>
                                                         )}
-                                                    </td>
-                                                    <td className="p-2">
-                                                        <div className="text-sm font-medium text-green-600">
+                                                    </Box>
+                                                    <Box component="td" sx={{ p: 1 }}>
+                                                        <Box sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'success.main' }}>
                                                             {formatCurrency(
                                                                 order.amount,
                                                             )}
-                                                        </div>
-                                                        <div className="text-xs text-muted-foreground">
+                                                        </Box>
+                                                        <Box sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
                                                             Commission:{' '}
                                                             {formatCurrency(
                                                                 order.platform_commission,
                                                             )}
-                                                        </div>
-                                                    </td>
-                                                    <td className="p-2">
-                                                        <div className="text-sm">
+                                                        </Box>
+                                                    </Box>
+                                                    <Box component="td" sx={{ p: 1 }}>
+                                                        <Box sx={{ fontSize: '0.875rem' }}>
                                                             {order.scheduled_datetime
                                                                 ? formatDateTime(
                                                                       order.scheduled_datetime,
                                                                   )
                                                                 : '-'}
-                                                        </div>
-                                                    </td>
-                                                    <td className="p-2">
-                                                        <div className="text-sm">
+                                                        </Box>
+                                                    </Box>
+                                                    <Box component="td" sx={{ p: 1 }}>
+                                                        <Box sx={{ fontSize: '0.875rem' }}>
                                                             {order.delivery_method ===
                                                                 'platform_rider' &&
                                                             order.rider ? (
-                                                                <div>
-                                                                    <div className="font-medium text-blue-600">
+                                                                <Box>
+                                                                    <Box sx={{ fontWeight: 500, color: 'info.main' }}>
                                                                         {
                                                                             order
                                                                                 .rider
                                                                                 .name
                                                                         }
-                                                                    </div>
-                                                                    <div className="text-xs text-muted-foreground">
+                                                                    </Box>
+                                                                    <Box sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
                                                                         {
                                                                             order
                                                                                 .rider
                                                                                 .phone
                                                                         }
-                                                                    </div>
-                                                                </div>
+                                                                    </Box>
+                                                                </Box>
                                                             ) : (
-                                                                <span className="text-muted-foreground">
+                                                                <Box component="span" sx={{ color: 'text.secondary' }}>
                                                                     {getDeliveryMethodLabel(
                                                                         order.delivery_method,
                                                                     )}
-                                                                </span>
+                                                                </Box>
                                                             )}
-                                                        </div>
-                                                    </td>
-                                                    <td className="p-2">
-                                                        <div className="flex flex-col gap-1">
+                                                        </Box>
+                                                    </Box>
+                                                    <Box component="td" sx={{ p: 1 }}>
+                                                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
                                                             {getStatusBadge(
                                                                 order.status,
                                                             )}
                                                             {order.payment_status && (
-                                                                <span className="text-xs text-muted-foreground">
+                                                                <Box component="span" sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
                                                                     Payment:{' '}
                                                                     {
                                                                         order.payment_status
                                                                     }
-                                                                </span>
+                                                                </Box>
                                                             )}
-                                                        </div>
-                                                    </td>
-                                                </tr>
+                                                        </Box>
+                                                    </Box>
+                                                </Box>
                                             ))}
                                         </tbody>
-                                    </table>
-                                </div>
+                                    </Box>
+                                </Box>
 
                                 {/* Pagination */}
                                 {orders.last_page > 1 && (
-                                    <div className="mt-4 flex items-center justify-between">
-                                        <div className="text-sm text-muted-foreground">
+                                    <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                        <Box sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
                                             Page {orders.current_page} of{' '}
                                             {orders.last_page}
-                                        </div>
-                                        <div className="flex gap-2">
+                                        </Box>
+                                        <Box sx={{ display: 'flex', gap: 1 }}>
                                             <Button
                                                 variant="outline"
                                                 size="sm"
@@ -692,7 +697,7 @@ export default function TransactionsIndex({
                                                 }
                                                 disabled={!orders.prev_page_url}
                                             >
-                                                <ChevronLeft className="h-4 w-4" />
+                                                <ChevronLeft style={{ width: 16, height: 16 }} />
                                                 Previous
                                             </Button>
                                             <Button
@@ -706,16 +711,16 @@ export default function TransactionsIndex({
                                                 disabled={!orders.next_page_url}
                                             >
                                                 Next
-                                                <ChevronRight className="h-4 w-4" />
+                                                <ChevronRight style={{ width: 16, height: 16 }} />
                                             </Button>
-                                        </div>
-                                    </div>
+                                        </Box>
+                                    </Box>
                                 )}
                             </>
                         )}
                     </CardContent>
                 </Card>
-            </div>
+            </Box>
         </AppLayout>
     );
 }
