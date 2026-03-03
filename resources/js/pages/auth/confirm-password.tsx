@@ -5,6 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import AuthLayout from '@/layouts/auth-layout';
 import { store } from '@/routes/password/confirm/index';
+import Box from '@mui/material/Box';
 import { Form, Head } from '@inertiajs/react';
 
 export default function ConfirmPassword() {
@@ -17,8 +18,8 @@ export default function ConfirmPassword() {
 
             <Form {...store.form()} resetOnSuccess={['password']}>
                 {({ processing, errors }) => (
-                    <div className="space-y-6">
-                        <div className="grid gap-2">
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                        <Box sx={{ display: 'grid', gap: 1 }}>
                             <Label htmlFor="password">Password</Label>
                             <Input
                                 id="password"
@@ -30,19 +31,19 @@ export default function ConfirmPassword() {
                             />
 
                             <InputError message={errors.password} />
-                        </div>
+                        </Box>
 
-                        <div className="flex items-center">
+                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
                             <Button
-                                className="w-full"
+                                sx={{ width: '100%' }}
                                 disabled={processing}
                                 data-test="confirm-password-button"
                             >
                                 {processing && <Spinner />}
                                 Confirm password
                             </Button>
-                        </div>
-                    </div>
+                        </Box>
+                    </Box>
                 )}
             </Form>
         </AuthLayout>

@@ -9,6 +9,8 @@ import AuthLayout from '@/layouts/auth-layout';
 import { register } from '@/routes';
 import { store } from '@/routes/login';
 import { request } from '@/routes/password';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
 import { Form, Head } from '@inertiajs/react';
 
 interface LoginProps {
@@ -32,12 +34,12 @@ export default function Login({
             <Form
                 {...store.form()}
                 resetOnSuccess={['password']}
-                className="flex flex-col gap-6"
+                style={{ display: 'flex', flexDirection: 'column', gap: 24 }}
             >
                 {({ processing, errors }) => (
                     <>
-                        <div className="grid gap-6">
-                            <div className="grid gap-2">
+                        <Box sx={{ display: 'grid', gap: 3 }}>
+                            <Box sx={{ display: 'grid', gap: 1 }}>
                                 <Label htmlFor="email">Email address</Label>
                                 <Input
                                     id="email"
@@ -50,21 +52,21 @@ export default function Login({
                                     placeholder="email@example.com"
                                 />
                                 <InputError message={errors.email} />
-                            </div>
+                            </Box>
 
-                            <div className="grid gap-2">
-                                <div className="flex items-center">
+                            <Box sx={{ display: 'grid', gap: 1 }}>
+                                <Box sx={{ display: 'flex', alignItems: 'center' }}>
                                     <Label htmlFor="password">Password</Label>
                                     {canResetPassword && (
                                         <TextLink
                                             href={request()}
-                                            className="ml-auto text-sm"
+                                            style={{ marginLeft: 'auto', fontSize: '0.875rem' }}
                                             tabIndex={5}
                                         >
                                             Forgot password?
                                         </TextLink>
                                     )}
-                                </div>
+                                </Box>
                                 <Input
                                     id="password"
                                     type="password"
@@ -75,20 +77,20 @@ export default function Login({
                                     placeholder="Password"
                                 />
                                 <InputError message={errors.password} />
-                            </div>
+                            </Box>
 
-                            <div className="flex items-center space-x-3">
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                                 <Checkbox
                                     id="remember"
                                     name="remember"
                                     tabIndex={3}
                                 />
                                 <Label htmlFor="remember">Remember me</Label>
-                            </div>
+                            </Box>
 
                             <Button
                                 type="submit"
-                                className="mt-4 w-full"
+                                sx={{ mt: 2, width: '100%' }}
                                 tabIndex={4}
                                 disabled={processing}
                                 data-test="login-button"
@@ -96,24 +98,24 @@ export default function Login({
                                 {processing && <Spinner />}
                                 Log in
                             </Button>
-                        </div>
+                        </Box>
 
                         {canRegister && (
-                            <div className="text-center text-sm text-muted-foreground">
+                            <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center' }}>
                                 Don't have an account?{' '}
                                 <TextLink href={register()} tabIndex={5}>
                                     Sign up
                                 </TextLink>
-                            </div>
+                            </Typography>
                         )}
                     </>
                 )}
             </Form>
 
             {status && (
-                <div className="mb-4 text-center text-sm font-medium text-green-600">
+                <Typography variant="body2" color="success.main" sx={{ textAlign: 'center', fontWeight: 500 }}>
                     {status}
-                </div>
+                </Typography>
             )}
         </AuthLayout>
     );

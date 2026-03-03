@@ -1,15 +1,16 @@
-// Components
 import { login } from '@/routes';
 import { email } from '@/routes/password';
 import { Form, Head } from '@inertiajs/react';
-import { LoaderCircle } from 'lucide-react';
 
 import InputError from '@/components/input-error';
 import TextLink from '@/components/text-link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Spinner } from '@/components/ui/spinner';
 import AuthLayout from '@/layouts/auth-layout';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
 
 export default function ForgotPassword({ status }: { status?: string }) {
     return (
@@ -20,16 +21,16 @@ export default function ForgotPassword({ status }: { status?: string }) {
             <Head title="Forgot password" />
 
             {status && (
-                <div className="mb-4 text-center text-sm font-medium text-green-600">
+                <Typography variant="body2" color="success.main" sx={{ textAlign: 'center', fontWeight: 500 }}>
                     {status}
-                </div>
+                </Typography>
             )}
 
-            <div className="space-y-6">
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
                 <Form {...email.form()}>
                     {({ processing, errors }) => (
                         <>
-                            <div className="grid gap-2">
+                            <Box sx={{ display: 'grid', gap: 1 }}>
                                 <Label htmlFor="email">Email address</Label>
                                 <Input
                                     id="email"
@@ -41,29 +42,27 @@ export default function ForgotPassword({ status }: { status?: string }) {
                                 />
 
                                 <InputError message={errors.email} />
-                            </div>
+                            </Box>
 
-                            <div className="my-6 flex items-center justify-start">
+                            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', my: 3 }}>
                                 <Button
-                                    className="w-full"
+                                    sx={{ width: '100%' }}
                                     disabled={processing}
                                     data-test="email-password-reset-link-button"
                                 >
-                                    {processing && (
-                                        <LoaderCircle className="h-4 w-4 animate-spin" />
-                                    )}
+                                    {processing && <Spinner />}
                                     Email password reset link
                                 </Button>
-                            </div>
+                            </Box>
                         </>
                     )}
                 </Form>
 
-                <div className="space-x-1 text-center text-sm text-muted-foreground">
-                    <span>Or, return to</span>
+                <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center' }}>
+                    <span>Or, return to </span>
                     <TextLink href={login()}>log in</TextLink>
-                </div>
-            </div>
+                </Typography>
+            </Box>
         </AuthLayout>
     );
 }

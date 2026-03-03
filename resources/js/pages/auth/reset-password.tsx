@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import AuthLayout from '@/layouts/auth-layout';
+import Box from '@mui/material/Box';
 
 interface ResetPasswordProps {
     token: string;
@@ -27,8 +28,8 @@ export default function ResetPassword({ token, email }: ResetPasswordProps) {
                 resetOnSuccess={['password', 'password_confirmation']}
             >
                 {({ processing, errors }) => (
-                    <div className="grid gap-6">
-                        <div className="grid gap-2">
+                    <Box sx={{ display: 'grid', gap: 3 }}>
+                        <Box sx={{ display: 'grid', gap: 1 }}>
                             <Label htmlFor="email">Email</Label>
                             <Input
                                 id="email"
@@ -36,30 +37,25 @@ export default function ResetPassword({ token, email }: ResetPasswordProps) {
                                 name="email"
                                 autoComplete="email"
                                 value={email}
-                                className="mt-1 block w-full"
                                 readOnly
                             />
-                            <InputError
-                                message={errors.email}
-                                className="mt-2"
-                            />
-                        </div>
+                            <InputError message={errors.email} />
+                        </Box>
 
-                        <div className="grid gap-2">
+                        <Box sx={{ display: 'grid', gap: 1 }}>
                             <Label htmlFor="password">Password</Label>
                             <Input
                                 id="password"
                                 type="password"
                                 name="password"
                                 autoComplete="new-password"
-                                className="mt-1 block w-full"
                                 autoFocus
                                 placeholder="Password"
                             />
                             <InputError message={errors.password} />
-                        </div>
+                        </Box>
 
-                        <div className="grid gap-2">
+                        <Box sx={{ display: 'grid', gap: 1 }}>
                             <Label htmlFor="password_confirmation">
                                 Confirm password
                             </Label>
@@ -68,25 +64,23 @@ export default function ResetPassword({ token, email }: ResetPasswordProps) {
                                 type="password"
                                 name="password_confirmation"
                                 autoComplete="new-password"
-                                className="mt-1 block w-full"
                                 placeholder="Confirm password"
                             />
                             <InputError
                                 message={errors.password_confirmation}
-                                className="mt-2"
                             />
-                        </div>
+                        </Box>
 
                         <Button
                             type="submit"
-                            className="mt-4 w-full"
+                            sx={{ mt: 2, width: '100%' }}
                             disabled={processing}
                             data-test="reset-password-button"
                         >
                             {processing && <Spinner />}
                             Reset password
                         </Button>
-                    </div>
+                    </Box>
                 )}
             </Form>
         </AuthLayout>
