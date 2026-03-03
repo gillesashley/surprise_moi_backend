@@ -28,10 +28,12 @@ import {
 } from '@/components/ui/tooltip';
 import { UserMenuContent } from '@/components/user-menu-content';
 import { useInitials } from '@/hooks/use-initials';
-import { cn, isSameUrl, resolveUrl } from '@/lib/utils';
+import { isSameUrl, resolveUrl } from '@/lib/utils';
 import { dashboard } from '@/routes';
 import { type BreadcrumbItem, type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
 import { BookOpen, Folder, LayoutGrid, Menu, Search } from 'lucide-react';
 import AppLogo from './app-logo';
 import AppLogoIcon from './app-logo-icon';
@@ -58,8 +60,21 @@ const rightNavItems: NavItem[] = [
     },
 ];
 
-const activeItemStyles =
-    'text-neutral-900 dark:bg-neutral-800 dark:text-neutral-100';
+const activeItemSx = {
+    color: 'text.primary',
+} as const;
+
+const srOnlySx = {
+    position: 'absolute',
+    width: 1,
+    height: 1,
+    p: 0,
+    m: -1,
+    overflow: 'hidden',
+    clip: 'rect(0,0,0,0)',
+    whiteSpace: 'nowrap',
+    border: 0,
+} as const;
 
 interface AppHeaderProps {
     breadcrumbs?: BreadcrumbItem[];
@@ -71,10 +86,19 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
     const getInitials = useInitials();
     return (
         <>
-            <div className="border-b border-sidebar-border/80">
-                <div className="mx-auto flex h-16 items-center px-4 md:max-w-7xl">
+            <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                <Box
+                    sx={{
+                        mx: 'auto',
+                        display: 'flex',
+                        height: 64,
+                        alignItems: 'center',
+                        px: 2,
+                        maxWidth: { md: '80rem' },
+                    }}
+                >
                     {/* Mobile Menu */}
-                    <div className="lg:hidden">
+                    <Box sx={{ display: { xs: 'block', lg: 'none' } }}>
                         <Sheet>
                             <SheetTrigger asChild>
                                 <Button
@@ -95,14 +119,44 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                 <SheetHeader className="flex justify-start text-left">
                                     <AppLogoIcon className="h-6 w-6 fill-current text-black dark:text-white" />
                                 </SheetHeader>
-                                <div className="flex h-full flex-1 flex-col space-y-4 p-4">
-                                    <div className="flex h-full flex-col justify-between text-sm">
-                                        <div className="flex flex-col space-y-4">
+                                <Box
+                                    sx={{
+                                        display: 'flex',
+                                        height: '100%',
+                                        flex: 1,
+                                        flexDirection: 'column',
+                                        gap: 2,
+                                        p: 2,
+                                    }}
+                                >
+                                    <Box
+                                        sx={{
+                                            display: 'flex',
+                                            height: '100%',
+                                            flexDirection: 'column',
+                                            justifyContent: 'space-between',
+                                            fontSize: '0.875rem',
+                                        }}
+                                    >
+                                        <Box
+                                            sx={{
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                gap: 2,
+                                            }}
+                                        >
                                             {mainNavItems.map((item) => (
                                                 <Link
                                                     key={item.title}
                                                     href={item.href!}
-                                                    className="flex items-center space-x-2 font-medium"
+                                                    style={{
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '8px',
+                                                        fontWeight: 500,
+                                                        textDecoration: 'none',
+                                                        color: 'inherit',
+                                                    }}
                                                 >
                                                     {item.icon && (
                                                         <Icon
@@ -113,16 +167,29 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                                     <span>{item.title}</span>
                                                 </Link>
                                             ))}
-                                        </div>
+                                        </Box>
 
-                                        <div className="flex flex-col space-y-4">
+                                        <Box
+                                            sx={{
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                gap: 2,
+                                            }}
+                                        >
                                             {rightNavItems.map((item) => (
                                                 <a
                                                     key={item.title}
                                                     href={resolveUrl(item.href!)}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="flex items-center space-x-2 font-medium"
+                                                    style={{
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '8px',
+                                                        fontWeight: 500,
+                                                        textDecoration: 'none',
+                                                        color: 'inherit',
+                                                    }}
                                                 >
                                                     {item.icon && (
                                                         <Icon
@@ -133,23 +200,37 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                                     <span>{item.title}</span>
                                                 </a>
                                             ))}
-                                        </div>
-                                    </div>
-                                </div>
+                                        </Box>
+                                    </Box>
+                                </Box>
                             </SheetContent>
                         </Sheet>
-                    </div>
+                    </Box>
 
                     <Link
                         href={dashboard()}
                         prefetch
-                        className="flex items-center space-x-2"
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            textDecoration: 'none',
+                            color: 'inherit',
+                        }}
                     >
                         <AppLogo />
                     </Link>
 
                     {/* Desktop Navigation */}
-                    <div className="ml-6 hidden h-full items-center space-x-6 lg:flex">
+                    <Box
+                        sx={{
+                            ml: 3,
+                            display: { xs: 'none', lg: 'flex' },
+                            height: '100%',
+                            alignItems: 'center',
+                            gap: 3,
+                        }}
+                    >
                         <NavigationMenu className="flex h-full items-stretch">
                             <NavigationMenuList className="flex h-full items-stretch space-x-2">
                                 {mainNavItems.map((item, index) => (
@@ -159,14 +240,22 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                     >
                                         <Link
                                             href={item.href!}
-                                            className={cn(
+                                            className={[
                                                 navigationMenuTriggerStyle(),
+                                                'h-9 cursor-pointer px-3',
+                                            ]
+                                                .filter(Boolean)
+                                                .join(' ')}
+                                            style={
                                                 isSameUrl(
                                                     page.url,
                                                     item.href!,
-                                                ) && activeItemStyles,
-                                                'h-9 cursor-pointer px-3',
-                                            )}
+                                                )
+                                                    ? {
+                                                          color: 'var(--color-neutral-900)',
+                                                      }
+                                                    : undefined
+                                            }
                                         >
                                             {item.icon && (
                                                 <Icon
@@ -177,16 +266,41 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                             {item.title}
                                         </Link>
                                         {isSameUrl(page.url, item.href!) && (
-                                            <div className="absolute bottom-0 left-0 h-0.5 w-full translate-y-px bg-black dark:bg-white"></div>
+                                            <Box
+                                                sx={{
+                                                    position: 'absolute',
+                                                    bottom: 0,
+                                                    left: 0,
+                                                    height: '2px',
+                                                    width: '100%',
+                                                    transform:
+                                                        'translateY(1px)',
+                                                    bgcolor: 'text.primary',
+                                                }}
+                                            />
                                         )}
                                     </NavigationMenuItem>
                                 ))}
                             </NavigationMenuList>
                         </NavigationMenu>
-                    </div>
+                    </Box>
 
-                    <div className="ml-auto flex items-center space-x-2">
-                        <div className="relative flex items-center space-x-1">
+                    <Box
+                        sx={{
+                            ml: 'auto',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 1,
+                        }}
+                    >
+                        <Box
+                            sx={{
+                                position: 'relative',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 0.5,
+                            }}
+                        >
                             <Button
                                 variant="ghost"
                                 size="icon"
@@ -195,7 +309,11 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                 <Search className="!size-5 opacity-80 group-hover:opacity-100" />
                             </Button>
                             <NotificationBell />
-                            <div className="hidden lg:flex">
+                            <Box
+                                sx={{
+                                    display: { xs: 'none', lg: 'flex' },
+                                }}
+                            >
                                 {rightNavItems.map((item) => (
                                     <TooltipProvider
                                         key={item.title}
@@ -203,22 +321,54 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                     >
                                         <Tooltip>
                                             <TooltipTrigger>
-                                                <a
+                                                <Box
+                                                    component="a"
                                                     href={resolveUrl(item.href!)}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="group ml-1 inline-flex h-9 w-9 items-center justify-center rounded-md bg-transparent p-0 text-sm font-medium text-accent-foreground ring-offset-background transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50"
+                                                    sx={{
+                                                        ml: 0.5,
+                                                        display:
+                                                            'inline-flex',
+                                                        height: 36,
+                                                        width: 36,
+                                                        alignItems: 'center',
+                                                        justifyContent:
+                                                            'center',
+                                                        borderRadius: 1,
+                                                        bgcolor:
+                                                            'transparent',
+                                                        p: 0,
+                                                        fontSize: '0.875rem',
+                                                        fontWeight: 500,
+                                                        color: 'text.secondary',
+                                                        transition:
+                                                            'background-color 0.15s, color 0.15s',
+                                                        textDecoration: 'none',
+                                                        '&:hover': {
+                                                            bgcolor:
+                                                                'action.hover',
+                                                            color: 'text.primary',
+                                                        },
+                                                        '&:focus-visible': {
+                                                            outline: 'none',
+                                                            ring: 2,
+                                                        },
+                                                    }}
                                                 >
-                                                    <span className="sr-only">
+                                                    <Typography
+                                                        component="span"
+                                                        sx={srOnlySx}
+                                                    >
                                                         {item.title}
-                                                    </span>
+                                                    </Typography>
                                                     {item.icon && (
                                                         <Icon
                                                             iconNode={item.icon}
                                                             className="size-5 opacity-80 group-hover:opacity-100"
                                                         />
                                                     )}
-                                                </a>
+                                                </Box>
                                             </TooltipTrigger>
                                             <TooltipContent>
                                                 <p>{item.title}</p>
@@ -226,8 +376,8 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                         </Tooltip>
                                     </TooltipProvider>
                                 ))}
-                            </div>
-                        </div>
+                            </Box>
+                        </Box>
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <Button
@@ -249,15 +399,34 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                 <UserMenuContent user={auth.user} />
                             </DropdownMenuContent>
                         </DropdownMenu>
-                    </div>
-                </div>
-            </div>
+                    </Box>
+                </Box>
+            </Box>
             {breadcrumbs.length > 1 && (
-                <div className="flex w-full border-b border-sidebar-border/70">
-                    <div className="mx-auto flex h-12 w-full items-center justify-start px-4 text-neutral-500 md:max-w-7xl">
+                <Box
+                    sx={{
+                        display: 'flex',
+                        width: '100%',
+                        borderBottom: 1,
+                        borderColor: 'divider',
+                    }}
+                >
+                    <Box
+                        sx={{
+                            mx: 'auto',
+                            display: 'flex',
+                            height: 48,
+                            width: '100%',
+                            alignItems: 'center',
+                            justifyContent: 'flex-start',
+                            px: 2,
+                            color: 'text.secondary',
+                            maxWidth: { md: '80rem' },
+                        }}
+                    >
                         <Breadcrumbs breadcrumbs={breadcrumbs} />
-                    </div>
-                </div>
+                    </Box>
+                </Box>
             )}
         </>
     );
