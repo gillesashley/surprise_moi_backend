@@ -34,9 +34,13 @@ Route::prefix('.well-known')->group(function () {
         ->name('well-known.apple-app-site-association');
 });
 
-Route::get('/products/{id}', [ProductShareController::class, 'show'])
-    ->whereNumber('id')
+Route::get('/products/{slug}', [ProductShareController::class, 'show'])
+    ->where('slug', '[A-Za-z0-9]{16}')
     ->name('products.share');
+
+Route::get('/products/{id}', [ProductShareController::class, 'showById'])
+    ->whereNumber('id')
+    ->name('products.share.legacy');
 
 // Admin Dashboard routes - only for admin and super_admin users
 Route::middleware(['auth', 'dashboard'])->prefix('dashboard')->group(function () {
