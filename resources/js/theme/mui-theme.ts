@@ -2,7 +2,7 @@ import { createTheme, type ThemeOptions } from '@mui/material/styles';
 
 const sharedTypography: ThemeOptions['typography'] = {
     fontFamily: [
-        'Instrument Sans',
+        'Outfit',
         'ui-sans-serif',
         'system-ui',
         'sans-serif',
@@ -14,7 +14,7 @@ const sharedTypography: ThemeOptions['typography'] = {
 };
 
 const sharedShape: ThemeOptions['shape'] = {
-    borderRadius: 10,
+    borderRadius: 4,
 };
 
 const componentOverrides: ThemeOptions['components'] = {
@@ -32,10 +32,20 @@ const componentOverrides: ThemeOptions['components'] = {
         defaultProps: {
             variant: 'outlined',
         },
+        styleOverrides: {
+            root: {
+                boxShadow: '0 1px 3px 0 rgba(0,0,0,0.04), 0 1px 2px -1px rgba(0,0,0,0.04)',
+            },
+        },
     },
     MuiPaper: {
         defaultProps: {
             elevation: 0,
+        },
+        styleOverrides: {
+            root: {
+                boxShadow: '0 1px 2px 0 rgba(0,0,0,0.03)',
+            },
         },
     },
     MuiTextField: {
