@@ -5,6 +5,7 @@ import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { initializeTheme } from './hooks/use-appearance';
+import { MuiThemeProvider } from './providers/MuiThemeProvider';
 
 // Initialize Laravel Echo (Reverb WebSocket client)
 import './lib/echo';
@@ -23,7 +24,9 @@ createInertiaApp({
 
         root.render(
             <StrictMode>
-                <App {...props} />
+                <MuiThemeProvider>
+                    <App {...props} />
+                </MuiThemeProvider>
             </StrictMode>,
         );
     },
