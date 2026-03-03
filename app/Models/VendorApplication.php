@@ -193,6 +193,16 @@ class VendorApplication extends Model
     }
 
     /**
+     * Check if application can be reviewed (approved/rejected) by an admin.
+     */
+    public function canBeReviewed(): bool
+    {
+        return $this->completed_step >= 4
+            && (! $this->payment_required || $this->payment_completed)
+            && ! is_null($this->submitted_at);
+    }
+
+    /**
      * Check if payment is required and not yet completed.
      */
     public function needsPayment(): bool

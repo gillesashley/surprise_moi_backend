@@ -226,6 +226,79 @@ class VendorApprovalTest extends TestCase
         $response->assertStatus(302); // Redirected due to middleware
     }
 
+    public function test_can_be_reviewed_returns_true_for_complete_application(): void
+    {
+        $application = VendorApplication::factory()
+            ->withGhanaCard()
+            ->registeredVendor()
+            ->withRegisteredDocuments()
+            ->readyToSubmit()
+            ->create([
+                'status' => VendorApplication::STATUS_PENDING,
+                'submitted_at' => now(),
+                'payment_required' => true,
+                'payment_completed' => true,
+            ]);
+
+        $this->assertTrue($application->canBeReviewed());
+    }
+
+    public function test_can_be_reviewed_returns_false_when_steps_incomplete(): void
+    {
+        $application = VendorApplication::factory()
+            ->withGhanaCard()
+            ->registeredVendor()
+            ->create([
+                'status' => VendorApplication::STATUS_PENDING,
+                'submitted_at' => now(),
+                'completed_step' => 2,
+                'payment_completed' => true,
+            ]);
+
+        $this->assertFalse($application->canBeReviewed());
+    }
+
+    public function test_can_be_reviewed_returns_false_when_payment_not_completed(): void
+    {
+        $application = VendorApplication::factory()
+            ->readyToSubmit()
+            ->create([
+                'status' => VendorApplication::STATUS_PENDING,
+                'submitted_at' => now(),
+                'payment_required' => true,
+                'payment_completed' => false,
+            ]);
+
+        $this->assertFalse($application->canBeReviewed());
+    }
+
+    public function test_can_be_reviewed_returns_true_when_payment_not_required(): void
+    {
+        $application = VendorApplication::factory()
+            ->readyToSubmit()
+            ->create([
+                'status' => VendorApplication::STATUS_PENDING,
+                'submitted_at' => now(),
+                'payment_required' => false,
+                'payment_completed' => false,
+            ]);
+
+        $this->assertTrue($application->canBeReviewed());
+    }
+
+    public function test_can_be_reviewed_returns_false_when_not_submitted(): void
+    {
+        $application = VendorApplication::factory()
+            ->readyToSubmit()
+            ->create([
+                'status' => VendorApplication::STATUS_PENDING,
+                'submitted_at' => null,
+                'payment_completed' => true,
+            ]);
+
+        $this->assertFalse($application->canBeReviewed());
+    }
+
     public function test_mark_application_as_under_review(): void
     {
         $admin = User::factory()->create(['role' => 'admin']);
