@@ -1,57 +1,116 @@
 import * as React from "react"
-import { Slot } from "@radix-ui/react-slot"
-import { cva, type VariantProps } from "class-variance-authority"
+import MuiButton from "@mui/material/Button"
+import type { ButtonProps as MuiButtonProps } from "@mui/material/Button"
 
-import { cn } from "@/lib/utils"
+type ButtonVariant = "default" | "destructive" | "outline" | "secondary" | "ghost" | "link"
+type ButtonSize = "default" | "sm" | "lg" | "icon"
 
-const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-[color,box-shadow] disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
-  {
-    variants: {
-      variant: {
-        default:
-          "bg-primary text-primary-foreground shadow-xs hover:bg-primary/90",
-        destructive:
-          "bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40",
-        outline:
-          "border border-input bg-background shadow-xs hover:bg-accent hover:text-accent-foreground",
-        secondary:
-          "bg-secondary text-secondary-foreground shadow-xs hover:bg-secondary/80",
-        ghost: "hover:bg-accent hover:text-accent-foreground",
-        link: "text-primary underline-offset-4 hover:underline",
-      },
-      size: {
-        default: "h-9 px-4 py-2 has-[>svg]:px-3",
-        sm: "h-8 rounded-md px-3 has-[>svg]:px-2.5",
-        lg: "h-10 rounded-md px-6 has-[>svg]:px-4",
-        icon: "size-9",
+interface ButtonProps extends Omit<React.ComponentProps<"button">, "color"> {
+  variant?: ButtonVariant | null
+  size?: ButtonSize | null
+  asChild?: boolean
+}
+
+const variantMap: Record<string, { variant: MuiButtonProps["variant"]; color?: MuiButtonProps["color"]; sx?: MuiButtonProps["sx"] }> = {
+  default: { variant: "contained" },
+  destructive: { variant: "contained", color: "error" },
+  outline: { variant: "outlined" },
+  secondary: { variant: "contained", color: "secondary" },
+  ghost: { variant: "text" },
+  link: {
+    variant: "text",
+    sx: {
+      textDecoration: "underline",
+      textUnderlineOffset: "4px",
+      "&:hover": {
+        textDecoration: "underline",
       },
     },
-    defaultVariants: {
-      variant: "default",
-      size: "default",
-    },
-  }
-)
+  },
+}
+
+const sizeMap: Record<string, MuiButtonProps["size"]> = {
+  default: "medium",
+  sm: "small",
+  lg: "large",
+}
+
+const iconSizeSx = {
+  minWidth: "36px",
+  width: "36px",
+  height: "36px",
+  padding: 0,
+  borderRadius: "6px",
+} as const
+
+/**
+ * Stub kept for export compatibility.
+ * Not used by any external consumer -- only existed for the old cva-based internals.
+ */
+function buttonVariants(_opts?: {
+  variant?: ButtonVariant | null
+  size?: ButtonSize | null
+  className?: string
+}): string {
+  return _opts?.className ?? ""
+}
 
 function Button({
   className,
   variant,
   size,
   asChild = false,
+  children,
+  disabled,
+  type,
   ...props
-}: React.ComponentProps<"button"> &
-  VariantProps<typeof buttonVariants> & {
-    asChild?: boolean
-  }) {
-  const Comp = asChild ? Slot : "button"
+}: ButtonProps) {
+  const resolvedVariant = variant ?? "default"
+  const resolvedSize = size ?? "default"
+
+  const mapped = variantMap[resolvedVariant] ?? variantMap.default
+  const muiSize = sizeMap[resolvedSize] ?? "medium"
+
+  const isIcon = resolvedSize === "icon"
+
+  const sxProp: MuiButtonProps["sx"] = [
+    ...(mapped.sx ? (Array.isArray(mapped.sx) ? mapped.sx : [mapped.sx]) : []),
+    ...(isIcon ? [iconSizeSx] : []),
+  ]
+
+  // Build common MUI props
+  const muiProps: Record<string, unknown> = {
+    "data-slot": "button",
+    variant: mapped.variant,
+    ...(mapped.color ? { color: mapped.color } : {}),
+    size: muiSize,
+    disabled,
+    className,
+    ...(sxProp.length > 0 ? { sx: sxProp } : {}),
+  }
+
+  // asChild: render the child element as the root via MUI's `component` prop
+  if (asChild && React.isValidElement(children)) {
+    const child = children as React.ReactElement<Record<string, unknown>>
+    return (
+      <MuiButton
+        {...muiProps}
+        component={child.type as React.ElementType}
+        {...(child.props as Record<string, unknown>)}
+      >
+        {(child.props as Record<string, unknown>).children as React.ReactNode}
+      </MuiButton>
+    )
+  }
 
   return (
-    <Comp
-      data-slot="button"
-      className={cn(buttonVariants({ variant, size, className }))}
+    <MuiButton
+      type={type ?? "button"}
+      {...muiProps}
       {...props}
-    />
+    >
+      {children}
+    </MuiButton>
   )
 }
 
