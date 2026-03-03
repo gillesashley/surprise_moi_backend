@@ -156,6 +156,11 @@ class VendorApplicationController extends Controller
      */
     public function approve(VendorApplication $vendorApplication, ReferralService $referralService)
     {
+        // Check if application is complete and ready for review
+        if (! $vendorApplication->canBeReviewed()) {
+            return back()->with('error', 'This application cannot be reviewed. Ensure all steps are completed, payment is made, and the application has been submitted.');
+        }
+
         // Check if application is in a state that can be approved
         if (! in_array($vendorApplication->status, [VendorApplication::STATUS_PENDING, VendorApplication::STATUS_UNDER_REVIEW])) {
             return back()->with('error', 'This application cannot be approved in its current state.');
@@ -188,6 +193,11 @@ class VendorApplicationController extends Controller
         $request->validate([
             'rejection_reason' => 'required|string|min:10|max:1000',
         ]);
+
+        // Check if application is complete and ready for review
+        if (! $vendorApplication->canBeReviewed()) {
+            return back()->with('error', 'This application cannot be reviewed. Ensure all steps are completed, payment is made, and the application has been submitted.');
+        }
 
         // Check if application is in a state that can be rejected
         if (! in_array($vendorApplication->status, [VendorApplication::STATUS_PENDING, VendorApplication::STATUS_UNDER_REVIEW])) {

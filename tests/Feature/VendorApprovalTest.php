@@ -18,7 +18,13 @@ class VendorApprovalTest extends TestCase
 
         $application = VendorApplication::factory()
             ->for($applicant)
-            ->create(['status' => VendorApplication::STATUS_PENDING]);
+            ->readyToSubmit()
+            ->create([
+                'status' => VendorApplication::STATUS_PENDING,
+                'submitted_at' => now(),
+                'payment_required' => true,
+                'payment_completed' => true,
+            ]);
 
         $response = $this->actingAs($admin)
             ->post("/dashboard/vendor-applications/{$application->id}/approve");
@@ -42,7 +48,13 @@ class VendorApprovalTest extends TestCase
 
         $application = VendorApplication::factory()
             ->for($applicant)
-            ->create(['status' => VendorApplication::STATUS_PENDING]);
+            ->readyToSubmit()
+            ->create([
+                'status' => VendorApplication::STATUS_PENDING,
+                'submitted_at' => now(),
+                'payment_required' => true,
+                'payment_completed' => true,
+            ]);
 
         $rejectionReason = 'Incomplete documentation provided.';
 
@@ -297,6 +309,97 @@ class VendorApprovalTest extends TestCase
             ]);
 
         $this->assertFalse($application->canBeReviewed());
+    }
+
+    public function test_cannot_approve_application_with_incomplete_steps(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $applicant = User::factory()->create(['role' => 'customer']);
+
+        $application = VendorApplication::factory()
+            ->for($applicant)
+            ->create([
+                'status' => VendorApplication::STATUS_PENDING,
+                'submitted_at' => now(),
+                'completed_step' => 2,
+                'payment_completed' => true,
+            ]);
+
+        $response = $this->actingAs($admin)
+            ->post("/dashboard/vendor-applications/{$application->id}/approve");
+
+        $response->assertSessionHas('error');
+        $application->refresh();
+        $this->assertEquals(VendorApplication::STATUS_PENDING, $application->status);
+    }
+
+    public function test_cannot_approve_application_without_payment(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $applicant = User::factory()->create(['role' => 'customer']);
+
+        $application = VendorApplication::factory()
+            ->for($applicant)
+            ->readyToSubmit()
+            ->create([
+                'status' => VendorApplication::STATUS_PENDING,
+                'submitted_at' => now(),
+                'payment_required' => true,
+                'payment_completed' => false,
+            ]);
+
+        $response = $this->actingAs($admin)
+            ->post("/dashboard/vendor-applications/{$application->id}/approve");
+
+        $response->assertSessionHas('error');
+        $application->refresh();
+        $this->assertEquals(VendorApplication::STATUS_PENDING, $application->status);
+    }
+
+    public function test_cannot_approve_unsubmitted_application(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $applicant = User::factory()->create(['role' => 'customer']);
+
+        $application = VendorApplication::factory()
+            ->for($applicant)
+            ->readyToSubmit()
+            ->create([
+                'status' => VendorApplication::STATUS_PENDING,
+                'submitted_at' => null,
+                'payment_completed' => true,
+            ]);
+
+        $response = $this->actingAs($admin)
+            ->post("/dashboard/vendor-applications/{$application->id}/approve");
+
+        $response->assertSessionHas('error');
+        $application->refresh();
+        $this->assertEquals(VendorApplication::STATUS_PENDING, $application->status);
+    }
+
+    public function test_cannot_reject_application_with_incomplete_steps(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $applicant = User::factory()->create(['role' => 'customer']);
+
+        $application = VendorApplication::factory()
+            ->for($applicant)
+            ->create([
+                'status' => VendorApplication::STATUS_PENDING,
+                'submitted_at' => now(),
+                'completed_step' => 2,
+                'payment_completed' => true,
+            ]);
+
+        $response = $this->actingAs($admin)
+            ->post("/dashboard/vendor-applications/{$application->id}/reject", [
+                'rejection_reason' => 'This is a detailed rejection reason.',
+            ]);
+
+        $response->assertSessionHas('error');
+        $application->refresh();
+        $this->assertEquals(VendorApplication::STATUS_PENDING, $application->status);
     }
 
     public function test_mark_application_as_under_review(): void
