@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../wayfinder'
 /**
 * @see \App\Http\Controllers\AccountDeletionController::show
- * @see app/Http/Controllers/AccountDeletionController.php:13
+ * @see app/Http/Controllers/AccountDeletionController.php:11
  * @route '/account-deletion'
  */
 export const show = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ show.definition = {
 
 /**
 * @see \App\Http\Controllers\AccountDeletionController::show
- * @see app/Http/Controllers/AccountDeletionController.php:13
+ * @see app/Http/Controllers/AccountDeletionController.php:11
  * @route '/account-deletion'
  */
 show.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ show.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\AccountDeletionController::show
- * @see app/Http/Controllers/AccountDeletionController.php:13
+ * @see app/Http/Controllers/AccountDeletionController.php:11
  * @route '/account-deletion'
  */
 show.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -34,7 +34,7 @@ show.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\AccountDeletionController::show
- * @see app/Http/Controllers/AccountDeletionController.php:13
+ * @see app/Http/Controllers/AccountDeletionController.php:11
  * @route '/account-deletion'
  */
 show.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -44,7 +44,7 @@ show.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\AccountDeletionController::show
- * @see app/Http/Controllers/AccountDeletionController.php:13
+ * @see app/Http/Controllers/AccountDeletionController.php:11
  * @route '/account-deletion'
  */
     const showForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -54,7 +54,7 @@ show.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\AccountDeletionController::show
- * @see app/Http/Controllers/AccountDeletionController.php:13
+ * @see app/Http/Controllers/AccountDeletionController.php:11
  * @route '/account-deletion'
  */
         showForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -63,7 +63,7 @@ show.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\AccountDeletionController::show
- * @see app/Http/Controllers/AccountDeletionController.php:13
+ * @see app/Http/Controllers/AccountDeletionController.php:11
  * @route '/account-deletion'
  */
         showForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -79,7 +79,7 @@ show.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     show.form = showForm
 /**
 * @see \App\Http\Controllers\AccountDeletionController::submit
- * @see app/Http/Controllers/AccountDeletionController.php:18
+ * @see app/Http/Controllers/AccountDeletionController.php:16
  * @route '/account-deletion'
  */
 export const submit = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -94,7 +94,7 @@ submit.definition = {
 
 /**
 * @see \App\Http\Controllers\AccountDeletionController::submit
- * @see app/Http/Controllers/AccountDeletionController.php:18
+ * @see app/Http/Controllers/AccountDeletionController.php:16
  * @route '/account-deletion'
  */
 submit.url = (options?: RouteQueryOptions) => {
@@ -103,7 +103,7 @@ submit.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\AccountDeletionController::submit
- * @see app/Http/Controllers/AccountDeletionController.php:18
+ * @see app/Http/Controllers/AccountDeletionController.php:16
  * @route '/account-deletion'
  */
 submit.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -113,7 +113,7 @@ submit.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
     /**
 * @see \App\Http\Controllers\AccountDeletionController::submit
- * @see app/Http/Controllers/AccountDeletionController.php:18
+ * @see app/Http/Controllers/AccountDeletionController.php:16
  * @route '/account-deletion'
  */
     const submitForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -123,7 +123,7 @@ submit.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
             /**
 * @see \App\Http\Controllers\AccountDeletionController::submit
- * @see app/Http/Controllers/AccountDeletionController.php:18
+ * @see app/Http/Controllers/AccountDeletionController.php:16
  * @route '/account-deletion'
  */
         submitForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

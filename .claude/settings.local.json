@@ -1,0 +1,44 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx tsc:*)",
+      "mcp__auggie__codebase-retrieval",
+      "mcp__plugin_laravel-boost_laravel-boost__list-routes",
+      "Bash(sed:*)",
+      "Bash(grep:*)",
+      "mcp__plugin_laravel-boost_laravel-boost__application-info",
+      "mcp__plugin_laravel-boost_laravel-boost__search-docs",
+      "mcp__plugin_context7_context7__resolve-library-id",
+      "mcp__plugin_context7_context7__query-docs",
+      "Bash(pnpm run:*)",
+      "Bash(php artisan:*)",
+      "Bash(npx vite:*)",
+      "Bash(npx:*)",
+      "Bash(ls:*)",
+      "Bash(node:*)",
+      "Bash(rm:*)",
+      "Bash(pnpm remove:*)",
+      "Bash(composer require:*)",
+      "Bash(php:*)",
+      "Bash(composer.bat show:*)",
+      "Bash(composer.bat require:*)",
+      "Bash(vendor/bin/pint:*)",
+      "Bash(do:*)",
+      "mcp__plugin_laravel-boost_laravel-boost__database-query",
+      "Bash(docker ps:*)",
+      "Bash(docker compose:*)",
+      "Bash(pnpm install:*)",
+      "Bash(pnpm build:*)",
+      "mcp__plugin_laravel-boost_laravel-boost__database-schema"
+    ]
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "laravel-boost"
+  ],
+  "enabledPlugins": {
+    "laravel-boost@claude-plugins-official": true,
+    "playwright@claude-plugins-official": true,
+    "frontend-design-pro@frontend-design-pro": true
+  }
+}
