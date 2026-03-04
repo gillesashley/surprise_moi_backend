@@ -14,7 +14,9 @@ class UserManagementTest extends TestCase
     {
         $user = User::factory()->create(['role' => 'admin']);
 
-        $response = $this->actingAs($user)->get('/dashboard/users');
+        $response = $this->actingAs($user)
+            ->withSession(['user_management.verified_at' => time()])
+            ->get('/dashboard/users');
 
         $response->assertOk();
         $response->assertInertia(
@@ -29,7 +31,9 @@ class UserManagementTest extends TestCase
         $authUser = User::factory()->create(['role' => 'admin']);
         $viewUser = User::factory()->create(['name' => 'John Doe']);
 
-        $response = $this->actingAs($authUser)->get("/dashboard/users/{$viewUser->id}");
+        $response = $this->actingAs($authUser)
+            ->withSession(['user_management.verified_at' => time()])
+            ->get("/dashboard/users/{$viewUser->id}");
 
         $response->assertOk();
         $response->assertInertia(
@@ -44,7 +48,9 @@ class UserManagementTest extends TestCase
         $authUser = User::factory()->create(['role' => 'admin']);
         $editUser = User::factory()->create();
 
-        $response = $this->actingAs($authUser)->get("/dashboard/users/{$editUser->id}/edit");
+        $response = $this->actingAs($authUser)
+            ->withSession(['user_management.verified_at' => time()])
+            ->get("/dashboard/users/{$editUser->id}/edit");
 
         $response->assertOk();
         $response->assertInertia(
@@ -59,11 +65,13 @@ class UserManagementTest extends TestCase
         $authUser = User::factory()->create(['role' => 'admin']);
         $editUser = User::factory()->create(['name' => 'Old Name']);
 
-        $response = $this->actingAs($authUser)->put("/dashboard/users/{$editUser->id}", [
-            'name' => 'New Name',
-            'email' => $editUser->email,
-            'role' => $editUser->role,
-        ]);
+        $response = $this->actingAs($authUser)
+            ->withSession(['user_management.verified_at' => time()])
+            ->put("/dashboard/users/{$editUser->id}", [
+                'name' => 'New Name',
+                'email' => $editUser->email,
+                'role' => $editUser->role,
+            ]);
 
         $response->assertRedirect("/dashboard/users/{$editUser->id}");
         $this->assertDatabaseHas('users', [
@@ -77,7 +85,9 @@ class UserManagementTest extends TestCase
         $authUser = User::factory()->create(['role' => 'super_admin']);
         $deleteUser = User::factory()->create();
 
-        $response = $this->actingAs($authUser)->delete("/dashboard/users/{$deleteUser->id}");
+        $response = $this->actingAs($authUser)
+            ->withSession(['user_management.verified_at' => time()])
+            ->delete("/dashboard/users/{$deleteUser->id}");
 
         $response->assertRedirect('/dashboard/users');
         $this->assertDatabaseMissing('users', ['id' => $deleteUser->id]);
@@ -88,7 +98,9 @@ class UserManagementTest extends TestCase
         $authUser = User::factory()->create(['role' => 'admin']);
         $deleteUser = User::factory()->create();
 
-        $response = $this->actingAs($authUser)->delete("/dashboard/users/{$deleteUser->id}");
+        $response = $this->actingAs($authUser)
+            ->withSession(['user_management.verified_at' => time()])
+            ->delete("/dashboard/users/{$deleteUser->id}");
 
         $response->assertRedirect();
         $this->assertDatabaseHas('users', ['id' => $deleteUser->id]);
@@ -98,7 +110,9 @@ class UserManagementTest extends TestCase
     {
         $user = User::factory()->create(['role' => 'super_admin']);
 
-        $response = $this->actingAs($user)->delete("/dashboard/users/{$user->id}");
+        $response = $this->actingAs($user)
+            ->withSession(['user_management.verified_at' => time()])
+            ->delete("/dashboard/users/{$user->id}");
 
         $response->assertRedirect();
         $this->assertDatabaseHas('users', ['id' => $user->id]);
@@ -110,7 +124,9 @@ class UserManagementTest extends TestCase
         User::factory()->count(3)->create(['role' => 'customer']);
         User::factory()->count(2)->create(['role' => 'vendor']);
 
-        $response = $this->actingAs($admin)->get('/dashboard/users?role=customer');
+        $response = $this->actingAs($admin)
+            ->withSession(['user_management.verified_at' => time()])
+            ->get('/dashboard/users?role=customer');
 
         $response->assertOk();
         $response->assertInertia(
@@ -128,7 +144,9 @@ class UserManagementTest extends TestCase
         User::factory()->create(['role' => 'super_admin']);
         User::factory()->count(3)->create(['role' => 'customer']);
 
-        $response = $this->actingAs($admin)->get('/dashboard/users?role=admin,super_admin');
+        $response = $this->actingAs($admin)
+            ->withSession(['user_management.verified_at' => time()])
+            ->get('/dashboard/users?role=admin,super_admin');
 
         $response->assertOk();
         $response->assertInertia(
@@ -144,7 +162,9 @@ class UserManagementTest extends TestCase
         $admin = User::factory()->create(['role' => 'admin']);
         User::factory()->count(2)->create(['role' => 'customer']);
 
-        $response = $this->actingAs($admin)->get('/dashboard/users?role=invalid_role');
+        $response = $this->actingAs($admin)
+            ->withSession(['user_management.verified_at' => time()])
+            ->get('/dashboard/users?role=invalid_role');
 
         $response->assertOk();
         $response->assertInertia(
@@ -160,7 +180,9 @@ class UserManagementTest extends TestCase
         User::factory()->count(2)->create(['role' => 'customer']);
         User::factory()->create(['role' => 'vendor']);
 
-        $response = $this->actingAs($admin)->get('/dashboard/users');
+        $response = $this->actingAs($admin)
+            ->withSession(['user_management.verified_at' => time()])
+            ->get('/dashboard/users');
 
         $response->assertOk();
         $response->assertInertia(
@@ -169,6 +191,15 @@ class UserManagementTest extends TestCase
                 ->where('activeRole', null)
                 ->has('users.data', 4)
         );
+    }
+
+    public function test_unverified_access_redirects_to_access_code_page(): void
+    {
+        $user = User::factory()->create(['role' => 'admin']);
+
+        $response = $this->actingAs($user)->get('/dashboard/users');
+
+        $response->assertRedirect('/user-management-access');
     }
 
     public function test_guest_cannot_access_user_management(): void
@@ -185,5 +216,74 @@ class UserManagementTest extends TestCase
         $response = $this->actingAs($user)->get('/dashboard/users');
 
         $response->assertRedirect('/login');
+    }
+
+    public function test_access_code_page_renders(): void
+    {
+        $user = User::factory()->create(['role' => 'admin']);
+
+        $response = $this->actingAs($user)->get('/user-management-access');
+
+        $response->assertOk();
+        $response->assertInertia(
+            fn ($page) => $page->component('auth/user-management-access')
+        );
+    }
+
+    public function test_correct_access_code_grants_access(): void
+    {
+        $user = User::factory()->create(['role' => 'admin']);
+
+        $response = $this->actingAs($user)->post('/user-management-access', [
+            'code' => config('auth.user_management_access_code'),
+        ]);
+
+        $response->assertRedirect('/dashboard/users');
+    }
+
+    public function test_wrong_access_code_is_rejected(): void
+    {
+        $user = User::factory()->create(['role' => 'admin']);
+
+        $response = $this->actingAs($user)->post('/user-management-access', [
+            'code' => 'wrong-code',
+        ]);
+
+        $response->assertRedirect();
+        $response->assertSessionHasErrors('code');
+    }
+
+    public function test_empty_access_code_is_rejected(): void
+    {
+        $user = User::factory()->create(['role' => 'admin']);
+
+        $response = $this->actingAs($user)->post('/user-management-access', [
+            'code' => '',
+        ]);
+
+        $response->assertRedirect();
+        $response->assertSessionHasErrors('code');
+    }
+
+    public function test_expired_session_redirects_to_access_code_page(): void
+    {
+        $user = User::factory()->create(['role' => 'admin']);
+        $timeout = config('auth.user_management_timeout', 1200);
+
+        $response = $this->actingAs($user)
+            ->withSession(['user_management.verified_at' => time() - $timeout - 1])
+            ->get('/dashboard/users');
+
+        $response->assertRedirect('/user-management-access');
+    }
+
+    public function test_null_config_code_denies_access(): void
+    {
+        config(['auth.user_management_access_code' => null]);
+        $user = User::factory()->create(['role' => 'admin']);
+
+        $response = $this->actingAs($user)->get('/dashboard/users');
+
+        $response->assertStatus(403);
     }
 }

@@ -19,7 +19,6 @@ import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
 import Typography from '@mui/material/Typography';
 import { ArrowDown, ArrowUp, Eye, Pencil, Search, Trash2 } from 'lucide-react';
-import UserManagementGuard from '@/components/user-management-guard';
 import { useEffect, useState } from 'react';
 
 interface Props {
@@ -159,7 +158,6 @@ export default function UsersIndex({ users, canDelete, activeRole, filters }: Pr
     };
 
     return (
-        <UserManagementGuard>
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={pageTitle} />
             <Box sx={{ display: 'flex', height: '100%', flex: 1, flexDirection: 'column', gap: 2, p: 2 }}>
@@ -362,6 +360,5 @@ export default function UsersIndex({ users, canDelete, activeRole, filters }: Pr
                 </Card>
             </Box>
         </AppLayout>
-        </UserManagementGuard>
     );
 }

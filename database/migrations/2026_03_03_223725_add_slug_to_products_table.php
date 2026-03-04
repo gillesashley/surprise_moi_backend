@@ -17,15 +17,28 @@ return new class extends Migration
             $table->string('slug', 16)->nullable()->after('id');
         });
 
-        // Backfill existing products with unique slugs
-        $products = DB::table('products')->whereNull('slug')->get();
-        foreach ($products as $product) {
-            do {
-                $slug = Str::random(16);
-            } while (DB::table('products')->where('slug', $slug)->exists());
+        // Backfill existing products with unique slugs in chunks
+        $usedSlugs = [];
 
-            DB::table('products')->where('id', $product->id)->update(['slug' => $slug]);
-        }
+        DB::table('products')
+            ->whereNull('slug')
+            ->orderBy('id')
+            ->chunkById(100, function ($products) use (&$usedSlugs) {
+                foreach ($products as $product) {
+                    do {
+                        $slug = Str::random(16);
+                    } while (
+                        in_array($slug, $usedSlugs, true)
+                        || DB::table('products')->where('slug', $slug)->exists()
+                    );
+
+                    DB::table('products')
+                        ->where('id', $product->id)
+                        ->update(['slug' => $slug]);
+
+                    $usedSlugs[] = $slug;
+                }
+            });
 
         Schema::table('products', function (Blueprint $table) {
             $table->string('slug', 16)->nullable(false)->unique()->change();

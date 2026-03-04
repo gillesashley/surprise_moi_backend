@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\EnsureDashboardAccess;
 use App\Http\Middleware\EnsureUserIsAdmin;
+use App\Http\Middleware\EnsureUserManagementAccess;
 use App\Http\Middleware\EnsureUserRole;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
@@ -50,6 +51,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin' => EnsureUserIsAdmin::class,
             'dashboard' => EnsureDashboardAccess::class,
             'role' => EnsureUserRole::class,
+            'user-management' => EnsureUserManagementAccess::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
