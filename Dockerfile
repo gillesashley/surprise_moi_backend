@@ -85,7 +85,7 @@ RUN pnpm install --frozen-lockfile
 
 # Copy frontend source files
 COPY resources ./resources
-COPY vite.config.ts tsconfig.json components.json ./
+COPY vite.config.ts tsconfig.json ./
 COPY public ./public
 COPY .env.example ./
 
