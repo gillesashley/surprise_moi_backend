@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Product>
@@ -20,6 +21,7 @@ class ProductFactory extends Factory
         $hasDiscount = $this->faker->boolean(30);
 
         return [
+            'slug' => Str::random(16),
             'category_id' => \App\Models\Category::factory(),
             'vendor_id' => \App\Models\User::factory(),
             'shop_id' => \App\Models\Shop::factory(),

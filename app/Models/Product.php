@@ -10,17 +10,42 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
 
 class Product extends Model
 {
     /** @use HasFactory<\Database\Factories\ProductFactory> */
     use HasFactory, SoftDeletes;
 
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        static::creating(function (Product $product) {
+            if (empty($product->slug)) {
+                $product->slug = static::generateUniqueSlug();
+            }
+        });
+    }
+
+    /**
+     * Generate a unique 16-character slug.
+     */
+    public static function generateUniqueSlug(): string
+    {
+        do {
+            $slug = Str::random(16);
+        } while (static::where('slug', $slug)->exists());
+
+        return $slug;
+    }
+
     /**
      * Attributes that can be mass-assigned.
      * Includes pricing, inventory, delivery, and SEO-related fields.
      */
     protected $fillable = [
+        'slug',
         'category_id',
         'vendor_id',
         'shop_id',

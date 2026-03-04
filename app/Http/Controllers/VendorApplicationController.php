@@ -18,7 +18,7 @@ class VendorApplicationController extends Controller
     public function index(Request $request)
     {
         $query = VendorApplication::query()
-            ->with('user:id,name,email')
+            ->with(['user:id,name,email', 'latestOnboardingPayment'])
             ->latest('submitted_at');
 
         // Filter by status if provided
@@ -62,6 +62,8 @@ class VendorApplicationController extends Controller
                 'reviewed_at' => $app->reviewed_at?->toIso8601String(),
                 'current_step' => $app->current_step,
                 'completed_step' => $app->completed_step,
+                'payment_completed' => $app->payment_completed,
+                'payment_status' => $app->latestOnboardingPayment?->status,
             ]),
             'filters' => [
                 'status' => $request->status,
@@ -78,7 +80,7 @@ class VendorApplicationController extends Controller
      */
     public function show(VendorApplication $vendorApplication)
     {
-        $vendorApplication->load(['user', 'reviewer', 'bespokeServices']);
+        $vendorApplication->load(['user', 'reviewer', 'bespokeServices', 'latestOnboardingPayment']);
 
         return Inertia::render('vendor-applications/show', [
             'application' => [
@@ -147,6 +149,30 @@ class VendorApplicationController extends Controller
                     'name' => $vendorApplication->reviewer->name,
                 ] : null,
                 'rejection_reason' => $vendorApplication->rejection_reason,
+
+                // Payment info
+                'payment_required' => $vendorApplication->payment_required,
+                'payment_completed' => $vendorApplication->payment_completed,
+                'payment_completed_at' => $vendorApplication->payment_completed_at?->toIso8601String(),
+                'onboarding_fee' => $vendorApplication->onboarding_fee,
+                'discount_amount' => $vendorApplication->discount_amount,
+                'final_amount' => $vendorApplication->final_amount,
+                'payment' => $vendorApplication->latestOnboardingPayment ? [
+                    'status' => $vendorApplication->latestOnboardingPayment->status,
+                    'amount' => $vendorApplication->latestOnboardingPayment->amount,
+                    'currency' => $vendorApplication->latestOnboardingPayment->currency,
+                    'channel' => $vendorApplication->latestOnboardingPayment->channel,
+                    'reference' => $vendorApplication->latestOnboardingPayment->reference,
+                    'card_last4' => $vendorApplication->latestOnboardingPayment->card_last4,
+                    'card_bank' => $vendorApplication->latestOnboardingPayment->card_bank,
+                    'mobile_money_number' => $vendorApplication->latestOnboardingPayment->mobile_money_number,
+                    'mobile_money_provider' => $vendorApplication->latestOnboardingPayment->mobile_money_provider,
+                    'paid_at' => $vendorApplication->latestOnboardingPayment->paid_at?->toIso8601String(),
+                    'failure_reason' => $vendorApplication->latestOnboardingPayment->failure_reason,
+                ] : null,
+
+                // Review eligibility
+                'can_be_reviewed' => $vendorApplication->canBeReviewed(),
             ],
         ]);
     }
@@ -156,6 +182,11 @@ class VendorApplicationController extends Controller
      */
     public function approve(VendorApplication $vendorApplication, ReferralService $referralService)
     {
+        // Check if application is complete and ready for review
+        if (! $vendorApplication->canBeReviewed()) {
+            return back()->with('error', 'This application cannot be reviewed. Ensure all steps are completed, payment is made, and the application has been submitted.');
+        }
+
         // Check if application is in a state that can be approved
         if (! in_array($vendorApplication->status, [VendorApplication::STATUS_PENDING, VendorApplication::STATUS_UNDER_REVIEW])) {
             return back()->with('error', 'This application cannot be approved in its current state.');
@@ -188,6 +219,11 @@ class VendorApplicationController extends Controller
         $request->validate([
             'rejection_reason' => 'required|string|min:10|max:1000',
         ]);
+
+        // Check if application is complete and ready for review
+        if (! $vendorApplication->canBeReviewed()) {
+            return back()->with('error', 'This application cannot be reviewed. Ensure all steps are completed, payment is made, and the application has been submitted.');
+        }
 
         // Check if application is in a state that can be rejected
         if (! in_array($vendorApplication->status, [VendorApplication::STATUS_PENDING, VendorApplication::STATUS_UNDER_REVIEW])) {

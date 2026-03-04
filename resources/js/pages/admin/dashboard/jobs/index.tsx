@@ -167,7 +167,7 @@ export default function Index({
                 {statistics && (
                     <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)', lg: 'repeat(4, 1fr)' }, gap: 3 }}>
                         <Card>
-                            <CardHeader sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', pb: 1, '& > *': { my: 0 } }}>
+                            <CardHeader sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', px: 3, pb: 1, '& > *': { my: 0 } }}>
                                 <CardTitle sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
                                     Total Failed Jobs
                                 </CardTitle>
@@ -181,7 +181,7 @@ export default function Index({
                         </Card>
 
                         <Card>
-                            <CardHeader sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', pb: 1, '& > *': { my: 0 } }}>
+                            <CardHeader sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', px: 3, pb: 1, '& > *': { my: 0 } }}>
                                 <CardTitle sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
                                     Recent Failures (24h)
                                 </CardTitle>
@@ -195,7 +195,7 @@ export default function Index({
                         </Card>
 
                         <Card>
-                            <CardHeader sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', pb: 1, '& > *': { my: 0 } }}>
+                            <CardHeader sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', px: 3, pb: 1, '& > *': { my: 0 } }}>
                                 <CardTitle sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
                                     Active Queues
                                 </CardTitle>
@@ -212,7 +212,7 @@ export default function Index({
                         </Card>
 
                         <Card>
-                            <CardHeader sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', pb: 1, '& > *': { my: 0 } }}>
+                            <CardHeader sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', px: 3, pb: 1, '& > *': { my: 0 } }}>
                                 <CardTitle sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
                                     Top Queue
                                 </CardTitle>

@@ -8,21 +8,18 @@ export default function AppLogo() {
             <Box
                 sx={{
                     display: 'flex',
-                    aspectRatio: '1/1',
                     width: 32,
                     height: 32,
                     alignItems: 'center',
                     justifyContent: 'center',
-                    borderRadius: 1,
-                    bgcolor: 'primary.main',
-                    color: 'primary.contrastText',
+                    flexShrink: 0,
                 }}
             >
-                <AppLogoIcon style={{ width: 20, height: 20 }} />
+                <AppLogoIcon style={{ width: 32, height: 32 }} />
             </Box>
             <Box
                 sx={{
-                    ml: 0.5,
+                    ml: 1,
                     display: 'grid',
                     flex: 1,
                     textAlign: 'left',
@@ -32,13 +29,13 @@ export default function AppLogo() {
                 <Typography
                     component="span"
                     sx={{
-                        mb: 0.25,
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
                         whiteSpace: 'nowrap',
                         lineHeight: 1.25,
-                        fontWeight: 600,
-                        fontSize: 'inherit',
+                        fontWeight: 700,
+                        fontSize: '0.9375rem',
+                        letterSpacing: '-0.01em',
                     }}
                 >
                     SurpriseMoi

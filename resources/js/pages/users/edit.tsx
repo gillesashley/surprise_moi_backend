@@ -20,6 +20,7 @@ import { Form, Head, Link } from '@inertiajs/react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { ArrowLeft } from 'lucide-react';
+import UserManagementGuard from '@/components/user-management-guard';
 import { useState } from 'react';
 
 interface Props {
@@ -67,6 +68,7 @@ export default function UserEdit({ user, roles, canEditRole }: Props) {
     };
 
     return (
+        <UserManagementGuard>
         <AppLayout breadcrumbs={breadcrumbs(user)}>
             <Head title={`Edit: ${user.name}`} />
             <Box sx={{ display: 'flex', height: '100%', flex: 1, flexDirection: 'column', gap: 2, p: 2 }}>
@@ -401,5 +403,6 @@ export default function UserEdit({ user, roles, canEditRole }: Props) {
                 </Card>
             </Box>
         </AppLayout>
+        </UserManagementGuard>
     );
 }

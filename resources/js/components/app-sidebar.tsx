@@ -22,11 +22,16 @@ import {
     Code,
     CreditCard,
     DollarSign,
+    Footprints,
     LayoutGrid,
     List,
     Megaphone,
     MonitorPlay,
     Settings2,
+    ShieldCheck,
+    ShoppingBag,
+    Star,
+    Store,
     Target,
     UserCheck,
     Users,
@@ -48,9 +53,34 @@ const getNavItemsForRole = (role: string): NavItem[] => {
                 icon: Users,
                 items: [
                     {
-                        title: 'Users',
-                        href: usersIndex(),
-                        icon: UserCheck,
+                        title: 'Customers',
+                        href: usersIndex().url + '?role=customer',
+                        icon: ShoppingBag,
+                    },
+                    {
+                        title: 'Vendors',
+                        href: usersIndex().url + '?role=vendor',
+                        icon: Store,
+                    },
+                    {
+                        title: 'Influencers',
+                        href: usersIndex().url + '?role=influencer',
+                        icon: Star,
+                    },
+                    {
+                        title: 'Field Agents',
+                        href: usersIndex().url + '?role=field_agent',
+                        icon: Footprints,
+                    },
+                    {
+                        title: 'Marketers',
+                        href: usersIndex().url + '?role=marketer',
+                        icon: Megaphone,
+                    },
+                    {
+                        title: 'Administrators',
+                        href: usersIndex().url + '?role=admin,super_admin',
+                        icon: ShieldCheck,
                     },
                     {
                         title: 'Vendor Applications',
@@ -242,7 +272,7 @@ export function AppSidebar() {
 
     return (
         <Sidebar collapsible="icon" variant="inset">
-            <SidebarHeader>
+            <SidebarHeader style={{ paddingBottom: 0 }}>
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton size="lg" asChild>
@@ -252,6 +282,7 @@ export function AppSidebar() {
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                 </SidebarMenu>
+                <div style={{ borderBottom: '1px solid var(--border, rgba(0,0,0,0.08))', marginLeft: 12, marginRight: 12, marginTop: 4 }} />
             </SidebarHeader>
 
             <SidebarContent>

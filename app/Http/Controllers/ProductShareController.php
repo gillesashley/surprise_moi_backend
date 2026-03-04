@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Resources\ProductDetailResource;
 use App\Models\Product;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
@@ -45,7 +46,7 @@ class ProductShareController extends Controller
         ]);
     }
 
-    public function show(Request $request, int $id): View
+    public function show(Request $request, string $slug): View
     {
         $product = Product::with([
             'category',
@@ -54,7 +55,7 @@ class ProductShareController extends Controller
             'images',
             'variants',
             'tags',
-        ])->findOrFail($id);
+        ])->where('slug', $slug)->firstOrFail();
 
         $productPayload = ProductDetailResource::make($product)->resolve($request);
         $imageUrls = $this->buildAbsoluteImageUrls($productPayload);
@@ -81,13 +82,23 @@ class ProductShareController extends Controller
                 'title' => Arr::get($productPayload, 'name'),
                 'description' => $description,
                 'image' => $firstImage,
-                'url' => $shareBaseUrl.'/products/'.$product->id,
+                'url' => $shareBaseUrl.'/products/'.$product->slug,
             ],
             'downloadLinks' => [
                 'android' => (string) config('deep_links.android.store_url', ''),
                 'ios' => (string) config('deep_links.ios.store_url', ''),
             ],
         ]);
+    }
+
+    /**
+     * Legacy route: redirect integer ID URLs to slug-based URLs.
+     */
+    public function showById(int $id): RedirectResponse
+    {
+        $product = Product::findOrFail($id);
+
+        return redirect()->route('products.share', ['slug' => $product->slug], 301);
     }
 
     /**

@@ -31,6 +31,8 @@ import {
     Briefcase,
     Calendar,
     CheckCircle,
+    Download,
+    Eye,
     Heart,
     Mail,
     MapPin,
@@ -45,7 +47,12 @@ import {
     Users,
     XCircle,
 } from 'lucide-react';
+import UserManagementGuard from '@/components/user-management-guard';
 import { useState } from 'react';
+
+function isImageUrl(url: string): boolean {
+    return /\.(jpe?g|png|gif|webp)(\?|$)/i.test(url);
+}
 
 interface Shop {
     id: number;
@@ -127,6 +134,7 @@ const breadcrumbs = (user: User): BreadcrumbItem[] => [
 
 export default function UserShow({ user, canDelete }: Props) {
     const [showRejectDialog, setShowRejectDialog] = useState(false);
+    const [previewDoc, setPreviewDoc] = useState<{ url: string; title: string } | null>(null);
     const { data, setData, post, processing } = useForm({
         rejection_reason: '',
     });
@@ -175,6 +183,7 @@ export default function UserShow({ user, canDelete }: Props) {
         ['pending', 'under_review'].includes(user.vendor_application.status);
 
     return (
+        <UserManagementGuard>
         <AppLayout breadcrumbs={breadcrumbs(user)}>
             <Head title={`User: ${user.name}`} />
             <Box sx={{ display: 'flex', height: '100%', flex: 1, flexDirection: 'column', gap: 2, overflow: 'auto', p: 2 }}>
@@ -694,18 +703,12 @@ export default function UserShow({ user, canDelete }: Props) {
                                             </Typography>
                                             <Box sx={{ overflow: 'hidden', borderRadius: 2, border: 1, borderColor: 'divider', p: 2 }}>
                                                 <Box
-                                                    component="a"
-                                                    href={
-                                                        user.vendor_application
-                                                            .business_certificate_document
-                                                    }
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    sx={{ display: 'flex', alignItems: 'center', gap: 1, fontSize: '0.875rem', color: 'primary.main', '&:hover': { textDecoration: 'underline' } }}
+                                                    component="button"
+                                                    onClick={() => setPreviewDoc({ url: user.vendor_application!.business_certificate_document!, title: 'Business Certificate' })}
+                                                    sx={{ display: 'flex', alignItems: 'center', gap: 1, fontSize: '0.875rem', color: 'primary.main', bgcolor: 'transparent', border: 'none', cursor: 'pointer', p: 0, '&:hover': { textDecoration: 'underline' } }}
                                                 >
-                                                    <Package style={{ width: 16, height: 16 }} />
+                                                    <Eye style={{ width: 16, height: 16 }} />
                                                     View Business Certificate
-                                                    (PDF)
                                                 </Box>
                                             </Box>
                                         </Box>
@@ -717,17 +720,12 @@ export default function UserShow({ user, canDelete }: Props) {
                                             </Typography>
                                             <Box sx={{ overflow: 'hidden', borderRadius: 2, border: 1, borderColor: 'divider', p: 2 }}>
                                                 <Box
-                                                    component="a"
-                                                    href={
-                                                        user.vendor_application
-                                                            .tin_document
-                                                    }
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    sx={{ display: 'flex', alignItems: 'center', gap: 1, fontSize: '0.875rem', color: 'primary.main', '&:hover': { textDecoration: 'underline' } }}
+                                                    component="button"
+                                                    onClick={() => setPreviewDoc({ url: user.vendor_application!.tin_document!, title: 'TIN Document' })}
+                                                    sx={{ display: 'flex', alignItems: 'center', gap: 1, fontSize: '0.875rem', color: 'primary.main', bgcolor: 'transparent', border: 'none', cursor: 'pointer', p: 0, '&:hover': { textDecoration: 'underline' } }}
                                                 >
-                                                    <Package style={{ width: 16, height: 16 }} />
-                                                    View TIN Document (PDF)
+                                                    <Eye style={{ width: 16, height: 16 }} />
+                                                    View TIN Document
                                                 </Box>
                                             </Box>
                                         </Box>
@@ -785,18 +783,12 @@ export default function UserShow({ user, canDelete }: Props) {
                                             </Typography>
                                             <Box sx={{ overflow: 'hidden', borderRadius: 2, border: 1, borderColor: 'divider', p: 2 }}>
                                                 <Box
-                                                    component="a"
-                                                    href={
-                                                        user.vendor_application
-                                                            .proof_of_business
-                                                    }
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    sx={{ display: 'flex', alignItems: 'center', gap: 1, fontSize: '0.875rem', color: 'primary.main', '&:hover': { textDecoration: 'underline' } }}
+                                                    component="button"
+                                                    onClick={() => setPreviewDoc({ url: user.vendor_application!.proof_of_business!, title: 'Proof of Business' })}
+                                                    sx={{ display: 'flex', alignItems: 'center', gap: 1, fontSize: '0.875rem', color: 'primary.main', bgcolor: 'transparent', border: 'none', cursor: 'pointer', p: 0, '&:hover': { textDecoration: 'underline' } }}
                                                 >
-                                                    <Package style={{ width: 16, height: 16 }} />
+                                                    <Eye style={{ width: 16, height: 16 }} />
                                                     View Proof of Business
-                                                    Document
                                                 </Box>
                                             </Box>
                                         </Box>
@@ -1036,6 +1028,50 @@ export default function UserShow({ user, canDelete }: Props) {
                 )}
             </Box>
 
+            {/* Document Preview Dialog */}
+            <Dialog open={!!previewDoc} onOpenChange={(open) => { if (!open) { setPreviewDoc(null); } }}>
+                <DialogContent style={{ maxWidth: 900, width: '90vw' }}>
+                    <DialogHeader>
+                        <DialogTitle>{previewDoc?.title}</DialogTitle>
+                        <DialogDescription>
+                            Preview the uploaded document below
+                        </DialogDescription>
+                    </DialogHeader>
+                    {previewDoc && (
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                            <Box sx={{ overflow: 'auto', borderRadius: 2, border: 1, borderColor: 'divider', bgcolor: 'action.hover', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 300, maxHeight: '60vh' }}>
+                                {isImageUrl(previewDoc.url) ? (
+                                    <Box
+                                        component="img"
+                                        src={previewDoc.url}
+                                        alt={previewDoc.title}
+                                        sx={{ maxWidth: '100%', maxHeight: '60vh', objectFit: 'contain' }}
+                                    />
+                                ) : (
+                                    <Box
+                                        component="iframe"
+                                        src={previewDoc.url}
+                                        title={previewDoc.title}
+                                        sx={{ width: '100%', height: '60vh', border: 'none' }}
+                                    />
+                                )}
+                            </Box>
+                            <DialogFooter>
+                                <Button variant="outline" onClick={() => setPreviewDoc(null)}>
+                                    Close
+                                </Button>
+                                <Button asChild>
+                                    <a href={previewDoc.url} download target="_blank" rel="noopener noreferrer">
+                                        <Download style={{ marginRight: 8, width: 16, height: 16 }} />
+                                        Download
+                                    </a>
+                                </Button>
+                            </DialogFooter>
+                        </Box>
+                    )}
+                </DialogContent>
+            </Dialog>
+
             {/* Reject Dialog */}
             {user.vendor_application && (
                 <Dialog
@@ -1093,5 +1129,6 @@ export default function UserShow({ user, canDelete }: Props) {
                 </Dialog>
             )}
         </AppLayout>
+        </UserManagementGuard>
     );
 }

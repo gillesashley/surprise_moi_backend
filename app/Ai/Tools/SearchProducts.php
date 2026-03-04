@@ -43,11 +43,11 @@ class SearchProducts implements Tool
         $service = app(ProductSearchService::class);
 
         $results = $service->searchSimilar(
-            query: $request->get('keywords'),
-            minPrice: $request->get('min_price'),
-            maxPrice: $request->get('max_price'),
-            excludeCategories: $request->get('exclude_categories', []),
-            limit: $request->get('limit', 10),
+            query: $request->string('keywords'),
+            minPrice: $request['min_price'] ?? null,
+            maxPrice: $request['max_price'] ?? null,
+            excludeCategories: $request['exclude_categories'] ?? [],
+            limit: $request->integer('limit', 10),
         );
 
         if (empty($results)) {

@@ -19,7 +19,7 @@ function Card({ className, children, ...props }: React.ComponentProps<'div'>) {
                 gap: 3,
                 borderRadius: 3,
                 py: 3,
-                boxShadow: 1,
+                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)',
             }}
             {...(props as object)}
         >

@@ -2,6 +2,7 @@ import * as React from "react"
 import { PanelLeftIcon } from "lucide-react"
 
 import Box from "@mui/material/Box"
+import { useTheme } from "@mui/material/styles"
 
 import { useIsMobile } from "@/hooks/use-mobile"
 import { Button } from "@/components/ui/button"
@@ -787,6 +788,7 @@ function SidebarMenuButton({
 }) {
   const { isMobile, state } = useSidebar()
   const { collapsible } = useSidebarConfig()
+  const theme = useTheme()
   const isIconCollapsed = state === "collapsed" && collapsible === "icon"
 
   const dataProps = {
@@ -897,7 +899,7 @@ function SidebarMenuButton({
         cursor: "pointer",
         color: "inherit",
         textDecoration: "none",
-        ...(isActive && { fontWeight: 500 }),
+        ...(isActive && { fontWeight: 500, backgroundColor: theme.palette.action.selected }),
         ...(size === "default" && { height: 32, fontSize: "0.875rem" }),
         ...(size === "sm" && { height: 28, fontSize: "0.75rem" }),
         ...(size === "lg" && { height: 48, fontSize: "0.875rem" }),
@@ -1172,6 +1174,7 @@ function SidebarMenuSubButton({
 }) {
   const { state } = useSidebar()
   const { collapsible } = useSidebarConfig()
+  const theme = useTheme()
   const isIconCollapsed = state === "collapsed" && collapsible === "icon"
 
   const dataProps = {
@@ -1247,7 +1250,7 @@ function SidebarMenuSubButton({
         color: "inherit",
         ...(size === "sm" && { fontSize: "0.75rem" }),
         ...(size === "md" && { fontSize: "0.875rem" }),
-        ...(isActive && { fontWeight: 500 }),
+        ...(isActive && { fontWeight: 500, backgroundColor: theme.palette.action.selected }),
         ...(isIconCollapsed && { display: "none" }),
       },
       ...props,

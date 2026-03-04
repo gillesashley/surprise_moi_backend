@@ -58,6 +58,8 @@ interface VendorApplicationSummary {
     reviewed_at: string | null;
     current_step: number;
     completed_step: number;
+    payment_completed: boolean;
+    payment_status: string | null;
 }
 
 interface PaginatedApplications {
@@ -183,11 +185,11 @@ export default function VendorApplicationsIndex({
 
     useEffect(() => {
         const delayDebounceFn = setTimeout(() => {
-            if (searchTerm !== filters.search) {
+            if (searchTerm !== (filters.search ?? '')) {
                 router.get(
                     '/dashboard/vendor-applications',
                     {
-                        search: searchTerm,
+                        search: searchTerm || undefined,
                         page: 1,
                         ...(statusFilter !== 'all' && { status: statusFilter }),
                     },
@@ -200,7 +202,7 @@ export default function VendorApplicationsIndex({
         }, 300);
 
         return () => clearTimeout(delayDebounceFn);
-    }, [searchTerm, statusFilter]);
+    }, [searchTerm]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const handleStatusChange = (value: string) => {
         setStatusFilter(value);
@@ -208,9 +210,8 @@ export default function VendorApplicationsIndex({
             '/dashboard/vendor-applications',
             {
                 ...(value !== 'all' && { status: value }),
-                search: filters.search,
-                sort_by: filters.sort_by,
-                sort_order: filters.sort_order,
+                ...(filters.search && { search: filters.search }),
+                ...(filters.sort_by && { sort_by: filters.sort_by, sort_order: filters.sort_order }),
                 page: 1,
             },
             {
@@ -444,6 +445,9 @@ export default function VendorApplicationsIndex({
                                                         'completed_step',
                                                     )}
                                                 </Box>
+                                                <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
+                                                    Payment
+                                                </Box>
                                                 <Box
                                                     component="th"
                                                     sx={{ cursor: 'pointer', p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500, '&:hover': { bgcolor: 'action.hover' } }}
@@ -516,6 +520,26 @@ export default function VendorApplicationsIndex({
                                                             </Box>
                                                         </Box>
                                                         <Box component="td" sx={{ p: 1 }}>
+                                                            <Chip
+                                                                label={
+                                                                    application.payment_status === 'success' ? 'Paid'
+                                                                    : application.payment_status === 'failed' ? 'Failed'
+                                                                    : application.payment_status === 'pending' ? 'Pending'
+                                                                    : application.payment_status === 'processing' ? 'Processing'
+                                                                    : 'Unpaid'
+                                                                }
+                                                                color={
+                                                                    application.payment_status === 'success' ? 'success'
+                                                                    : application.payment_status === 'failed' ? 'error'
+                                                                    : application.payment_status === 'pending' ? 'warning'
+                                                                    : application.payment_status === 'processing' ? 'info'
+                                                                    : 'default'
+                                                                }
+                                                                size="small"
+                                                                variant="outlined"
+                                                            />
+                                                        </Box>
+                                                        <Box component="td" sx={{ p: 1 }}>
                                                             {application.submitted_at ? (
                                                                 <Box sx={{ fontSize: '0.875rem' }}>
                                                                     {new Date(
@@ -534,7 +558,9 @@ export default function VendorApplicationsIndex({
                                                                 {application.status ===
                                                                     'pending' &&
                                                                     application.submitted_at !==
-                                                                        null && (
+                                                                        null &&
+                                                                    application.completed_step >= 4 &&
+                                                                    application.payment_completed && (
                                                                         <>
                                                                             <Button
                                                                                 variant="default"

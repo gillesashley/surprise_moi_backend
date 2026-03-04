@@ -104,6 +104,73 @@ class UserManagementTest extends TestCase
         $this->assertDatabaseHas('users', ['id' => $user->id]);
     }
 
+    public function test_admin_can_filter_users_by_single_role(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        User::factory()->count(3)->create(['role' => 'customer']);
+        User::factory()->count(2)->create(['role' => 'vendor']);
+
+        $response = $this->actingAs($admin)->get('/dashboard/users?role=customer');
+
+        $response->assertOk();
+        $response->assertInertia(
+            fn ($page) => $page
+                ->component('users/index')
+                ->where('activeRole', 'customer')
+                ->where('filters.role', 'customer')
+                ->has('users.data', 3)
+        );
+    }
+
+    public function test_admin_can_filter_users_by_multiple_roles(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        User::factory()->create(['role' => 'super_admin']);
+        User::factory()->count(3)->create(['role' => 'customer']);
+
+        $response = $this->actingAs($admin)->get('/dashboard/users?role=admin,super_admin');
+
+        $response->assertOk();
+        $response->assertInertia(
+            fn ($page) => $page
+                ->component('users/index')
+                ->where('activeRole', 'admin,super_admin')
+                ->has('users.data', 2)
+        );
+    }
+
+    public function test_invalid_role_filter_is_ignored(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        User::factory()->count(2)->create(['role' => 'customer']);
+
+        $response = $this->actingAs($admin)->get('/dashboard/users?role=invalid_role');
+
+        $response->assertOk();
+        $response->assertInertia(
+            fn ($page) => $page
+                ->component('users/index')
+                ->has('users.data', 3)
+        );
+    }
+
+    public function test_no_role_filter_returns_all_users(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        User::factory()->count(2)->create(['role' => 'customer']);
+        User::factory()->create(['role' => 'vendor']);
+
+        $response = $this->actingAs($admin)->get('/dashboard/users');
+
+        $response->assertOk();
+        $response->assertInertia(
+            fn ($page) => $page
+                ->component('users/index')
+                ->where('activeRole', null)
+                ->has('users.data', 4)
+        );
+    }
+
     public function test_guest_cannot_access_user_management(): void
     {
         $response = $this->get('/dashboard/users');

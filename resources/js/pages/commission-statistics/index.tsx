@@ -95,13 +95,13 @@ export default function CommissionStatistics({
 
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, p: 3 }}>
                 {/* Summary Cards */}
-                <Box sx={{ display: 'grid', gap: 2, gridTemplateColumns: { xs: '1fr', md: 'repeat(5, 1fr)' } }}>
-                    <Card>
-                        <CardHeader sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', pb: 1, '& > *': { my: 0 } }}>
+                <Box sx={{ display: 'grid', gap: 2, gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)', lg: 'repeat(5, 1fr)' }, '& > *': { minWidth: 0 } }}>
+                    <Card sx={{ py: 2, gap: 1 }}>
+                        <CardHeader sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', px: 3, pb: 0, '& > *': { my: 0 } }}>
                             <CardTitle sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
                                 Total Orders
                             </CardTitle>
-                            <ShoppingCart style={{ width: 16, height: 16, color: '#2563eb' }} />
+                            <ShoppingCart style={{ width: 16, height: 16, color: '#2563eb', flexShrink: 0 }} />
                         </CardHeader>
                         <CardContent>
                             <Box sx={{ fontSize: '1.5rem', fontWeight: 700 }}>
@@ -113,15 +113,15 @@ export default function CommissionStatistics({
                         </CardContent>
                     </Card>
 
-                    <Card>
-                        <CardHeader sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', pb: 1, '& > *': { my: 0 } }}>
+                    <Card sx={{ py: 2, gap: 1 }}>
+                        <CardHeader sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', px: 3, pb: 0, '& > *': { my: 0 } }}>
                             <CardTitle sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
                                 Total Sales
                             </CardTitle>
-                            <DollarSign style={{ width: 16, height: 16, color: '#16a34a' }} />
+                            <DollarSign style={{ width: 16, height: 16, color: '#16a34a', flexShrink: 0 }} />
                         </CardHeader>
                         <CardContent>
-                            <Box sx={{ fontSize: '1.5rem', fontWeight: 700 }}>
+                            <Box sx={{ fontSize: '1.5rem', fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                                 GHS{' '}
                                 {parseFloat(
                                     stats.summary.total_order_value,
@@ -135,15 +135,15 @@ export default function CommissionStatistics({
                         </CardContent>
                     </Card>
 
-                    <Card sx={{ borderColor: '#e9d5ff', background: (theme) => `linear-gradient(135deg, #faf5ff, #f3e8ff)` }}>
-                        <CardHeader sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', pb: 1, '& > *': { my: 0 } }}>
+                    <Card sx={{ py: 2, gap: 1, borderColor: '#e9d5ff', background: 'linear-gradient(135deg, #faf5ff, #f3e8ff)' }}>
+                        <CardHeader sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', px: 3, pb: 0, '& > *': { my: 0 } }}>
                             <CardTitle sx={{ fontSize: '0.875rem', fontWeight: 500, color: '#581c87' }}>
                                 Platform Commission
                             </CardTitle>
-                            <TrendingUp style={{ width: 16, height: 16, color: '#9333ea' }} />
+                            <TrendingUp style={{ width: 16, height: 16, color: '#9333ea', flexShrink: 0 }} />
                         </CardHeader>
                         <CardContent>
-                            <Box sx={{ fontSize: '1.5rem', fontWeight: 700, color: '#581c87' }}>
+                            <Box sx={{ fontSize: '1.5rem', fontWeight: 700, color: '#581c87', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                                 GHS{' '}
                                 {parseFloat(
                                     stats.summary.total_commission_earned,
@@ -158,15 +158,15 @@ export default function CommissionStatistics({
                         </CardContent>
                     </Card>
 
-                    <Card>
-                        <CardHeader sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', pb: 1, '& > *': { my: 0 } }}>
+                    <Card sx={{ py: 2, gap: 1 }}>
+                        <CardHeader sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', px: 3, pb: 0, '& > *': { my: 0 } }}>
                             <CardTitle sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
                                 Vendor Payouts
                             </CardTitle>
-                            <Users style={{ width: 16, height: 16, color: '#ea580c' }} />
+                            <Users style={{ width: 16, height: 16, color: '#ea580c', flexShrink: 0 }} />
                         </CardHeader>
                         <CardContent>
-                            <Box sx={{ fontSize: '1.5rem', fontWeight: 700 }}>
+                            <Box sx={{ fontSize: '1.5rem', fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                                 GHS{' '}
                                 {parseFloat(
                                     stats.summary.total_vendor_payouts,
@@ -180,15 +180,15 @@ export default function CommissionStatistics({
                         </CardContent>
                     </Card>
 
-                    <Card sx={{ borderColor: '#a7f3d0', background: (theme) => `linear-gradient(135deg, #ecfdf5, #d1fae5)` }}>
-                        <CardHeader sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', pb: 1, '& > *': { my: 0 } }}>
+                    <Card sx={{ py: 2, gap: 1, borderColor: '#a7f3d0', background: 'linear-gradient(135deg, #ecfdf5, #d1fae5)' }}>
+                        <CardHeader sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', px: 3, pb: 0, '& > *': { my: 0 } }}>
                             <CardTitle sx={{ fontSize: '0.875rem', fontWeight: 500, color: '#064e3b' }}>
                                 Net Income
                             </CardTitle>
-                            <TrendingUp style={{ width: 16, height: 16, color: '#059669' }} />
+                            <TrendingUp style={{ width: 16, height: 16, color: '#059669', flexShrink: 0 }} />
                         </CardHeader>
                         <CardContent>
-                            <Box sx={{ fontSize: '1.5rem', fontWeight: 700, color: '#064e3b' }}>
+                            <Box sx={{ fontSize: '1.5rem', fontWeight: 700, color: '#064e3b', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                                 GHS{' '}
                                 {platformNet.toLocaleString('en-US', {
                                     maximumFractionDigits: 2,
