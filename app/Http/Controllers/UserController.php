@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Order;
+use App\Models\Review;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -74,7 +76,21 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
-        $user->load(['interests', 'personalityTraits', 'shops', 'products', 'services', 'latestVendorApplication']);
+        $user->load(['interests', 'personalityTraits', 'shops', 'products', 'services', 'latestVendorApplication', 'musicGenres', 'addresses']);
+        $user->loadCount(['orders', 'reviews', 'wishlists']);
+
+        $totalSpent = Order::where('user_id', $user->id)->sum('total');
+        $avgRating = Review::where('user_id', $user->id)->avg('rating');
+
+        $recentOrders = Order::where('user_id', $user->id)
+            ->latest()
+            ->take(5)
+            ->get(['id', 'order_number', 'status', 'total', 'currency', 'created_at']);
+
+        $recentReviews = Review::where('user_id', $user->id)
+            ->latest()
+            ->take(3)
+            ->get(['id', 'rating', 'comment', 'created_at']);
 
         $vendorApplication = null;
         if ($user->latestVendorApplication) {
@@ -132,6 +148,26 @@ class UserController extends Controller
             'user' => [
                 ...$user->only(['id', 'name', 'email', 'phone', 'role', 'bio', 'date_of_birth', 'gender', 'favorite_color', 'favorite_music_genre', 'email_verified_at', 'phone_verified_at', 'is_popular', 'created_at', 'updated_at']),
                 'avatar' => $user->avatar ? Storage::url($user->avatar) : null,
+                'provider' => $user->provider,
+                'orders_count' => $user->orders_count,
+                'reviews_count' => $user->reviews_count,
+                'wishlists_count' => $user->wishlists_count,
+                'total_spent' => (float) $totalSpent,
+                'avg_rating' => $avgRating ? round((float) $avgRating, 1) : null,
+                'recent_orders' => $recentOrders,
+                'recent_reviews' => $recentReviews,
+                'addresses' => $user->addresses->map(fn ($a) => [
+                    'id' => $a->id,
+                    'label' => $a->label,
+                    'name' => $a->name,
+                    'address_line_1' => $a->address_line_1,
+                    'city' => $a->city,
+                    'state' => $a->state,
+                    'postal_code' => $a->postal_code,
+                    'country' => $a->country,
+                    'is_default' => $a->is_default,
+                ]),
+                'music_genres' => $user->musicGenres->map(fn ($g) => ['id' => $g->id, 'name' => $g->name]),
                 'interests' => $user->interests->map(fn ($i) => ['id' => $i->id, 'name' => $i->name, 'icon' => $i->icon]),
                 'personality_traits' => $user->personalityTraits->map(fn ($t) => ['id' => $t->id, 'name' => $t->name, 'icon' => $t->icon]),
                 'shops' => $user->shops->map(fn ($s) => [

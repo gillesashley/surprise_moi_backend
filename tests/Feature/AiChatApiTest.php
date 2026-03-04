@@ -276,6 +276,44 @@ class AiChatApiTest extends TestCase
         $response->assertStatus(403);
     }
 
+    public function test_send_message_returns_non_empty_assistant_content(): void
+    {
+        GiftAssistant::fake([
+            json_encode([
+                'type' => 'suggestions',
+                'suggestions' => [
+                    [
+                        'product_id' => 1,
+                        'product_name' => 'Test Gift',
+                        'vendor_name' => 'Vendor',
+                        'price' => 50.00,
+                        'thumbnail' => 'https://example.com/img.jpg',
+                        'personalization_reason' => 'Perfect match.',
+                    ],
+                ],
+            ]),
+        ]);
+
+        $conversation = AiConversation::factory()->create([
+            'user_id' => $this->user->id,
+        ]);
+
+        AiMessage::factory()->greeting()->create([
+            'ai_conversation_id' => $conversation->id,
+        ]);
+
+        $response = $this->actingAs($this->user)
+            ->postJson("/api/v1/ai-chat/conversations/{$conversation->id}/messages", [
+                'message' => 'She loves cooking and is very creative',
+            ]);
+
+        $response->assertStatus(200);
+
+        $data = $response->json('data');
+        $this->assertNotEmpty($data['content'], 'Assistant content should not be empty');
+        $this->assertEquals('suggestions', $data['type']);
+    }
+
     // ==================== Authentication Tests ====================
 
     public function test_unauthenticated_user_cannot_access_ai_chat(): void

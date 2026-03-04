@@ -33,6 +33,7 @@ import {
     CheckCircle,
     Download,
     Eye,
+    Globe,
     Heart,
     Mail,
     MapPin,
@@ -41,6 +42,8 @@ import {
     Palette,
     Pencil,
     Phone,
+    ShoppingCart,
+    Star,
     Store,
     Trash2,
     User as UserIcon,
@@ -104,16 +107,59 @@ interface VendorApplication {
     rejection_reason: string | null;
 }
 
+interface UserAddress {
+    id: number;
+    label: string | null;
+    name: string | null;
+    address_line_1: string;
+    city: string;
+    state: string | null;
+    postal_code: string | null;
+    country: string;
+    is_default: boolean;
+}
+
+interface RecentOrder {
+    id: number;
+    order_number: string;
+    status: string;
+    total: number;
+    currency: string;
+    created_at: string;
+}
+
+interface RecentReview {
+    id: number;
+    rating: number;
+    comment: string | null;
+    created_at: string;
+}
+
+interface MusicGenre {
+    id: number;
+    name: string;
+}
+
 interface Props {
     user: User & {
         favorite_color?: string;
         favorite_music_genre?: string;
         avatar?: string;
+        provider?: string | null;
         interests?: Interest[];
         personality_traits?: Interest[];
+        music_genres?: MusicGenre[];
+        addresses?: UserAddress[];
         shops?: Shop[];
         products_count?: number;
         services_count?: number;
+        orders_count?: number;
+        reviews_count?: number;
+        wishlists_count?: number;
+        total_spent?: number;
+        avg_rating?: number | null;
+        recent_orders?: RecentOrder[];
+        recent_reviews?: RecentReview[];
         phone_verified_at?: string;
         vendor_application?: VendorApplication;
     };
@@ -424,6 +470,20 @@ export default function UserShow({ user, canDelete }: Props) {
                                     )}
                                 </Box>
                             </Box>
+
+                            {user.provider && (
+                                <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5 }}>
+                                    <Globe style={{ marginTop: 2, width: 16, height: 16, color: 'var(--muted-foreground)' }} />
+                                    <Box>
+                                        <Typography variant="h6" sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                                            Sign-in Provider
+                                        </Typography>
+                                        <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary', textTransform: 'capitalize' }}>
+                                            Signed in via {user.provider}
+                                        </Typography>
+                                    </Box>
+                                </Box>
+                            )}
                         </Box>
 
                         {user.bio && (
@@ -504,6 +564,199 @@ export default function UserShow({ user, canDelete }: Props) {
                             )}
                     </Box>
                 ) : null}
+
+                {/* Activity Summary */}
+                {(user.orders_count !== undefined || user.reviews_count !== undefined || user.wishlists_count !== undefined) && (
+                    <Card>
+                        <CardHeader>
+                            <CardTitle style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '1.125rem' }}>
+                                <ShoppingCart style={{ width: 20, height: 20 }} />
+                                Activity Summary
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <Box sx={{ display: 'grid', gap: 2, gridTemplateColumns: { xs: 'repeat(2, 1fr)', md: 'repeat(5, 1fr)' } }}>
+                                <Box sx={{ textAlign: 'center', borderRadius: 2, border: 1, borderColor: 'divider', p: 2 }}>
+                                    <Box component="span" sx={{ fontSize: '1.5rem', fontWeight: 700 }}>
+                                        {user.orders_count ?? 0}
+                                    </Box>
+                                    <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>Orders</Typography>
+                                </Box>
+                                <Box sx={{ textAlign: 'center', borderRadius: 2, border: 1, borderColor: 'divider', p: 2 }}>
+                                    <Box component="span" sx={{ fontSize: '1.5rem', fontWeight: 700 }}>
+                                        GHS {(user.total_spent ?? 0).toFixed(2)}
+                                    </Box>
+                                    <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>Total Spent</Typography>
+                                </Box>
+                                <Box sx={{ textAlign: 'center', borderRadius: 2, border: 1, borderColor: 'divider', p: 2 }}>
+                                    <Box component="span" sx={{ fontSize: '1.5rem', fontWeight: 700 }}>
+                                        {user.reviews_count ?? 0}
+                                    </Box>
+                                    <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>Reviews</Typography>
+                                </Box>
+                                <Box sx={{ textAlign: 'center', borderRadius: 2, border: 1, borderColor: 'divider', p: 2 }}>
+                                    <Box component="span" sx={{ fontSize: '1.5rem', fontWeight: 700 }}>
+                                        {user.avg_rating ? `${user.avg_rating}/5` : 'N/A'}
+                                    </Box>
+                                    <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>Avg Rating</Typography>
+                                </Box>
+                                <Box sx={{ textAlign: 'center', borderRadius: 2, border: 1, borderColor: 'divider', p: 2 }}>
+                                    <Box component="span" sx={{ fontSize: '1.5rem', fontWeight: 700 }}>
+                                        {user.wishlists_count ?? 0}
+                                    </Box>
+                                    <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>Wishlist</Typography>
+                                </Box>
+                            </Box>
+                        </CardContent>
+                    </Card>
+                )}
+
+                {/* Music Genres */}
+                {user.music_genres && user.music_genres.length > 0 && (
+                    <Card>
+                        <CardHeader>
+                            <CardTitle style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '1.125rem' }}>
+                                <Music style={{ width: 20, height: 20 }} />
+                                Music Genres
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                                {user.music_genres.map((genre) => (
+                                    <Badge key={genre.id} variant="secondary" style={{ gap: 4 }}>
+                                        {genre.name}
+                                    </Badge>
+                                ))}
+                            </Box>
+                        </CardContent>
+                    </Card>
+                )}
+
+                {/* Saved Addresses */}
+                {user.addresses && user.addresses.length > 0 && (
+                    <Card>
+                        <CardHeader>
+                            <CardTitle style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '1.125rem' }}>
+                                <MapPin style={{ width: 20, height: 20 }} />
+                                Saved Addresses
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                                {user.addresses.map((address) => (
+                                    <Box key={address.id} sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', borderRadius: 2, border: 1, borderColor: 'divider', p: 2 }}>
+                                        <Box>
+                                            {address.label && (
+                                                <Typography variant="h6" sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                                                    {address.label}
+                                                </Typography>
+                                            )}
+                                            <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
+                                                {[address.name, address.address_line_1, address.city, address.state, address.postal_code, address.country].filter(Boolean).join(', ')}
+                                            </Typography>
+                                        </Box>
+                                        {address.is_default && (
+                                            <Badge variant="outline" style={{ gap: 4 }}>
+                                                <CheckCircle style={{ width: 12, height: 12 }} />
+                                                Default
+                                            </Badge>
+                                        )}
+                                    </Box>
+                                ))}
+                            </Box>
+                        </CardContent>
+                    </Card>
+                )}
+
+                {/* Recent Orders */}
+                {user.recent_orders && user.recent_orders.length > 0 && (
+                    <Card>
+                        <CardHeader>
+                            <CardTitle style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '1.125rem' }}>
+                                <ShoppingCart style={{ width: 20, height: 20 }} />
+                                Recent Orders
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <Box sx={{ overflowX: 'auto' }}>
+                                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
+                                    <thead>
+                                        <tr style={{ borderBottom: '1px solid var(--border)' }}>
+                                            <th style={{ textAlign: 'left', padding: '8px 12px', fontWeight: 500 }}>Order #</th>
+                                            <th style={{ textAlign: 'left', padding: '8px 12px', fontWeight: 500 }}>Status</th>
+                                            <th style={{ textAlign: 'right', padding: '8px 12px', fontWeight: 500 }}>Total</th>
+                                            <th style={{ textAlign: 'right', padding: '8px 12px', fontWeight: 500 }}>Date</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {user.recent_orders.map((order) => (
+                                            <tr key={order.id} style={{ borderBottom: '1px solid var(--border)' }}>
+                                                <td style={{ padding: '8px 12px' }}>{order.order_number}</td>
+                                                <td style={{ padding: '8px 12px' }}>
+                                                    <Badge variant={order.status === 'delivered' ? 'default' : order.status === 'pending' ? 'outline' : 'secondary'}>
+                                                        {order.status}
+                                                    </Badge>
+                                                </td>
+                                                <td style={{ padding: '8px 12px', textAlign: 'right' }}>
+                                                    {order.currency} {Number(order.total).toFixed(2)}
+                                                </td>
+                                                <td style={{ padding: '8px 12px', textAlign: 'right', color: 'var(--muted-foreground)' }}>
+                                                    {new Date(order.created_at).toLocaleDateString()}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </Box>
+                        </CardContent>
+                    </Card>
+                )}
+
+                {/* Recent Reviews */}
+                {user.recent_reviews && user.recent_reviews.length > 0 && (
+                    <Card>
+                        <CardHeader>
+                            <CardTitle style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '1.125rem' }}>
+                                <Star style={{ width: 20, height: 20 }} />
+                                Recent Reviews
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                                {user.recent_reviews.map((review) => (
+                                    <Box key={review.id} sx={{ borderRadius: 2, border: 1, borderColor: 'divider', p: 2 }}>
+                                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.5 }}>
+                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                                {Array.from({ length: 5 }, (_, i) => (
+                                                    <Star
+                                                        key={i}
+                                                        style={{
+                                                            width: 14,
+                                                            height: 14,
+                                                            fill: i < review.rating ? 'var(--warning, #f59e0b)' : 'none',
+                                                            color: i < review.rating ? 'var(--warning, #f59e0b)' : 'var(--muted-foreground)',
+                                                        }}
+                                                    />
+                                                ))}
+                                                <Typography sx={{ ml: 0.5, fontSize: '0.875rem', fontWeight: 500 }}>
+                                                    {review.rating}/5
+                                                </Typography>
+                                            </Box>
+                                            <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
+                                                {new Date(review.created_at).toLocaleDateString()}
+                                            </Typography>
+                                        </Box>
+                                        {review.comment && (
+                                            <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
+                                                {review.comment.length > 150 ? `${review.comment.slice(0, 150)}...` : review.comment}
+                                            </Typography>
+                                        )}
+                                    </Box>
+                                ))}
+                            </Box>
+                        </CardContent>
+                    </Card>
+                )}
 
                 {/* Ghana Card Images */}
                 {user.vendor_application?.ghana_card_front &&

@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Order;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -285,5 +286,33 @@ class UserManagementTest extends TestCase
         $response = $this->actingAs($user)->get('/dashboard/users');
 
         $response->assertStatus(403);
+    }
+
+    public function test_show_page_returns_enhanced_data(): void
+    {
+        $authUser = User::factory()->create(['role' => 'admin']);
+        $viewUser = User::factory()->create(['name' => 'Jane Doe']);
+
+        Order::factory()->count(2)->create(['user_id' => $viewUser->id]);
+
+        $response = $this->actingAs($authUser)
+            ->withSession(['user_management.verified_at' => time()])
+            ->get("/dashboard/users/{$viewUser->id}");
+
+        $response->assertOk();
+        $response->assertInertia(
+            fn ($page) => $page
+                ->component('users/show')
+                ->where('user.name', 'Jane Doe')
+                ->has('user.orders_count')
+                ->has('user.reviews_count')
+                ->has('user.wishlists_count')
+                ->has('user.total_spent')
+                ->has('user.addresses')
+                ->has('user.music_genres')
+                ->has('user.recent_orders')
+                ->has('user.recent_reviews')
+                ->where('user.orders_count', 2)
+        );
     }
 }

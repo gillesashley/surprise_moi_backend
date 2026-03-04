@@ -90,4 +90,59 @@ class AiChatServiceTest extends TestCase
 
         $this->assertEquals('clarification', $result['type']);
     }
+
+    public function test_parse_suggestions_without_analysis_key(): void
+    {
+        $json = json_encode([
+            'type' => 'suggestions',
+            'suggestions' => [
+                [
+                    'product_id' => 1,
+                    'product_name' => 'Test Gift',
+                    'vendor_name' => 'Vendor',
+                    'price' => 50.00,
+                    'thumbnail' => 'https://example.com/img.jpg',
+                    'personalization_reason' => 'Great match.',
+                ],
+            ],
+        ]);
+
+        $result = $this->service->parseAiResponse($json);
+
+        $this->assertEquals('suggestions', $result['type']);
+        $this->assertNotEmpty($result['content']);
+        $this->assertEquals('Here are some gift suggestions for you:', $result['content']);
+    }
+
+    public function test_parse_suggestions_with_message_fallback(): void
+    {
+        $json = json_encode([
+            'type' => 'suggestions',
+            'message' => 'I found these for you!',
+            'suggestions' => [
+                [
+                    'product_id' => 1,
+                    'product_name' => 'Test Gift',
+                    'vendor_name' => 'Vendor',
+                    'price' => 50.00,
+                    'thumbnail' => 'https://example.com/img.jpg',
+                    'personalization_reason' => 'Great match.',
+                ],
+            ],
+        ]);
+
+        $result = $this->service->parseAiResponse($json);
+
+        $this->assertEquals('suggestions', $result['type']);
+        $this->assertEquals('I found these for you!', $result['content']);
+    }
+
+    public function test_parse_empty_string_response(): void
+    {
+        $result = $this->service->parseAiResponse('');
+
+        $this->assertEquals('text', $result['type']);
+        $this->assertEquals('', $result['content']);
+        $this->assertNull($result['metadata']);
+    }
 }
