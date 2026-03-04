@@ -16,6 +16,7 @@ use App\Http\Controllers\ReferralCodeController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\TargetController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\UserManagementAccessController;
 use App\Http\Controllers\VendorApplicationController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -42,6 +43,14 @@ Route::get('/products/{id}', [ProductShareController::class, 'showById'])
     ->whereNumber('id')
     ->name('products.share.legacy');
 
+// User Management Access Code verification
+Route::middleware(['auth', 'dashboard'])->group(function () {
+    Route::get('user-management-access', [UserManagementAccessController::class, 'show'])
+        ->name('user-management-access.show');
+    Route::post('user-management-access', [UserManagementAccessController::class, 'verify'])
+        ->name('user-management-access.verify');
+});
+
 // Admin Dashboard routes - only for admin and super_admin users
 Route::middleware(['auth', 'dashboard'])->prefix('dashboard')->group(function () {
     Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
@@ -66,7 +75,7 @@ Route::middleware(['auth', 'dashboard'])->prefix('dashboard')->group(function ()
         'edit' => 'users.edit',
         'update' => 'users.update',
         'destroy' => 'users.destroy',
-    ]);
+    ])->middleware('user-management');
 
     // Targets Management
     Route::resource('targets', TargetController::class)->names([

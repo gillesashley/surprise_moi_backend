@@ -47,7 +47,6 @@ import {
     Users,
     XCircle,
 } from 'lucide-react';
-import UserManagementGuard from '@/components/user-management-guard';
 import { useState } from 'react';
 
 function isImageUrl(url: string): boolean {
@@ -183,7 +182,6 @@ export default function UserShow({ user, canDelete }: Props) {
         ['pending', 'under_review'].includes(user.vendor_application.status);
 
     return (
-        <UserManagementGuard>
         <AppLayout breadcrumbs={breadcrumbs(user)}>
             <Head title={`User: ${user.name}`} />
             <Box sx={{ display: 'flex', height: '100%', flex: 1, flexDirection: 'column', gap: 2, overflow: 'auto', p: 2 }}>
@@ -1129,6 +1127,5 @@ export default function UserShow({ user, canDelete }: Props) {
                 </Dialog>
             )}
         </AppLayout>
-        </UserManagementGuard>
     );
 }

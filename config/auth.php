@@ -112,4 +112,18 @@ return [
 
     'password_timeout' => env('AUTH_PASSWORD_TIMEOUT', 10800),
 
+    /*
+    |--------------------------------------------------------------------------
+    | User Management Access
+    |--------------------------------------------------------------------------
+    |
+    | The access code required to enter the user management section and the
+    | timeout (in seconds) before re-entry is required.
+    |
+    */
+
+    'user_management_access_code' => env('USER_MANAGEMENT_ACCESS_CODE'),
+
+    'user_management_timeout' => env('USER_MANAGEMENT_TIMEOUT', 1200),
+
 ];
