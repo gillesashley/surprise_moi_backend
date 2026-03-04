@@ -16,12 +16,21 @@ class UserController extends Controller
     private const ROLES = ['customer', 'vendor', 'admin', 'super_admin', 'influencer', 'field_agent', 'marketer'];
 
     /**
-     * Display a listing of users.
+     * Display a listing of users, optionally filtered by role.
      */
     public function index(Request $request)
     {
         $query = User::query()
             ->select(['id', 'name', 'email', 'phone', 'role', 'email_verified_at', 'created_at']);
+
+        // Role filtering
+        $roleFilter = $request->input('role');
+        if ($roleFilter) {
+            $roles = array_intersect(explode(',', $roleFilter), self::ROLES);
+            if (! empty($roles)) {
+                $query->whereIn('role', $roles);
+            }
+        }
 
         // Search functionality
         if ($request->filled('search')) {
@@ -50,8 +59,10 @@ class UserController extends Controller
             'users' => $users,
             'roles' => self::ROLES,
             'canDelete' => Auth::user()->isSuperAdmin(),
+            'activeRole' => $roleFilter,
             'filters' => [
                 'search' => $request->input('search'),
+                'role' => $roleFilter,
                 'sort_by' => $sortBy,
                 'sort_order' => $sortOrder,
             ],

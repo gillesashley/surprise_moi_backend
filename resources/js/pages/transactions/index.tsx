@@ -232,13 +232,13 @@ export default function TransactionsIndex({
             <Head title="All Transactions" />
             <Box sx={{ display: 'flex', flex: 1, flexDirection: 'column', gap: 2, p: 2, height: '100%' }}>
                 {/* Statistics Cards */}
-                <Box sx={{ display: 'grid', gap: 2, gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)', lg: 'repeat(4, 1fr)' } }}>
-                    <Card>
-                        <CardHeader sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', pb: 1, '& > *': { my: 0 } }}>
+                <Box sx={{ display: 'grid', gap: 2, gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)', lg: 'repeat(4, 1fr)' }, '& > *': { minWidth: 0 } }}>
+                    <Card sx={{ py: 2, gap: 1 }}>
+                        <CardHeader sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', px: 3, pb: 0, '& > *': { my: 0 } }}>
                             <CardTitle sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
                                 Total Orders
                             </CardTitle>
-                            <ShoppingCart style={{ width: 16, height: 16, color: 'var(--muted-foreground)' }} />
+                            <ShoppingCart style={{ width: 16, height: 16, color: 'var(--muted-foreground)', flexShrink: 0 }} />
                         </CardHeader>
                         <CardContent>
                             <Box sx={{ fontSize: '1.5rem', fontWeight: 700 }}>
@@ -250,15 +250,15 @@ export default function TransactionsIndex({
                         </CardContent>
                     </Card>
 
-                    <Card>
-                        <CardHeader sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', pb: 1, '& > *': { my: 0 } }}>
+                    <Card sx={{ py: 2, gap: 1 }}>
+                        <CardHeader sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', px: 3, pb: 0, '& > *': { my: 0 } }}>
                             <CardTitle sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
                                 Total Sales
                             </CardTitle>
-                            <DollarSign style={{ width: 16, height: 16, color: 'var(--muted-foreground)' }} />
+                            <DollarSign style={{ width: 16, height: 16, color: 'var(--muted-foreground)', flexShrink: 0 }} />
                         </CardHeader>
                         <CardContent>
-                            <Box sx={{ fontSize: '1.5rem', fontWeight: 700 }}>
+                            <Box sx={{ fontSize: '1.5rem', fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                                 {formatCurrency(statistics.total_sales)}
                             </Box>
                             <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
@@ -267,12 +267,12 @@ export default function TransactionsIndex({
                         </CardContent>
                     </Card>
 
-                    <Card>
-                        <CardHeader sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', pb: 1, '& > *': { my: 0 } }}>
+                    <Card sx={{ py: 2, gap: 1 }}>
+                        <CardHeader sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', px: 3, pb: 0, '& > *': { my: 0 } }}>
                             <CardTitle sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
                                 Pending Orders
                             </CardTitle>
-                            <Package style={{ width: 16, height: 16, color: 'var(--muted-foreground)' }} />
+                            <Package style={{ width: 16, height: 16, color: 'var(--muted-foreground)', flexShrink: 0 }} />
                         </CardHeader>
                         <CardContent>
                             <Box sx={{ fontSize: '1.5rem', fontWeight: 700 }}>
@@ -284,12 +284,12 @@ export default function TransactionsIndex({
                         </CardContent>
                     </Card>
 
-                    <Card>
-                        <CardHeader sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', pb: 1, '& > *': { my: 0 } }}>
+                    <Card sx={{ py: 2, gap: 1 }}>
+                        <CardHeader sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', px: 3, pb: 0, '& > *': { my: 0 } }}>
                             <CardTitle sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
                                 Delivered Orders
                             </CardTitle>
-                            <Truck style={{ width: 16, height: 16, color: 'var(--muted-foreground)' }} />
+                            <Truck style={{ width: 16, height: 16, color: 'var(--muted-foreground)', flexShrink: 0 }} />
                         </CardHeader>
                         <CardContent>
                             <Box sx={{ fontSize: '1.5rem', fontWeight: 700 }}>

@@ -210,13 +210,14 @@ interface SelectItemProps {
   children?: React.ReactNode
 }
 
-function SelectItem({ value, disabled, className, children }: SelectItemProps) {
+function SelectItem({ value, disabled, className, children, ...rest }: SelectItemProps & Omit<React.ComponentProps<typeof MenuItem>, keyof SelectItemProps>) {
   return (
     <MenuItem
       data-slot="select-item"
       value={value}
       disabled={disabled}
       className={className}
+      {...rest}
     >
       {children}
     </MenuItem>

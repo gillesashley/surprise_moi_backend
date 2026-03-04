@@ -185,11 +185,11 @@ export default function VendorApplicationsIndex({
 
     useEffect(() => {
         const delayDebounceFn = setTimeout(() => {
-            if (searchTerm !== filters.search) {
+            if (searchTerm !== (filters.search ?? '')) {
                 router.get(
                     '/dashboard/vendor-applications',
                     {
-                        search: searchTerm,
+                        search: searchTerm || undefined,
                         page: 1,
                         ...(statusFilter !== 'all' && { status: statusFilter }),
                     },
@@ -202,7 +202,7 @@ export default function VendorApplicationsIndex({
         }, 300);
 
         return () => clearTimeout(delayDebounceFn);
-    }, [searchTerm, statusFilter]);
+    }, [searchTerm]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const handleStatusChange = (value: string) => {
         setStatusFilter(value);
@@ -210,9 +210,8 @@ export default function VendorApplicationsIndex({
             '/dashboard/vendor-applications',
             {
                 ...(value !== 'all' && { status: value }),
-                search: filters.search,
-                sort_by: filters.sort_by,
-                sort_order: filters.sort_order,
+                ...(filters.search && { search: filters.search }),
+                ...(filters.sort_by && { sort_by: filters.sort_by, sort_order: filters.sort_order }),
                 page: 1,
             },
             {

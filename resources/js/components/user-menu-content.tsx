@@ -9,7 +9,7 @@ import { useMobileNavigation } from '@/hooks/use-mobile-navigation';
 import { logout } from '@/routes';
 import { edit } from '@/routes/profile';
 import { type User } from '@/types';
-import { Link, router } from '@inertiajs/react';
+import { router } from '@inertiajs/react';
 import { LogOut, Settings } from 'lucide-react';
 
 interface UserMenuContentProps {
@@ -18,11 +18,6 @@ interface UserMenuContentProps {
 
 export function UserMenuContent({ user }: UserMenuContentProps) {
     const cleanup = useMobileNavigation();
-
-    const handleLogout = () => {
-        cleanup();
-        router.flushAll();
-    };
 
     return (
         <>
@@ -45,31 +40,27 @@ export function UserMenuContent({ user }: UserMenuContentProps) {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-                <DropdownMenuItem asChild>
-                    <Link
-                        style={{ display: 'block', width: '100%' }}
-                        href={edit()}
-                        as="button"
-                        prefetch
-                        onClick={cleanup}
-                    >
-                        <Settings style={{ marginRight: 8 }} />
-                        Settings
-                    </Link>
+                <DropdownMenuItem
+                    onClick={() => {
+                        cleanup();
+                        router.visit(edit.url());
+                    }}
+                >
+                    <Settings style={{ marginRight: 8 }} />
+                    Settings
                 </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
-                <Link
-                    style={{ display: 'block', width: '100%' }}
-                    href={logout()}
-                    as="button"
-                    onClick={handleLogout}
-                    data-test="logout-button"
-                >
-                    <LogOut style={{ marginRight: 8 }} />
-                    Log out
-                </Link>
+            <DropdownMenuItem
+                onClick={() => {
+                    cleanup();
+                    router.flushAll();
+                    router.post(logout.url());
+                }}
+                data-test="logout-button"
+            >
+                <LogOut style={{ marginRight: 8 }} />
+                Log out
             </DropdownMenuItem>
         </>
     );

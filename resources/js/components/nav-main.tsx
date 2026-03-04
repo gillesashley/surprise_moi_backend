@@ -20,6 +20,8 @@ import { ChevronRight } from 'lucide-react';
 import { useCallback, useState } from 'react';
 
 const STORAGE_KEY = 'sidebar-open-items';
+const ICON_SIZE = 18;
+const SUB_ICON_SIZE = 16;
 
 function getStoredOpenItems(): string[] {
     try {
@@ -47,12 +49,36 @@ export function NavMain({ items = [] }: { items: NavItem[] }) {
     const isActive = (href?: InertiaLinkProps['href']): boolean => {
         if (!href) return false;
         const resolved = resolveUrl(href);
-        return resolved === '/dashboard'
-            ? page.url === resolved
-            : page.url.startsWith(resolved);
+
+        // Exact match for dashboard
+        if (resolved === '/dashboard') {
+            return page.url === resolved;
+        }
+
+        // For URLs with query params, compare pathname and check all params exist
+        const [resolvedPath, resolvedQuery] = resolved.split('?');
+        const [pagePath, pageQuery] = page.url.split('?');
+
+        if (!pagePath.startsWith(resolvedPath)) {
+            return false;
+        }
+
+        // If no query params in href, path prefix match is enough
+        if (!resolvedQuery) {
+            return true;
+        }
+
+        // Check that all query params from the nav href exist in the current URL
+        const pageParams = new URLSearchParams(pageQuery || '');
+        const resolvedParams = new URLSearchParams(resolvedQuery);
+        for (const [key, value] of resolvedParams) {
+            if (pageParams.get(key) !== value) {
+                return false;
+            }
+        }
+        return true;
     };
 
-    // Check if any child item is active
     const hasActiveChild = (item: NavItem): boolean => {
         if (!item.items) {
             return false;
@@ -61,11 +87,12 @@ export function NavMain({ items = [] }: { items: NavItem[] }) {
     };
 
     return (
-        <SidebarGroup style={{ paddingLeft: 16, paddingRight: 16, paddingTop: 0, paddingBottom: 0 }}>
-            <SidebarGroupLabel>Platform</SidebarGroupLabel>
+        <SidebarGroup style={{ paddingLeft: 12, paddingRight: 12, paddingTop: 4, paddingBottom: 4 }}>
+            <SidebarGroupLabel style={{ fontSize: '0.6875rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--muted-foreground, #94a3b8)' }}>
+                Navigation
+            </SidebarGroupLabel>
             <SidebarMenu>
                 {items.map((item) => {
-                    // If item has children, render as collapsible
                     if (item.items && item.items.length > 0) {
                         const isOpen =
                             openItems.includes(item.title) ||
@@ -85,49 +112,48 @@ export function NavMain({ items = [] }: { items: NavItem[] }) {
                                                 children: item.title,
                                             }}
                                         >
-                                            {item.icon && <item.icon />}
+                                            {item.icon && (
+                                                <item.icon size={ICON_SIZE} strokeWidth={1.75} style={{ flexShrink: 0 }} />
+                                            )}
                                             <span>{item.title}</span>
                                             <ChevronRight
+                                                size={14}
+                                                strokeWidth={2}
                                                 style={{
                                                     marginLeft: 'auto',
-                                                    transition: 'transform 0.2s',
+                                                    transition: 'transform 0.2s ease',
                                                     transform: isOpen
                                                         ? 'rotate(90deg)'
                                                         : 'none',
+                                                    opacity: 0.5,
                                                 }}
                                             />
                                         </SidebarMenuButton>
                                     </CollapsibleTrigger>
                                     <CollapsibleContent>
                                         <SidebarMenuSub>
-                                            {item.items.map((subItem) => {
-                                                return (
-                                                    <SidebarMenuSubItem
-                                                        key={subItem.href ? resolveUrl(subItem.href) : subItem.title}
+                                            {item.items.map((subItem) => (
+                                                <SidebarMenuSubItem
+                                                    key={subItem.href ? resolveUrl(subItem.href) : subItem.title}
+                                                >
+                                                    <SidebarMenuSubButton
+                                                        asChild
+                                                        isActive={isActive(subItem.href)}
                                                     >
-                                                        <SidebarMenuSubButton
-                                                            asChild
-                                                            isActive={isActive(subItem.href)}
+                                                        <Link
+                                                            href={subItem.href!}
+                                                            prefetch
                                                         >
-                                                            <Link
-                                                                href={
-                                                                    subItem.href!
-                                                                }
-                                                                prefetch
-                                                            >
-                                                                {subItem.icon && (
-                                                                    <subItem.icon />
-                                                                )}
-                                                                <span>
-                                                                    {
-                                                                        subItem.title
-                                                                    }
-                                                                </span>
-                                                            </Link>
-                                                        </SidebarMenuSubButton>
-                                                    </SidebarMenuSubItem>
-                                                );
-                                            })}
+                                                            {subItem.icon && (
+                                                                <subItem.icon size={SUB_ICON_SIZE} strokeWidth={1.75} style={{ flexShrink: 0 }} />
+                                                            )}
+                                                            <span>
+                                                                {subItem.title}
+                                                            </span>
+                                                        </Link>
+                                                    </SidebarMenuSubButton>
+                                                </SidebarMenuSubItem>
+                                            ))}
                                         </SidebarMenuSub>
                                     </CollapsibleContent>
                                 </SidebarMenuItem>
@@ -135,7 +161,6 @@ export function NavMain({ items = [] }: { items: NavItem[] }) {
                         );
                     }
 
-                    // Regular menu item without children
                     return (
                         <SidebarMenuItem key={item.href ? resolveUrl(item.href) : item.title}>
                             <SidebarMenuButton
@@ -144,7 +169,9 @@ export function NavMain({ items = [] }: { items: NavItem[] }) {
                                 tooltip={{ children: item.title }}
                             >
                                 <Link href={item.href!} prefetch>
-                                    {item.icon && <item.icon />}
+                                    {item.icon && (
+                                        <item.icon size={ICON_SIZE} strokeWidth={1.75} style={{ flexShrink: 0 }} />
+                                    )}
                                     <span>{item.title}</span>
                                 </Link>
                             </SidebarMenuButton>

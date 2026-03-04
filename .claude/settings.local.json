@@ -49,7 +49,11 @@
       "mcp__laravel-boost__database-query",
       "mcp__laravel-boost__database-schema",
       "mcp__laravel-boost__get-config",
-      "Bash(DB_DATABASE=surprise_moi_db_tests php artisan:*)"
+      "Bash(DB_DATABASE=surprise_moi_db_tests php artisan:*)",
+      "mcp__plugin_playwright_playwright__browser_wait_for",
+      "mcp__plugin_playwright_playwright__browser_network_requests",
+      "mcp__plugin_playwright_playwright__browser_press_key",
+      "mcp__plugin_playwright_playwright__browser_run_code"
     ]
   },
   "enableAllProjectMcpServers": true,

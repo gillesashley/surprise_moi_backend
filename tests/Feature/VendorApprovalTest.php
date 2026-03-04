@@ -492,6 +492,48 @@ class VendorApprovalTest extends TestCase
         );
     }
 
+    public function test_admin_can_filter_vendor_applications_by_status(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $user1 = User::factory()->create(['role' => 'customer']);
+        $user2 = User::factory()->create(['role' => 'customer']);
+        $user3 = User::factory()->create(['role' => 'customer']);
+
+        VendorApplication::factory()->for($user1)->create(['status' => VendorApplication::STATUS_PENDING]);
+        VendorApplication::factory()->for($user2)->create(['status' => VendorApplication::STATUS_APPROVED]);
+        VendorApplication::factory()->for($user3)->create(['status' => VendorApplication::STATUS_REJECTED]);
+
+        $response = $this->actingAs($admin)->get('/dashboard/vendor-applications?status=pending');
+
+        $response->assertOk();
+        $response->assertInertia(
+            fn ($page) => $page
+                ->component('vendor-applications/index')
+                ->has('applications.data', 1)
+                ->where('filters.status', 'pending')
+        );
+    }
+
+    public function test_no_status_filter_returns_all_vendor_applications(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $user1 = User::factory()->create(['role' => 'customer']);
+        $user2 = User::factory()->create(['role' => 'customer']);
+
+        VendorApplication::factory()->for($user1)->create(['status' => VendorApplication::STATUS_PENDING]);
+        VendorApplication::factory()->for($user2)->create(['status' => VendorApplication::STATUS_APPROVED]);
+
+        $response = $this->actingAs($admin)->get('/dashboard/vendor-applications');
+
+        $response->assertOk();
+        $response->assertInertia(
+            fn ($page) => $page
+                ->component('vendor-applications/index')
+                ->has('applications.data', 2)
+                ->where('filters.status', null)
+        );
+    }
+
     public function test_show_page_includes_can_be_reviewed_flag(): void
     {
         $admin = User::factory()->create(['role' => 'admin']);

@@ -19,25 +19,30 @@ import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
 import Typography from '@mui/material/Typography';
 import { ArrowDown, ArrowUp, Eye, Pencil, Search, Trash2 } from 'lucide-react';
+import UserManagementGuard from '@/components/user-management-guard';
 import { useEffect, useState } from 'react';
 
 interface Props {
     users: PaginatedUsers;
     roles: string[];
     canDelete: boolean;
+    activeRole?: string;
     filters: {
         search?: string;
+        role?: string;
         sort_by?: string;
         sort_order?: string;
     };
 }
 
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Users',
-        href: usersIndex().url,
-    },
-];
+const roleLabelMap: Record<string, { title: string; description: string }> = {
+    customer: { title: 'Customers', description: 'Manage customer accounts' },
+    vendor: { title: 'Vendors', description: 'Manage vendor accounts' },
+    influencer: { title: 'Influencers', description: 'Manage influencer accounts' },
+    field_agent: { title: 'Field Agents', description: 'Manage field agent accounts' },
+    marketer: { title: 'Marketers', description: 'Manage marketer accounts' },
+    'admin,super_admin': { title: 'Administrators', description: 'Manage admin and super admin accounts' },
+};
 
 const formatRole = (role: string) => {
     return role
@@ -59,15 +64,29 @@ const getRoleBadgeColor = (role: string): 'error' | 'secondary' | 'info' | 'defa
     }
 };
 
-export default function UsersIndex({ users, canDelete, filters }: Props) {
+export default function UsersIndex({ users, canDelete, activeRole, filters }: Props) {
     const [searchTerm, setSearchTerm] = useState(filters.search || '');
+    const roleInfo = activeRole ? roleLabelMap[activeRole] : null;
+    const pageTitle = roleInfo?.title ?? 'All Users';
+    const pageDescription = roleInfo?.description ?? 'Manage all registered users in the system';
+    const isSingleRole = !!activeRole && !activeRole.includes(',');
+
+    const breadcrumbs: BreadcrumbItem[] = [
+        {
+            title: 'User Management',
+            href: usersIndex().url,
+        },
+        ...(roleInfo
+            ? [{ title: roleInfo.title, href: usersIndex().url + '?role=' + activeRole }]
+            : []),
+    ];
 
     useEffect(() => {
         const delayDebounceFn = setTimeout(() => {
             if (searchTerm !== filters.search) {
                 router.get(
                     usersIndex.url(),
-                    { search: searchTerm, page: 1 },
+                    { role: filters.role, search: searchTerm, page: 1 },
                     {
                         preserveState: true,
                         preserveScroll: true,
@@ -95,6 +114,7 @@ export default function UsersIndex({ users, canDelete, filters }: Props) {
         router.get(
             usersIndex.url(),
             {
+                role: filters.role,
                 page,
                 search: filters.search,
                 sort_by: filters.sort_by,
@@ -116,6 +136,7 @@ export default function UsersIndex({ users, canDelete, filters }: Props) {
         router.get(
             usersIndex.url(),
             {
+                role: filters.role,
                 sort_by: column,
                 sort_order: newSortOrder,
                 search: filters.search,
@@ -138,14 +159,15 @@ export default function UsersIndex({ users, canDelete, filters }: Props) {
     };
 
     return (
+        <UserManagementGuard>
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="User Management" />
+            <Head title={pageTitle} />
             <Box sx={{ display: 'flex', height: '100%', flex: 1, flexDirection: 'column', gap: 2, p: 2 }}>
                 <Card>
                     <CardHeader>
-                        <CardTitle>User Management</CardTitle>
+                        <CardTitle>{pageTitle}</CardTitle>
                         <CardDescription>
-                            Manage all registered users in the system
+                            {pageDescription}
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -190,13 +212,15 @@ export default function UsersIndex({ users, canDelete, filters }: Props) {
                                         >
                                             Phone{getSortIcon('phone')}
                                         </Box>
-                                        <Box
-                                            component="th"
-                                            sx={{ cursor: 'pointer', p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500, '&:hover': { bgcolor: 'action.hover' } }}
-                                            onClick={() => handleSort('role')}
-                                        >
-                                            Role{getSortIcon('role')}
-                                        </Box>
+                                        {!isSingleRole && (
+                                            <Box
+                                                component="th"
+                                                sx={{ cursor: 'pointer', p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500, '&:hover': { bgcolor: 'action.hover' } }}
+                                                onClick={() => handleSort('role')}
+                                            >
+                                                Role{getSortIcon('role')}
+                                            </Box>
+                                        )}
                                         <Box
                                             component="th"
                                             sx={{ cursor: 'pointer', p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500, '&:hover': { bgcolor: 'action.hover' } }}
@@ -227,14 +251,16 @@ export default function UsersIndex({ users, canDelete, filters }: Props) {
                                             <Box component="td" sx={{ p: 1, fontSize: '0.875rem' }}>
                                                 {user.phone || '-'}
                                             </Box>
-                                            <Box component="td" sx={{ p: 1, fontSize: '0.875rem' }}>
-                                                <Chip
-                                                    label={formatRole(user.role || 'customer')}
-                                                    color={getRoleBadgeColor(user.role || 'customer')}
-                                                    size="small"
-                                                    variant="outlined"
-                                                />
-                                            </Box>
+                                            {!isSingleRole && (
+                                                <Box component="td" sx={{ p: 1, fontSize: '0.875rem' }}>
+                                                    <Chip
+                                                        label={formatRole(user.role || 'customer')}
+                                                        color={getRoleBadgeColor(user.role || 'customer')}
+                                                        size="small"
+                                                        variant="outlined"
+                                                    />
+                                                </Box>
+                                            )}
                                             <Box component="td" sx={{ p: 1, fontSize: '0.875rem' }}>
                                                 {new Date(
                                                     user.created_at,
@@ -295,7 +321,7 @@ export default function UsersIndex({ users, canDelete, filters }: Props) {
                             <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                                 <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
                                     Showing {users.data.length} of {users.total}{' '}
-                                    users
+                                    {pageTitle.toLowerCase()}
                                 </Typography>
                                 <Box sx={{ display: 'flex', gap: 1 }}>
                                     <Button
@@ -336,5 +362,6 @@ export default function UsersIndex({ users, canDelete, filters }: Props) {
                 </Card>
             </Box>
         </AppLayout>
+        </UserManagementGuard>
     );
 }
