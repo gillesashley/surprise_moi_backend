@@ -43,8 +43,8 @@ const getConditionalNavItems = (): NavItem[] => {
     const { auth } = usePage<{ auth: { user: { role: string } } }>().props;
     const conditionalItems: NavItem[] = [];
 
-    // Add Vendor Onboarding for admins and super admins
-    if (auth?.user?.role === 'admin' || auth?.user?.role === 'super_admin') {
+    // Add Vendor Onboarding for super admins only
+    if (auth?.user?.role === 'super_admin') {
         conditionalItems.push({
             title: 'Vendor Onboarding',
             href: vendorOnboarding(),
