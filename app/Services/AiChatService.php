@@ -223,11 +223,17 @@ class AiChatService
             }
         }
 
-        // Try finding JSON object in the text
-        if (preg_match('/\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}/s', $text, $matches)) {
-            $decoded = json_decode($matches[0], true);
-            if (is_array($decoded)) {
-                return $decoded;
+        // Try finding JSON object in the text by locating the first {
+        // and attempting to decode progressively larger substrings
+        $start = strpos($text, '{');
+        if ($start !== false) {
+            $lastBrace = strrpos($text, '}');
+            if ($lastBrace !== false) {
+                $candidate = substr($text, $start, $lastBrace - $start + 1);
+                $decoded = json_decode($candidate, true);
+                if (is_array($decoded)) {
+                    return $decoded;
+                }
             }
         }
 
