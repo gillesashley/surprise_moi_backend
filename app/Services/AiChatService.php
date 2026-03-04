@@ -58,6 +58,12 @@ class AiChatService
 
         try {
             $response = $agent->prompt($message);
+
+            Log::debug('AI agent raw response', [
+                'conversation_id' => $conversation->id,
+                'response_text' => $response->text,
+            ]);
+
             $parsed = $this->parseAiResponse($response->text);
         } catch (\Throwable $e) {
             Log::error('AI agent error', [
@@ -123,7 +129,7 @@ class AiChatService
                 break;
 
             case 'suggestions':
-                $content = $json['analysis'] ?? '';
+                $content = $json['analysis'] ?? $json['message'] ?? 'Here are some gift suggestions for you:';
                 $metadata = [
                     'analysis' => $json['analysis'] ?? '',
                     'suggestions' => $json['suggestions'] ?? [],

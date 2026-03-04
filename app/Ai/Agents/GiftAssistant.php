@@ -88,11 +88,18 @@ PROMPT;
 
     public function messages(): iterable
     {
-        return $this->conversation->messages()
+        $messages = $this->conversation->messages()
             ->orderBy('created_at')
             ->get()
-            ->map(fn ($msg) => new Message($msg->role, $msg->content))
-            ->all();
+            ->reject(fn ($msg) => $msg->metadata['error'] ?? false);
+
+        // The framework appends the current user message via prompt(),
+        // so exclude it from history to avoid duplication.
+        if ($messages->isNotEmpty() && $messages->last()->role === 'user') {
+            $messages = $messages->slice(0, -1);
+        }
+
+        return $messages->map(fn ($msg) => new Message($msg->role, $msg->content))->values()->all();
     }
 
     public function tools(): iterable

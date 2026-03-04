@@ -100,6 +100,30 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Get all orders placed by this user.
+     */
+    public function orders(): HasMany
+    {
+        return $this->hasMany(Order::class);
+    }
+
+    /**
+     * Get all wishlist items for this user.
+     */
+    public function wishlists(): HasMany
+    {
+        return $this->hasMany(Wishlist::class);
+    }
+
+    /**
+     * Get the user's music genre preferences.
+     */
+    public function musicGenres(): BelongsToMany
+    {
+        return $this->belongsToMany(MusicGenre::class)->withTimestamps();
+    }
+
+    /**
      * Get all reviews written by this user.
      * Users can review products and services they've purchased.
      */
