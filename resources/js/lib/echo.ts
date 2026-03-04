@@ -20,8 +20,6 @@ const echo = new Echo({
     wssPort: import.meta.env.VITE_REVERB_PORT,
     forceTLS: import.meta.env.VITE_REVERB_SCHEME === 'https',
     encrypted: import.meta.env.VITE_REVERB_SCHEME === 'https',
-    wsPath: import.meta.env.VITE_REVERB_SERVER_PATH,
-    wssPath: import.meta.env.VITE_REVERB_SERVER_PATH,
     enabledTransports: ['ws', 'wss'],
 });
 
@@ -32,7 +30,7 @@ if (isDevelopment) {
         wsHost: import.meta.env.VITE_REVERB_HOST,
         wsPort: import.meta.env.VITE_REVERB_PORT,
         scheme: import.meta.env.VITE_REVERB_SCHEME,
-        path: import.meta.env.VITE_REVERB_SERVER_PATH,
+
 
     });
 }
