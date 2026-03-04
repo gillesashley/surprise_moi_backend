@@ -34,6 +34,7 @@ export default function UserManagementAccess() {
 
                         <Box sx={{ display: 'flex', alignItems: 'center' }}>
                             <Button
+                                type="submit"
                                 sx={{ width: '100%' }}
                                 disabled={processing}
                             >

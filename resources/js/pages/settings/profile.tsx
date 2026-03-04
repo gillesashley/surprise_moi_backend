@@ -195,6 +195,7 @@ export default function Profile({
 
                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                                     <Button
+                                        type="submit"
                                         disabled={processing}
                                         data-test="update-profile-button"
                                     >

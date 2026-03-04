@@ -46,6 +46,7 @@ export default function ForgotPassword({ status }: { status?: string }) {
 
                             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', my: 3 }}>
                                 <Button
+                                    type="submit"
                                     sx={{ width: '100%' }}
                                     disabled={processing}
                                     data-test="email-password-reset-link-button"
