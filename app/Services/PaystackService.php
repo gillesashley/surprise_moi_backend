@@ -4,8 +4,11 @@ namespace App\Services;
 
 use App\Models\Order;
 use App\Models\Payment;
+use App\Models\PayoutRequest;
 use App\Models\User;
+use App\Models\VendorTransaction;
 use Illuminate\Http\Client\RequestException;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -561,10 +564,51 @@ class PaystackService
      */
     protected function handleTransferSuccess(array $data): array
     {
-        // Placeholder for vendor payout handling
-        Log::info('Transfer success webhook received', $data);
+        $reference = $data['reference'] ?? null;
 
-        return ['success' => true, 'message' => 'Transfer success logged.'];
+        if (! $reference) {
+            return ['success' => false, 'message' => 'No reference in webhook data.'];
+        }
+
+        $payoutRequest = PayoutRequest::where('paystack_transfer_reference', $reference)
+            ->orWhere('request_number', $reference)
+            ->first();
+
+        if (! $payoutRequest) {
+            Log::warning('Payout request not found for transfer webhook', ['reference' => $reference]);
+
+            return ['success' => false, 'message' => 'Payout request not found.'];
+        }
+
+        if ($payoutRequest->status === PayoutRequest::STATUS_PAID) {
+            return ['success' => true, 'message' => 'Payout already processed.'];
+        }
+
+        DB::transaction(function () use ($payoutRequest, $data) {
+            $payoutRequest->update([
+                'status' => PayoutRequest::STATUS_PAID,
+                'paid_at' => now(),
+            ]);
+
+            $balance = $this->vendorBalanceService->getOrCreateBalance($payoutRequest->user_id);
+            $balance->increment('total_withdrawn', $payoutRequest->amount);
+
+            $payoutRequest->user->vendorTransactions()->create([
+                'type' => VendorTransaction::TYPE_PAYOUT,
+                'amount' => $payoutRequest->amount,
+                'currency' => $payoutRequest->currency,
+                'status' => VendorTransaction::STATUS_COMPLETED,
+                'description' => "Payout {$payoutRequest->request_number} completed via Paystack",
+                'metadata' => [
+                    'paystack_reference' => $data['reference'] ?? null,
+                    'paystack_transfer_code' => $data['transfer_code'] ?? null,
+                ],
+            ]);
+        });
+
+        Log::info('Transfer success processed', ['reference' => $reference, 'payout_id' => $payoutRequest->id]);
+
+        return ['success' => true, 'message' => 'Payout marked as paid.'];
     }
 
     /**
@@ -575,10 +619,51 @@ class PaystackService
      */
     protected function handleTransferFailed(array $data): array
     {
-        // Placeholder for vendor payout failure handling
-        Log::info('Transfer failed webhook received', $data);
+        $reference = $data['reference'] ?? null;
 
-        return ['success' => true, 'message' => 'Transfer failure logged.'];
+        if (! $reference) {
+            return ['success' => false, 'message' => 'No reference in webhook data.'];
+        }
+
+        $payoutRequest = PayoutRequest::where('paystack_transfer_reference', $reference)
+            ->orWhere('request_number', $reference)
+            ->first();
+
+        if (! $payoutRequest) {
+            Log::warning('Payout request not found for failed transfer webhook', ['reference' => $reference]);
+
+            return ['success' => false, 'message' => 'Payout request not found.'];
+        }
+
+        if (in_array($payoutRequest->status, [PayoutRequest::STATUS_PAID, PayoutRequest::STATUS_FAILED])) {
+            return ['success' => true, 'message' => 'Payout already processed.'];
+        }
+
+        DB::transaction(function () use ($payoutRequest, $data) {
+            $payoutRequest->update([
+                'status' => PayoutRequest::STATUS_FAILED,
+            ]);
+
+            // Refund vendor balance
+            $balance = $this->vendorBalanceService->getOrCreateBalance($payoutRequest->user_id);
+            $balance->increment('available_balance', $payoutRequest->amount);
+
+            $payoutRequest->user->vendorTransactions()->create([
+                'type' => VendorTransaction::TYPE_REFUND,
+                'amount' => $payoutRequest->amount,
+                'currency' => $payoutRequest->currency,
+                'status' => VendorTransaction::STATUS_COMPLETED,
+                'description' => "Payout {$payoutRequest->request_number} failed - balance refunded",
+                'metadata' => [
+                    'paystack_reference' => $data['reference'] ?? null,
+                    'failure_reason' => $data['gateway_response'] ?? 'Transfer failed',
+                ],
+            ]);
+        });
+
+        Log::warning('Transfer failed processed', ['reference' => $reference, 'payout_id' => $payoutRequest->id]);
+
+        return ['success' => true, 'message' => 'Payout failure recorded, balance refunded.'];
     }
 
     /**
@@ -679,6 +764,310 @@ class PaystackService
             return [
                 'success' => false,
                 'message' => 'Refund service is temporarily unavailable.',
+            ];
+        }
+    }
+
+    /**
+     * List banks/mobile money providers for a given currency.
+     *
+     * @return array{success: bool, data?: array<int, mixed>, message?: string}
+     */
+    public function listBanks(string $currency = 'GHS'): array
+    {
+        try {
+            $response = Http::withToken($this->secretKey)
+                ->timeout(30)
+                ->withOptions(['verify' => false])
+                ->get("{$this->baseUrl}/bank", [
+                    'currency' => $currency,
+                ]);
+
+            if ($response->successful() && $response->json('status') === true) {
+                return [
+                    'success' => true,
+                    'data' => $response->json('data'),
+                ];
+            }
+
+            return [
+                'success' => false,
+                'message' => $response->json('message') ?? 'Failed to fetch banks.',
+            ];
+        } catch (RequestException $e) {
+            Log::error('Paystack list banks failed', ['error' => $e->getMessage()]);
+
+            return [
+                'success' => false,
+                'message' => 'Service temporarily unavailable.',
+            ];
+        }
+    }
+
+    /**
+     * Resolve/verify a bank account number.
+     *
+     * @return array{success: bool, data?: array<string, mixed>, message?: string}
+     */
+    public function resolveAccountNumber(string $accountNumber, string $bankCode): array
+    {
+        try {
+            $response = Http::withToken($this->secretKey)
+                ->timeout(30)
+                ->withOptions(['verify' => false])
+                ->get("{$this->baseUrl}/bank/resolve", [
+                    'account_number' => $accountNumber,
+                    'bank_code' => $bankCode,
+                ]);
+
+            if ($response->successful() && $response->json('status') === true) {
+                return [
+                    'success' => true,
+                    'data' => $response->json('data'),
+                ];
+            }
+
+            return [
+                'success' => false,
+                'message' => $response->json('message') ?? 'Failed to resolve account.',
+            ];
+        } catch (RequestException $e) {
+            Log::error('Paystack resolve account failed', ['error' => $e->getMessage()]);
+
+            return [
+                'success' => false,
+                'message' => 'Account verification service temporarily unavailable.',
+            ];
+        }
+    }
+
+    /**
+     * Create a transfer recipient on Paystack.
+     *
+     * @return array{success: bool, data?: array<string, mixed>, message?: string}
+     */
+    public function createTransferRecipient(
+        string $type,
+        string $name,
+        string $accountNumber,
+        string $bankCode,
+        string $currency = 'GHS'
+    ): array {
+        try {
+            $response = Http::withToken($this->secretKey)
+                ->timeout(30)
+                ->withOptions(['verify' => false])
+                ->post("{$this->baseUrl}/transferrecipient", [
+                    'type' => $type,
+                    'name' => $name,
+                    'account_number' => $accountNumber,
+                    'bank_code' => $bankCode,
+                    'currency' => $currency,
+                ]);
+
+            if ($response->successful() && $response->json('status') === true) {
+                return [
+                    'success' => true,
+                    'data' => $response->json('data'),
+                ];
+            }
+
+            return [
+                'success' => false,
+                'message' => $response->json('message') ?? 'Failed to create transfer recipient.',
+            ];
+        } catch (RequestException $e) {
+            Log::error('Paystack create recipient failed', ['error' => $e->getMessage()]);
+
+            return [
+                'success' => false,
+                'message' => 'Service temporarily unavailable.',
+            ];
+        }
+    }
+
+    /**
+     * Delete (deactivate) a transfer recipient.
+     *
+     * @return array{success: bool, message: string}
+     */
+    public function deleteTransferRecipient(string $recipientCode): array
+    {
+        try {
+            $response = Http::withToken($this->secretKey)
+                ->timeout(30)
+                ->withOptions(['verify' => false])
+                ->delete("{$this->baseUrl}/transferrecipient/{$recipientCode}");
+
+            if ($response->successful()) {
+                return [
+                    'success' => true,
+                    'message' => 'Transfer recipient deactivated.',
+                ];
+            }
+
+            return [
+                'success' => false,
+                'message' => $response->json('message') ?? 'Failed to delete recipient.',
+            ];
+        } catch (RequestException $e) {
+            Log::error('Paystack delete recipient failed', ['error' => $e->getMessage()]);
+
+            return [
+                'success' => false,
+                'message' => 'Service temporarily unavailable.',
+            ];
+        }
+    }
+
+    /**
+     * Check Paystack balance.
+     *
+     * @return array{success: bool, data?: array<int, mixed>, message?: string}
+     */
+    public function checkBalance(): array
+    {
+        try {
+            $response = Http::withToken($this->secretKey)
+                ->timeout(30)
+                ->withOptions(['verify' => false])
+                ->get("{$this->baseUrl}/balance");
+
+            if ($response->successful() && $response->json('status') === true) {
+                return [
+                    'success' => true,
+                    'data' => $response->json('data'),
+                ];
+            }
+
+            return [
+                'success' => false,
+                'message' => $response->json('message') ?? 'Failed to check balance.',
+            ];
+        } catch (RequestException $e) {
+            Log::error('Paystack check balance failed', ['error' => $e->getMessage()]);
+
+            return [
+                'success' => false,
+                'message' => 'Service temporarily unavailable.',
+            ];
+        }
+    }
+
+    /**
+     * Initiate a transfer to a recipient.
+     * Amount is in pesewas (1 GHS = 100 pesewas).
+     *
+     * @return array{success: bool, data?: array<string, mixed>, message?: string}
+     */
+    public function initiateTransfer(
+        int $amount,
+        string $recipientCode,
+        string $reason,
+        string $reference
+    ): array {
+        try {
+            $response = Http::withToken($this->secretKey)
+                ->timeout(30)
+                ->withOptions(['verify' => false])
+                ->post("{$this->baseUrl}/transfer", [
+                    'source' => 'balance',
+                    'amount' => $amount,
+                    'recipient' => $recipientCode,
+                    'reason' => $reason,
+                    'reference' => $reference,
+                ]);
+
+            if ($response->successful() && $response->json('status') === true) {
+                return [
+                    'success' => true,
+                    'data' => $response->json('data'),
+                    'message' => $response->json('message'),
+                ];
+            }
+
+            return [
+                'success' => false,
+                'message' => $response->json('message') ?? 'Failed to initiate transfer.',
+            ];
+        } catch (RequestException $e) {
+            Log::error('Paystack initiate transfer failed', ['error' => $e->getMessage()]);
+
+            return [
+                'success' => false,
+                'message' => 'Transfer service temporarily unavailable.',
+            ];
+        }
+    }
+
+    /**
+     * Finalize a transfer with OTP.
+     *
+     * @return array{success: bool, data?: array<string, mixed>, message?: string}
+     */
+    public function finalizeTransfer(string $transferCode, string $otp): array
+    {
+        try {
+            $response = Http::withToken($this->secretKey)
+                ->timeout(30)
+                ->withOptions(['verify' => false])
+                ->post("{$this->baseUrl}/transfer/finalize_transfer", [
+                    'transfer_code' => $transferCode,
+                    'otp' => $otp,
+                ]);
+
+            if ($response->successful() && $response->json('status') === true) {
+                return [
+                    'success' => true,
+                    'data' => $response->json('data'),
+                    'message' => $response->json('message'),
+                ];
+            }
+
+            return [
+                'success' => false,
+                'message' => $response->json('message') ?? 'Failed to finalize transfer.',
+            ];
+        } catch (RequestException $e) {
+            Log::error('Paystack finalize transfer failed', ['error' => $e->getMessage()]);
+
+            return [
+                'success' => false,
+                'message' => 'Transfer service temporarily unavailable.',
+            ];
+        }
+    }
+
+    /**
+     * Verify a transfer status by reference.
+     *
+     * @return array{success: bool, data?: array<string, mixed>, message?: string}
+     */
+    public function verifyTransfer(string $reference): array
+    {
+        try {
+            $response = Http::withToken($this->secretKey)
+                ->timeout(30)
+                ->withOptions(['verify' => false])
+                ->get("{$this->baseUrl}/transfer/verify/{$reference}");
+
+            if ($response->successful() && $response->json('status') === true) {
+                return [
+                    'success' => true,
+                    'data' => $response->json('data'),
+                ];
+            }
+
+            return [
+                'success' => false,
+                'message' => $response->json('message') ?? 'Failed to verify transfer.',
+            ];
+        } catch (RequestException $e) {
+            Log::error('Paystack verify transfer failed', ['error' => $e->getMessage()]);
+
+            return [
+                'success' => false,
+                'message' => 'Transfer verification temporarily unavailable.',
             ];
         }
     }
