@@ -110,7 +110,7 @@ RUN SKIP_WAYFINDER=true pnpm run build
 # -----------------------------------------------------------------------------
 # Stage 3: Production Image
 # -----------------------------------------------------------------------------
-FROM php:8.3-fpm-alpine AS production
+FROM php:8.3-cli-alpine AS production
 
 # Install system dependencies
 RUN apk add --no-cache \
@@ -129,6 +129,8 @@ RUN apk add --no-cache \
     libpq-dev \
     icu-dev \
     linux-headers \
+    openssl-dev \
+    curl-dev \
     $PHPIZE_DEPS
 
 # Install PHP extensions
@@ -144,25 +146,25 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     gd \
     zip \
     intl \
-    opcache
+    opcache \
+    sockets
 
 # Install Redis extension
 RUN pecl install redis && docker-php-ext-enable redis
 
-# Clean up
-RUN apk del $PHPIZE_DEPS linux-headers \
+# Install Swoole extension
+RUN pecl install swoole && docker-php-ext-enable swoole
+
+# Clean up build dependencies
+RUN apk del $PHPIZE_DEPS linux-headers openssl-dev curl-dev \
     && rm -rf /var/cache/apk/* /tmp/* /var/tmp/*
 
-# Configure PHP-FPM
+# Configure PHP for production
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 
 # Create PHP configuration
 COPY docker/php/php.ini /usr/local/etc/php/conf.d/app.ini
 COPY docker/php/opcache.ini /usr/local/etc/php/conf.d/opcache.ini
-COPY docker/php/www.conf /usr/local/etc/php-fpm.d/www.conf
-
-# Remove the default Docker PHP-FPM config that overrides listen to port 9000
-RUN rm -f /usr/local/etc/php-fpm.d/zz-docker.conf
 
 # Create nginx configuration
 COPY docker/nginx/nginx.conf /etc/nginx/nginx.conf

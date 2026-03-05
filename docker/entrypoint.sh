@@ -26,9 +26,7 @@ log_error() {
 # Create required directories
 log_info "Creating required directories..."
 mkdir -p /var/log/nginx
-mkdir -p /var/log/php-fpm
 mkdir -p /var/log/supervisor
-mkdir -p /var/run/php
 mkdir -p /var/www/html/storage/framework/{sessions,views,cache}
 mkdir -p /var/www/html/storage/logs
 mkdir -p /var/www/html/bootstrap/cache
@@ -36,8 +34,6 @@ mkdir -p /var/www/html/storage/app/public
 
 # Set permissions
 log_info "Setting permissions..."
-chown -R www-data:www-data /var/run/php
-chmod 755 /var/run/php
 chown -R www-data:www-data /var/www/html/storage
 chown -R www-data:www-data /var/www/html/bootstrap/cache
 chmod -R 775 /var/www/html/storage
