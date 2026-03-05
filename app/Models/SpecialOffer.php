@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class SpecialOffer extends Model
 {
+    /** @use HasFactory<\Database\Factories\SpecialOfferFactory> */
     use HasFactory;
 
     public const TAG_TODAYS_OFFERS = "Today's Offers";
