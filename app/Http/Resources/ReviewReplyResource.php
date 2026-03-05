@@ -4,7 +4,6 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class ReviewReplyResource extends JsonResource
@@ -19,7 +18,7 @@ class ReviewReplyResource extends JsonResource
         $avatar = $this->vendor?->avatar;
 
         if ($avatar && ! Str::startsWith($avatar, ['http://', 'https://', '/storage/'])) {
-            $avatar = Storage::url($avatar);
+            $avatar = storage_url($avatar);
         }
 
         return [
