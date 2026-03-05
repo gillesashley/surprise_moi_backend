@@ -82,4 +82,13 @@ class ProductResource extends JsonResource
 
         return in_array($this->id, self::$wishlistProductIds[$userId], true);
     }
+
+    /**
+     * Flush the static wishlist cache.
+     * Called on each request by Octane's RequestReceived listener.
+     */
+    public static function flushWishlistCache(): void
+    {
+        self::$wishlistProductIds = [];
+    }
 }
