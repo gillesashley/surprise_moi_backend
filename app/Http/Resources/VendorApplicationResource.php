@@ -4,7 +4,6 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Facades\Storage;
 
 class VendorApplicationResource extends JsonResource
 {
@@ -26,8 +25,8 @@ class VendorApplicationResource extends JsonResource
             'is_registered_vendor' => $this->isRegisteredVendor(),
 
             // Step 1: Ghana Card
-            'ghana_card_front' => $this->ghana_card_front ? Storage::url($this->ghana_card_front) : null,
-            'ghana_card_back' => $this->ghana_card_back ? Storage::url($this->ghana_card_back) : null,
+            'ghana_card_front' => $this->ghana_card_front ? storage_url($this->ghana_card_front) : null,
+            'ghana_card_back' => $this->ghana_card_back ? storage_url($this->ghana_card_back) : null,
             'step_1_completed' => $this->ghana_card_front && $this->ghana_card_back,
 
             // Step 2: Business Registration Flags
@@ -37,14 +36,14 @@ class VendorApplicationResource extends JsonResource
             // Step 3: Documents (conditionally included based on registration type)
             $this->mergeWhen($this->isRegisteredVendor(), [
                 'business_certificate_document' => $this->business_certificate_document
-                    ? Storage::url($this->business_certificate_document)
+                    ? storage_url($this->business_certificate_document)
                     : null,
             ]),
             $this->mergeWhen(! $this->isRegisteredVendor(), [
-                'selfie_image' => $this->selfie_image ? Storage::url($this->selfie_image) : null,
+                'selfie_image' => $this->selfie_image ? storage_url($this->selfie_image) : null,
                 'mobile_money_number' => $this->mobile_money_number,
                 'mobile_money_provider' => $this->mobile_money_provider,
-                'proof_of_business' => $this->proof_of_business ? Storage::url($this->proof_of_business) : null,
+                'proof_of_business' => $this->proof_of_business ? storage_url($this->proof_of_business) : null,
             ]),
 
             // Social Media (both types)

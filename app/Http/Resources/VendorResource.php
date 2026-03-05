@@ -4,7 +4,6 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Facades\Storage;
 
 class VendorResource extends JsonResource
 {
@@ -19,7 +18,7 @@ class VendorResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'shop_name' => $this->name,
-            'profile_image' => $this->avatar ? Storage::url($this->avatar) : null,
+            'profile_image' => $this->avatar ? storage_url($this->avatar) : null,
             'location' => $this->bio,
             'products_rating' => $this->whenNotNull($this->products_avg_rating !== null ? (float) $this->products_avg_rating : null),
             'services_rating' => $this->whenNotNull($this->services_avg_rating !== null ? (float) $this->services_avg_rating : null),

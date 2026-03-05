@@ -4,7 +4,6 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class ReviewResource extends JsonResource
@@ -80,7 +79,7 @@ class ReviewResource extends JsonResource
 
         $storagePath = Str::startsWith($path, '/')
             ? $path
-            : Storage::url($path);
+            : storage_url($path);
 
         if (Str::startsWith($storagePath, ['http://', 'https://'])) {
             return $storagePath;
