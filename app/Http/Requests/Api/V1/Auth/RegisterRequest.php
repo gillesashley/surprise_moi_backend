@@ -29,7 +29,7 @@ class RegisterRequest extends FormRequest
             'password' => ['required', 'string', 'confirmed', Password::min(8)->mixedCase()->numbers()],
             'role' => ['required', 'in:customer,vendor'],
             'date_of_birth' => ['nullable', 'date', 'before:today'],
-            'gender' => ['nullable', 'in:male,female'],
+            'gender' => ['nullable', 'in:male,female,other'],
         ];
     }
 

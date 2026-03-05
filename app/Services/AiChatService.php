@@ -59,10 +59,12 @@ class AiChatService
         try {
             $response = $agent->prompt($message);
 
-            Log::debug('AI agent raw response', [
-                'conversation_id' => $conversation->id,
-                'response_text' => $response->text,
-            ]);
+            if (app()->hasDebugModeEnabled()) {
+                Log::debug('AI agent raw response', [
+                    'conversation_id' => $conversation->id,
+                    'response_text' => mb_substr($response->text, 0, 500),
+                ]);
+            }
 
             $parsed = $this->parseAiResponse($response->text);
         } catch (\Throwable $e) {
