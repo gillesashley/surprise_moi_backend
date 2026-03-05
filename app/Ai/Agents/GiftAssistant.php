@@ -91,7 +91,7 @@ PROMPT;
         $messages = $this->conversation->messages()
             ->orderBy('created_at')
             ->get()
-            ->reject(fn ($msg) => $msg->metadata['error'] ?? false);
+            ->reject(fn ($msg) => data_get($msg->metadata, 'error', false));
 
         // The framework appends the current user message via prompt(),
         // so exclude it from history to avoid duplication.

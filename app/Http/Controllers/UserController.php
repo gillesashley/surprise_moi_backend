@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Order;
-use App\Models\Review;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -79,15 +77,15 @@ class UserController extends Controller
         $user->load(['interests', 'personalityTraits', 'shops', 'products', 'services', 'latestVendorApplication', 'musicGenres', 'addresses']);
         $user->loadCount(['orders', 'reviews', 'wishlists']);
 
-        $totalSpent = Order::where('user_id', $user->id)->sum('total');
-        $avgRating = Review::where('user_id', $user->id)->avg('rating');
+        $totalSpent = $user->orders()->sum('total');
+        $avgRating = $user->reviews()->avg('rating');
 
-        $recentOrders = Order::where('user_id', $user->id)
+        $recentOrders = $user->orders()
             ->latest()
             ->take(5)
             ->get(['id', 'order_number', 'status', 'total', 'currency', 'created_at']);
 
-        $recentReviews = Review::where('user_id', $user->id)
+        $recentReviews = $user->reviews()
             ->latest()
             ->take(3)
             ->get(['id', 'rating', 'comment', 'created_at']);
