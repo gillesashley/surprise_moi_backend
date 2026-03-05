@@ -6,6 +6,7 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\DB;
@@ -200,6 +201,22 @@ class User extends Authenticatable implements MustVerifyEmail
     public function vendorTransactions()
     {
         return $this->hasMany(VendorTransaction::class, 'vendor_id');
+    }
+
+    /**
+     * Get all payout details for this vendor.
+     */
+    public function payoutDetails(): HasMany
+    {
+        return $this->hasMany(VendorPayoutDetail::class, 'vendor_id');
+    }
+
+    /**
+     * Get the default payout detail for this vendor.
+     */
+    public function defaultPayoutDetail(): HasOne
+    {
+        return $this->hasOne(VendorPayoutDetail::class, 'vendor_id')->where('is_default', true);
     }
 
     /**
