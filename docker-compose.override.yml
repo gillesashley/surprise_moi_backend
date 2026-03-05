@@ -1,0 +1,42 @@
+# =============================================================================
+# SurpriseMoi Backend - Local Docker Development Override
+# This file overrides docker-compose.yml for local development
+# Usage: docker compose up -d
+# =============================================================================
+
+services:
+  # ---------------------------------------------------------------------------
+  # Laravel Application (override to use .env.local and add Horizon)
+  # ---------------------------------------------------------------------------
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development # Use development stage for local
+    container_name: surprisemoi-app-local
+    ports:
+      - '8082:80'
+    env_file:
+      - .env.local
+    environment:
+      - CONTAINER_ROLE=app
+    volumes:
+      - app-storage:/var/www/html/storage/app
+      - app-logs:/var/www/html/storage/logs
+
+  # ---------------------------------------------------------------------------
+  # PostgreSQL - reuse existing or create new
+  # ---------------------------------------------------------------------------
+  db:
+    environment:
+      POSTGRES_DB: ${DB_DATABASE:-surprise_moi_local}
+      POSTGRES_USER: ${DB_USERNAME:-laraveluser}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-Gilash@123}
+
+  # ---------------------------------------------------------------------------
+  # Redis
+  # ---------------------------------------------------------------------------
+  redis:
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-redis123}
+# No network changes needed - uses default from docker-compose.yml
+# No volume changes needed - uses default from docker-compose.yml
