@@ -123,7 +123,7 @@ class OrderController extends Controller
                 $processedItems[] = [
                     'orderable' => $orderable,
                     'orderable_type' => $item['orderable_type'] === 'product' ? Product::class : Service::class,
-                    'orderable_id' => $item['orderable_id'],
+                    'orderable_id' => $orderable->id,
                     'variant_id' => $item['variant_id'] ?? null,
                     'quantity' => $item['quantity'],
                     'unit_price' => $unitPrice,

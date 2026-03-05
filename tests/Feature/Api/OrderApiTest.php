@@ -128,7 +128,7 @@ class OrderApiTest extends TestCase
             ]);
 
         $response->assertStatus(422)
-            ->assertJsonFragment(['message' => 'Failed to create order: Product "' . $product->name . '" is not available.']);
+            ->assertJsonFragment(['message' => 'Failed to create order: Product "'.$product->name.'" is not available.']);
     }
 
     public function test_cannot_order_more_than_available_stock(): void
@@ -152,7 +152,7 @@ class OrderApiTest extends TestCase
             ]);
 
         $response->assertStatus(422)
-            ->assertJsonFragment(['message' => 'Failed to create order: Insufficient stock for "' . $product->name . '". Available: 5']);
+            ->assertJsonFragment(['message' => 'Failed to create order: Insufficient stock for "'.$product->name.'". Available: 5']);
     }
 
     public function test_cannot_order_unavailable_service(): void
@@ -495,6 +495,133 @@ class OrderApiTest extends TestCase
             'user_id' => $this->customer->id,
             'special_instructions' => 'Please leave at door',
         ]);
+    }
+
+    public function test_multi_item_order_creates_one_order_with_distinct_items(): void
+    {
+        $product1 = Product::factory()->create([
+            'vendor_id' => $this->vendor->id,
+            'name' => 'White Love',
+            'price' => 3.00,
+            'discount_price' => null,
+            'is_available' => true,
+            'stock' => 10,
+            'delivery_fee' => 0,
+            'free_delivery' => true,
+        ]);
+
+        $product2 = Product::factory()->create([
+            'vendor_id' => $this->vendor->id,
+            'name' => 'Kay Hampers for big boys',
+            'price' => 1.00,
+            'discount_price' => null,
+            'is_available' => true,
+            'stock' => 5,
+            'delivery_fee' => 0,
+            'free_delivery' => true,
+        ]);
+
+        $response = $this->actingAs($this->customer)
+            ->postJson('/api/v1/orders', [
+                'items' => [
+                    [
+                        'orderable_type' => 'product',
+                        'orderable_id' => $product1->id,
+                        'quantity' => 1,
+                    ],
+                    [
+                        'orderable_type' => 'product',
+                        'orderable_id' => $product2->id,
+                        'quantity' => 1,
+                    ],
+                ],
+                'delivery_address_id' => $this->address->id,
+            ]);
+
+        $response->assertStatus(201);
+
+        // Exactly ONE order should be created
+        $this->assertDatabaseCount('orders', 1);
+
+        // TWO distinct order items
+        $this->assertDatabaseCount('order_items', 2);
+
+        $order = Order::first();
+        $this->assertEquals(4.00, (float) $order->total);
+
+        // Verify each item references the correct product
+        $this->assertDatabaseHas('order_items', [
+            'order_id' => $order->id,
+            'orderable_id' => $product1->id,
+            'unit_price' => 3.00,
+        ]);
+
+        $this->assertDatabaseHas('order_items', [
+            'order_id' => $order->id,
+            'orderable_id' => $product2->id,
+            'unit_price' => 1.00,
+        ]);
+
+        // Verify the API response includes both items with correct names
+        $response->assertJsonCount(2, 'order.items');
+
+        $items = collect($response->json('order.items'));
+        $this->assertTrue($items->contains('orderable.name', 'White Love'));
+        $this->assertTrue($items->contains('orderable.name', 'Kay Hampers for big boys'));
+    }
+
+    public function test_multi_item_order_get_returns_correct_products(): void
+    {
+        $product1 = Product::factory()->create([
+            'vendor_id' => $this->vendor->id,
+            'name' => 'Product Alpha',
+            'price' => 10.00,
+            'is_available' => true,
+            'stock' => 5,
+        ]);
+
+        $product2 = Product::factory()->create([
+            'vendor_id' => $this->vendor->id,
+            'name' => 'Product Beta',
+            'price' => 20.00,
+            'is_available' => true,
+            'stock' => 5,
+        ]);
+
+        // Create the order via API
+        $this->actingAs($this->customer)
+            ->postJson('/api/v1/orders', [
+                'items' => [
+                    [
+                        'orderable_type' => 'product',
+                        'orderable_id' => $product1->id,
+                        'quantity' => 1,
+                    ],
+                    [
+                        'orderable_type' => 'product',
+                        'orderable_id' => $product2->id,
+                        'quantity' => 1,
+                    ],
+                ],
+                'delivery_address_id' => $this->address->id,
+            ])
+            ->assertStatus(201);
+
+        // Now fetch via GET /orders and verify each item has the correct product
+        $response = $this->actingAs($this->customer)
+            ->getJson('/api/v1/orders');
+
+        $response->assertStatus(200);
+
+        $orders = $response->json('data');
+        $this->assertCount(1, $orders);
+
+        $items = collect($orders[0]['items']);
+        $this->assertCount(2, $items);
+
+        // Each item must reference a DIFFERENT product with correct name
+        $names = $items->pluck('orderable.name')->sort()->values();
+        $this->assertEquals(['Product Alpha', 'Product Beta'], $names->toArray());
     }
 
     public function test_order_with_scheduled_datetime(): void
