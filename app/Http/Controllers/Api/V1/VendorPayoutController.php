@@ -66,13 +66,17 @@ class VendorPayoutController extends Controller
     public function store(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'amount' => ['required', 'numeric', 'min:1'],
-            'payout_method' => ['required', 'in:mobile_money,bank_transfer'],
-            'mobile_money_number' => ['required_if:payout_method,mobile_money', 'nullable', 'string'],
-            'mobile_money_provider' => ['required_if:payout_method,mobile_money', 'nullable', 'in:mtn,vodafone,airteltigo'],
-            'bank_name' => ['required_if:payout_method,bank_transfer', 'nullable', 'string'],
-            'account_number' => ['required_if:payout_method,bank_transfer', 'nullable', 'string'],
-            'account_name' => ['required_if:payout_method,bank_transfer', 'nullable', 'string'],
+            'amount' => ['required', 'numeric', 'min:50', 'max:10000'],
+            'payout_detail_id' => [
+                'required',
+                'exists:vendor_payout_details,id',
+                function ($attribute, $value, $fail) use ($request) {
+                    $detail = \App\Models\VendorPayoutDetail::find($value);
+                    if (! $detail || $detail->vendor_id !== $request->user()->id) {
+                        $fail('The selected payout details do not belong to you.');
+                    }
+                },
+            ],
             'notes' => ['nullable', 'string', 'max:500'],
         ]);
 
@@ -86,8 +90,6 @@ class VendorPayoutController extends Controller
 
         $vendor = $request->user();
         $amount = $request->input('amount');
-
-        // Check if vendor has sufficient available balance
         $balance = $vendor->vendorBalance;
 
         if (! $balance || $balance->available_balance < $amount) {
@@ -98,7 +100,6 @@ class VendorPayoutController extends Controller
             ], 400);
         }
 
-        // Check for pending payout requests
         $pendingCount = PayoutRequest::where('user_id', $vendor->id)
             ->whereIn('status', ['pending', 'processing'])
             ->count();
@@ -110,33 +111,32 @@ class VendorPayoutController extends Controller
             ], 400);
         }
 
+        $payoutDetail = \App\Models\VendorPayoutDetail::find($request->input('payout_detail_id'));
+
         try {
             DB::beginTransaction();
 
-            // Create payout request
             $payout = PayoutRequest::create([
                 'user_id' => $vendor->id,
                 'user_role' => $vendor->role,
                 'amount' => $amount,
                 'currency' => $balance->currency,
-                'payout_method' => $request->input('payout_method'),
-                'mobile_money_number' => $request->input('mobile_money_number'),
-                'mobile_money_provider' => $request->input('mobile_money_provider'),
-                'bank_name' => $request->input('bank_name'),
-                'account_number' => $request->input('account_number'),
-                'account_name' => $request->input('account_name'),
+                'payout_method' => $payoutDetail->payout_method,
+                'mobile_money_number' => $payoutDetail->payout_method === 'mobile_money' ? $payoutDetail->account_number : null,
+                'mobile_money_provider' => $payoutDetail->provider,
+                'bank_name' => $payoutDetail->bank_name,
+                'account_number' => $payoutDetail->account_number,
+                'account_name' => $payoutDetail->account_name,
+                'payout_detail_id' => $payoutDetail->id,
                 'status' => PayoutRequest::STATUS_PENDING,
                 'notes' => $request->input('notes'),
             ]);
 
-            // Deduct from available balance (reserve it)
-            $balance->available_balance -= $amount;
-            $balance->save();
+            $balance->decrement('available_balance', $amount);
 
-            // Log transaction
             $vendor->vendorTransactions()->create([
                 'type' => 'payout',
-                'amount' => -$amount,
+                'amount' => $amount,
                 'currency' => $balance->currency,
                 'status' => 'pending',
                 'description' => "Payout request {$payout->request_number}",
@@ -147,7 +147,7 @@ class VendorPayoutController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Payout request submitted successfully. An admin will review it shortly.',
-                'payout' => $payout,
+                'payout' => $payout->load('payoutDetail'),
             ], 201);
         } catch (\Exception $e) {
             DB::rollBack();

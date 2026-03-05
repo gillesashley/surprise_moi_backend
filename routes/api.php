@@ -450,6 +450,9 @@ Route::prefix('v1')->group(function () {
             Route::post('payouts/{payoutRequest}/approve', [\App\Http\Controllers\Api\V1\AdminPayoutController::class, 'approve']);
             Route::post('payouts/{payoutRequest}/reject', [\App\Http\Controllers\Api\V1\AdminPayoutController::class, 'reject']);
             Route::post('payouts/{payoutRequest}/mark-paid', [\App\Http\Controllers\Api\V1\AdminPayoutController::class, 'markAsPaid']);
+            Route::post('payouts/{payoutRequest}/process', [\App\Http\Controllers\Api\V1\AdminPayoutController::class, 'process']);
+            Route::post('payouts/{payoutRequest}/finalize', [\App\Http\Controllers\Api\V1\AdminPayoutController::class, 'finalize']);
+            Route::get('paystack-balance', [\App\Http\Controllers\Api\V1\AdminPayoutController::class, 'paystackBalance']);
         });
 
         // Vendor payout requests
@@ -458,6 +461,14 @@ Route::prefix('v1')->group(function () {
             Route::post('payouts/request', [\App\Http\Controllers\Api\V1\VendorPayoutController::class, 'store']);
             Route::get('payouts/{payoutRequest}', [\App\Http\Controllers\Api\V1\VendorPayoutController::class, 'show']);
             Route::get('balance', [\App\Http\Controllers\Api\V1\VendorPayoutController::class, 'balance']);
+        });
+
+        // Vendor payout details management
+        Route::middleware('role:vendor')->prefix('vendor')->group(function () {
+            Route::get('payout-details/banks', [\App\Http\Controllers\Api\V1\VendorPayoutDetailController::class, 'banks']);
+            Route::get('payout-details', [\App\Http\Controllers\Api\V1\VendorPayoutDetailController::class, 'index']);
+            Route::post('payout-details', [\App\Http\Controllers\Api\V1\VendorPayoutDetailController::class, 'store']);
+            Route::delete('payout-details/{vendorPayoutDetail}', [\App\Http\Controllers\Api\V1\VendorPayoutDetailController::class, 'destroy']);
         });
     });
 
