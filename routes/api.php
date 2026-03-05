@@ -130,6 +130,9 @@ Route::prefix('v1')->group(function () {
     Route::get('/products/{product}', [\App\Http\Controllers\Api\V1\ProductController::class, 'show']);
     Route::get('/products/{product}/reviews', [ReviewController::class, 'productReviews']);
 
+    // Public special offers
+    Route::get('/special-offers', [\App\Http\Controllers\Api\V1\PublicSpecialOfferController::class, 'index']);
+
     // Public service routes
     Route::get('/services', [\App\Http\Controllers\Api\V1\ServiceController::class, 'index']);
     Route::get('/services/{service}', [\App\Http\Controllers\Api\V1\ServiceController::class, 'show']);
@@ -469,6 +472,14 @@ Route::prefix('v1')->group(function () {
             Route::get('payout-details', [\App\Http\Controllers\Api\V1\VendorPayoutDetailController::class, 'index']);
             Route::post('payout-details', [\App\Http\Controllers\Api\V1\VendorPayoutDetailController::class, 'store']);
             Route::delete('payout-details/{vendorPayoutDetail}', [\App\Http\Controllers\Api\V1\VendorPayoutDetailController::class, 'destroy']);
+        });
+
+        // Vendor special offers management
+        Route::middleware('role:vendor')->prefix('vendor')->group(function () {
+            Route::get('special-offers', [\App\Http\Controllers\Api\V1\VendorSpecialOfferController::class, 'index']);
+            Route::post('special-offers', [\App\Http\Controllers\Api\V1\VendorSpecialOfferController::class, 'store']);
+            Route::put('special-offers/{special_offer}', [\App\Http\Controllers\Api\V1\VendorSpecialOfferController::class, 'update']);
+            Route::delete('special-offers/{special_offer}', [\App\Http\Controllers\Api\V1\VendorSpecialOfferController::class, 'destroy']);
         });
     });
 
