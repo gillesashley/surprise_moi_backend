@@ -31,6 +31,10 @@ class EnsureUserManagementAccess
             return redirect()->route('user-management-access.show');
         }
 
+        // Refresh the timestamp on each active request (sliding window),
+        // so the session only expires after inactivity.
+        $request->session()->put('user_management.verified_at', time());
+
         return $next($request);
     }
 }

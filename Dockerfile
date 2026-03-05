@@ -110,7 +110,7 @@ RUN SKIP_WAYFINDER=true pnpm run build
 # -----------------------------------------------------------------------------
 # Stage 3: Production Image
 # -----------------------------------------------------------------------------
-FROM php:8.3-fpm-alpine AS production
+FROM php:8.3-cli-alpine AS production
 
 # Install system dependencies
 RUN apk add --no-cache \
@@ -129,6 +129,8 @@ RUN apk add --no-cache \
     libpq-dev \
     icu-dev \
     linux-headers \
+    openssl-dev \
+    curl-dev \
     $PHPIZE_DEPS
 
 # Install PHP extensions
@@ -144,25 +146,25 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     gd \
     zip \
     intl \
-    opcache
+    opcache \
+    sockets
 
 # Install Redis extension
 RUN pecl install redis && docker-php-ext-enable redis
 
-# Clean up
-RUN apk del $PHPIZE_DEPS linux-headers \
+# Install Swoole extension
+RUN pecl install swoole && docker-php-ext-enable swoole
+
+# Clean up build dependencies
+RUN apk del $PHPIZE_DEPS linux-headers openssl-dev curl-dev \
     && rm -rf /var/cache/apk/* /tmp/* /var/tmp/*
 
-# Configure PHP-FPM
+# Configure PHP for production
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 
 # Create PHP configuration
 COPY docker/php/php.ini /usr/local/etc/php/conf.d/app.ini
 COPY docker/php/opcache.ini /usr/local/etc/php/conf.d/opcache.ini
-COPY docker/php/www.conf /usr/local/etc/php-fpm.d/www.conf
-
-# Remove the default Docker PHP-FPM config that overrides listen to port 9000
-RUN rm -f /usr/local/etc/php-fpm.d/zz-docker.conf
 
 # Create nginx configuration
 COPY docker/nginx/nginx.conf /etc/nginx/nginx.conf
@@ -210,4 +212,128 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 
 # Start supervisor
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+
+# =============================================================================
+# Stage 4: Development - For local Docker development
+# =============================================================================
+FROM php:8.3-cli-alpine AS development
+
+# Install system dependencies
+RUN apk add --no-cache \
+    nginx \
+    supervisor \
+    curl \
+    bash \
+    postgresql-client \
+    libpng-dev \
+    libjpeg-turbo-dev \
+    freetype-dev \
+    libzip-dev \
+    zip \
+    unzip \
+    oniguruma-dev \
+    libpq-dev \
+    icu-dev \
+    linux-headers \
+    openssl-dev \
+    curl-dev \
+    $PHPIZE_DEPS
+
+# Install PHP extensions
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j$(nproc) \
+    pdo \
+    pdo_mysql \
+    pdo_pgsql \
+    mbstring \
+    exif \
+    pcntl \
+    bcmath \
+    gd \
+    zip \
+    intl \
+    opcache \
+    sockets
+
+# Install Redis extension
+RUN pecl install redis && docker-php-ext-enable redis
+
+# Install Swoole extension
+RUN pecl install swoole && docker-php-ext-enable swoole
+
+# Install Composer for development stage
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+# Clean up build dependencies
+RUN apk del $PHPIZE_DEPS linux-headers openssl-dev curl-dev \
+    && rm -rf /var/cache/apk/* /tmp/* /var/tmp/*
+
+# Configure PHP for development
+RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
+
+# Create PHP configuration
+COPY docker/php/php.ini /usr/local/etc/php/conf.d/app.ini
+COPY docker/php/opcache.ini /usr/local/etc/php/conf.d/opcache.ini
+
+# Create nginx configuration
+COPY docker/nginx/nginx.conf /etc/nginx/nginx.conf
+COPY docker/nginx/default.conf /etc/nginx/http.d/default.conf
+
+# Create supervisor configuration
+COPY docker/supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+# Set working directory
+WORKDIR /var/www/html
+
+# Copy composer files first
+COPY composer.json composer.lock ./
+
+# Install composer dependencies
+RUN composer install --no-scripts --no-autoloader --prefer-dist
+
+# Install Node.js and pnpm for frontend asset building
+RUN apk add --no-cache nodejs npm \
+    && npm install -g pnpm
+
+# Copy the rest of the application
+COPY . .
+
+# Generate optimized autoloader
+RUN composer dump-autoload --optimize
+
+# Build frontend assets
+RUN cp .env.example .env \
+    && php artisan key:generate --ansi \
+    && pnpm install --frozen-lockfile \
+    && php artisan wayfinder:generate --with-form \
+    && SKIP_WAYFINDER=true pnpm run build \
+    && rm .env
+
+# Create required directories
+RUN mkdir -p storage/framework/{sessions,views,cache} \
+    && mkdir -p storage/logs \
+    && mkdir -p bootstrap/cache \
+    && mkdir -p storage/app/public
+
+# Set permissions
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 775 storage bootstrap/cache \
+    && chmod +x /var/www/html/scripts/manage.sh
+
+# Create entrypoint script
+COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+# Expose port 80
+EXPOSE 80
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+    CMD curl -f http://localhost/up || exit 1
+
+# Set entrypoint
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+
+# Start supervisor (includes Octane + Nginx + Horizon option)
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]

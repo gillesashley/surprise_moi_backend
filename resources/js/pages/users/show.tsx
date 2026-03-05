@@ -16,6 +16,7 @@ import {
     DialogTitle,
 } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
+import { useInactivityLock } from '@/hooks/use-inactivity-lock';
 import AppLayout from '@/layouts/app-layout';
 import {
     edit as userEdit,
@@ -178,6 +179,7 @@ const breadcrumbs = (user: User): BreadcrumbItem[] => [
 ];
 
 export default function UserShow({ user, canDelete }: Props) {
+    useInactivityLock();
     const [showRejectDialog, setShowRejectDialog] = useState(false);
     const [previewDoc, setPreviewDoc] = useState<{ url: string; title: string } | null>(null);
     const { data, setData, post, processing } = useForm({

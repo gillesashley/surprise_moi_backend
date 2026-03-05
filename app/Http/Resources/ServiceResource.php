@@ -71,4 +71,13 @@ class ServiceResource extends JsonResource
 
         return in_array($this->id, self::$wishlistServiceIds[$userId], true);
     }
+
+    /**
+     * Flush the static wishlist cache.
+     * Called on each request by Octane's RequestReceived listener.
+     */
+    public static function flushWishlistCache(): void
+    {
+        self::$wishlistServiceIds = [];
+    }
 }

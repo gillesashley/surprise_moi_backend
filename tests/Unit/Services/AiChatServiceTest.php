@@ -137,6 +137,41 @@ class AiChatServiceTest extends TestCase
         $this->assertEquals('I found these for you!', $result['content']);
     }
 
+    public function test_parse_deeply_nested_suggestions_in_text(): void
+    {
+        $json = json_encode([
+            'type' => 'suggestions',
+            'analysis' => 'Based on their interests...',
+            'suggestions' => [
+                [
+                    'product_id' => 1,
+                    'product_name' => 'Cooking Set',
+                    'vendor_name' => 'Kitchen Pro',
+                    'price' => 250.00,
+                    'thumbnail' => 'https://example.com/img1.jpg',
+                    'personalization_reason' => 'Loves cooking.',
+                ],
+                [
+                    'product_id' => 2,
+                    'product_name' => 'Art Supplies',
+                    'vendor_name' => 'Creative Hub',
+                    'price' => 180.00,
+                    'thumbnail' => 'https://example.com/img2.jpg',
+                    'personalization_reason' => 'Very creative.',
+                ],
+            ],
+        ]);
+
+        // Simulate AI wrapping response in extra text
+        $text = "Here is my response: {$json} Hope this helps!";
+
+        $result = $this->service->parseAiResponse($text);
+
+        $this->assertEquals('suggestions', $result['type']);
+        $this->assertNotEmpty($result['content']);
+        $this->assertCount(2, $result['metadata']['suggestions']);
+    }
+
     public function test_parse_empty_string_response(): void
     {
         $result = $this->service->parseAiResponse('');

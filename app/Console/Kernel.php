@@ -16,14 +16,17 @@ class Kernel extends ConsoleKernel
         $schedule->command('backup:run')
             ->dailyAt('02:00')
             ->emailOutputOnFailure(env('BACKUP_NOTIFICATION_EMAIL', 'admin@example.com'));
-        
+
         // Cleanup old backups (run daily at 2:30 AM)
         $schedule->command('backup:cleanup')
             ->dailyAt('02:30')
             ->emailOutputOnFailure(env('BACKUP_NOTIFICATION_EMAIL', 'admin@example.com'));
-        
+
         // Optional: Test backup every hour (comment out in production)
         // $schedule->command('backup:run')->hourly()->emailOutputOnFailure(env('BACKUP_NOTIFICATION_EMAIL', 'admin@example.com'));
+
+        // Deactivate expired special offers every hour
+        $schedule->command('special-offers:deactivate-expired')->hourly();
     }
 
     /**

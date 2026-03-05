@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Models\PayoutRequest;
+use App\Services\PaystackService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -11,6 +12,10 @@ use Illuminate\Support\Facades\Validator;
 
 class AdminPayoutController extends Controller
 {
+    public function __construct(
+        protected PaystackService $paystackService
+    ) {}
+
     /**
      * Get all payout requests for admin review.
      */
@@ -263,5 +268,141 @@ class AdminPayoutController extends Controller
                 'message' => 'Failed to mark payout as paid.',
             ], 500);
         }
+    }
+
+    /**
+     * Process payout via Paystack Transfer.
+     */
+    public function process(Request $request, PayoutRequest $payoutRequest): JsonResponse
+    {
+        if ($payoutRequest->status !== PayoutRequest::STATUS_PENDING) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Only pending payout requests can be processed.',
+            ], 400);
+        }
+
+        $payoutDetail = $payoutRequest->payoutDetail;
+
+        if (! $payoutDetail || ! $payoutDetail->paystack_recipient_code) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Vendor has no verified payout details.',
+            ], 400);
+        }
+
+        // Check Paystack balance
+        $amountInPesewas = (int) round($payoutRequest->amount * 100);
+        $balanceResult = $this->paystackService->checkBalance();
+
+        if ($balanceResult['success']) {
+            $ghsBalance = collect($balanceResult['data'])->firstWhere('currency', 'GHS');
+            if ($ghsBalance && ($ghsBalance['balance'] ?? 0) < $amountInPesewas) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Insufficient Paystack balance to process this payout.',
+                    'paystack_balance' => ($ghsBalance['balance'] ?? 0) / 100,
+                ], 400);
+            }
+        }
+
+        // Initiate transfer
+        $transferResult = $this->paystackService->initiateTransfer(
+            amount: $amountInPesewas,
+            recipientCode: $payoutDetail->paystack_recipient_code,
+            reason: "Payout {$payoutRequest->request_number} for {$payoutRequest->user->name}",
+            reference: $payoutRequest->request_number
+        );
+
+        if (! $transferResult['success']) {
+            return response()->json([
+                'success' => false,
+                'message' => $transferResult['message'],
+            ], 400);
+        }
+
+        $transferData = $transferResult['data'];
+
+        $payoutRequest->update([
+            'status' => PayoutRequest::STATUS_PROCESSING,
+            'paystack_transfer_code' => $transferData['transfer_code'] ?? null,
+            'paystack_transfer_reference' => $transferData['reference'] ?? $payoutRequest->request_number,
+            'paystack_transfer_id' => $transferData['id'] ?? null,
+            'processed_by' => $request->user()->id,
+            'processed_at' => now(),
+        ]);
+
+        $requiresOtp = ($transferData['status'] ?? '') === 'otp';
+
+        return response()->json([
+            'success' => true,
+            'message' => $requiresOtp
+                ? 'Transfer initiated. Please enter the OTP sent to complete the transfer.'
+                : 'Transfer initiated and being processed.',
+            'requires_otp' => $requiresOtp,
+            'payout' => $payoutRequest->fresh(['user', 'payoutDetail']),
+        ]);
+    }
+
+    /**
+     * Finalize transfer with OTP.
+     */
+    public function finalize(Request $request, PayoutRequest $payoutRequest): JsonResponse
+    {
+        if ($payoutRequest->status !== PayoutRequest::STATUS_PROCESSING) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Only processing payout requests can be finalized.',
+            ], 400);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'otp' => ['required', 'string', 'size:6'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $result = $this->paystackService->finalizeTransfer(
+            $payoutRequest->paystack_transfer_code,
+            $request->input('otp')
+        );
+
+        if (! $result['success']) {
+            return response()->json([
+                'success' => false,
+                'message' => $result['message'],
+            ], 400);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Transfer finalized. Awaiting Paystack confirmation via webhook.',
+            'payout' => $payoutRequest->fresh(['user', 'payoutDetail']),
+        ]);
+    }
+
+    /**
+     * Get current Paystack balance.
+     */
+    public function paystackBalance(): JsonResponse
+    {
+        $result = $this->paystackService->checkBalance();
+
+        if (! $result['success']) {
+            return response()->json([
+                'success' => false,
+                'message' => $result['message'],
+            ], 500);
+        }
+
+        return response()->json([
+            'success' => true,
+            'balances' => $result['data'],
+        ]);
     }
 }

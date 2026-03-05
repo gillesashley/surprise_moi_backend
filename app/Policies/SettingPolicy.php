@@ -12,7 +12,7 @@ class SettingPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->isAdmin() || $user->isSuperAdmin();
+        return $user->isSuperAdmin();
     }
 
     /**
@@ -20,7 +20,7 @@ class SettingPolicy
      */
     public function view(User $user, Setting $setting): bool
     {
-        return $user->isAdmin() || $user->isSuperAdmin();
+        return $user->isSuperAdmin();
     }
 
     /**
@@ -36,7 +36,7 @@ class SettingPolicy
      */
     public function updateAny(User $user): bool
     {
-        return $user->isAdmin() || $user->isSuperAdmin();
+        return $user->isSuperAdmin();
     }
 
     /**
@@ -44,7 +44,7 @@ class SettingPolicy
      */
     public function update(User $user, Setting $setting): bool
     {
-        return $user->isAdmin() || $user->isSuperAdmin();
+        return $user->isSuperAdmin();
     }
 
     /**

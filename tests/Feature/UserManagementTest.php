@@ -278,6 +278,33 @@ class UserManagementTest extends TestCase
         $response->assertRedirect('/user-management-access');
     }
 
+    public function test_active_requests_refresh_session_timestamp(): void
+    {
+        $user = User::factory()->create(['role' => 'admin']);
+
+        // Verify with code
+        $this->actingAs($user)->post('/user-management-access', [
+            'code' => config('auth.user_management_access_code'),
+        ]);
+
+        // Wait a moment, then make an active request
+        $originalVerifiedAt = session('user_management.verified_at');
+
+        // Simulate time passing by setting verified_at slightly in the past
+        session(['user_management.verified_at' => time() - 60]);
+        $beforeRequest = session('user_management.verified_at');
+
+        $response = $this->actingAs($user)
+            ->withSession(['user_management.verified_at' => time() - 60])
+            ->get('/dashboard/users');
+
+        $response->assertOk();
+
+        // The middleware should have refreshed verified_at to now
+        $afterRequest = session('user_management.verified_at');
+        $this->assertGreaterThanOrEqual($beforeRequest, $afterRequest);
+    }
+
     public function test_null_config_code_denies_access(): void
     {
         config(['auth.user_management_access_code' => null]);

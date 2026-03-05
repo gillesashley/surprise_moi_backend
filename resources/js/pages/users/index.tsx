@@ -7,6 +7,7 @@ import {
     CardTitle,
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { useInactivityLock } from '@/hooks/use-inactivity-lock';
 import AppLayout from '@/layouts/app-layout';
 import {
     edit as userEdit,
@@ -64,6 +65,7 @@ const getRoleBadgeColor = (role: string): 'error' | 'secondary' | 'info' | 'defa
 };
 
 export default function UsersIndex({ users, canDelete, activeRole, filters }: Props) {
+    useInactivityLock();
     const [searchTerm, setSearchTerm] = useState(filters.search || '');
     const roleInfo = activeRole ? roleLabelMap[activeRole] : null;
     const pageTitle = roleInfo?.title ?? 'All Users';

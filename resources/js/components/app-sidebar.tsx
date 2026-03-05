@@ -149,14 +149,6 @@ const getNavItemsForRole = (role: string): NavItem[] => {
             },
         ];
 
-        if (role === 'super_admin') {
-            items.push({
-                title: 'Jobs',
-                href: '/dashboard/jobs',
-                icon: BarChart3,
-            });
-        }
-
         return items;
     }
 
@@ -282,7 +274,15 @@ export function AppSidebar() {
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                 </SidebarMenu>
-                <div style={{ borderBottom: '1px solid var(--border, rgba(0,0,0,0.08))', marginLeft: 12, marginRight: 12, marginTop: 4 }} />
+                <div
+                    style={{
+                        borderBottom:
+                            '1px solid var(--border, rgba(0,0,0,0.08))',
+                        marginLeft: 12,
+                        marginRight: 12,
+                        marginTop: 4,
+                    }}
+                />
             </SidebarHeader>
 
             <SidebarContent>

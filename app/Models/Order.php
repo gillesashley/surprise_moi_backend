@@ -62,6 +62,8 @@ class Order extends Model
         'fulfilled_at',            // When vendor marked as fulfilled
         'shipped_at',              // When order was shipped
         'delivered_at',            // When delivery was completed
+        'funds_release_at',        // When funds become available for vendor payout
+        'funds_released',          // Whether funds have been released to vendor
     ];
 
     protected function casts(): array
@@ -81,6 +83,8 @@ class Order extends Model
             'shipped_at' => 'datetime',
             'delivered_at' => 'datetime',
             'delivery_method' => 'string',
+            'funds_release_at' => 'datetime',
+            'funds_released' => 'boolean',
         ];
     }
 
@@ -299,12 +303,14 @@ class Order extends Model
     /**
      * Mark order as delivered.
      * Final status - order has reached customer.
+     * Sets a 24-hour cooling period before funds are released to vendor.
      */
     public function markAsDelivered(): void
     {
         $this->update([
             'status' => 'delivered',
             'delivered_at' => now(),
+            'funds_release_at' => now()->addHours(24),
         ]);
     }
 }

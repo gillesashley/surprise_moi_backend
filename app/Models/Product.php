@@ -156,4 +156,23 @@ class Product extends Model
     {
         return $this->hasOne(ProductEmbedding::class);
     }
+
+    /**
+     * Get all special offers for this product.
+     */
+    public function specialOffers(): HasMany
+    {
+        return $this->hasMany(SpecialOffer::class);
+    }
+
+    /**
+     * Get the currently active special offer for this product.
+     */
+    public function activeOffer(): HasOne
+    {
+        return $this->hasOne(SpecialOffer::class)
+            ->where('is_active', true)
+            ->where('starts_at', '<=', now())
+            ->where('ends_at', '>=', now());
+    }
 }

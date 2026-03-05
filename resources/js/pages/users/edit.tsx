@@ -9,6 +9,7 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useInactivityLock } from '@/hooks/use-inactivity-lock';
 import AppLayout from '@/layouts/app-layout';
 import {
     show as userShow,
@@ -51,6 +52,7 @@ const formatRole = (role: string) => {
 };
 
 export default function UserEdit({ user, roles, canEditRole }: Props) {
+    useInactivityLock();
     const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
 
     const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {

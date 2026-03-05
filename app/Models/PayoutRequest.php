@@ -25,6 +25,8 @@ class PayoutRequest extends Model
 
     public const STATUS_CANCELLED = 'cancelled';
 
+    public const STATUS_FAILED = 'failed';
+
     public const METHOD_MOBILE_MONEY = 'mobile_money';
 
     public const METHOD_BANK_TRANSFER = 'bank_transfer';
@@ -49,6 +51,11 @@ class PayoutRequest extends Model
         'processed_at',
         'paid_at',
         'notes',
+        'paystack_transfer_code',
+        'paystack_transfer_reference',
+        'paystack_transfer_id',
+        'payout_detail_id',
+        'rejected_at',
     ];
 
     protected function casts(): array
@@ -57,6 +64,7 @@ class PayoutRequest extends Model
             'amount' => 'decimal:2',
             'processed_at' => 'datetime',
             'paid_at' => 'datetime',
+            'rejected_at' => 'datetime',
         ];
     }
 
@@ -88,6 +96,11 @@ class PayoutRequest extends Model
     public function processedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'processed_by');
+    }
+
+    public function payoutDetail(): BelongsTo
+    {
+        return $this->belongsTo(VendorPayoutDetail::class, 'payout_detail_id');
     }
 
     public function approve(User $admin): void

@@ -32,3 +32,7 @@ Schedule::command('backup:cleanup')
     ->daily()
     ->at('02:30')
     ->emailOutputOnFailure(env('BACKUP_NOTIFICATION_EMAIL', 'admin@example.com'));
+
+Schedule::job(new \App\Jobs\ReleasePendingFundsJob)->hourly();
+
+Schedule::job(new \App\Jobs\VerifyPendingTransfersJob)->everyThirtyMinutes();

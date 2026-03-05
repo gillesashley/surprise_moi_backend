@@ -328,16 +328,16 @@ class AdminDashboardController extends Controller
                 'description' => 'Order #'.$order->order_number,
             ]);
 
-        return Inertia::render('transactions/index', [
-            'orders' => $mappedOrders,
-            'statistics' => $this->getOrderStatistics(),
-            'filters' => [
-                'type' => $type,
-                'status' => $status,
-                'date_from' => $dateFrom,
-                'date_to' => $dateTo,
-            ],
-        ]);
+            return Inertia::render('transactions/index', [
+                'orders' => $mappedOrders,
+                'statistics' => $this->getOrderStatistics(),
+                'filters' => [
+                    'type' => $type,
+                    'status' => $status,
+                    'date_from' => $dateFrom,
+                    'date_to' => $dateTo,
+                ],
+            ]);
         }
 
         // Get payout requests (payout transactions)
@@ -386,47 +386,27 @@ class AdminDashboardController extends Controller
                 'description' => 'Payout to '.($payout->user->name ?? 'Unknown'),
             ]);
 
-         return Inertia::render('transactions/index', [
-                 'orders' => $mappedPayouts,
-                 'statistics' => $this->getOrderStatistics(),
-                 'filters' => [
-                     'type' => $type,
-                     'status' => $status,
-                     'date_from' => $dateFrom,
-                     'date_to' => $dateTo,
-                 ],
-             ]);
-         }
+            return Inertia::render('transactions/index', [
+                'orders' => $mappedPayouts,
+                'statistics' => $this->getOrderStatistics(),
+                'filters' => [
+                    'type' => $type,
+                    'status' => $status,
+                    'date_from' => $dateFrom,
+                    'date_to' => $dateTo,
+                ],
+            ]);
+        }
 
-             return Inertia::render('transactions/index', [
-             'orders' => [],
-             'statistics' => $this->getOrderStatistics(),
-             'filters' => [
-                 'type' => $type,
-                 'status' => $status,
-                 'date_from' => $dateFrom,
-                 'date_to' => $dateTo,
-             ],
-         ]);
-     }
-
-    public function jobs()
-    {
-        $jobMonitor = new \App\Http\Controllers\Api\V1\Admin\JobMonitorController();
-        
-        // Get initial statistics
-        $statsResponse = $jobMonitor->stats();
-        $statistics = $statsResponse->getData(true)['data'] ?? [];
-        
-        // Get first page of failed jobs
-        $request = new \Illuminate\Http\Request(['page' => 1, 'per_page' => 50]);
-        $jobsResponse = $jobMonitor->index($request);
-        $jobsData = $jobsResponse->getData(true)['data'] ?? [];
-        
-        return Inertia::render('admin/dashboard/jobs/index', [
-            'initialStatistics' => $statistics,
-            'initialJobs' => $jobsData['failed_jobs'] ?? [],
-            'initialPagination' => $jobsData['pagination'] ?? [],
+        return Inertia::render('transactions/index', [
+            'orders' => [],
+            'statistics' => $this->getOrderStatistics(),
+            'filters' => [
+                'type' => $type,
+                'status' => $status,
+                'date_from' => $dateFrom,
+                'date_to' => $dateTo,
+            ],
         ]);
     }
 
