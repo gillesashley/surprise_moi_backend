@@ -38,10 +38,7 @@ yarn-error.log
 /docs
 .worktrees/
 
-/.env.docker
-/.env.example
 /.claude
-/.env.local
 /claude.md
 /CLAUDE.md
 composer.phar
