@@ -42,3 +42,4 @@ yarn-error.log
 /.env.example
 /.claude
 /composer.phar
+/claude.md
