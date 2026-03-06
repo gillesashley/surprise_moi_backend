@@ -746,4 +746,139 @@ class OrderApiTest extends TestCase
         $order = Order::first();
         $this->assertNotNull($order->scheduled_datetime);
     }
+
+    public function test_order_uses_cart_prices_not_current_product_prices(): void
+    {
+        $product = Product::factory()->create([
+            'vendor_id' => $this->vendor->id,
+            'price' => 8.00,
+            'discount_price' => null,
+            'is_available' => true,
+            'stock' => 10,
+            'delivery_fee' => 0,
+            'free_delivery' => true,
+        ]);
+
+        // Simulate: user added product to cart when price was 8.00
+        $cart = \App\Models\Cart::create(['user_id' => $this->customer->id, 'currency' => 'GHS']);
+        \App\Models\CartItem::create([
+            'cart_id' => $cart->id,
+            'product_id' => $product->id,
+            'vendor_id' => $product->vendor_id,
+            'name' => $product->name,
+            'unit_price_cents' => 800, // GH₵8.00
+            'quantity' => 1,
+        ]);
+        $cart->recalculateTotals();
+        $cart->save();
+
+        // Vendor updates price to 58.00 after user added to cart
+        $product->update(['price' => 58.00]);
+
+        // Create order — should use cart price (8.00), not current price (58.00)
+        $response = $this->actingAs($this->customer)
+            ->postJson('/api/v1/orders', [
+                'items' => [
+                    [
+                        'orderable_type' => 'product',
+                        'orderable_id' => $product->id,
+                        'quantity' => 1,
+                    ],
+                ],
+                'delivery_address_id' => $this->address->id,
+            ]);
+
+        $response->assertStatus(201);
+
+        $order = Order::first();
+        $this->assertEquals(8.00, (float) $order->subtotal, 'Order should use cart price (8.00), not current product price (58.00)');
+        $this->assertEquals(8.00, (float) $order->total);
+    }
+
+    public function test_order_rejects_when_product_price_changed(): void
+    {
+        $product = Product::factory()->create([
+            'vendor_id' => $this->vendor->id,
+            'price' => 8.00,
+            'discount_price' => null,
+            'is_available' => true,
+            'stock' => 10,
+            'delivery_fee' => 0,
+            'free_delivery' => true,
+        ]);
+
+        // Cart has old price
+        $cart = \App\Models\Cart::create(['user_id' => $this->customer->id, 'currency' => 'GHS']);
+        \App\Models\CartItem::create([
+            'cart_id' => $cart->id,
+            'product_id' => $product->id,
+            'vendor_id' => $product->vendor_id,
+            'name' => $product->name,
+            'unit_price_cents' => 800,
+            'quantity' => 1,
+        ]);
+        $cart->recalculateTotals();
+        $cart->save();
+
+        // Price decreased — cart is stale
+        $product->update(['price' => 2.00]);
+
+        $response = $this->actingAs($this->customer)
+            ->postJson('/api/v1/orders', [
+                'items' => [
+                    [
+                        'orderable_type' => 'product',
+                        'orderable_id' => $product->id,
+                        'quantity' => 1,
+                    ],
+                ],
+                'delivery_address_id' => $this->address->id,
+            ]);
+
+        $response->assertStatus(409)
+            ->assertJsonFragment(['code' => 'price_changed']);
+    }
+
+    public function test_cart_is_cleared_after_successful_order_creation(): void
+    {
+        $product = Product::factory()->create([
+            'vendor_id' => $this->vendor->id,
+            'price' => 10.00,
+            'discount_price' => null,
+            'is_available' => true,
+            'stock' => 10,
+            'delivery_fee' => 0,
+            'free_delivery' => true,
+        ]);
+
+        // Add item to cart
+        $cart = \App\Models\Cart::create(['user_id' => $this->customer->id, 'currency' => 'GHS']);
+        \App\Models\CartItem::create([
+            'cart_id' => $cart->id,
+            'product_id' => $product->id,
+            'vendor_id' => $product->vendor_id,
+            'name' => $product->name,
+            'unit_price_cents' => 1000,
+            'quantity' => 2,
+        ]);
+        $cart->recalculateTotals();
+        $cart->save();
+
+        $this->actingAs($this->customer)
+            ->postJson('/api/v1/orders', [
+                'items' => [
+                    [
+                        'orderable_type' => 'product',
+                        'orderable_id' => $product->id,
+                        'quantity' => 2,
+                    ],
+                ],
+                'delivery_address_id' => $this->address->id,
+            ])
+            ->assertStatus(201);
+
+        // Cart should be empty after order
+        $this->assertEquals(0, $cart->fresh()->items()->count());
+        $this->assertEquals(0, $cart->fresh()->total_cents);
+    }
 }
