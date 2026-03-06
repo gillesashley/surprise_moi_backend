@@ -2,16 +2,19 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Exceptions\PriceChangedException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreOrderRequest;
 use App\Http\Requests\UpdateOrderStatusRequest;
 use App\Http\Resources\OrderResource;
+use App\Models\Cart;
 use App\Models\Coupon;
 use App\Models\CouponUsage;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\Service;
+use App\Services\CartService;
 use App\Services\VendorBalanceService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -84,6 +87,9 @@ class OrderController extends Controller
                 }
             }
 
+            $cartService = app(CartService::class);
+            $cartPriceMap = $cartService->getCartPriceMap($request->user());
+
             $items = $request->input('items');
             $subtotal = 0;
             $vendorId = null;
@@ -119,7 +125,27 @@ class OrderController extends Controller
                     throw new \Exception('Service "'.$orderable->name.'" is not available for booking.');
                 }
 
-                $unitPrice = $orderable->discount_price ?? $orderable->price ?? $orderable->charge_start;
+                // For products: use cart price if available, detect staleness
+                if ($orderable instanceof Product && isset($cartPriceMap[$orderable->id])) {
+                    $cartPriceCents = $cartPriceMap[$orderable->id];
+                    $currentPrice = $orderable->discount_price ?? $orderable->price;
+                    $currentPriceCents = (int) round($currentPrice * 100);
+
+                    // Reject if cart price is higher than current price — user would overpay
+                    if ($cartPriceCents > $currentPriceCents) {
+                        throw new PriceChangedException(
+                            $orderable->name,
+                            $cartPriceCents / 100,
+                            $currentPrice
+                        );
+                    }
+
+                    $unitPrice = $cartPriceCents / 100;
+                } else {
+                    // Fallback for services or items not in cart
+                    $unitPrice = $orderable->discount_price ?? $orderable->price ?? $orderable->charge_start;
+                }
+
                 $itemSubtotal = $unitPrice * $item['quantity'];
                 $subtotal += $itemSubtotal;
 
@@ -245,10 +271,36 @@ class OrderController extends Controller
 
             DB::commit();
 
+            // Clear the user's cart after successful order
+            try {
+                $userCart = Cart::where('user_id', $request->user()->id)->first();
+                if ($userCart) {
+                    app(CartService::class)->clearCart($userCart);
+                }
+            } catch (\Exception $e) {
+                Log::warning('Failed to clear cart after order creation', [
+                    'order_id' => $order->id,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+
             return response()->json([
                 'message' => 'Order created successfully.',
                 'order' => new OrderResource($order->load(['items.orderable', 'deliveryAddress', 'coupon', 'vendor'])),
             ], 201);
+        } catch (PriceChangedException $e) {
+            foreach ($reservedStock as $reserved) {
+                Product::where('id', $reserved['id'])->increment('stock', $reserved['quantity']);
+            }
+            DB::rollBack();
+
+            return response()->json([
+                'code' => 'price_changed',
+                'message' => $e->getMessage(),
+                'product' => $e->productName,
+                'cart_price' => $e->cartPrice,
+                'current_price' => $e->currentPrice,
+            ], 409);
         } catch (\Exception $e) {
             // Restore reserved stock before rolling back
             foreach ($reservedStock as $reserved) {

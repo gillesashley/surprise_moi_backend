@@ -226,6 +226,23 @@ class CartService
     }
 
     /**
+     * Get a map of product prices from the user's cart.
+     * Returns [product_id => unit_price_cents] for all items in the cart.
+     */
+    public function getCartPriceMap(User $user): array
+    {
+        $cart = Cart::where('user_id', $user->id)->first();
+
+        if (!$cart) {
+            return [];
+        }
+
+        return $cart->items()
+            ->pluck('unit_price_cents', 'product_id')
+            ->toArray();
+    }
+
+    /**
      * Merge a guest cart into a user's cart.
      * Called when a guest with items in cart logs in.
      * 
