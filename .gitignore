@@ -38,6 +38,7 @@ yarn-error.log
 /docs
 .worktrees/
 
+docker-compose.override.yml
 /.claude
 /claude.md
 /CLAUDE.md
