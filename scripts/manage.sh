@@ -234,9 +234,15 @@ do_build_frontend() {
         pnpm install
     fi
     
-    # Build assets
+    # Generate Wayfinder types via Docker (host PHP can't reach DB inside container)
+    if services_running; then
+        log_info "Generating Wayfinder route types..."
+        docker compose exec -T app php artisan wayfinder:generate --with-form || true
+    fi
+
+    # Build assets (skip Wayfinder plugin since we generated types above)
     log_info "Compiling TypeScript and React components..."
-    pnpm run build
+    SKIP_WAYFINDER=true pnpm run build
     
     log_info "Frontend assets built successfully!"
     log_info "Built files are in: public/build/"
