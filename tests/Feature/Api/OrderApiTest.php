@@ -884,4 +884,35 @@ class OrderApiTest extends TestCase
         $this->assertEquals(0, $cart->fresh()->items()->count());
         $this->assertEquals(0, $cart->fresh()->total_cents);
     }
+
+    public function test_order_works_without_cart_using_current_product_prices(): void
+    {
+        $product = Product::factory()->create([
+            'vendor_id' => $this->vendor->id,
+            'price' => 25.00,
+            'discount_price' => null,
+            'is_available' => true,
+            'stock' => 10,
+            'delivery_fee' => 0,
+            'free_delivery' => true,
+        ]);
+
+        // No cart exists for this user — should fall back to current product price
+        $response = $this->actingAs($this->customer)
+            ->postJson('/api/v1/orders', [
+                'items' => [
+                    [
+                        'orderable_type' => 'product',
+                        'orderable_id' => $product->id,
+                        'quantity' => 2,
+                    ],
+                ],
+                'delivery_address_id' => $this->address->id,
+            ]);
+
+        $response->assertStatus(201);
+
+        $order = \App\Models\Order::first();
+        $this->assertEquals(50.00, (float) $order->total);
+    }
 }
