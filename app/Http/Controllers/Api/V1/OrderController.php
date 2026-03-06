@@ -63,6 +63,8 @@ class OrderController extends Controller
      */
     public function store(StoreOrderRequest $request): JsonResponse
     {
+        $reservedStock = [];
+
         try {
             DB::beginTransaction();
 
@@ -99,9 +101,17 @@ class OrderController extends Controller
                         throw new \Exception('Product "'.$orderable->name.'" is not available.');
                     }
 
-                    // Check stock availability
-                    if ($orderable->stock !== null && $orderable->stock < $item['quantity']) {
-                        throw new \Exception('Insufficient stock for "'.$orderable->name.'". Available: '.$orderable->stock);
+                    // Atomic stock reservation: decrement only if sufficient stock exists
+                    if ($orderable->stock !== null) {
+                        $affected = Product::where('id', $orderable->id)
+                            ->where('stock', '>=', $item['quantity'])
+                            ->update(['stock' => DB::raw('stock - '.(int) $item['quantity'])]);
+
+                        if ($affected === 0) {
+                            throw new \Exception('Insufficient stock for "'.$orderable->name.'".');
+                        }
+
+                        $reservedStock[] = ['id' => $orderable->id, 'quantity' => $item['quantity']];
                     }
                 }
 
@@ -219,11 +229,6 @@ class OrderController extends Controller
                     'subtotal' => $processedItem['subtotal'],
                     'snapshot' => $processedItem['orderable']->toArray(),
                 ]);
-
-                // Decrement stock for products
-                if ($processedItem['orderable'] instanceof Product && $processedItem['orderable']->stock !== null) {
-                    $processedItem['orderable']->decrement('stock', $processedItem['quantity']);
-                }
             }
 
             if ($coupon) {
@@ -245,6 +250,11 @@ class OrderController extends Controller
                 'order' => new OrderResource($order->load(['items.orderable', 'deliveryAddress', 'coupon', 'vendor'])),
             ], 201);
         } catch (\Exception $e) {
+            // Restore reserved stock before rolling back
+            foreach ($reservedStock as $reserved) {
+                Product::where('id', $reserved['id'])->increment('stock', $reserved['quantity']);
+            }
+
             DB::rollBack();
 
             return response()->json([

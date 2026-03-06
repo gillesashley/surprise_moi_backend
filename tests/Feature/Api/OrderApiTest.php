@@ -152,7 +152,7 @@ class OrderApiTest extends TestCase
             ]);
 
         $response->assertStatus(422)
-            ->assertJsonFragment(['message' => 'Failed to create order: Insufficient stock for "'.$product->name.'". Available: 5']);
+            ->assertJsonFragment(['message' => 'Failed to create order: Insufficient stock for "'.$product->name.'".']);
     }
 
     public function test_cannot_order_unavailable_service(): void
@@ -622,6 +622,101 @@ class OrderApiTest extends TestCase
         // Each item must reference a DIFFERENT product with correct name
         $names = $items->pluck('orderable.name')->sort()->values();
         $this->assertEquals(['Product Alpha', 'Product Beta'], $names->toArray());
+    }
+
+    public function test_concurrent_orders_for_last_item_only_one_succeeds(): void
+    {
+        $product = Product::factory()->create([
+            'vendor_id' => $this->vendor->id,
+            'price' => 50.00,
+            'discount_price' => null,
+            'is_available' => true,
+            'stock' => 1,
+            'delivery_fee' => 0,
+            'free_delivery' => true,
+        ]);
+
+        $customer2 = User::factory()->create(['role' => 'customer']);
+        $address2 = Address::factory()->create(['user_id' => $customer2->id]);
+
+        $payload1 = [
+            'items' => [['orderable_type' => 'product', 'orderable_id' => $product->id, 'quantity' => 1]],
+            'delivery_address_id' => $this->address->id,
+        ];
+
+        $payload2 = [
+            'items' => [['orderable_type' => 'product', 'orderable_id' => $product->id, 'quantity' => 1]],
+            'delivery_address_id' => $address2->id,
+        ];
+
+        $response1 = $this->actingAs($this->customer)->postJson('/api/v1/orders', $payload1);
+        $response2 = $this->actingAs($customer2)->postJson('/api/v1/orders', $payload2);
+
+        $statuses = [$response1->status(), $response2->status()];
+        sort($statuses);
+
+        $this->assertEquals([201, 422], $statuses);
+        $this->assertEquals(0, $product->fresh()->stock);
+        $this->assertDatabaseCount('orders', 1);
+    }
+
+    public function test_multi_item_order_restores_stock_when_second_item_unavailable(): void
+    {
+        $product1 = Product::factory()->create([
+            'vendor_id' => $this->vendor->id,
+            'price' => 10.00,
+            'discount_price' => null,
+            'is_available' => true,
+            'stock' => 5,
+            'delivery_fee' => 0,
+            'free_delivery' => true,
+        ]);
+
+        $product2 = Product::factory()->create([
+            'vendor_id' => $this->vendor->id,
+            'price' => 20.00,
+            'discount_price' => null,
+            'is_available' => true,
+            'stock' => 0,
+            'delivery_fee' => 0,
+            'free_delivery' => true,
+        ]);
+
+        $response = $this->actingAs($this->customer)
+            ->postJson('/api/v1/orders', [
+                'items' => [
+                    ['orderable_type' => 'product', 'orderable_id' => $product1->id, 'quantity' => 2],
+                    ['orderable_type' => 'product', 'orderable_id' => $product2->id, 'quantity' => 1],
+                ],
+                'delivery_address_id' => $this->address->id,
+            ]);
+
+        $response->assertStatus(422);
+        $this->assertEquals(5, $product1->fresh()->stock);
+        $this->assertDatabaseCount('orders', 0);
+    }
+
+    public function test_stock_restored_on_order_failure_after_reservation(): void
+    {
+        $product = Product::factory()->create([
+            'vendor_id' => $this->vendor->id,
+            'price' => 30.00,
+            'discount_price' => null,
+            'is_available' => true,
+            'stock' => 10,
+            'delivery_fee' => 0,
+            'free_delivery' => true,
+        ]);
+
+        $response = $this->actingAs($this->customer)
+            ->postJson('/api/v1/orders', [
+                'items' => [['orderable_type' => 'product', 'orderable_id' => $product->id, 'quantity' => 3]],
+                'delivery_address_id' => $this->address->id,
+                'coupon_code' => 'INVALID_COUPON_DOES_NOT_EXIST',
+            ]);
+
+        $response->assertStatus(422);
+        $this->assertEquals(10, $product->fresh()->stock);
     }
 
     public function test_order_with_scheduled_datetime(): void
