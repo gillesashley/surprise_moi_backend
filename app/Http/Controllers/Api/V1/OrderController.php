@@ -130,7 +130,7 @@ class OrderController extends Controller
                 // For products: use cart price if available, detect staleness
                 if ($orderable instanceof Product && isset($cartPriceMap[$orderable->id])) {
                     $cartPriceCents = $cartPriceMap[$orderable->id];
-                    $currentPrice = $orderable->discount_price ?? $orderable->price;
+                    $currentPrice = $orderable->effective_price;
                     $currentPriceCents = (int) round($currentPrice * 100);
 
                     // Reject if price has changed in either direction — user must see current prices
@@ -145,7 +145,11 @@ class OrderController extends Controller
                     $unitPrice = $cartPriceCents / 100;
                 } else {
                     // Fallback for services or items not in cart
-                    $unitPrice = $orderable->discount_price ?? $orderable->price ?? $orderable->charge_start;
+                    if ($orderable instanceof Product) {
+                        $unitPrice = $orderable->effective_price;
+                    } else {
+                        $unitPrice = $orderable->discount_price ?? $orderable->price ?? $orderable->charge_start;
+                    }
                 }
 
                 $itemSubtotal = $unitPrice * $item['quantity'];
