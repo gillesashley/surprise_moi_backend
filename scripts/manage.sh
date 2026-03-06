@@ -690,6 +690,18 @@ do_status() {
         echo ""
         log_info "Quick health check:"
         curl -s -o /dev/null -w "  HTTP Status: %{http_code}\n" http://localhost:8082/up || echo "  Unable to reach application"
+
+        echo ""
+        log_step "Octane Status:"
+        docker compose exec -T app php artisan octane:status 2>&1 || echo "  Unable to check Octane status"
+
+        echo ""
+        log_step "Horizon Status:"
+        docker compose exec -T app php artisan horizon:status 2>&1 || echo "  Unable to check Horizon status"
+
+        echo ""
+        log_step "Supervisor Process Status:"
+        docker compose exec -T app supervisorctl status 2>&1 || echo "  Unable to check Supervisor status"
     fi
 }
 
@@ -821,7 +833,7 @@ print_help() {
     echo "  start                Start all services"
     echo "  stop                 Stop all services"
     echo "  restart              Restart all services"
-    echo "  status               Show service status and health"
+    echo "  status               Show service status, health, Octane & Horizon"
     echo "  logs [service]       View logs (app, queue, scheduler, db, redis)"
     echo "  artisan <cmd>        Run artisan command"
     echo "  backup               Backup database (creates full + portable backups)"
