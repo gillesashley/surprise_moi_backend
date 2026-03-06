@@ -65,7 +65,7 @@ WORKDIR /app
 COPY composer.json composer.lock ./
 
 # Install PHP dependencies (needed for Wayfinder)
-RUN composer install --no-scripts --no-autoloader --prefer-dist
+RUN composer install --no-scripts --no-autoloader --prefer-dist --ignore-platform-reqs
 
 # Copy Laravel application files needed for Wayfinder
 COPY artisan ./
