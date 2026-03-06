@@ -24,7 +24,10 @@ use Illuminate\Support\Facades\Log;
 
 class OrderController extends Controller
 {
-    public function __construct(protected VendorBalanceService $vendorBalanceService) {}
+    public function __construct(
+        protected VendorBalanceService $vendorBalanceService,
+        protected CartService $cartService,
+    ) {}
 
     /**
      * Get a paginated list of orders for the authenticated user.
@@ -87,8 +90,7 @@ class OrderController extends Controller
                 }
             }
 
-            $cartService = app(CartService::class);
-            $cartPriceMap = $cartService->getCartPriceMap($request->user());
+            $cartPriceMap = $this->cartService->getCartPriceMap($request->user());
 
             $items = $request->input('items');
             $subtotal = 0;
@@ -131,8 +133,8 @@ class OrderController extends Controller
                     $currentPrice = $orderable->discount_price ?? $orderable->price;
                     $currentPriceCents = (int) round($currentPrice * 100);
 
-                    // Reject if cart price is higher than current price — user would overpay
-                    if ($cartPriceCents > $currentPriceCents) {
+                    // Reject if price has changed in either direction — user must see current prices
+                    if ($cartPriceCents !== $currentPriceCents) {
                         throw new PriceChangedException(
                             $orderable->name,
                             $cartPriceCents / 100,
@@ -275,7 +277,7 @@ class OrderController extends Controller
             try {
                 $userCart = Cart::where('user_id', $request->user()->id)->first();
                 if ($userCart) {
-                    app(CartService::class)->clearCart($userCart);
+                    $this->cartService->clearCart($userCart);
                 }
             } catch (\Exception $e) {
                 Log::warning('Failed to clear cart after order creation', [

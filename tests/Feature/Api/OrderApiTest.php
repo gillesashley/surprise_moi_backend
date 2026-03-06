@@ -747,7 +747,7 @@ class OrderApiTest extends TestCase
         $this->assertNotNull($order->scheduled_datetime);
     }
 
-    public function test_order_uses_cart_prices_not_current_product_prices(): void
+    public function test_order_rejects_when_product_price_increased(): void
     {
         $product = Product::factory()->create([
             'vendor_id' => $this->vendor->id,
@@ -775,7 +775,7 @@ class OrderApiTest extends TestCase
         // Vendor updates price to 58.00 after user added to cart
         $product->update(['price' => 58.00]);
 
-        // Create order — should use cart price (8.00), not current price (58.00)
+        // Create order — should reject because price changed
         $response = $this->actingAs($this->customer)
             ->postJson('/api/v1/orders', [
                 'items' => [
@@ -788,11 +788,14 @@ class OrderApiTest extends TestCase
                 'delivery_address_id' => $this->address->id,
             ]);
 
-        $response->assertStatus(201);
+        $response->assertStatus(409)
+            ->assertJsonFragment(['code' => 'price_changed']);
 
-        $order = Order::first();
-        $this->assertEquals(8.00, (float) $order->subtotal, 'Order should use cart price (8.00), not current product price (58.00)');
-        $this->assertEquals(8.00, (float) $order->total);
+        // No order should be created
+        $this->assertDatabaseCount('orders', 0);
+
+        // Stock should be restored
+        $this->assertEquals(10, $product->fresh()->stock);
     }
 
     public function test_order_rejects_when_product_price_changed(): void
