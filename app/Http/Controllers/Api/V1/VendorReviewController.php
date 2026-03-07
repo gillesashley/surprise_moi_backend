@@ -30,16 +30,13 @@ class VendorReviewController extends Controller
         $data = $request->validated();
 
         $query = Review::query()
-            ->with(['user', 'reviewable', 'reviewImages'])
-            ->withCount('helpfuls')
             ->whereHasMorph(
                 'reviewable',
                 [Product::class, Service::class],
                 function (Builder $query) use ($vendor): void {
                     $query->where('vendor_id', $vendor->id);
                 }
-            )
-            ->latest();
+            );
 
         if (isset($data['rating'])) {
             $query->where('rating', $data['rating']);
@@ -79,14 +76,18 @@ class VendorReviewController extends Controller
             });
         }
 
-        $query->withExists([
-            'helpfuls as is_helpful_by_me' => function (Builder $query) use ($vendor): void {
-                $query->where('user_id', $vendor->id);
-            },
-        ]);
-
         $perPage = (int) ($data['per_page'] ?? 15);
         $stats = $this->calculateStats(clone $query, $reviewService);
+
+        $query->with(['user', 'reviewable', 'reviewImages'])
+            ->withCount('helpfuls')
+            ->withExists([
+                'helpfuls as is_helpful_by_me' => function (Builder $query) use ($vendor): void {
+                    $query->where('user_id', $vendor->id);
+                },
+            ])
+            ->latest();
+
         $reviews = $query->paginate($perPage);
 
         return response()->json([
@@ -110,24 +111,12 @@ class VendorReviewController extends Controller
         Builder $query,
         ReviewService $reviewService
     ): array {
-        $baseQuery = $query->withoutEagerLoads()
-            ->getQuery()
-            ->cloneWithout(['columns', 'orders', 'limit', 'offset']);
-
-        $statsQuery = Review::query()->setQuery($baseQuery);
-
-        $summary = $statsQuery->selectRaw('
+        $summary = (clone $query)->selectRaw('
             COUNT(*) as total,
             COALESCE(AVG(rating), 0) as average
         ')->first();
 
-        $baseQuery2 = $query->withoutEagerLoads()
-            ->getQuery()
-            ->cloneWithout(['columns', 'orders', 'limit', 'offset']);
-
-        $groupQuery = Review::query()->setQuery($baseQuery2);
-
-        $grouped = $groupQuery->selectRaw('rating, COUNT(*) as count')
+        $grouped = (clone $query)->selectRaw('rating, COUNT(*) as count')
             ->groupBy('rating')
             ->pluck('count', 'rating')
             ->toArray();
