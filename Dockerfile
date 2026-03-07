@@ -99,12 +99,12 @@ RUN mkdir -p storage/framework/{sessions,views,cache} \
 # Clear any cached bootstrap files from source
 RUN rm -f bootstrap/cache/*.php
 
-# Create .env file with SQLite DB for Wayfinder (no real DB during build)
+# Create .env with in-memory SQLite so Wayfinder can boot without a real DB.
+# Production still uses PostgreSQL — this is only for route discovery during build.
 RUN cp .env.example .env \
     && sed -i 's/DB_CONNECTION=pgsql/DB_CONNECTION=sqlite/' .env \
     && sed -i 's/DB_HOST=.*//' .env \
     && sed -i 's/DB_DATABASE=.*/DB_DATABASE=:memory:/' .env \
-    && touch database/database.sqlite \
     && php artisan key:generate --ansi
 
 # Generate Wayfinder routes BEFORE building (with form support for formVariants)
@@ -308,12 +308,11 @@ COPY . .
 # Generate optimized autoloader
 RUN composer dump-autoload --optimize
 
-# Build frontend assets (use SQLite DB for Wayfinder - no real DB during build)
+# Build frontend assets (in-memory SQLite so Wayfinder can boot without real DB)
 RUN cp .env.example .env \
     && sed -i 's/DB_CONNECTION=pgsql/DB_CONNECTION=sqlite/' .env \
     && sed -i 's/DB_HOST=.*//' .env \
     && sed -i 's/DB_DATABASE=.*/DB_DATABASE=:memory:/' .env \
-    && touch database/database.sqlite \
     && php artisan key:generate --ansi \
     && pnpm install --frozen-lockfile \
     && php artisan wayfinder:generate --with-form \
