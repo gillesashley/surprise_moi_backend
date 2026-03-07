@@ -46,6 +46,16 @@ class ProfileController extends Controller
             $data['avatar'] = $request->file('avatar')->store('avatars', 'public');
         }
 
+        // Handle banner upload
+        if ($request->hasFile('banner')) {
+            // Delete old banner if exists
+            if ($user->banner) {
+                Storage::disk('public')->delete($user->banner);
+            }
+
+            $data['banner'] = $request->file('banner')->store('banners', 'public');
+        }
+
         // Extract interests and personality traits from data
         $interests = $data['interests'] ?? null;
         $personalityTraits = $data['personality_traits'] ?? null;
@@ -102,6 +112,56 @@ class ProfileController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Avatar updated successfully',
+            'data' => [
+                'user' => $this->formatUserData($user),
+            ],
+        ]);
+    }
+
+    /**
+     * Update user banner.
+     */
+    public function updateBanner(\Illuminate\Http\Request $request): JsonResponse
+    {
+        $request->validate([
+            'banner' => ['required', 'image', 'mimes:jpeg,png,webp', 'max:5120'],
+        ]);
+
+        $user = auth()->user();
+
+        // Delete old banner if exists
+        if ($user->banner) {
+            Storage::disk('public')->delete($user->banner);
+        }
+
+        // Store new banner
+        $bannerPath = $request->file('banner')->store('banners', 'public');
+        $user->update(['banner' => $bannerPath]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Banner updated successfully',
+            'data' => [
+                'user' => $this->formatUserData($user),
+            ],
+        ]);
+    }
+
+    /**
+     * Delete user banner.
+     */
+    public function deleteBanner(): JsonResponse
+    {
+        $user = auth()->user();
+
+        if ($user->banner) {
+            Storage::disk('public')->delete($user->banner);
+            $user->update(['banner' => null]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Banner deleted successfully',
             'data' => [
                 'user' => $this->formatUserData($user),
             ],
@@ -190,6 +250,7 @@ class ProfileController extends Controller
             'email' => $user->email,
             'phone' => $user->phone,
             'avatar' => $user->avatar ? Storage::disk('public')->url($user->avatar) : null,
+            'banner' => $user->banner ? Storage::disk('public')->url($user->banner) : null,
             'role' => $user->role,
             'date_of_birth' => $user->date_of_birth?->format('Y-m-d'),
             'gender' => $user->gender,
