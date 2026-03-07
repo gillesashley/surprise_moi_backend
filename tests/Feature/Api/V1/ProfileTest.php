@@ -238,7 +238,7 @@ class ProfileTest extends TestCase
 
         $user->refresh();
         $this->assertNotNull($user->avatar);
-        Storage::disk()->assertExists($user->avatar);
+        Storage::disk('public')->assertExists($user->avatar);
     }
 
     public function test_user_can_upload_avatar_via_dedicated_endpoint(): void
@@ -264,7 +264,7 @@ class ProfileTest extends TestCase
 
         $user->refresh();
         $this->assertNotNull($user->avatar);
-        Storage::disk()->assertExists($user->avatar);
+        Storage::disk('public')->assertExists($user->avatar);
     }
 
     public function test_uploading_new_avatar_deletes_old_one(): void
@@ -274,10 +274,10 @@ class ProfileTest extends TestCase
 
         // Upload first avatar
         $oldFile = UploadedFile::fake()->create('old-avatar.jpg', 100, 'image/jpeg');
-        $oldPath = $oldFile->store('avatars');
+        $oldPath = $oldFile->store('avatars', 'public');
         $user->update(['avatar' => $oldPath]);
 
-        Storage::disk()->assertExists($oldPath);
+        Storage::disk('public')->assertExists($oldPath);
 
         // Upload new avatar
         $newFile = UploadedFile::fake()->create('new-avatar.jpg', 100, 'image/jpeg');
@@ -290,8 +290,8 @@ class ProfileTest extends TestCase
 
         $user->refresh();
         $this->assertNotEquals($oldPath, $user->avatar);
-        Storage::disk()->assertMissing($oldPath);
-        Storage::disk()->assertExists($user->avatar);
+        Storage::disk('public')->assertMissing($oldPath);
+        Storage::disk('public')->assertExists($user->avatar);
     }
 
     public function test_user_can_delete_avatar(): void
@@ -301,10 +301,10 @@ class ProfileTest extends TestCase
 
         // Upload avatar first
         $file = UploadedFile::fake()->create('avatar.jpg', 100, 'image/jpeg');
-        $path = $file->store('avatars');
+        $path = $file->store('avatars', 'public');
         $user->update(['avatar' => $path]);
 
-        Storage::disk()->assertExists($path);
+        Storage::disk('public')->assertExists($path);
 
         // Delete avatar
         $response = $this->actingAs($user)
@@ -318,7 +318,7 @@ class ProfileTest extends TestCase
 
         $user->refresh();
         $this->assertNull($user->avatar);
-        Storage::disk()->assertMissing($path);
+        Storage::disk('public')->assertMissing($path);
     }
 
     public function test_avatar_validation_rejects_invalid_file_types(): void
@@ -360,7 +360,7 @@ class ProfileTest extends TestCase
         $user = User::factory()->create();
 
         $file = UploadedFile::fake()->create('avatar.jpg', 100, 'image/jpeg');
-        $path = $file->store('avatars');
+        $path = $file->store('avatars', 'public');
         $user->update(['avatar' => $path]);
 
         $response = $this->actingAs($user)->getJson('/api/v1/profile');

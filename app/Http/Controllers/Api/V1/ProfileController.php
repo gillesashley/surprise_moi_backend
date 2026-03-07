@@ -40,10 +40,10 @@ class ProfileController extends Controller
         if ($request->hasFile('avatar')) {
             // Delete old avatar if exists
             if ($user->avatar) {
-                Storage::disk()->delete($user->avatar);
+                Storage::disk('public')->delete($user->avatar);
             }
 
-            $data['avatar'] = $request->file('avatar')->store('avatars');
+            $data['avatar'] = $request->file('avatar')->store('avatars', 'public');
         }
 
         // Extract interests and personality traits from data
@@ -92,11 +92,11 @@ class ProfileController extends Controller
 
         // Delete old avatar if exists
         if ($user->avatar) {
-            Storage::disk()->delete($user->avatar);
+            Storage::disk('public')->delete($user->avatar);
         }
 
         // Store new avatar
-        $avatarPath = $request->file('avatar')->store('avatars');
+        $avatarPath = $request->file('avatar')->store('avatars', 'public');
         $user->update(['avatar' => $avatarPath]);
 
         return response()->json([
@@ -116,7 +116,7 @@ class ProfileController extends Controller
         $user = auth()->user();
 
         if ($user->avatar) {
-            Storage::disk()->delete($user->avatar);
+            Storage::disk('public')->delete($user->avatar);
             $user->update(['avatar' => null]);
         }
 
@@ -189,7 +189,7 @@ class ProfileController extends Controller
             'name' => $user->name,
             'email' => $user->email,
             'phone' => $user->phone,
-            'avatar' => $user->avatar ? Storage::url($user->avatar) : null,
+            'avatar' => $user->avatar ? Storage::disk('public')->url($user->avatar) : null,
             'role' => $user->role,
             'date_of_birth' => $user->date_of_birth?->format('Y-m-d'),
             'gender' => $user->gender,

@@ -86,8 +86,8 @@ class VendorReviewController extends Controller
         ]);
 
         $perPage = (int) ($data['per_page'] ?? 15);
-        $reviews = $query->paginate($perPage);
         $stats = $this->calculateStats(clone $query, $reviewService);
+        $reviews = $query->paginate($perPage);
 
         return response()->json([
             'success' => true,
@@ -110,12 +110,24 @@ class VendorReviewController extends Controller
         Builder $query,
         ReviewService $reviewService
     ): array {
-        $summary = (clone $query)->selectRaw('
+        $baseQuery = $query->withoutEagerLoads()
+            ->getQuery()
+            ->cloneWithout(['columns', 'orders', 'limit', 'offset']);
+
+        $statsQuery = Review::query()->setQuery($baseQuery);
+
+        $summary = $statsQuery->selectRaw('
             COUNT(*) as total,
             COALESCE(AVG(rating), 0) as average
         ')->first();
 
-        $grouped = (clone $query)->selectRaw('rating, COUNT(*) as count')
+        $baseQuery2 = $query->withoutEagerLoads()
+            ->getQuery()
+            ->cloneWithout(['columns', 'orders', 'limit', 'offset']);
+
+        $groupQuery = Review::query()->setQuery($baseQuery2);
+
+        $grouped = $groupQuery->selectRaw('rating, COUNT(*) as count')
             ->groupBy('rating')
             ->pluck('count', 'rating')
             ->toArray();

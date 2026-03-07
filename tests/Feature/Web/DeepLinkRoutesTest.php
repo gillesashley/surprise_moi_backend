@@ -74,7 +74,7 @@ class DeepLinkRoutesTest extends TestCase
             'is_primary' => true,
         ]);
 
-        $response = $this->get("/products/{$product->id}");
+        $response = $this->followingRedirects()->get("/products/{$product->id}");
 
         $response->assertStatus(200);
         $response->assertSee('Sharing Test Product');
