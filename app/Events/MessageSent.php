@@ -9,81 +9,104 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-/**
- * MessageSent Event - Broadcast new chat message to conversation participants.
- * 
- * Broadcasting:
- * - Uses Laravel Reverb WebSocket server
- * - Sends to private channel: conversation.{id}
- * - Only participants can subscribe (see routes/channels.php)
- * 
- * Implements ShouldBroadcast to queue the broadcast (async).
- * Fired when: User sends a message via ChatController
- * 
- * Frontend receives:
- * - Event: 'message.sent'
- * - Data: Message with sender info
- */
 class MessageSent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     /**
-     * Create a new event instance.
-     * 
-     * @param Message $message The message that was sent
+     * @param  Message  $message  The message that was sent
+     * @param  int  $recipientId  The user ID of the recipient
      */
-    public function __construct(public Message $message) {}
+    public function __construct(
+        public Message $message,
+        public int $recipientId
+    ) {}
 
     /**
-     * Get the channels the event should broadcast on.
-     * 
-     * Broadcasts to private channel scoped to conversation.
-     * Authorization checked in routes/channels.php
+     * Broadcast to the recipient's private user channel.
      *
      * @return array<int, \Illuminate\Broadcasting\Channel>
      */
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel('conversation.' . $this->message->conversation_id),
+            new PrivateChannel('user.'.$this->recipientId),
         ];
     }
 
     /**
      * The event's broadcast name.
-     * 
-     * Frontend listens with:
-     * echo.private(`conversation.${id}`).listen('.message.sent', callback)
      */
     public function broadcastAs(): string
     {
-        return 'message.sent';
+        return 'MessageSent';
     }
 
     /**
      * Get the data to broadcast.
-     * 
-     * Includes message content and sender info.
-     * Keeps payload minimal for WebSocket efficiency.
      *
      * @return array<string, mixed>
      */
     public function broadcastWith(): array
     {
-        return [
+        $sender = $this->message->sender;
+
+        $data = [
             'id' => $this->message->id,
             'conversation_id' => $this->message->conversation_id,
             'sender_id' => $this->message->sender_id,
             'sender' => [
-                'id' => $this->message->sender->id,
-                'name' => $this->message->sender->name,
-                'avatar' => $this->message->sender->avatar,
+                'id' => $sender->id,
+                'name' => $sender->name,
+                'avatar' => $sender->avatar ? storage_url($sender->avatar) : null,
+                'role' => $sender->role,
+                'is_online' => $sender->isOnline(),
             ],
             'body' => $this->message->body,
             'type' => $this->message->type,
             'attachments' => $this->message->attachments,
+            'is_read' => false,
+            'read_at' => null,
+            'is_mine' => false,
+            'reply_to_id' => $this->message->reply_to_id,
+            'reply_to' => $this->buildReplyTo(),
             'created_at' => $this->message->created_at->toIso8601String(),
+            'updated_at' => $this->message->updated_at->toIso8601String(),
+        ];
+
+        return $data;
+    }
+
+    /**
+     * Build the reply_to nested object if present.
+     *
+     * @return array<string, mixed>|null
+     */
+    private function buildReplyTo(): ?array
+    {
+        if (! $this->message->reply_to_id) {
+            return null;
+        }
+
+        $replyTo = $this->message->replyTo;
+
+        if (! $replyTo) {
+            return null;
+        }
+
+        $replyTo->loadMissing('sender');
+
+        return [
+            'id' => $replyTo->id,
+            'sender_id' => $replyTo->sender_id,
+            'sender' => [
+                'id' => $replyTo->sender->id,
+                'name' => $replyTo->sender->name,
+                'avatar' => $replyTo->sender->avatar ? storage_url($replyTo->sender->avatar) : null,
+            ],
+            'body' => $replyTo->body,
+            'type' => $replyTo->type,
+            'attachments' => $replyTo->attachments,
         ];
     }
 }

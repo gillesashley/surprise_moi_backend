@@ -501,7 +501,118 @@ class ChatApiTest extends TestCase
         $response->assertStatus(201)
             ->assertJsonPath('data.sender_id', $this->vendor->id);
 
-        Event::assertDispatched(MessageSent::class);
+        Event::assertDispatched(MessageSent::class, function ($event) {
+            return $event->recipientId === $this->customer->id;
+        });
+    }
+
+    public function test_user_can_reply_to_specific_message(): void
+    {
+        Event::fake([MessageSent::class]);
+
+        $conversation = Conversation::factory()
+            ->forCustomer($this->customer)
+            ->forVendor($this->vendor)
+            ->create();
+
+        // Customer sends initial message
+        $originalMessage = Message::factory()
+            ->forConversation($conversation)
+            ->fromSender($this->customer)
+            ->create(['body' => 'What colors do you have?']);
+
+        // Vendor replies to that specific message
+        $response = $this->actingAs($this->vendor)
+            ->postJson("/api/v1/chat/conversations/{$conversation->id}/messages", [
+                'body' => 'We have red, blue, and green.',
+                'reply_to_id' => $originalMessage->id,
+            ]);
+
+        $response->assertStatus(201)
+            ->assertJsonPath('data.reply_to_id', $originalMessage->id)
+            ->assertJsonPath('data.reply_to.id', $originalMessage->id)
+            ->assertJsonPath('data.reply_to.body', 'What colors do you have?')
+            ->assertJsonPath('data.reply_to.sender.id', $this->customer->id);
+
+        $this->assertDatabaseHas('messages', [
+            'body' => 'We have red, blue, and green.',
+            'reply_to_id' => $originalMessage->id,
+        ]);
+    }
+
+    public function test_cannot_reply_to_message_from_different_conversation(): void
+    {
+        $conversation = Conversation::factory()
+            ->forCustomer($this->customer)
+            ->forVendor($this->vendor)
+            ->create();
+
+        $otherVendor = User::factory()->vendor()->create();
+        $otherConversation = Conversation::factory()
+            ->forCustomer($this->customer)
+            ->forVendor($otherVendor)
+            ->create();
+
+        $messageInOtherConversation = Message::factory()
+            ->forConversation($otherConversation)
+            ->fromSender($otherVendor)
+            ->create();
+
+        $response = $this->actingAs($this->customer)
+            ->postJson("/api/v1/chat/conversations/{$conversation->id}/messages", [
+                'body' => 'Trying to reply to wrong conversation',
+                'reply_to_id' => $messageInOtherConversation->id,
+            ]);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['reply_to_id']);
+    }
+
+    public function test_message_sent_event_broadcasts_to_recipient_user_channel(): void
+    {
+        Event::fake([MessageSent::class]);
+
+        $conversation = Conversation::factory()
+            ->forCustomer($this->customer)
+            ->forVendor($this->vendor)
+            ->create();
+
+        $this->actingAs($this->customer)
+            ->postJson("/api/v1/chat/conversations/{$conversation->id}/messages", [
+                'body' => 'Hello vendor!',
+            ]);
+
+        Event::assertDispatched(MessageSent::class, function ($event) {
+            return $event->recipientId === $this->vendor->id
+                && $event->message->body === 'Hello vendor!'
+                && $event->message->sender_id === $this->customer->id;
+        });
+    }
+
+    public function test_messages_read_event_broadcasts_to_other_participant(): void
+    {
+        Event::fake([MessagesRead::class]);
+
+        $conversation = Conversation::factory()
+            ->forCustomer($this->customer)
+            ->forVendor($this->vendor)
+            ->withUnreadForCustomer(3)
+            ->create();
+
+        Message::factory()
+            ->forConversation($conversation)
+            ->fromSender($this->vendor)
+            ->unread()
+            ->count(3)
+            ->create();
+
+        $this->actingAs($this->customer)
+            ->postJson("/api/v1/chat/conversations/{$conversation->id}/read");
+
+        Event::assertDispatched(MessagesRead::class, function ($event) {
+            return $event->recipientId === $this->vendor->id
+                && $event->reader->id === $this->customer->id;
+        });
     }
 
     // ==================== Read Status Tests ====================
@@ -585,7 +696,8 @@ class ChatApiTest extends TestCase
 
         Event::assertDispatched(UserTyping::class, function ($event) {
             return $event->isTyping === true
-                && $event->user->id === $this->customer->id;
+                && $event->user->id === $this->customer->id
+                && $event->recipientId === $this->vendor->id;
         });
     }
 
@@ -606,7 +718,8 @@ class ChatApiTest extends TestCase
         $response->assertStatus(200);
 
         Event::assertDispatched(UserTyping::class, function ($event) {
-            return $event->isTyping === false;
+            return $event->isTyping === false
+                && $event->recipientId === $this->vendor->id;
         });
     }
 

@@ -15,22 +15,25 @@ class MessagesRead implements ShouldBroadcast
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     /**
-     * Create a new event instance.
+     * @param  Conversation  $conversation  The conversation that was read
+     * @param  User  $reader  The user who read the messages
+     * @param  int  $recipientId  The user ID of the other participant
      */
     public function __construct(
         public Conversation $conversation,
-        public User $reader
+        public User $reader,
+        public int $recipientId
     ) {}
 
     /**
-     * Get the channels the event should broadcast on.
+     * Broadcast to the other participant's private user channel.
      *
      * @return array<int, \Illuminate\Broadcasting\Channel>
      */
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel('conversation.'.$this->conversation->id),
+            new PrivateChannel('user.'.$this->recipientId),
         ];
     }
 
@@ -39,7 +42,7 @@ class MessagesRead implements ShouldBroadcast
      */
     public function broadcastAs(): string
     {
-        return 'messages.read';
+        return 'MessagesRead';
     }
 
     /**

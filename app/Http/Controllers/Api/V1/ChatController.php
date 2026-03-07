@@ -72,8 +72,9 @@ class ChatController extends Controller
 
             $conversation->incrementUnreadFor($customer);
 
-            // Broadcast the message
-            broadcast(new MessageSent($message))->toOthers();
+            // Broadcast the message to the vendor
+            $message->load('sender');
+            broadcast(new MessageSent($message, $vendor->id))->toOthers();
         }
 
         return response()->json([
@@ -99,8 +100,9 @@ class ChatController extends Controller
         // Mark messages as read
         $conversation->markAsReadFor($request->user());
 
-        // Broadcast that messages have been read
-        broadcast(new MessagesRead($conversation, $request->user()))->toOthers();
+        // Broadcast that messages have been read to the other participant
+        $otherParticipant = $conversation->getOtherParticipant($request->user());
+        broadcast(new MessagesRead($conversation, $request->user(), $otherParticipant->id))->toOthers();
 
         return response()->json([
             'data' => new ConversationDetailResource($conversation),
@@ -118,7 +120,7 @@ class ChatController extends Controller
         }
 
         $messages = $conversation->messages()
-            ->with('sender')
+            ->with(['sender', 'replyTo.sender'])
             ->orderBy('created_at', 'desc')
             ->paginate($request->input('per_page', 50));
 
@@ -161,12 +163,18 @@ class ChatController extends Controller
         }
 
         // Create the message
-        $message = $conversation->messages()->create([
+        $messageData = [
             'sender_id' => $request->user()->id,
             'body' => $request->validated('body'),
             'type' => $type,
             'attachments' => ! empty($attachments) ? $attachments : null,
-        ]);
+        ];
+
+        if ($request->filled('reply_to_id')) {
+            $messageData['reply_to_id'] = $request->validated('reply_to_id');
+        }
+
+        $message = $conversation->messages()->create($messageData);
 
         // Update conversation metadata
         $conversation->update([
@@ -178,11 +186,13 @@ class ChatController extends Controller
         // Increment unread count for the other participant
         $conversation->incrementUnreadFor($request->user());
 
-        // Load sender relationship
-        $message->load('sender');
+        // Load sender and reply_to relationships
+        $message->load(['sender', 'replyTo.sender']);
 
-        // Broadcast the new message
-        broadcast(new MessageSent($message))->toOthers();
+        // Broadcast the new message to the other participant
+        $conversation->load(['customer', 'vendor']);
+        $recipient = $conversation->getOtherParticipant($request->user());
+        broadcast(new MessageSent($message, $recipient->id))->toOthers();
 
         return response()->json([
             'message' => 'Message sent successfully.',
@@ -204,8 +214,10 @@ class ChatController extends Controller
 
         $conversation->markAsReadFor($request->user());
 
-        // Broadcast that messages have been read
-        broadcast(new MessagesRead($conversation, $request->user()))->toOthers();
+        // Broadcast that messages have been read to the other participant
+        $conversation->load(['customer', 'vendor']);
+        $otherParticipant = $conversation->getOtherParticipant($request->user());
+        broadcast(new MessagesRead($conversation, $request->user(), $otherParticipant->id))->toOthers();
 
         return response()->json([
             'message' => 'Messages marked as read.',
@@ -226,9 +238,14 @@ class ChatController extends Controller
 
         $isTyping = $request->boolean('is_typing', true);
 
+        // Broadcast typing indicator to the other participant
+        $conversation->load(['customer', 'vendor']);
+        $recipient = $conversation->getOtherParticipant($request->user());
+
         broadcast(new UserTyping(
             $conversation->id,
             $request->user(),
+            $recipient->id,
             $isTyping
         ))->toOthers();
 
