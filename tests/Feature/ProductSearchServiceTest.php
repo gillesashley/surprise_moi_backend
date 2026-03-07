@@ -84,11 +84,13 @@ class ProductSearchServiceTest extends TestCase
         // Create a fake embedding
         $fakeEmbedding = array_fill(0, 768, 0.1);
 
-        ProductEmbedding::create([
-            'product_id' => $product->id,
-            'embedding' => $fakeEmbedding,
-            'content_hash' => hash('sha256', 'test'),
-        ]);
+        ProductEmbedding::updateOrCreate(
+            ['product_id' => $product->id],
+            [
+                'embedding' => $fakeEmbedding,
+                'content_hash' => hash('sha256', 'test'),
+            ]
+        );
 
         return $product;
     }

@@ -30,16 +30,13 @@ class VendorReviewController extends Controller
         $data = $request->validated();
 
         $query = Review::query()
-            ->with(['user', 'reviewable', 'reviewImages'])
-            ->withCount('helpfuls')
             ->whereHasMorph(
                 'reviewable',
                 [Product::class, Service::class],
                 function (Builder $query) use ($vendor): void {
                     $query->where('vendor_id', $vendor->id);
                 }
-            )
-            ->latest();
+            );
 
         if (isset($data['rating'])) {
             $query->where('rating', $data['rating']);
@@ -79,15 +76,19 @@ class VendorReviewController extends Controller
             });
         }
 
-        $query->withExists([
-            'helpfuls as is_helpful_by_me' => function (Builder $query) use ($vendor): void {
-                $query->where('user_id', $vendor->id);
-            },
-        ]);
-
         $perPage = (int) ($data['per_page'] ?? 15);
-        $reviews = $query->paginate($perPage);
         $stats = $this->calculateStats(clone $query, $reviewService);
+
+        $query->with(['user', 'reviewable', 'reviewImages'])
+            ->withCount('helpfuls')
+            ->withExists([
+                'helpfuls as is_helpful_by_me' => function (Builder $query) use ($vendor): void {
+                    $query->where('user_id', $vendor->id);
+                },
+            ])
+            ->latest();
+
+        $reviews = $query->paginate($perPage);
 
         return response()->json([
             'success' => true,

@@ -191,7 +191,7 @@ class AdminDashboardController extends Controller
     {
         $status = request()->input('status', 'pending');
 
-        $query = PayoutRequest::with(['user:id,name,email,phone', 'processedBy:id,name']);
+        $query = PayoutRequest::with(['user:id,name,email,phone', 'user.payoutDetails', 'processedBy:id,name']);
 
         if ($status !== 'all' && $status) {
             $query->where('status', $status);
@@ -229,6 +229,17 @@ class AdminDashboardController extends Controller
                         'created_at' => $payout->created_at->toIso8601String(),
                         'processed_by_name' => $payout->processedBy->name ?? null,
                         'processed_at' => $payout->processed_at?->toIso8601String(),
+                        'vendor_payout_details' => ($payout->user?->payoutDetails ?? collect())->map(fn ($detail) => [
+                            'id' => $detail->id,
+                            'payout_method' => $detail->payout_method,
+                            'account_name' => $detail->account_name,
+                            'account_number' => $detail->account_number,
+                            'bank_code' => $detail->bank_code,
+                            'bank_name' => $detail->bank_name,
+                            'provider' => $detail->provider,
+                            'is_verified' => $detail->is_verified,
+                            'is_default' => $detail->is_default,
+                        ])->toArray(),
                     ])->toArray(),
                     'total' => $payouts->total(),
                     'per_page' => $payouts->perPage(),

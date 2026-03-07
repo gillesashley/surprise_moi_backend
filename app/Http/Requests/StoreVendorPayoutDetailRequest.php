@@ -22,7 +22,8 @@ class StoreVendorPayoutDetailRequest extends FormRequest
             ])],
             'account_number' => ['required', 'string', 'max:20'],
             'bank_code' => ['required', 'string', 'max:20'],
-            'provider' => ['required_if:payout_method,mobile_money', 'nullable', 'string', 'in:mtn,vodafone,airteltigo'],
+            'account_name' => ['nullable', 'string', 'max:255'],
+            'provider' => ['nullable', 'string', 'in:mtn,vodafone,airteltigo'],
         ];
     }
 
@@ -31,8 +32,7 @@ class StoreVendorPayoutDetailRequest extends FormRequest
         return [
             'payout_method.in' => 'Payout method must be mobile_money or bank_transfer.',
             'account_number.required' => 'Account number or phone number is required.',
-            'bank_code.required' => 'Bank code is required.',
-            'provider.required_if' => 'Mobile money provider is required for mobile money payouts.',
+            'bank_code.required' => 'Bank or provider code is required.',
         ];
     }
 }

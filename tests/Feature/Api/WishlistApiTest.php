@@ -7,6 +7,7 @@ use App\Models\Service;
 use App\Models\User;
 use App\Models\Wishlist;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class WishlistApiTest extends TestCase
@@ -453,16 +454,18 @@ class WishlistApiTest extends TestCase
             'item_type' => 'product',
         ]);
 
-        // Attempt to create a duplicate entry; whether an exception is thrown or not,
-        // we assert that only one wishlist record exists for this user/item.
+        // Attempt to create a duplicate entry within a savepoint so the outer
+        // transaction isn't poisoned on PostgreSQL.
         try {
-            Wishlist::create([
-                'user_id' => $this->customer->id,
-                'item_id' => $this->product->id,
-                'item_type' => 'product',
-            ]);
+            DB::connection()->transaction(function () {
+                Wishlist::create([
+                    'user_id' => $this->customer->id,
+                    'item_id' => $this->product->id,
+                    'item_type' => 'product',
+                ]);
+            });
         } catch (\Throwable $e) {
-            // Ignore any low-level database or application exceptions; we care about the final state.
+            // Expected: unique constraint violation
         }
 
         $count = Wishlist::where('user_id', $this->customer->id)

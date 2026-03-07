@@ -29,74 +29,18 @@ class VendorPayoutDetailController extends Controller
     }
 
     /**
-     * Save new payout details with Paystack verification.
+     * Save new payout details.
      */
     public function store(StoreVendorPayoutDetailRequest $request): JsonResponse
     {
         $vendor = $request->user();
+        $payoutMethod = $request->input('payout_method');
 
-        // Step 1: Resolve account number via Paystack
-        $resolveResult = $this->paystackService->resolveAccountNumber(
-            $request->input('account_number'),
-            $request->input('bank_code')
-        );
-
-        if (! $resolveResult['success']) {
-            return response()->json([
-                'success' => false,
-                'message' => $resolveResult['message'] ?? 'Could not verify account. Please check your details.',
-            ], 422);
+        if ($payoutMethod === VendorPayoutDetail::METHOD_BANK_TRANSFER) {
+            return $this->storeBankTransfer($request, $vendor);
         }
 
-        $accountName = $resolveResult['data']['account_name'];
-
-        // Step 2: Determine recipient type for Paystack
-        $recipientType = $request->input('payout_method') === VendorPayoutDetail::METHOD_MOBILE_MONEY
-            ? 'mobile_money'
-            : 'ghipss';
-
-        // Step 3: Create Paystack transfer recipient
-        $recipientResult = $this->paystackService->createTransferRecipient(
-            type: $recipientType,
-            name: $accountName,
-            accountNumber: $request->input('account_number'),
-            bankCode: $request->input('bank_code'),
-            currency: 'GHS'
-        );
-
-        if (! $recipientResult['success']) {
-            return response()->json([
-                'success' => false,
-                'message' => $recipientResult['message'] ?? 'Could not register payout details. Please try again.',
-            ], 422);
-        }
-
-        // Step 4: Get bank name from Paystack data
-        $bankName = $recipientResult['data']['details']['bank_name']
-            ?? $request->input('bank_code');
-
-        // Step 5: Unset existing defaults
-        $vendor->payoutDetails()->update(['is_default' => false]);
-
-        // Step 6: Save payout details
-        $detail = VendorPayoutDetail::create([
-            'vendor_id' => $vendor->id,
-            'payout_method' => $request->input('payout_method'),
-            'account_name' => $accountName,
-            'account_number' => $request->input('account_number'),
-            'bank_code' => $request->input('bank_code'),
-            'bank_name' => $bankName,
-            'provider' => $request->input('provider'),
-            'paystack_recipient_code' => $recipientResult['data']['recipient_code'],
-            'is_verified' => true,
-            'is_default' => true,
-        ]);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Payout details saved and verified successfully.',
-            'payout_detail' => $detail,
-        ], 201);
+        return $this->storeMobileMoney($request, $vendor);
     }
 
     /**
@@ -111,8 +55,10 @@ class VendorPayoutDetailController extends Controller
             ], 403);
         }
 
-        // Deactivate on Paystack
-        $this->paystackService->deleteTransferRecipient($vendorPayoutDetail->paystack_recipient_code);
+        // Deactivate on Paystack if it has a recipient code
+        if ($vendorPayoutDetail->paystack_recipient_code) {
+            $this->paystackService->deleteTransferRecipient($vendorPayoutDetail->paystack_recipient_code);
+        }
 
         $wasDefault = $vendorPayoutDetail->is_default;
         $vendorPayoutDetail->delete();
@@ -146,5 +92,110 @@ class VendorPayoutDetailController extends Controller
             'success' => true,
             'banks' => $result['data'],
         ]);
+    }
+
+    /**
+     * Save mobile money payout details (no Paystack verification).
+     */
+    private function storeMobileMoney(StoreVendorPayoutDetailRequest $request, $vendor): JsonResponse
+    {
+        // Unset existing defaults
+        $vendor->payoutDetails()->update(['is_default' => false]);
+
+        $detail = VendorPayoutDetail::create([
+            'vendor_id' => $vendor->id,
+            'payout_method' => VendorPayoutDetail::METHOD_MOBILE_MONEY,
+            'account_name' => $request->input('account_name', $vendor->name),
+            'account_number' => $request->input('account_number'),
+            'bank_code' => $request->input('bank_code'),
+            'bank_name' => $this->resolveMoMoProviderName($request->input('bank_code')),
+            'provider' => $request->input('provider'),
+            'paystack_recipient_code' => null,
+            'is_verified' => false,
+            'is_default' => true,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Mobile money payout details saved successfully.',
+            'payout_detail' => $detail,
+        ], 201);
+    }
+
+    /**
+     * Save bank transfer payout details with Paystack verification.
+     */
+    private function storeBankTransfer(StoreVendorPayoutDetailRequest $request, $vendor): JsonResponse
+    {
+        $resolveResult = $this->paystackService->resolveAccountNumber(
+            $request->input('account_number'),
+            $request->input('bank_code')
+        );
+
+        if (! $resolveResult['success']) {
+            return response()->json([
+                'success' => false,
+                'message' => $resolveResult['message'] ?? 'Could not verify account. Please check your details.',
+            ], 422);
+        }
+
+        $accountName = $resolveResult['data']['account_name'];
+
+        $recipientResult = $this->paystackService->createTransferRecipient(
+            type: 'ghipss',
+            name: $accountName,
+            accountNumber: $request->input('account_number'),
+            bankCode: $request->input('bank_code'),
+            currency: 'GHS'
+        );
+
+        if (! $recipientResult['success']) {
+            return response()->json([
+                'success' => false,
+                'message' => $recipientResult['message'] ?? 'Could not register payout details. Please try again.',
+            ], 422);
+        }
+
+        $bankName = $recipientResult['data']['details']['bank_name']
+            ?? $request->input('bank_code');
+
+        // Unset existing defaults
+        $vendor->payoutDetails()->update(['is_default' => false]);
+
+        $detail = VendorPayoutDetail::create([
+            'vendor_id' => $vendor->id,
+            'payout_method' => VendorPayoutDetail::METHOD_BANK_TRANSFER,
+            'account_name' => $accountName,
+            'account_number' => $request->input('account_number'),
+            'bank_code' => $request->input('bank_code'),
+            'bank_name' => $bankName,
+            'provider' => null,
+            'paystack_recipient_code' => $recipientResult['data']['recipient_code'],
+            'is_verified' => true,
+            'is_default' => true,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Bank payout details saved and verified successfully.',
+            'payout_detail' => $detail,
+        ], 201);
+    }
+
+    private function resolveMoMoProviderName(string $bankCode): string
+    {
+        $providers = [
+            'MTN' => 'MTN Mobile Money',
+            'mtn' => 'MTN Mobile Money',
+            'mtn_gh' => 'MTN Mobile Money',
+            'VOD' => 'Vodafone Cash',
+            'vodafone' => 'Vodafone Cash',
+            'vodafone_gh' => 'Vodafone Cash',
+            'ATL' => 'AirtelTigo Money',
+            'airteltigo' => 'AirtelTigo Money',
+            'airteltigo_gh' => 'AirtelTigo Money',
+        ];
+
+        return $providers[$bankCode] ?? $bankCode;
     }
 }

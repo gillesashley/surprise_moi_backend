@@ -74,7 +74,7 @@ class DeepLinkRoutesTest extends TestCase
             'is_primary' => true,
         ]);
 
-        $response = $this->get("/products/{$product->id}");
+        $response = $this->followingRedirects()->get("/products/{$product->id}");
 
         $response->assertStatus(200);
         $response->assertSee('Sharing Test Product');
@@ -84,7 +84,7 @@ class DeepLinkRoutesTest extends TestCase
         $response->assertSee('property="og:description"', false);
         $response->assertSee('property="og:image"', false);
         $response->assertSee(
-            'property="og:url" content="https://surprisemoi.com/products/'.$product->id.'"',
+            'property="og:url" content="https://surprisemoi.com/products/'.$product->slug.'"',
             false
         );
     }
