@@ -11,7 +11,7 @@ use Illuminate\Support\Str;
 
 /**
  * CartService - Manages shopping cart operations.
- * 
+ *
  * This service handles:
  * - Guest carts (using UUID tokens)
  * - Authenticated user carts
@@ -24,13 +24,13 @@ class CartService
 {
     /**
      * Get or create a cart for the given user or guest token.
-     * 
+     *
      * Logic:
      * - For authenticated users: Find or create cart by user_id
      * - For guests: Find cart by token, or create new cart with UUID token
-     * 
-     * @param User|null $user Authenticated user (if logged in)
-     * @param string|null $cartToken Guest cart token from cookie/header
+     *
+     * @param  User|null  $user  Authenticated user (if logged in)
+     * @param  string|null  $cartToken  Guest cart token from cookie/header
      * @return Cart The cart instance
      */
     public function getOrCreateCart(?User $user = null, ?string $cartToken = null): Cart
@@ -65,17 +65,18 @@ class CartService
 
     /**
      * Add a product to the cart.
-     * 
+     *
      * Features:
      * - Validates product availability and stock
      * - Stores price in cents (integer) for precision
      * - Merges with existing cart item if same product+SKU
      * - Increments version for cache invalidation
      * - Recalculates cart totals
-     * 
-     * @param Cart $cart The cart to add item to
-     * @param array $data Item data: product_id, quantity, unit_price_cents, sku, name, metadata
+     *
+     * @param  Cart  $cart  The cart to add item to
+     * @param  array  $data  Item data: product_id, quantity, unit_price_cents, sku, name, metadata
      * @return CartItem The created or updated cart item
+     *
      * @throws \Exception If product unavailable or insufficient stock
      */
     public function addItem(Cart $cart, array $data): CartItem
@@ -96,7 +97,7 @@ class CartService
             // Use provided price or product price (convert to cents)
             $unitPriceCents = isset($data['unit_price_cents'])
                 ? $data['unit_price_cents']
-                : (int) ($product->price * 100);
+                : (int) round($product->effective_price * 100);
 
             $sku = $data['sku'] ?? null;
 
@@ -144,10 +145,11 @@ class CartService
 
     /**
      * Update a cart item's quantity, price, or metadata.
-     * 
-     * @param CartItem $cartItem The item to update
-     * @param array $data Fields to update: quantity, unit_price_cents, metadata
+     *
+     * @param  CartItem  $cartItem  The item to update
+     * @param  array  $data  Fields to update: quantity, unit_price_cents, metadata
      * @return CartItem The updated cart item
+     *
      * @throws \Exception If quantity invalid or exceeds stock
      */
     public function updateItem(CartItem $cartItem, array $data): CartItem
@@ -190,8 +192,8 @@ class CartService
     /**
      * Remove an item from the cart.
      * Also recalculates cart totals.
-     * 
-     * @param CartItem $cartItem The item to remove
+     *
+     * @param  CartItem  $cartItem  The item to remove
      */
     public function removeItem(CartItem $cartItem): void
     {
@@ -209,8 +211,8 @@ class CartService
     /**
      * Clear all items from a cart.
      * Useful for post-checkout cleanup.
-     * 
-     * @param Cart $cart The cart to clear
+     *
+     * @param  Cart  $cart  The cart to clear
      * @return Cart The cleared cart
      */
     public function clearCart(Cart $cart): Cart
@@ -226,16 +228,33 @@ class CartService
     }
 
     /**
+     * Get a map of product prices from the user's cart.
+     * Returns [product_id => unit_price_cents] for all items in the cart.
+     */
+    public function getCartPriceMap(User $user): array
+    {
+        $cart = Cart::where('user_id', $user->id)->first();
+
+        if (! $cart) {
+            return [];
+        }
+
+        return $cart->items()
+            ->pluck('unit_price_cents', 'product_id')
+            ->toArray();
+    }
+
+    /**
      * Merge a guest cart into a user's cart.
      * Called when a guest with items in cart logs in.
-     * 
+     *
      * Logic:
      * - If item exists in both carts, combine quantities (up to stock limit)
      * - If item only in guest cart, move it to user cart
      * - Delete guest cart after merge
-     * 
-     * @param Cart $userCart The authenticated user's cart
-     * @param Cart $guestCart The guest cart to merge from
+     *
+     * @param  Cart  $userCart  The authenticated user's cart
+     * @param  Cart  $guestCart  The guest cart to merge from
      * @return Cart The merged user cart
      */
     public function mergeCarts(Cart $userCart, Cart $guestCart): Cart

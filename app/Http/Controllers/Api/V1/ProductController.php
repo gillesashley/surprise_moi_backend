@@ -17,7 +17,7 @@ class ProductController extends Controller
     public function index(Request $request)
     {
         $query = Product::query()
-            ->with(['category', 'vendor', 'shop', 'images', 'tags'])
+            ->with(['category', 'vendor', 'shop', 'images', 'tags', 'activeOffer'])
             ->where('is_available', true);
 
         // Filter by category (supports single slug or comma-separated slugs)
@@ -176,6 +176,7 @@ class ProductController extends Controller
             'images',
             'variants',
             'tags',
+            'activeOffer',
         ])->findOrFail($id);
 
         return response()->json([
@@ -198,6 +199,7 @@ class ProductController extends Controller
             'images',
             'variants',
             'tags',
+            'activeOffer',
         ])->where('slug', $slug)->firstOrFail();
 
         return response()->json([

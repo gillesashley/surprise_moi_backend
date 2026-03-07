@@ -28,8 +28,23 @@ class ProductDetailResource extends JsonResource
             'detailed_description' => $this->detailed_description,
             'category' => new CategoryResource($this->whenLoaded('category')),
             'price' => (float) $this->price,
-            'discount_price' => $this->discount_price ? (float) $this->discount_price : null,
-            'discount_percentage' => $this->discount_percentage,
+            'discount_price' => $this->effective_price < (float) $this->price
+                ? $this->effective_price
+                : ($this->discount_price ? (float) $this->discount_price : null),
+            'discount_percentage' => $this->effective_discount_percentage,
+            'active_offer' => $this->whenLoaded('activeOffer', function () {
+                if (! $this->activeOffer) {
+                    return null;
+                }
+
+                return [
+                    'id' => $this->activeOffer->id,
+                    'discount_percentage' => $this->activeOffer->discount_percentage,
+                    'tag' => $this->activeOffer->tag,
+                    'starts_at' => $this->activeOffer->starts_at?->toISOString(),
+                    'ends_at' => $this->activeOffer->ends_at?->toISOString(),
+                ];
+            }, null),
             'currency' => $this->currency,
             'images' => $this->whenLoaded('images', function () {
                 return $this->images->map(fn ($img) => storage_url($img->image_path));
