@@ -70,6 +70,7 @@ class WawVideoController extends Controller
             'service_id' => $request->input('service_id'),
         ]);
 
+        $wawVideo->refresh();
         $wawVideo->load(['vendor', 'product', 'service']);
         $wawVideo->setRelation('currentUserLike', null);
 
