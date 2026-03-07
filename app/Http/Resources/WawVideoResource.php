@@ -22,7 +22,7 @@ class WawVideoResource extends JsonResource
             'created_at' => $this->created_at,
             'vendor' => $this->whenLoaded('vendor', fn () => [
                 'name' => $this->vendor->name,
-                'profile_image' => $this->vendor->profile_image ? storage_url($this->vendor->profile_image) : null,
+                'profile_image' => $this->vendor->avatar ? storage_url($this->vendor->avatar) : null,
             ]),
             'product' => $this->whenLoaded('product', fn () => $this->product ? [
                 'id' => $this->product->id,

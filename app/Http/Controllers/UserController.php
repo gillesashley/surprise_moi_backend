@@ -145,7 +145,7 @@ class UserController extends Controller
         return Inertia::render('users/show', [
             'user' => [
                 ...$user->only(['id', 'name', 'email', 'phone', 'role', 'bio', 'date_of_birth', 'gender', 'favorite_color', 'favorite_music_genre', 'email_verified_at', 'phone_verified_at', 'is_popular', 'created_at', 'updated_at']),
-                'avatar' => $user->avatar ? Storage::url($user->avatar) : null,
+                'avatar' => storage_url($user->avatar),
                 'provider' => $user->provider,
                 'orders_count' => $user->orders_count,
                 'reviews_count' => $user->reviews_count,
@@ -198,7 +198,7 @@ class UserController extends Controller
         return Inertia::render('users/edit', [
             'user' => [
                 ...$user->only(['id', 'name', 'email', 'phone', 'role', 'bio', 'date_of_birth', 'gender', 'is_popular']),
-                'avatar' => $user->avatar ? Storage::url($user->avatar) : null,
+                'avatar' => storage_url($user->avatar),
             ],
             'roles' => self::ROLES,
             'canEditRole' => Auth::user()->isSuperAdmin() || ! $user->isAdmin(),
@@ -241,7 +241,7 @@ class UserController extends Controller
 
         // Handle avatar upload
         if ($request->hasFile('avatar')) {
-            $avatarPath = $request->file('avatar')->store('avatars');
+            $avatarPath = $request->file('avatar')->store('avatars', 'r2');
             $validated['avatar'] = $avatarPath;
         }
 
