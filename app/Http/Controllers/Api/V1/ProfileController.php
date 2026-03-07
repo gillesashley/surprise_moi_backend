@@ -40,20 +40,20 @@ class ProfileController extends Controller
         if ($request->hasFile('avatar')) {
             // Delete old avatar if exists
             if ($user->avatar) {
-                Storage::disk('public')->delete($user->avatar);
+                Storage::disk('r2')->delete($user->avatar);
             }
 
-            $data['avatar'] = $request->file('avatar')->store('avatars', 'public');
+            $data['avatar'] = $request->file('avatar')->store('avatars', 'r2');
         }
 
         // Handle banner upload
         if ($request->hasFile('banner')) {
             // Delete old banner if exists
             if ($user->banner) {
-                Storage::disk('public')->delete($user->banner);
+                Storage::disk('r2')->delete($user->banner);
             }
 
-            $data['banner'] = $request->file('banner')->store('banners', 'public');
+            $data['banner'] = $request->file('banner')->store('banners', 'r2');
         }
 
         // Extract interests and personality traits from data
@@ -102,11 +102,11 @@ class ProfileController extends Controller
 
         // Delete old avatar if exists
         if ($user->avatar) {
-            Storage::disk('public')->delete($user->avatar);
+            Storage::disk('r2')->delete($user->avatar);
         }
 
         // Store new avatar
-        $avatarPath = $request->file('avatar')->store('avatars', 'public');
+        $avatarPath = $request->file('avatar')->store('avatars', 'r2');
         $user->update(['avatar' => $avatarPath]);
 
         return response()->json([
@@ -131,11 +131,11 @@ class ProfileController extends Controller
 
         // Delete old banner if exists
         if ($user->banner) {
-            Storage::disk('public')->delete($user->banner);
+            Storage::disk('r2')->delete($user->banner);
         }
 
         // Store new banner
-        $bannerPath = $request->file('banner')->store('banners', 'public');
+        $bannerPath = $request->file('banner')->store('banners', 'r2');
         $user->update(['banner' => $bannerPath]);
 
         return response()->json([
@@ -155,7 +155,7 @@ class ProfileController extends Controller
         $user = auth()->user();
 
         if ($user->banner) {
-            Storage::disk('public')->delete($user->banner);
+            Storage::disk('r2')->delete($user->banner);
             $user->update(['banner' => null]);
         }
 
@@ -176,7 +176,7 @@ class ProfileController extends Controller
         $user = auth()->user();
 
         if ($user->avatar) {
-            Storage::disk('public')->delete($user->avatar);
+            Storage::disk('r2')->delete($user->avatar);
             $user->update(['avatar' => null]);
         }
 
@@ -249,8 +249,8 @@ class ProfileController extends Controller
             'name' => $user->name,
             'email' => $user->email,
             'phone' => $user->phone,
-            'avatar' => $user->avatar ? Storage::disk('public')->url($user->avatar) : null,
-            'banner' => $user->banner ? Storage::disk('public')->url($user->banner) : null,
+            'avatar' => storage_url($user->avatar),
+            'banner' => storage_url($user->banner),
             'role' => $user->role,
             'date_of_birth' => $user->date_of_birth?->format('Y-m-d'),
             'gender' => $user->gender,

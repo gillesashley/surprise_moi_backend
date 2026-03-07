@@ -37,7 +37,7 @@ class ConversationResource extends JsonResource
             'participant' => [
                 'id' => $otherParticipant->id,
                 'name' => $otherParticipant->name,
-                'avatar' => $otherParticipant->avatar ? url($otherParticipant->avatar) : null,
+                'avatar' => storage_url($otherParticipant->avatar),
                 'role' => $otherParticipant->role,
                 'is_online' => $otherParticipant->isOnline(),
             ],

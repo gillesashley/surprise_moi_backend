@@ -217,7 +217,7 @@ class ProfileTest extends TestCase
 
     public function test_user_can_upload_avatar_via_profile_update(): void
     {
-        Storage::fake('public');
+        Storage::fake('r2');
         $user = User::factory()->create();
 
         $file = UploadedFile::fake()->create('avatar.jpg', 100, 'image/jpeg');
@@ -233,17 +233,17 @@ class ProfileTest extends TestCase
                 'message' => 'Profile updated successfully',
             ])
             ->assertJsonPath('data.user.avatar', function ($avatar) {
-                return str_contains($avatar, '/storage/avatars/');
+                return str_contains($avatar, 'avatars/');
             });
 
         $user->refresh();
         $this->assertNotNull($user->avatar);
-        Storage::disk('public')->assertExists($user->avatar);
+        Storage::disk('r2')->assertExists($user->avatar);
     }
 
     public function test_user_can_upload_avatar_via_dedicated_endpoint(): void
     {
-        Storage::fake('public');
+        Storage::fake('r2');
         $user = User::factory()->create();
 
         $file = UploadedFile::fake()->create('avatar.jpg', 100, 'image/jpeg');
@@ -259,25 +259,25 @@ class ProfileTest extends TestCase
                 'message' => 'Avatar updated successfully',
             ])
             ->assertJsonPath('data.user.avatar', function ($avatar) {
-                return str_contains($avatar, '/storage/avatars/');
+                return str_contains($avatar, 'avatars/');
             });
 
         $user->refresh();
         $this->assertNotNull($user->avatar);
-        Storage::disk('public')->assertExists($user->avatar);
+        Storage::disk('r2')->assertExists($user->avatar);
     }
 
     public function test_uploading_new_avatar_deletes_old_one(): void
     {
-        Storage::fake('public');
+        Storage::fake('r2');
         $user = User::factory()->create();
 
         // Upload first avatar
         $oldFile = UploadedFile::fake()->create('old-avatar.jpg', 100, 'image/jpeg');
-        $oldPath = $oldFile->store('avatars', 'public');
+        $oldPath = $oldFile->store('avatars', 'r2');
         $user->update(['avatar' => $oldPath]);
 
-        Storage::disk('public')->assertExists($oldPath);
+        Storage::disk('r2')->assertExists($oldPath);
 
         // Upload new avatar
         $newFile = UploadedFile::fake()->create('new-avatar.jpg', 100, 'image/jpeg');
@@ -290,21 +290,21 @@ class ProfileTest extends TestCase
 
         $user->refresh();
         $this->assertNotEquals($oldPath, $user->avatar);
-        Storage::disk('public')->assertMissing($oldPath);
-        Storage::disk('public')->assertExists($user->avatar);
+        Storage::disk('r2')->assertMissing($oldPath);
+        Storage::disk('r2')->assertExists($user->avatar);
     }
 
     public function test_user_can_delete_avatar(): void
     {
-        Storage::fake('public');
+        Storage::fake('r2');
         $user = User::factory()->create();
 
         // Upload avatar first
         $file = UploadedFile::fake()->create('avatar.jpg', 100, 'image/jpeg');
-        $path = $file->store('avatars', 'public');
+        $path = $file->store('avatars', 'r2');
         $user->update(['avatar' => $path]);
 
-        Storage::disk('public')->assertExists($path);
+        Storage::disk('r2')->assertExists($path);
 
         // Delete avatar
         $response = $this->actingAs($user)
@@ -318,12 +318,12 @@ class ProfileTest extends TestCase
 
         $user->refresh();
         $this->assertNull($user->avatar);
-        Storage::disk('public')->assertMissing($path);
+        Storage::disk('r2')->assertMissing($path);
     }
 
     public function test_avatar_validation_rejects_invalid_file_types(): void
     {
-        Storage::fake('public');
+        Storage::fake('r2');
         $user = User::factory()->create();
 
         $file = UploadedFile::fake()->create('document.pdf', 100);
@@ -339,7 +339,7 @@ class ProfileTest extends TestCase
 
     public function test_avatar_validation_rejects_files_exceeding_size_limit(): void
     {
-        Storage::fake('public');
+        Storage::fake('r2');
         $user = User::factory()->create();
 
         // Create a file larger than 5MB (5120KB)
@@ -356,24 +356,24 @@ class ProfileTest extends TestCase
 
     public function test_avatar_returns_full_url_in_response(): void
     {
-        Storage::fake('public');
+        Storage::fake('r2');
         $user = User::factory()->create();
 
         $file = UploadedFile::fake()->create('avatar.jpg', 100, 'image/jpeg');
-        $path = $file->store('avatars', 'public');
+        $path = $file->store('avatars', 'r2');
         $user->update(['avatar' => $path]);
 
         $response = $this->actingAs($user)->getJson('/api/v1/profile');
 
         $response->assertStatus(200)
             ->assertJsonPath('data.user.avatar', function ($avatar) {
-                return str_contains($avatar, '/storage/avatars/') && ! empty($avatar);
+                return str_contains($avatar, 'avatars/') && ! empty($avatar);
             });
     }
 
     public function test_user_can_upload_banner(): void
     {
-        Storage::fake('public');
+        Storage::fake('r2');
         $user = User::factory()->create();
 
         $file = UploadedFile::fake()->create('banner.jpg', 200, 'image/jpeg');
@@ -389,25 +389,25 @@ class ProfileTest extends TestCase
                 'message' => 'Banner updated successfully',
             ])
             ->assertJsonPath('data.user.banner', function ($banner) {
-                return str_contains($banner, '/storage/banners/');
+                return str_contains($banner, 'banners/');
             });
 
         $user->refresh();
         $this->assertNotNull($user->banner);
-        Storage::disk('public')->assertExists($user->banner);
+        Storage::disk('r2')->assertExists($user->banner);
     }
 
     public function test_uploading_new_banner_deletes_old_one(): void
     {
-        Storage::fake('public');
+        Storage::fake('r2');
         $user = User::factory()->create();
 
         // Upload first banner
         $oldFile = UploadedFile::fake()->create('old-banner.jpg', 200, 'image/jpeg');
-        $oldPath = $oldFile->store('banners', 'public');
+        $oldPath = $oldFile->store('banners', 'r2');
         $user->update(['banner' => $oldPath]);
 
-        Storage::disk('public')->assertExists($oldPath);
+        Storage::disk('r2')->assertExists($oldPath);
 
         // Upload new banner
         $newFile = UploadedFile::fake()->create('new-banner.jpg', 200, 'image/jpeg');
@@ -420,21 +420,21 @@ class ProfileTest extends TestCase
 
         $user->refresh();
         $this->assertNotEquals($oldPath, $user->banner);
-        Storage::disk('public')->assertMissing($oldPath);
-        Storage::disk('public')->assertExists($user->banner);
+        Storage::disk('r2')->assertMissing($oldPath);
+        Storage::disk('r2')->assertExists($user->banner);
     }
 
     public function test_user_can_delete_banner(): void
     {
-        Storage::fake('public');
+        Storage::fake('r2');
         $user = User::factory()->create();
 
         // Upload banner first
         $file = UploadedFile::fake()->create('banner.jpg', 200, 'image/jpeg');
-        $path = $file->store('banners', 'public');
+        $path = $file->store('banners', 'r2');
         $user->update(['banner' => $path]);
 
-        Storage::disk('public')->assertExists($path);
+        Storage::disk('r2')->assertExists($path);
 
         // Delete banner
         $response = $this->actingAs($user)
@@ -448,12 +448,12 @@ class ProfileTest extends TestCase
 
         $user->refresh();
         $this->assertNull($user->banner);
-        Storage::disk('public')->assertMissing($path);
+        Storage::disk('r2')->assertMissing($path);
     }
 
     public function test_banner_validation_rejects_invalid_file_types(): void
     {
-        Storage::fake('public');
+        Storage::fake('r2');
         $user = User::factory()->create();
 
         $file = UploadedFile::fake()->create('document.pdf', 100);
@@ -469,7 +469,7 @@ class ProfileTest extends TestCase
 
     public function test_banner_validation_rejects_files_exceeding_size_limit(): void
     {
-        Storage::fake('public');
+        Storage::fake('r2');
         $user = User::factory()->create();
 
         // Create a file larger than 5MB (5120KB)
@@ -486,7 +486,7 @@ class ProfileTest extends TestCase
 
     public function test_banner_accepts_webp_format(): void
     {
-        Storage::fake('public');
+        Storage::fake('r2');
         $user = User::factory()->create();
 
         $file = UploadedFile::fake()->create('banner.webp', 200, 'image/webp');
@@ -504,23 +504,23 @@ class ProfileTest extends TestCase
 
         $user->refresh();
         $this->assertNotNull($user->banner);
-        Storage::disk('public')->assertExists($user->banner);
+        Storage::disk('r2')->assertExists($user->banner);
     }
 
     public function test_banner_returns_full_url_in_response(): void
     {
-        Storage::fake('public');
+        Storage::fake('r2');
         $user = User::factory()->create();
 
         $file = UploadedFile::fake()->create('banner.jpg', 200, 'image/jpeg');
-        $path = $file->store('banners', 'public');
+        $path = $file->store('banners', 'r2');
         $user->update(['banner' => $path]);
 
         $response = $this->actingAs($user)->getJson('/api/v1/profile');
 
         $response->assertStatus(200)
             ->assertJsonPath('data.user.banner', function ($banner) {
-                return str_contains($banner, '/storage/banners/') && ! empty($banner);
+                return str_contains($banner, 'banners/') && ! empty($banner);
             });
     }
 
