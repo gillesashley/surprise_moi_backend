@@ -9,67 +9,45 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-/**
- * UserTyping Event - Broadcast typing indicator to conversation participants.
- * 
- * Broadcasting:
- * - Uses Laravel Reverb WebSocket server
- * - Implements ShouldBroadcastNow for immediate broadcast (no queue)
- * - Sends to private channel: conversation.{id}
- * 
- * Used to show "User is typing..." indicator in chat UI.
- * Fired when: User types in message input (throttled on frontend)
- * 
- * Frontend receives:
- * - Event: 'user.typing'
- * - Data: user_id, user_name, is_typing (true/false)
- */
 class UserTyping implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     /**
-     * Create a new event instance.
-     * 
-     * @param int $conversationId The conversation where user is typing
-     * @param User $user The user who is typing
-     * @param bool $isTyping True when typing starts, false when stops
+     * @param  int  $conversationId  The conversation where user is typing
+     * @param  User  $user  The user who is typing
+     * @param  int  $recipientId  The user ID of the recipient
+     * @param  bool  $isTyping  True when typing starts, false when stops
      */
     public function __construct(
         public int $conversationId,
         public User $user,
+        public int $recipientId,
         public bool $isTyping = true
     ) {}
 
     /**
-     * Get the channels the event should broadcast on.
-     * 
-     * Broadcasts to conversation's private channel.
+     * Broadcast to the recipient's private user channel.
      *
      * @return array<int, \Illuminate\Broadcasting\Channel>
      */
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel('conversation.' . $this->conversationId),
+            new PrivateChannel('user.'.$this->recipientId),
         ];
     }
 
     /**
      * The event's broadcast name.
-     * 
-     * Frontend listens with:
-     * echo.private(`conversation.${id}`).listen('.user.typing', callback)
      */
     public function broadcastAs(): string
     {
-        return 'user.typing';
+        return 'UserTyping';
     }
 
     /**
      * Get the data to broadcast.
-     * 
-     * Lightweight payload for responsive typing indicators.
      *
      * @return array<string, mixed>
      */
@@ -77,9 +55,8 @@ class UserTyping implements ShouldBroadcastNow
     {
         return [
             'conversation_id' => $this->conversationId,
-            'user_id' => $this->user->id,
-            'user_name' => $this->user->name,
-            'is_typing' => $this->isTyping,
+            'sender_id' => $this->user->id,
+            'sender_name' => $this->user->name,
         ];
     }
 }

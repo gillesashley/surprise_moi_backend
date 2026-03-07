@@ -22,6 +22,8 @@ class MessageResource extends JsonResource
                 'id' => $this->sender->id,
                 'name' => $this->sender->name,
                 'avatar' => $this->sender->avatar ? storage_url($this->sender->avatar) : null,
+                'role' => $this->sender->role,
+                'is_online' => $this->sender->isOnline(),
             ],
             'body' => $this->body,
             'type' => $this->type,
@@ -29,6 +31,21 @@ class MessageResource extends JsonResource
             'is_read' => $this->read_at !== null,
             'read_at' => $this->read_at?->toIso8601String(),
             'is_mine' => $request->user()?->id === $this->sender_id,
+            'reply_to_id' => $this->reply_to_id,
+            'reply_to' => $this->when($this->reply_to_id && $this->relationLoaded('replyTo') && $this->replyTo, function () {
+                return [
+                    'id' => $this->replyTo->id,
+                    'sender_id' => $this->replyTo->sender_id,
+                    'sender' => [
+                        'id' => $this->replyTo->sender->id,
+                        'name' => $this->replyTo->sender->name,
+                        'avatar' => $this->replyTo->sender->avatar ? storage_url($this->replyTo->sender->avatar) : null,
+                    ],
+                    'body' => $this->replyTo->body,
+                    'type' => $this->replyTo->type,
+                    'attachments' => $this->replyTo->attachments,
+                ];
+            }),
             'created_at' => $this->created_at->toIso8601String(),
             'updated_at' => $this->updated_at->toIso8601String(),
         ];

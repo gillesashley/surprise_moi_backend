@@ -17,6 +17,7 @@ class Message extends Model
         'body',
         'type',
         'attachments',
+        'reply_to_id',
         'read_at',
     ];
 
@@ -36,6 +37,14 @@ class Message extends Model
     public function sender(): BelongsTo
     {
         return $this->belongsTo(User::class, 'sender_id');
+    }
+
+    /**
+     * Get the message this message is replying to.
+     */
+    public function replyTo(): BelongsTo
+    {
+        return $this->belongsTo(self::class, 'reply_to_id');
     }
 
     /**
