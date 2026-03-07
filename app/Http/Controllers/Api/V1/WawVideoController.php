@@ -93,7 +93,7 @@ class WawVideoController extends Controller
 
             if ($existingLike) {
                 $existingLike->delete();
-                $wawVideo->decrement('likes_count');
+                WawVideo::where('id', $wawVideo->id)->where('likes_count', '>', 0)->decrement('likes_count');
 
                 return false;
             }

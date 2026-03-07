@@ -19,8 +19,6 @@ class WawVideo extends Model
         'caption',
         'product_id',
         'service_id',
-        'likes_count',
-        'views_count',
     ];
 
     protected function casts(): array
