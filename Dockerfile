@@ -51,6 +51,8 @@ RUN apk add --no-cache \
     php83-pdo \
     php83-pdo_mysql \
     php83-pdo_pgsql \
+    php83-pdo_sqlite \
+    php83-sqlite3 \
     && ln -s /usr/bin/php83 /usr/bin/php
 
 # Install Composer
@@ -97,8 +99,12 @@ RUN mkdir -p storage/framework/{sessions,views,cache} \
 # Clear any cached bootstrap files from source
 RUN rm -f bootstrap/cache/*.php
 
-# Create .env file and generate app key for Wayfinder
+# Create .env file with SQLite DB for Wayfinder (no real DB during build)
 RUN cp .env.example .env \
+    && sed -i 's/DB_CONNECTION=pgsql/DB_CONNECTION=sqlite/' .env \
+    && sed -i 's/DB_HOST=.*//' .env \
+    && sed -i 's/DB_DATABASE=.*/DB_DATABASE=:memory:/' .env \
+    && touch database/database.sqlite \
     && php artisan key:generate --ansi
 
 # Generate Wayfinder routes BEFORE building (with form support for formVariants)
@@ -302,8 +308,12 @@ COPY . .
 # Generate optimized autoloader
 RUN composer dump-autoload --optimize
 
-# Build frontend assets
+# Build frontend assets (use SQLite DB for Wayfinder - no real DB during build)
 RUN cp .env.example .env \
+    && sed -i 's/DB_CONNECTION=pgsql/DB_CONNECTION=sqlite/' .env \
+    && sed -i 's/DB_HOST=.*//' .env \
+    && sed -i 's/DB_DATABASE=.*/DB_DATABASE=:memory:/' .env \
+    && touch database/database.sqlite \
     && php artisan key:generate --ansi \
     && pnpm install --frozen-lockfile \
     && php artisan wayfinder:generate --with-form \
