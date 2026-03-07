@@ -63,6 +63,19 @@ interface PayoutRequest {
     created_at: string;
     processed_by_name: string | null;
     processed_at: string | null;
+    vendor_payout_details: VendorPayoutDetail[];
+}
+
+interface VendorPayoutDetail {
+    id: number;
+    payout_method: 'mobile_money' | 'bank_transfer';
+    account_name: string;
+    account_number: string;
+    bank_code: string;
+    bank_name: string;
+    provider: string | null;
+    is_verified: boolean;
+    is_default: boolean;
 }
 
 interface ApiResponse {
@@ -455,6 +468,7 @@ export default function VendorPayouts({
                                         <TableHead>Vendor</TableHead>
                                         <TableHead>Amount</TableHead>
                                         <TableHead>Provider</TableHead>
+                                        <TableHead>Payment Method</TableHead>
                                         <TableHead>Status</TableHead>
                                         <TableHead>Date</TableHead>
                                         <TableHead style={{ textAlign: 'right' }}>
@@ -466,7 +480,7 @@ export default function VendorPayouts({
                                     {data.payouts.data.length === 0 ? (
                                         <TableRow>
                                             <TableCell
-                                                colSpan={7}
+                                                colSpan={8}
                                                 style={{ paddingTop: 32, paddingBottom: 32, textAlign: 'center' }}
                                             >
                                                 <Typography sx={{ color: 'text.secondary' }}>
@@ -500,6 +514,28 @@ export default function VendorPayouts({
                                                     {
                                                         payout.mobile_money_provider
                                                     }
+                                                </TableCell>
+                                                <TableCell>
+                                                    {payout.vendor_payout_details?.length > 0 ? (
+                                                        <Box>
+                                                            {payout.vendor_payout_details
+                                                                .filter((d) => d.is_default)
+                                                                .map((d) => (
+                                                                    <Box key={d.id} sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                                                        <Typography sx={{ fontSize: '0.8125rem', fontWeight: 500 }}>
+                                                                            {d.bank_name}
+                                                                        </Typography>
+                                                                        <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
+                                                                            {d.account_number}
+                                                                        </Typography>
+                                                                    </Box>
+                                                                ))}
+                                                        </Box>
+                                                    ) : (
+                                                        <Typography sx={{ fontSize: '0.75rem', color: 'text.disabled' }}>
+                                                            Not set
+                                                        </Typography>
+                                                    )}
                                                 </TableCell>
                                                 <TableCell>
                                                     {getStatusBadge(
@@ -576,6 +612,28 @@ export default function VendorPayouts({
                                         {selectedPayout.mobile_money_number} (
                                         {selectedPayout.mobile_money_provider})
                                     </Typography>
+                                    {selectedPayout.vendor_payout_details && selectedPayout.vendor_payout_details.length > 0 && (
+                                        <Box sx={{ mt: 2, p: 1.5, borderRadius: 1, bgcolor: 'action.hover' }}>
+                                            <Typography sx={{ fontWeight: 600, fontSize: '0.8125rem', mb: 1 }}>
+                                                Saved Payment Methods
+                                            </Typography>
+                                            {selectedPayout.vendor_payout_details.map((detail) => (
+                                                <Box key={detail.id} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 0.5 }}>
+                                                    <Box>
+                                                        <Typography sx={{ fontSize: '0.8125rem' }}>
+                                                            {detail.bank_name} — {detail.account_number}
+                                                        </Typography>
+                                                        <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
+                                                            {detail.account_name} {detail.is_verified ? '(Verified)' : '(Unverified)'}
+                                                        </Typography>
+                                                    </Box>
+                                                    {detail.is_default && (
+                                                        <Chip label="Default" size="small" color="primary" variant="outlined" />
+                                                    )}
+                                                </Box>
+                                            ))}
+                                        </Box>
+                                    )}
                                 </Box>
                             )}
                         </DialogDescription>
@@ -641,6 +699,28 @@ export default function VendorPayouts({
                                         {selectedPayout.mobile_money_number} (
                                         {selectedPayout.mobile_money_provider})
                                     </Typography>
+                                    {selectedPayout.vendor_payout_details && selectedPayout.vendor_payout_details.length > 0 && (
+                                        <Box sx={{ mt: 2, p: 1.5, borderRadius: 1, bgcolor: 'action.hover' }}>
+                                            <Typography sx={{ fontWeight: 600, fontSize: '0.8125rem', mb: 1 }}>
+                                                Saved Payment Methods
+                                            </Typography>
+                                            {selectedPayout.vendor_payout_details.map((detail) => (
+                                                <Box key={detail.id} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 0.5 }}>
+                                                    <Box>
+                                                        <Typography sx={{ fontSize: '0.8125rem' }}>
+                                                            {detail.bank_name} — {detail.account_number}
+                                                        </Typography>
+                                                        <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
+                                                            {detail.account_name} {detail.is_verified ? '(Verified)' : '(Unverified)'}
+                                                        </Typography>
+                                                    </Box>
+                                                    {detail.is_default && (
+                                                        <Chip label="Default" size="small" color="primary" variant="outlined" />
+                                                    )}
+                                                </Box>
+                                            ))}
+                                        </Box>
+                                    )}
                                 </Box>
                             )}
                         </DialogDescription>
