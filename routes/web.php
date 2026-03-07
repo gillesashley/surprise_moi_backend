@@ -18,6 +18,7 @@ use App\Http\Controllers\TargetController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserManagementAccessController;
 use App\Http\Controllers\VendorApplicationController;
+use App\Http\Controllers\WawVideoShareController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
@@ -42,6 +43,8 @@ Route::get('/products/{slug}', [ProductShareController::class, 'show'])
 Route::get('/products/{id}', [ProductShareController::class, 'showById'])
     ->whereNumber('id')
     ->name('products.share.legacy');
+
+Route::get('/waw/{wawVideo}', WawVideoShareController::class)->name('waw.share');
 
 // User Management Access Code verification
 Route::middleware(['auth', 'dashboard'])->group(function () {

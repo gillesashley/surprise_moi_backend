@@ -370,4 +370,167 @@ class ProfileTest extends TestCase
                 return str_contains($avatar, '/storage/avatars/') && ! empty($avatar);
             });
     }
+
+    public function test_user_can_upload_banner(): void
+    {
+        Storage::fake('public');
+        $user = User::factory()->create();
+
+        $file = UploadedFile::fake()->create('banner.jpg', 200, 'image/jpeg');
+
+        $response = $this->actingAs($user)
+            ->postJson('/api/v1/profile/banner', [
+                'banner' => $file,
+            ]);
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'success' => true,
+                'message' => 'Banner updated successfully',
+            ])
+            ->assertJsonPath('data.user.banner', function ($banner) {
+                return str_contains($banner, '/storage/banners/');
+            });
+
+        $user->refresh();
+        $this->assertNotNull($user->banner);
+        Storage::disk('public')->assertExists($user->banner);
+    }
+
+    public function test_uploading_new_banner_deletes_old_one(): void
+    {
+        Storage::fake('public');
+        $user = User::factory()->create();
+
+        // Upload first banner
+        $oldFile = UploadedFile::fake()->create('old-banner.jpg', 200, 'image/jpeg');
+        $oldPath = $oldFile->store('banners', 'public');
+        $user->update(['banner' => $oldPath]);
+
+        Storage::disk('public')->assertExists($oldPath);
+
+        // Upload new banner
+        $newFile = UploadedFile::fake()->create('new-banner.jpg', 200, 'image/jpeg');
+        $response = $this->actingAs($user)
+            ->postJson('/api/v1/profile/banner', [
+                'banner' => $newFile,
+            ]);
+
+        $response->assertStatus(200);
+
+        $user->refresh();
+        $this->assertNotEquals($oldPath, $user->banner);
+        Storage::disk('public')->assertMissing($oldPath);
+        Storage::disk('public')->assertExists($user->banner);
+    }
+
+    public function test_user_can_delete_banner(): void
+    {
+        Storage::fake('public');
+        $user = User::factory()->create();
+
+        // Upload banner first
+        $file = UploadedFile::fake()->create('banner.jpg', 200, 'image/jpeg');
+        $path = $file->store('banners', 'public');
+        $user->update(['banner' => $path]);
+
+        Storage::disk('public')->assertExists($path);
+
+        // Delete banner
+        $response = $this->actingAs($user)
+            ->deleteJson('/api/v1/profile/banner');
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'success' => true,
+                'message' => 'Banner deleted successfully',
+            ]);
+
+        $user->refresh();
+        $this->assertNull($user->banner);
+        Storage::disk('public')->assertMissing($path);
+    }
+
+    public function test_banner_validation_rejects_invalid_file_types(): void
+    {
+        Storage::fake('public');
+        $user = User::factory()->create();
+
+        $file = UploadedFile::fake()->create('document.pdf', 100);
+
+        $response = $this->actingAs($user)
+            ->postJson('/api/v1/profile/banner', [
+                'banner' => $file,
+            ]);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['banner']);
+    }
+
+    public function test_banner_validation_rejects_files_exceeding_size_limit(): void
+    {
+        Storage::fake('public');
+        $user = User::factory()->create();
+
+        // Create a file larger than 5MB (5120KB)
+        $file = UploadedFile::fake()->create('banner.jpg', 6000, 'image/jpeg');
+
+        $response = $this->actingAs($user)
+            ->postJson('/api/v1/profile/banner', [
+                'banner' => $file,
+            ]);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['banner']);
+    }
+
+    public function test_banner_accepts_webp_format(): void
+    {
+        Storage::fake('public');
+        $user = User::factory()->create();
+
+        $file = UploadedFile::fake()->create('banner.webp', 200, 'image/webp');
+
+        $response = $this->actingAs($user)
+            ->postJson('/api/v1/profile/banner', [
+                'banner' => $file,
+            ]);
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'success' => true,
+                'message' => 'Banner updated successfully',
+            ]);
+
+        $user->refresh();
+        $this->assertNotNull($user->banner);
+        Storage::disk('public')->assertExists($user->banner);
+    }
+
+    public function test_banner_returns_full_url_in_response(): void
+    {
+        Storage::fake('public');
+        $user = User::factory()->create();
+
+        $file = UploadedFile::fake()->create('banner.jpg', 200, 'image/jpeg');
+        $path = $file->store('banners', 'public');
+        $user->update(['banner' => $path]);
+
+        $response = $this->actingAs($user)->getJson('/api/v1/profile');
+
+        $response->assertStatus(200)
+            ->assertJsonPath('data.user.banner', function ($banner) {
+                return str_contains($banner, '/storage/banners/') && ! empty($banner);
+            });
+    }
+
+    public function test_banner_returns_null_when_not_set(): void
+    {
+        $user = User::factory()->create(['banner' => null]);
+
+        $response = $this->actingAs($user)->getJson('/api/v1/profile');
+
+        $response->assertStatus(200)
+            ->assertJsonPath('data.user.banner', null);
+    }
 }

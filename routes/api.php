@@ -31,6 +31,8 @@ use App\Http\Controllers\Api\V1\VendorAnalyticsController;
 use App\Http\Controllers\Api\V1\VendorOnboardingPaymentController;
 use App\Http\Controllers\Api\V1\VendorRegistrationController;
 use App\Http\Controllers\Api\V1\VendorReviewController;
+use App\Http\Controllers\Api\V1\VendorWawVideoController;
+use App\Http\Controllers\Api\V1\WawVideoController;
 use App\Http\Controllers\Api\V1\WishlistController;
 use Illuminate\Support\Facades\Route;
 
@@ -79,6 +81,8 @@ Route::prefix('v1')->group(function () {
         Route::put('/', [ProfileController::class, 'update']);
         Route::post('avatar', [ProfileController::class, 'updateAvatar']);
         Route::delete('avatar', [ProfileController::class, 'deleteAvatar']);
+        Route::post('banner', [ProfileController::class, 'updateBanner']);
+        Route::delete('banner', [ProfileController::class, 'deleteBanner']);
         Route::put('password', [ProfileController::class, 'updatePassword']);
     });
 
@@ -480,6 +484,20 @@ Route::prefix('v1')->group(function () {
             Route::post('special-offers', [\App\Http\Controllers\Api\V1\VendorSpecialOfferController::class, 'store']);
             Route::put('special-offers/{special_offer}', [\App\Http\Controllers\Api\V1\VendorSpecialOfferController::class, 'update']);
             Route::delete('special-offers/{special_offer}', [\App\Http\Controllers\Api\V1\VendorSpecialOfferController::class, 'destroy']);
+        });
+
+        // Waw Videos (short-form video feed)
+        Route::get('waw-videos', [WawVideoController::class, 'index']);
+        Route::post('waw-videos/{wawVideo}/like', [WawVideoController::class, 'toggleLike']);
+
+        Route::middleware('role:vendor')->group(function () {
+            Route::post('waw-videos', [WawVideoController::class, 'store']);
+            Route::delete('waw-videos/{wawVideo}', [WawVideoController::class, 'destroy']);
+        });
+
+        // Vendor Waw Videos management
+        Route::middleware('role:vendor')->prefix('vendor')->group(function () {
+            Route::get('waw-videos', [VendorWawVideoController::class, 'index']);
         });
     });
 

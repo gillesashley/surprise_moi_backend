@@ -30,6 +30,7 @@ class UpdateProfileRequest extends FormRequest
             'gender' => ['sometimes', 'in:male,female'],
             'bio' => ['sometimes', 'string', 'max:500'],
             'avatar' => ['sometimes', 'image', 'mimes:jpeg,png,jpg', 'max:5120'],
+            'banner' => ['sometimes', 'image', 'mimes:jpeg,png,webp', 'max:5120'],
             'favorite_color' => ['sometimes', 'nullable', 'string', 'max:50'],
             'favorite_music_genre' => ['sometimes', 'nullable', 'string', 'max:100'],
             'interests' => ['sometimes', 'array'],
