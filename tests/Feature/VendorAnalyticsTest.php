@@ -6,6 +6,7 @@ use App\Models\Category;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
+use App\Models\Service;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -48,26 +49,6 @@ class VendorAnalyticsTest extends TestCase
             ->assertJson(['message' => 'Unauthorized. Vendor access required.']);
     }
 
-    public function test_vendor_can_access_their_analytics(): void
-    {
-        $response = $this->actingAs($this->vendor)
-            ->getJson('/api/v1/vendor/analytics');
-
-        $response->assertStatus(200)
-            ->assertJsonStructure([
-                'success',
-                'data' => [
-                    'overview',
-                    'revenue_by_category',
-                    'top_products',
-                    'orders_trend',
-                    'revenue_trend',
-                    'period',
-                    'date_range',
-                ],
-            ]);
-    }
-
     public function test_admin_can_access_analytics(): void
     {
         $response = $this->actingAs($this->admin)
@@ -81,6 +62,531 @@ class VendorAnalyticsTest extends TestCase
         $response = $this->getJson('/api/v1/vendor/analytics');
 
         $response->assertStatus(401);
+    }
+
+    // ==================== Index Endpoint Tests (Mobile Contract) ====================
+
+    public function test_vendor_can_access_their_analytics(): void
+    {
+        $response = $this->actingAs($this->vendor)
+            ->getJson('/api/v1/vendor/analytics');
+
+        $response->assertStatus(200)
+            ->assertJsonStructure([
+                'data' => [
+                    'period',
+                    'revenue' => ['total', 'previous_total', 'growth_percentage'],
+                    'orders' => ['total', 'previous_total', 'growth_percentage'],
+                    'revenue_by_category',
+                    'top_products',
+                ],
+            ]);
+    }
+
+    public function test_index_defaults_to_month_period(): void
+    {
+        $response = $this->actingAs($this->vendor)
+            ->getJson('/api/v1/vendor/analytics');
+
+        $response->assertStatus(200)
+            ->assertJsonPath('data.period', 'month');
+    }
+
+    public function test_index_returns_correct_revenue_and_orders(): void
+    {
+        Order::factory()->create([
+            'vendor_id' => $this->vendor->id,
+            'user_id' => $this->customer->id,
+            'total' => 150.00,
+            'status' => 'delivered',
+            'created_at' => Carbon::now(),
+        ]);
+
+        Order::factory()->create([
+            'vendor_id' => $this->vendor->id,
+            'user_id' => $this->customer->id,
+            'total' => 250.00,
+            'status' => 'fulfilled',
+            'created_at' => Carbon::now(),
+        ]);
+
+        Order::factory()->create([
+            'vendor_id' => $this->vendor->id,
+            'user_id' => $this->customer->id,
+            'total' => 100.00,
+            'status' => 'pending',
+            'created_at' => Carbon::now(),
+        ]);
+
+        Order::factory()->create([
+            'vendor_id' => $this->vendor->id,
+            'user_id' => $this->customer->id,
+            'total' => 200.00,
+            'status' => 'delivered',
+            'created_at' => Carbon::now()->subMonth(),
+        ]);
+
+        $response = $this->actingAs($this->vendor)
+            ->getJson('/api/v1/vendor/analytics?period=month');
+
+        $response->assertStatus(200);
+
+        $data = $response->json('data');
+
+        $this->assertEquals(400.00, $data['revenue']['total']);
+        $this->assertEquals(200.00, $data['revenue']['previous_total']);
+        $this->assertEquals(100.00, $data['revenue']['growth_percentage']);
+        $this->assertEquals(2, $data['orders']['total']);
+        $this->assertEquals(1, $data['orders']['previous_total']);
+        $this->assertEquals(100.00, $data['orders']['growth_percentage']);
+    }
+
+    public function test_index_growth_percentage_zero_when_no_previous_data(): void
+    {
+        Order::factory()->create([
+            'vendor_id' => $this->vendor->id,
+            'user_id' => $this->customer->id,
+            'total' => 500.00,
+            'status' => 'delivered',
+            'created_at' => Carbon::now(),
+        ]);
+
+        $response = $this->actingAs($this->vendor)
+            ->getJson('/api/v1/vendor/analytics?period=month');
+
+        $response->assertStatus(200);
+
+        $data = $response->json('data');
+
+        $this->assertEquals(500.00, $data['revenue']['total']);
+        $this->assertEquals(0, $data['revenue']['previous_total']);
+        $this->assertEquals(0, $data['revenue']['growth_percentage']);
+    }
+
+    public function test_index_returns_empty_state_correctly(): void
+    {
+        $response = $this->actingAs($this->vendor)
+            ->getJson('/api/v1/vendor/analytics?period=month');
+
+        $response->assertStatus(200);
+
+        $data = $response->json('data');
+
+        $this->assertEquals(0, $data['revenue']['total']);
+        $this->assertEquals(0, $data['revenue']['previous_total']);
+        $this->assertEquals(0, $data['revenue']['growth_percentage']);
+        $this->assertEquals(0, $data['orders']['total']);
+        $this->assertEmpty($data['revenue_by_category']);
+        $this->assertEmpty($data['top_products']);
+    }
+
+    public function test_index_supports_today_period(): void
+    {
+        $this->travelTo(Carbon::today()->addHours(12));
+
+        Order::factory()->create([
+            'vendor_id' => $this->vendor->id,
+            'user_id' => $this->customer->id,
+            'total' => 100.00,
+            'status' => 'delivered',
+            'created_at' => Carbon::today()->addHours(2),
+        ]);
+
+        Order::factory()->create([
+            'vendor_id' => $this->vendor->id,
+            'user_id' => $this->customer->id,
+            'total' => 80.00,
+            'status' => 'delivered',
+            'created_at' => Carbon::yesterday()->addHours(10),
+        ]);
+
+        $response = $this->actingAs($this->vendor)
+            ->getJson('/api/v1/vendor/analytics?period=today');
+
+        $response->assertStatus(200)
+            ->assertJsonPath('data.period', 'today');
+
+        $data = $response->json('data');
+
+        $this->assertEquals(100.00, $data['revenue']['total']);
+        $this->assertEquals(80.00, $data['revenue']['previous_total']);
+    }
+
+    public function test_index_supports_week_period(): void
+    {
+        $response = $this->actingAs($this->vendor)
+            ->getJson('/api/v1/vendor/analytics?period=week');
+
+        $response->assertStatus(200)
+            ->assertJsonPath('data.period', 'week');
+    }
+
+    public function test_index_supports_year_period(): void
+    {
+        $response = $this->actingAs($this->vendor)
+            ->getJson('/api/v1/vendor/analytics?period=year');
+
+        $response->assertStatus(200)
+            ->assertJsonPath('data.period', 'year');
+    }
+
+    public function test_index_revenue_by_category_max_five_sorted_desc(): void
+    {
+        $categories = [];
+        for ($i = 1; $i <= 6; $i++) {
+            $categories[$i] = Category::factory()->create(['name' => "Category {$i}"]);
+        }
+
+        $order = Order::factory()->create([
+            'vendor_id' => $this->vendor->id,
+            'user_id' => $this->customer->id,
+            'status' => 'delivered',
+            'total' => 2100.00,
+            'created_at' => Carbon::now(),
+        ]);
+
+        for ($i = 1; $i <= 6; $i++) {
+            $product = Product::factory()->create([
+                'vendor_id' => $this->vendor->id,
+                'category_id' => $categories[$i]->id,
+            ]);
+
+            OrderItem::factory()->create([
+                'order_id' => $order->id,
+                'orderable_type' => Product::class,
+                'orderable_id' => $product->id,
+                'quantity' => 1,
+                'unit_price' => $i * 100,
+                'subtotal' => $i * 100,
+            ]);
+        }
+
+        $response = $this->actingAs($this->vendor)
+            ->getJson('/api/v1/vendor/analytics?period=month');
+
+        $response->assertStatus(200);
+
+        $revByCategory = $response->json('data.revenue_by_category');
+
+        $this->assertCount(5, $revByCategory);
+        $this->assertEquals('Category 6', $revByCategory[0]['category_name']);
+        $this->assertEquals(600.00, $revByCategory[0]['revenue']);
+        $names = array_column($revByCategory, 'category_name');
+        $this->assertNotContains('Category 1', $names);
+    }
+
+    public function test_index_revenue_by_category_has_correct_keys(): void
+    {
+        $order = Order::factory()->create([
+            'vendor_id' => $this->vendor->id,
+            'user_id' => $this->customer->id,
+            'status' => 'delivered',
+            'total' => 200.00,
+            'created_at' => Carbon::now(),
+        ]);
+
+        $product = Product::factory()->create([
+            'vendor_id' => $this->vendor->id,
+            'category_id' => $this->category1->id,
+        ]);
+
+        OrderItem::factory()->create([
+            'order_id' => $order->id,
+            'orderable_type' => Product::class,
+            'orderable_id' => $product->id,
+            'quantity' => 2,
+            'unit_price' => 100.00,
+            'subtotal' => 200.00,
+        ]);
+
+        $response = $this->actingAs($this->vendor)
+            ->getJson('/api/v1/vendor/analytics?period=month');
+
+        $response->assertStatus(200);
+
+        $cat = $response->json('data.revenue_by_category.0');
+
+        $this->assertArrayHasKey('category_id', $cat);
+        $this->assertArrayHasKey('category_name', $cat);
+        $this->assertArrayHasKey('revenue', $cat);
+        $this->assertEquals($this->category1->id, $cat['category_id']);
+        $this->assertEquals('Gift Boxes', $cat['category_name']);
+        $this->assertEquals(200.00, $cat['revenue']);
+    }
+
+    public function test_index_revenue_by_category_includes_bespoke_services(): void
+    {
+        $order = Order::factory()->create([
+            'vendor_id' => $this->vendor->id,
+            'user_id' => $this->customer->id,
+            'status' => 'delivered',
+            'total' => 700.00,
+            'created_at' => Carbon::now(),
+        ]);
+
+        $product = Product::factory()->create([
+            'vendor_id' => $this->vendor->id,
+            'category_id' => $this->category1->id,
+        ]);
+
+        OrderItem::factory()->create([
+            'order_id' => $order->id,
+            'orderable_type' => Product::class,
+            'orderable_id' => $product->id,
+            'quantity' => 2,
+            'unit_price' => 100.00,
+            'subtotal' => 200.00,
+        ]);
+
+        $service = Service::factory()->create([
+            'vendor_id' => $this->vendor->id,
+            'name' => 'Event Photography',
+        ]);
+
+        OrderItem::factory()->create([
+            'order_id' => $order->id,
+            'orderable_type' => Service::class,
+            'orderable_id' => $service->id,
+            'quantity' => 1,
+            'unit_price' => 500.00,
+            'subtotal' => 500.00,
+        ]);
+
+        $response = $this->actingAs($this->vendor)
+            ->getJson('/api/v1/vendor/analytics?period=month');
+
+        $response->assertStatus(200);
+
+        $categories = $response->json('data.revenue_by_category');
+
+        $this->assertCount(2, $categories);
+
+        // Bespoke Services should be first (500 > 200)
+        $this->assertEquals('Bespoke Services', $categories[0]['category_name']);
+        $this->assertNull($categories[0]['category_id']);
+        $this->assertEquals(500.00, $categories[0]['revenue']);
+
+        // Gift Boxes second
+        $this->assertEquals('Gift Boxes', $categories[1]['category_name']);
+        $this->assertEquals(200.00, $categories[1]['revenue']);
+    }
+
+    public function test_index_top_products_max_five_sorted_desc(): void
+    {
+        $order = Order::factory()->create([
+            'vendor_id' => $this->vendor->id,
+            'user_id' => $this->customer->id,
+            'status' => 'delivered',
+            'total' => 2100.00,
+            'created_at' => Carbon::now(),
+        ]);
+
+        for ($i = 1; $i <= 6; $i++) {
+            $product = Product::factory()->create([
+                'vendor_id' => $this->vendor->id,
+                'category_id' => $this->category1->id,
+                'name' => "Product {$i}",
+            ]);
+
+            OrderItem::factory()->create([
+                'order_id' => $order->id,
+                'orderable_type' => Product::class,
+                'orderable_id' => $product->id,
+                'quantity' => $i,
+                'unit_price' => 100.00,
+                'subtotal' => $i * 100,
+            ]);
+        }
+
+        $response = $this->actingAs($this->vendor)
+            ->getJson('/api/v1/vendor/analytics?period=month');
+
+        $response->assertStatus(200);
+
+        $products = $response->json('data.top_products');
+
+        $this->assertCount(5, $products);
+        $this->assertEquals('Product 6', $products[0]['name']);
+    }
+
+    public function test_index_top_products_has_correct_keys(): void
+    {
+        $order = Order::factory()->create([
+            'vendor_id' => $this->vendor->id,
+            'user_id' => $this->customer->id,
+            'status' => 'delivered',
+            'total' => 300.00,
+            'created_at' => Carbon::now(),
+        ]);
+
+        $product = Product::factory()->create([
+            'vendor_id' => $this->vendor->id,
+            'category_id' => $this->category1->id,
+            'name' => 'Luxury Gift Box',
+            'thumbnail' => 'storage/products/luxury.jpg',
+        ]);
+
+        OrderItem::factory()->create([
+            'order_id' => $order->id,
+            'orderable_type' => Product::class,
+            'orderable_id' => $product->id,
+            'quantity' => 3,
+            'unit_price' => 100.00,
+            'subtotal' => 300.00,
+        ]);
+
+        $response = $this->actingAs($this->vendor)
+            ->getJson('/api/v1/vendor/analytics?period=month');
+
+        $response->assertStatus(200);
+
+        $item = $response->json('data.top_products.0');
+
+        $this->assertEquals($product->id, $item['id']);
+        $this->assertEquals('Luxury Gift Box', $item['name']);
+        $this->assertEquals('Gift Boxes', $item['category']);
+        $this->assertArrayHasKey('image_url', $item);
+        $this->assertEquals(300.00, $item['revenue']);
+        $this->assertEquals(1, $item['orders_count']);
+        $this->assertEquals(300.00, $item['average_order_value']);
+    }
+
+    public function test_index_top_products_includes_services(): void
+    {
+        $order = Order::factory()->create([
+            'vendor_id' => $this->vendor->id,
+            'user_id' => $this->customer->id,
+            'status' => 'delivered',
+            'total' => 500.00,
+            'created_at' => Carbon::now(),
+        ]);
+
+        $service = Service::factory()->create([
+            'vendor_id' => $this->vendor->id,
+            'name' => 'Photography Session',
+            'thumbnail' => 'storage/services/photo.jpg',
+        ]);
+
+        OrderItem::factory()->create([
+            'order_id' => $order->id,
+            'orderable_type' => Service::class,
+            'orderable_id' => $service->id,
+            'quantity' => 1,
+            'unit_price' => 500.00,
+            'subtotal' => 500.00,
+        ]);
+
+        $response = $this->actingAs($this->vendor)
+            ->getJson('/api/v1/vendor/analytics?period=month');
+
+        $response->assertStatus(200);
+
+        $products = $response->json('data.top_products');
+
+        $this->assertCount(1, $products);
+        $this->assertEquals('Photography Session', $products[0]['name']);
+        $this->assertEquals('Bespoke Services', $products[0]['category']);
+        $this->assertEquals(500.00, $products[0]['revenue']);
+    }
+
+    public function test_index_image_url_null_when_no_image(): void
+    {
+        $order = Order::factory()->create([
+            'vendor_id' => $this->vendor->id,
+            'user_id' => $this->customer->id,
+            'status' => 'delivered',
+            'total' => 100.00,
+            'created_at' => Carbon::now(),
+        ]);
+
+        $product = Product::factory()->create([
+            'vendor_id' => $this->vendor->id,
+            'category_id' => $this->category1->id,
+            'thumbnail' => null,
+        ]);
+
+        OrderItem::factory()->create([
+            'order_id' => $order->id,
+            'orderable_type' => Product::class,
+            'orderable_id' => $product->id,
+            'quantity' => 1,
+            'unit_price' => 100.00,
+            'subtotal' => 100.00,
+        ]);
+
+        $response = $this->actingAs($this->vendor)
+            ->getJson('/api/v1/vendor/analytics?period=month');
+
+        $response->assertStatus(200);
+
+        $this->assertNull($response->json('data.top_products.0.image_url'));
+    }
+
+    public function test_index_monetary_values_have_two_decimal_precision(): void
+    {
+        Order::factory()->create([
+            'vendor_id' => $this->vendor->id,
+            'user_id' => $this->customer->id,
+            'total' => 333.33,
+            'status' => 'delivered',
+            'created_at' => Carbon::now(),
+        ]);
+
+        $response = $this->actingAs($this->vendor)
+            ->getJson('/api/v1/vendor/analytics?period=month');
+
+        $response->assertStatus(200);
+
+        $revenue = $response->json('data.revenue.total');
+        $this->assertIsFloat($revenue + 0.0);
+        $this->assertEquals(333.33, $revenue);
+    }
+
+    public function test_index_vendor_only_sees_own_data(): void
+    {
+        $otherVendor = User::factory()->vendor()->create();
+
+        Order::factory()->create([
+            'vendor_id' => $this->vendor->id,
+            'user_id' => $this->customer->id,
+            'total' => 100.00,
+            'status' => 'delivered',
+            'created_at' => Carbon::now(),
+        ]);
+
+        Order::factory()->create([
+            'vendor_id' => $otherVendor->id,
+            'user_id' => $this->customer->id,
+            'total' => 500.00,
+            'status' => 'delivered',
+            'created_at' => Carbon::now(),
+        ]);
+
+        $response = $this->actingAs($this->vendor)
+            ->getJson('/api/v1/vendor/analytics');
+
+        $response->assertStatus(200);
+
+        $this->assertEquals(100.00, $response->json('data.revenue.total'));
+        $this->assertEquals(1, $response->json('data.orders.total'));
+    }
+
+    public function test_index_admin_can_view_specific_vendor(): void
+    {
+        Order::factory()->create([
+            'vendor_id' => $this->vendor->id,
+            'user_id' => $this->customer->id,
+            'total' => 500.00,
+            'status' => 'delivered',
+            'created_at' => Carbon::now(),
+        ]);
+
+        $response = $this->actingAs($this->admin)
+            ->getJson("/api/v1/vendor/analytics?vendor_id={$this->vendor->id}");
+
+        $response->assertStatus(200);
+
+        $this->assertEquals(500.00, $response->json('data.revenue.total'));
     }
 
     // ==================== Overview Stats Tests ====================
@@ -423,121 +929,5 @@ class VendorAnalyticsTest extends TestCase
                     'revenue',
                 ],
             ]);
-    }
-
-    // ==================== Period Filter Tests ====================
-
-    public function test_analytics_filters_by_period(): void
-    {
-        // Create order this month
-        Order::factory()->create([
-            'vendor_id' => $this->vendor->id,
-            'status' => 'delivered',
-            'total' => 100.00,
-            'created_at' => Carbon::now(),
-        ]);
-
-        // Create order last month (should not appear in month period)
-        Order::factory()->create([
-            'vendor_id' => $this->vendor->id,
-            'status' => 'delivered',
-            'total' => 200.00,
-            'created_at' => Carbon::now()->subMonth(),
-        ]);
-
-        $response = $this->actingAs($this->vendor)
-            ->getJson('/api/v1/vendor/analytics?period=month');
-
-        $response->assertStatus(200);
-
-        $data = $response->json('data.overview.period');
-
-        $this->assertEquals(100.00, $data['revenue']);
-        $this->assertEquals(1, $data['completed_orders']);
-    }
-
-    public function test_analytics_supports_custom_date_range(): void
-    {
-        $startDate = Carbon::now()->subDays(7)->format('Y-m-d');
-        $endDate = Carbon::now()->format('Y-m-d');
-
-        $response = $this->actingAs($this->vendor)
-            ->getJson("/api/v1/vendor/analytics?start_date={$startDate}&end_date={$endDate}");
-
-        $response->assertStatus(200)
-            ->assertJsonPath('data.date_range.start', Carbon::parse($startDate)->startOfDay()->toDateTimeString());
-    }
-
-    public function test_analytics_supports_week_period(): void
-    {
-        $response = $this->actingAs($this->vendor)
-            ->getJson('/api/v1/vendor/analytics?period=week');
-
-        $response->assertStatus(200)
-            ->assertJsonPath('data.period', 'week');
-    }
-
-    public function test_analytics_supports_year_period(): void
-    {
-        $response = $this->actingAs($this->vendor)
-            ->getJson('/api/v1/vendor/analytics?period=year');
-
-        $response->assertStatus(200)
-            ->assertJsonPath('data.period', 'year');
-    }
-
-    // ==================== Admin Access Tests ====================
-
-    public function test_admin_can_view_specific_vendor_analytics(): void
-    {
-        Order::factory()->create([
-            'vendor_id' => $this->vendor->id,
-            'status' => 'delivered',
-            'total' => 500.00,
-            'created_at' => Carbon::now(),
-        ]);
-
-        $response = $this->actingAs($this->admin)
-            ->getJson("/api/v1/vendor/analytics?vendor_id={$this->vendor->id}");
-
-        $response->assertStatus(200);
-
-        $data = $response->json('data.overview.period');
-
-        $this->assertEquals(500.00, $data['revenue']);
-    }
-
-    // ==================== Vendor Isolation Tests ====================
-
-    public function test_vendor_only_sees_own_analytics(): void
-    {
-        $otherVendor = User::factory()->vendor()->create();
-
-        // Create order for current vendor
-        Order::factory()->create([
-            'vendor_id' => $this->vendor->id,
-            'status' => 'delivered',
-            'total' => 100.00,
-            'created_at' => Carbon::now(),
-        ]);
-
-        // Create order for other vendor
-        Order::factory()->create([
-            'vendor_id' => $otherVendor->id,
-            'status' => 'delivered',
-            'total' => 500.00,
-            'created_at' => Carbon::now(),
-        ]);
-
-        $response = $this->actingAs($this->vendor)
-            ->getJson('/api/v1/vendor/analytics');
-
-        $response->assertStatus(200);
-
-        $data = $response->json('data.overview.period');
-
-        // Should only see own revenue
-        $this->assertEquals(100.00, $data['revenue']);
-        $this->assertEquals(1, $data['completed_orders']);
     }
 }
