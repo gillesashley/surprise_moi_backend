@@ -7,6 +7,7 @@ use App\Models\VendorApplication;
 use App\Notifications\VendorApprovalNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Notifications\Channels\BroadcastChannel;
+use Illuminate\Notifications\Messages\MailMessage;
 use NotificationChannels\Fcm\FcmChannel;
 use NotificationChannels\Fcm\FcmMessage;
 use Tests\TestCase;
@@ -38,7 +39,7 @@ class VendorApprovalNotificationTest extends TestCase
 
         $this->assertSame('vendor_approved', $data['type']);
         $this->assertSame('Application Approved', $data['title']);
-        $this->assertSame('Your vendor application has been approved.', $data['message']);
+        $this->assertSame('Your Surprise Moi vendor account is approved. Upload products and start selling.', $data['message']);
         $this->assertSame('/dashboard/vendor-applications/'.$vendorApplication->id, $data['action_url']);
         $this->assertNull($data['actor']);
 
@@ -58,7 +59,7 @@ class VendorApprovalNotificationTest extends TestCase
 
         $this->assertSame('vendor_rejected', $data['type']);
         $this->assertSame('Application Rejected', $data['title']);
-        $this->assertSame('Your vendor application has been rejected.', $data['message']);
+        $this->assertSame('Your vendor application was not approved. Please update the required details and resubmit.', $data['message']);
         $this->assertSame('/dashboard/vendor-applications/'.$vendorApplication->id, $data['action_url']);
         $this->assertNull($data['actor']);
 
@@ -116,6 +117,33 @@ class VendorApprovalNotificationTest extends TestCase
         $channels = $notification->via($vendorApplication->user);
 
         $this->assertNotContains(FcmChannel::class, $channels);
+    }
+
+    public function test_to_mail_approved_has_correct_subject_and_cta(): void
+    {
+        $vendorApplication = VendorApplication::factory()->create();
+        $user = $vendorApplication->user;
+
+        $notification = new VendorApprovalNotification($vendorApplication, 'approved');
+        $mail = $notification->toMail($user);
+
+        $this->assertInstanceOf(MailMessage::class, $mail);
+        $this->assertSame('Your Vendor Account Has Been Approved ✅', $mail->subject);
+        $this->assertSame("Hello {$user->name},", $mail->greeting);
+        $this->assertSame(config('deep_links.share_base_url'), $mail->actionUrl);
+    }
+
+    public function test_to_mail_rejected_has_correct_subject_and_reason(): void
+    {
+        $vendorApplication = VendorApplication::factory()->rejected()->create();
+        $user = $vendorApplication->user;
+
+        $notification = new VendorApprovalNotification($vendorApplication, 'rejected');
+        $mail = $notification->toMail($user);
+
+        $this->assertInstanceOf(MailMessage::class, $mail);
+        $this->assertSame('Vendor Application Update', $mail->subject);
+        $this->assertSame(config('deep_links.share_base_url'), $mail->actionUrl);
     }
 
     public function test_to_fcm_returns_correct_message_for_approved(): void

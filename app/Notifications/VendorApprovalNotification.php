@@ -82,14 +82,18 @@ class VendorApprovalNotification extends Notification implements ShouldQueue
     protected function buildApprovedEmail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('🎉 Your Vendor Application Has Been Approved!')
+            ->subject('Your Vendor Account Has Been Approved ✅')
             ->greeting("Hello {$notifiable->name},")
-            ->line('Congratulations! Your vendor application has been approved.')
-            ->line('You can now start selling on SurpriseMoi!')
-            ->line('Application ID: '.$this->vendorApplication->id)
-            ->action('Go to Dashboard', url('/dashboard'))
-            ->line('If you have any questions, feel free to contact our support team.')
-            ->salutation('Best regards, SurpriseMoi Team');
+            ->line('Great news!')
+            ->line('Your vendor account on Surprise Moi has been successfully approved. You can now log in and start selling on the platform.')
+            ->line('You can now:')
+            ->line('• Upload your products')
+            ->line('• Manage your shop')
+            ->line('• Receive and fulfill orders')
+            ->line('• Chat with customers')
+            ->action('Open the App', config('deep_links.share_base_url'))
+            ->line("We're excited to have you as part of the Surprise Moi marketplace.")
+            ->salutation('Best regards, The Surprise Moi Team');
     }
 
     /**
@@ -98,21 +102,21 @@ class VendorApprovalNotification extends Notification implements ShouldQueue
     protected function buildRejectedEmail(object $notifiable): MailMessage
     {
         $message = (new MailMessage)
-            ->subject('❌ Vendor Application Status Update')
+            ->subject('Vendor Application Update')
             ->greeting("Hello {$notifiable->name},")
-            ->line('Thank you for applying to become a vendor on SurpriseMoi.')
-            ->line('Unfortunately, your application has been rejected.');
+            ->line('Thank you for applying to become a vendor on Surprise Moi.');
+
+        $message->line('Unfortunately, your application was not approved at this time.');
 
         if ($this->vendorApplication->rejection_reason) {
             $message->line('**Reason:** '.$this->vendorApplication->rejection_reason);
         }
 
         $message
-            ->line('Application ID: '.$this->vendorApplication->id)
-            ->line('You can reapply after addressing the feedback provided.')
-            ->action('View Application', url('/dashboard/vendor-applications/'.$this->vendorApplication->id))
-            ->line('If you have questions about the decision, please contact our support team.')
-            ->salutation('Best regards, SurpriseMoi Team');
+            ->line('Please update the required details and resubmit your application.')
+            ->action('Open the App', config('deep_links.share_base_url'))
+            ->line('If you have questions, please contact our support team.')
+            ->salutation('Best regards, The Surprise Moi Team');
 
         return $message;
     }
@@ -128,8 +132,8 @@ class VendorApprovalNotification extends Notification implements ShouldQueue
             'type' => 'vendor_'.$this->status,
             'title' => $isApproved ? 'Application Approved' : 'Application Rejected',
             'message' => $isApproved
-                ? 'Your vendor application has been approved.'
-                : 'Your vendor application has been rejected.',
+                ? 'Your Surprise Moi vendor account is approved. Upload products and start selling.'
+                : 'Your vendor application was not approved. Please update the required details and resubmit.',
             'action_url' => '/dashboard/vendor-applications/'.$this->vendorApplication->id,
             'actor' => null,
             'subject' => [
@@ -146,11 +150,11 @@ class VendorApprovalNotification extends Notification implements ShouldQueue
     public function toBroadcast(object $notifiable): BroadcastMessage
     {
         if ($this->status === 'approved') {
-            $title = '✅ Application Approved';
-            $body = 'Congratulations! Your vendor application has been approved.';
+            $title = 'Application Approved';
+            $body = 'Your Surprise Moi vendor account is approved. Upload products and start selling.';
         } else {
-            $title = '❌ Application Rejected';
-            $body = 'Your vendor application has been rejected.';
+            $title = 'Application Rejected';
+            $body = 'Your vendor application was not approved. Please update the required details and resubmit.';
         }
 
         return new BroadcastMessage([

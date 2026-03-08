@@ -210,6 +210,7 @@ These are the notification types currently supported:
 | `review_replied` | "New Reply to Your Review" | Review author | Vendor replies to a review | The vendor | `{ id, type: "review_reply", review_id }` |
 | `order_status_changed` | "Order Confirmed" / "Order Shipped" / etc. | Customer | Order status updates | `null` | `{ id, type: "order", order_number, status }` |
 | `new_chat_message` | "New Message" | Chat recipient | New message in conversation | The sender | `{ id, type: "message", conversation_id }` |
+| `vendor_application_submitted` | "Application Received" | Vendor | Vendor submits application | `null` | `{ id, type: "vendor_application", status: "pending" }` |
 | `vendor_approved` | "Application Approved" | Vendor | Admin approves vendor app | `null` | `{ id, type: "vendor_application", status }` |
 | `vendor_rejected` | "Application Rejected" | Vendor | Admin rejects vendor app | `null` | `{ id, type: "vendor_application", status }` |
 
@@ -223,7 +224,7 @@ The `action_url` field provides a relative path that maps to in-app screens:
 | `/reviews/{id}` | Review detail |
 | `/orders/{id}` | Order detail |
 | `/conversations/{id}` | Chat conversation |
-| `/dashboard/vendor-applications/{id}` | Vendor application status |
+| `/vendor-applications/{id}` | Vendor application status |
 
 Parse these paths to navigate to the appropriate screen in your Flutter app.
 
