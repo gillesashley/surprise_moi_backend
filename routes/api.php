@@ -213,10 +213,10 @@ Route::prefix('v1')->group(function () {
         Route::get('/notifications', [NotificationController::class, 'index']);
         Route::get('/notifications/unread', [NotificationController::class, 'unread']);
         Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount']);
-        Route::patch('/notifications/{notification}/read', [NotificationController::class, 'markAsRead']);
-        Route::patch('/notifications/{notification}/unread', [NotificationController::class, 'markAsUnread']);
+        Route::patch('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
+        Route::patch('/notifications/{id}/unread', [NotificationController::class, 'markAsUnread']);
         Route::patch('/notifications/read-all', [NotificationController::class, 'markAllAsRead']);
-        Route::delete('/notifications/{notification}', [NotificationController::class, 'destroy']);
+        Route::delete('/notifications/{id}', [NotificationController::class, 'destroy']);
 
         // Coupon routes
         Route::get('/coupons/available', [CouponController::class, 'available']);
