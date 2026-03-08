@@ -8,6 +8,7 @@ use App\Models\WawVideoLike;
 use App\Notifications\WawVideoLiked;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
+use NotificationChannels\Fcm\FcmMessage;
 use Tests\TestCase;
 
 class WawVideoLikedTest extends TestCase
@@ -70,5 +71,17 @@ class WawVideoLikedTest extends TestCase
         $this->assertArrayHasKey('subject', $data);
         $this->assertSame($video->id, $data['subject']['id']);
         $this->assertSame('waw_video', $data['subject']['type']);
+    }
+
+    public function test_to_fcm_returns_correct_message(): void
+    {
+        $vendor = User::factory()->create(['role' => 'vendor']);
+        $liker = User::factory()->create();
+        $video = WawVideo::factory()->create(['vendor_id' => $vendor->id]);
+
+        $notification = new WawVideoLiked($liker, $video);
+        $fcmMessage = $notification->toFcm($vendor);
+
+        $this->assertInstanceOf(FcmMessage::class, $fcmMessage);
     }
 }

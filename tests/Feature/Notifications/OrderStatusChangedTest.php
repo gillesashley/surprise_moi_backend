@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Notifications\OrderStatusChanged;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
+use NotificationChannels\Fcm\FcmMessage;
 use Tests\TestCase;
 
 class OrderStatusChangedTest extends TestCase
@@ -82,5 +83,16 @@ class OrderStatusChangedTest extends TestCase
         $this->assertSame('order', $data['subject']['type']);
         $this->assertSame($order->order_number, $data['subject']['order_number']);
         $this->assertSame('confirmed', $data['subject']['status']);
+    }
+
+    public function test_to_fcm_returns_correct_message(): void
+    {
+        $customer = User::factory()->create();
+        $order = Order::factory()->pending()->create(['user_id' => $customer->id]);
+
+        $notification = new OrderStatusChanged($order, 'shipped');
+        $fcmMessage = $notification->toFcm($customer);
+
+        $this->assertInstanceOf(FcmMessage::class, $fcmMessage);
     }
 }

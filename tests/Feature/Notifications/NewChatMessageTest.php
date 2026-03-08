@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Notifications\NewChatMessage;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
+use NotificationChannels\Fcm\FcmMessage;
 use Tests\TestCase;
 
 class NewChatMessageTest extends TestCase
@@ -37,6 +38,8 @@ class NewChatMessageTest extends TestCase
 
     public function test_notification_message_is_truncated(): void
     {
+        Notification::fake();
+
         $customer = User::factory()->create(['role' => 'customer']);
         $vendor = User::factory()->create(['role' => 'vendor']);
 
@@ -65,6 +68,8 @@ class NewChatMessageTest extends TestCase
 
     public function test_notification_data_has_correct_shape(): void
     {
+        Notification::fake();
+
         $customer = User::factory()->create(['role' => 'customer']);
         $vendor = User::factory()->create(['role' => 'vendor']);
 
@@ -94,5 +99,27 @@ class NewChatMessageTest extends TestCase
         $this->assertSame($message->id, $data['subject']['id']);
         $this->assertSame('message', $data['subject']['type']);
         $this->assertSame($conversation->id, $data['subject']['conversation_id']);
+    }
+
+    public function test_to_fcm_returns_correct_message(): void
+    {
+        Notification::fake();
+
+        $customer = User::factory()->create(['role' => 'customer']);
+        $vendor = User::factory()->create(['role' => 'vendor']);
+
+        $conversation = Conversation::findOrCreateBetween($customer, $vendor);
+
+        $message = Message::create([
+            'conversation_id' => $conversation->id,
+            'sender_id' => $customer->id,
+            'body' => 'Hello vendor!',
+            'type' => 'text',
+        ]);
+
+        $notification = new NewChatMessage($customer, $message);
+        $fcmMessage = $notification->toFcm($vendor);
+
+        $this->assertInstanceOf(FcmMessage::class, $fcmMessage);
     }
 }

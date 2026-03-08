@@ -9,6 +9,9 @@ use Illuminate\Notifications\Channels\BroadcastChannel;
 use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use NotificationChannels\Fcm\FcmChannel;
+use NotificationChannels\Fcm\FcmMessage;
+use NotificationChannels\Fcm\Resources\Notification as FcmNotification;
 
 /**
  * VendorApprovalNotification
@@ -52,7 +55,7 @@ class VendorApprovalNotification extends Notification implements ShouldQueue
      */
     public function via(object $notifiable): array
     {
-        return ['database', 'mail', BroadcastChannel::class];
+        return ['database', 'mail', BroadcastChannel::class, FcmChannel::class];
     }
 
     /**
@@ -152,5 +155,24 @@ class VendorApprovalNotification extends Notification implements ShouldQueue
             'rejection_reason' => $this->vendorApplication->rejection_reason,
             'action_url' => '/dashboard/vendor-applications/'.$this->vendorApplication->id,
         ]);
+    }
+
+    /**
+     * Get the FCM representation of the notification.
+     */
+    public function toFcm(object $notifiable): FcmMessage
+    {
+        $data = $this->toDatabase($notifiable);
+
+        return FcmMessage::create()
+            ->notification(
+                FcmNotification::create()
+                    ->title($data['title'])
+                    ->body($data['message'])
+            )
+            ->data([
+                'type' => $data['type'],
+                'action_url' => $data['action_url'],
+            ]);
     }
 }

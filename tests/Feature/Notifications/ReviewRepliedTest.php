@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Notifications\ReviewReplied;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
+use NotificationChannels\Fcm\FcmMessage;
 use Tests\TestCase;
 
 class ReviewRepliedTest extends TestCase
@@ -58,6 +59,8 @@ class ReviewRepliedTest extends TestCase
 
     public function test_notification_data_has_correct_shape(): void
     {
+        Notification::fake();
+
         $reviewer = User::factory()->create();
         $vendor = User::factory()->create(['role' => 'vendor']);
         $product = Product::factory()->create(['vendor_id' => $vendor->id]);
@@ -88,5 +91,28 @@ class ReviewRepliedTest extends TestCase
         $this->assertSame($reply->id, $data['subject']['id']);
         $this->assertSame('review_reply', $data['subject']['type']);
         $this->assertSame($review->id, $data['subject']['review_id']);
+    }
+
+    public function test_to_fcm_returns_correct_message(): void
+    {
+        Notification::fake();
+
+        $reviewer = User::factory()->create();
+        $vendor = User::factory()->create(['role' => 'vendor']);
+        $product = Product::factory()->create(['vendor_id' => $vendor->id]);
+
+        $review = Review::factory()->forProduct($product)->create([
+            'user_id' => $reviewer->id,
+        ]);
+
+        $reply = ReviewReply::factory()->create([
+            'review_id' => $review->id,
+            'vendor_id' => $vendor->id,
+        ]);
+
+        $notification = new ReviewReplied($vendor, $reply);
+        $fcmMessage = $notification->toFcm($reviewer);
+
+        $this->assertInstanceOf(FcmMessage::class, $fcmMessage);
     }
 }
