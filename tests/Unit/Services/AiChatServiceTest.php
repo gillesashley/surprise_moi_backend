@@ -57,6 +57,7 @@ class AiChatServiceTest extends TestCase
         $result = $this->service->parseAiResponse($json);
 
         $this->assertEquals('suggestions', $result['type']);
+        $this->assertEquals('browse', $result['metadata']['display_type']);
         $this->assertNotEmpty($result['metadata']['suggestions']);
         $this->assertEquals(42, $result['metadata']['suggestions'][0]['product_id']);
     }
@@ -110,6 +111,7 @@ class AiChatServiceTest extends TestCase
         $result = $this->service->parseAiResponse($json);
 
         $this->assertEquals('suggestions', $result['type']);
+        $this->assertEquals('browse', $result['metadata']['display_type']);
         $this->assertNotEmpty($result['content']);
         $this->assertEquals('Here are some gift suggestions for you:', $result['content']);
     }
@@ -134,6 +136,7 @@ class AiChatServiceTest extends TestCase
         $result = $this->service->parseAiResponse($json);
 
         $this->assertEquals('suggestions', $result['type']);
+        $this->assertEquals('browse', $result['metadata']['display_type']);
         $this->assertEquals('I found these for you!', $result['content']);
     }
 
@@ -169,6 +172,7 @@ class AiChatServiceTest extends TestCase
 
         $this->assertEquals('suggestions', $result['type']);
         $this->assertNotEmpty($result['content']);
+        $this->assertEquals('browse', $result['metadata']['display_type']);
         $this->assertCount(2, $result['metadata']['suggestions']);
     }
 

@@ -133,6 +133,7 @@ class AiChatService
             case 'suggestions':
                 $content = $json['analysis'] ?? $json['message'] ?? 'Here are some gift suggestions for you:';
                 $metadata = [
+                    'display_type' => 'browse',
                     'analysis' => $json['analysis'] ?? '',
                     'suggestions' => $json['suggestions'] ?? [],
                 ];
