@@ -3,8 +3,13 @@ export interface Notification {
     type: string;
     title: string;
     message: string;
-    data: Record<string, unknown> | null;
-    user_id: number;
+    action_url: string | null;
+    actor: {
+        id: number;
+        name: string;
+        avatar: string | null;
+    } | null;
+    data: Record<string, unknown>;
     read_at: string | null;
     created_at: string;
     updated_at: string;

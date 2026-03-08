@@ -9,15 +9,19 @@ use Illuminate\Notifications\Channels\BroadcastChannel;
 use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use NotificationChannels\Fcm\FcmChannel;
+use NotificationChannels\Fcm\FcmMessage;
+use NotificationChannels\Fcm\Resources\Notification as FcmNotification;
 
 /**
  * VendorApprovalNotification
- * 
+ *
  * Handles both email and real-time Reverb notifications for vendor approval status changes.
- * Sent via two channels:
- * 1. Mail - Traditional email notification with detailed information
- * 2. Broadcast - Real-time notification via Laravel Reverb WebSocket
- * 
+ * Sent via three channels:
+ * 1. Database - Persisted notification for in-app notification list
+ * 2. Mail - Traditional email notification with detailed information
+ * 3. Broadcast - Real-time notification via Laravel Reverb WebSocket
+ *
  * Usage:
  *   $user->notify(new VendorApprovalNotification($vendorApplication, 'approved'));
  *   $user->notify(new VendorApprovalNotification($vendorApplication, 'rejected'));
@@ -28,16 +32,13 @@ class VendorApprovalNotification extends Notification implements ShouldQueue
 
     /**
      * Notification status: 'approved' or 'rejected'
-     *
-     * @var string
      */
     protected string $status;
 
     /**
      * Create a new notification instance.
      *
-     * @param VendorApplication $vendorApplication
-     * @param string $status 'approved' or 'rejected'
+     * @param  string  $status  'approved' or 'rejected'
      */
     public function __construct(
         public VendorApplication $vendorApplication,
@@ -54,13 +55,17 @@ class VendorApprovalNotification extends Notification implements ShouldQueue
      */
     public function via(object $notifiable): array
     {
-        return ['mail', BroadcastChannel::class];
+        $channels = ['database', 'mail', BroadcastChannel::class];
+
+        if ($notifiable->deviceTokens()->exists()) {
+            $channels[] = FcmChannel::class;
+        }
+
+        return $channels;
     }
 
     /**
      * Get the mail representation of the notification.
-     *
-     * @return \Illuminate\Notifications\Messages\MailMessage
      */
     public function toMail(object $notifiable): MailMessage
     {
@@ -73,8 +78,6 @@ class VendorApprovalNotification extends Notification implements ShouldQueue
 
     /**
      * Build the approval email.
-     *
-     * @return \Illuminate\Notifications\Messages\MailMessage
      */
     protected function buildApprovedEmail(object $notifiable): MailMessage
     {
@@ -83,7 +86,7 @@ class VendorApprovalNotification extends Notification implements ShouldQueue
             ->greeting("Hello {$notifiable->name},")
             ->line('Congratulations! Your vendor application has been approved.')
             ->line('You can now start selling on SurpriseMoi!')
-            ->line('Application ID: ' . $this->vendorApplication->id)
+            ->line('Application ID: '.$this->vendorApplication->id)
             ->action('Go to Dashboard', url('/dashboard'))
             ->line('If you have any questions, feel free to contact our support team.')
             ->salutation('Best regards, SurpriseMoi Team');
@@ -91,8 +94,6 @@ class VendorApprovalNotification extends Notification implements ShouldQueue
 
     /**
      * Build the rejection email.
-     *
-     * @return \Illuminate\Notifications\Messages\MailMessage
      */
     protected function buildRejectedEmail(object $notifiable): MailMessage
     {
@@ -103,13 +104,13 @@ class VendorApprovalNotification extends Notification implements ShouldQueue
             ->line('Unfortunately, your application has been rejected.');
 
         if ($this->vendorApplication->rejection_reason) {
-            $message->line('**Reason:** ' . $this->vendorApplication->rejection_reason);
+            $message->line('**Reason:** '.$this->vendorApplication->rejection_reason);
         }
 
         $message
-            ->line('Application ID: ' . $this->vendorApplication->id)
+            ->line('Application ID: '.$this->vendorApplication->id)
             ->line('You can reapply after addressing the feedback provided.')
-            ->action('View Application', url('/dashboard/vendor-applications/' . $this->vendorApplication->id))
+            ->action('View Application', url('/dashboard/vendor-applications/'.$this->vendorApplication->id))
             ->line('If you have questions about the decision, please contact our support team.')
             ->salutation('Best regards, SurpriseMoi Team');
 
@@ -117,9 +118,30 @@ class VendorApprovalNotification extends Notification implements ShouldQueue
     }
 
     /**
+     * Get the database representation of the notification.
+     */
+    public function toDatabase(object $notifiable): array
+    {
+        $isApproved = $this->status === 'approved';
+
+        return [
+            'type' => 'vendor_'.$this->status,
+            'title' => $isApproved ? 'Application Approved' : 'Application Rejected',
+            'message' => $isApproved
+                ? 'Your vendor application has been approved.'
+                : 'Your vendor application has been rejected.',
+            'action_url' => '/dashboard/vendor-applications/'.$this->vendorApplication->id,
+            'actor' => null,
+            'subject' => [
+                'id' => $this->vendorApplication->id,
+                'type' => 'vendor_application',
+                'status' => $this->status,
+            ],
+        ];
+    }
+
+    /**
      * Get the broadcastable representation of the notification.
-     *
-     * @return \Illuminate\Notifications\Messages\BroadcastMessage
      */
     public function toBroadcast(object $notifiable): BroadcastMessage
     {
@@ -137,7 +159,26 @@ class VendorApprovalNotification extends Notification implements ShouldQueue
             'status' => $this->status,
             'vendor_application_id' => $this->vendorApplication->id,
             'rejection_reason' => $this->vendorApplication->rejection_reason,
-            'action_url' => '/dashboard/vendor-applications/' . $this->vendorApplication->id,
+            'action_url' => '/dashboard/vendor-applications/'.$this->vendorApplication->id,
         ]);
+    }
+
+    /**
+     * Get the FCM representation of the notification.
+     */
+    public function toFcm(object $notifiable): FcmMessage
+    {
+        $data = $this->toDatabase($notifiable);
+
+        return FcmMessage::create()
+            ->notification(
+                FcmNotification::create()
+                    ->title($data['title'])
+                    ->body($data['message'])
+            )
+            ->data([
+                'type' => $data['type'],
+                'action_url' => $data['action_url'],
+            ]);
     }
 }

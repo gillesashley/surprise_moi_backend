@@ -3,170 +3,79 @@ import echo from '@/lib/echo';
 import { useNotifications } from '@/hooks/useNotifications';
 import { showNotificationToast } from '@/components/notifications';
 import type { Notification } from '@/lib/notifications/api';
+import { usePage } from '@inertiajs/react';
 
 const isDevelopment = import.meta.env.DEV;
 
-interface VendorApprovalEvent {
-    vendor_application_id: number;
-    user_id: number;
-    user_name: string;
-    user_email: string;
-    submitted_at: string;
+interface BroadcastNotification {
+    id: string;
+    type: string;
+    title: string;
     message: string;
-}
-
-interface MessageSentEvent {
-    conversation_id: number;
-    sender_id: number;
-    sender_name: string;
-    message: string;
-    preview?: string;
+    action_url?: string;
+    actor?: {
+        id: number;
+        name: string;
+        avatar: string | null;
+    };
+    [key: string]: unknown;
 }
 
 export function useEchoNotifications() {
     const { addNotification, fetchUnreadCount } = useNotifications();
+    const { auth } = usePage<{ auth: { user: { id: number } } }>().props;
 
     useEffect(() => {
+        if (!auth?.user?.id) {
+            return;
+        }
+
+        const userId = auth.user.id;
+
         if (isDevelopment) {
             console.log(
-                '📡 [useEchoNotifications] Hook mounted, subscribing to admin channel...',
+                `[useEchoNotifications] Subscribing to user.${userId} channel...`,
             );
         }
 
-        const channel = echo.private('admin');
+        const channel = echo.private(`user.${userId}`);
 
-        channel.listen(
-            'vendor.approval.submitted',
-            (event: VendorApprovalEvent) => {
-                if (isDevelopment) {
-                    console.log(
-                        '✅ [useEchoNotifications] Vendor approval submitted:',
-                        event,
-                    );
-                }
+        channel.notification((data: BroadcastNotification) => {
+            if (isDevelopment) {
+                console.log('[useEchoNotifications] Notification received:', data);
+            }
 
-                const notification: Notification = {
-                    id: `vendor-${event.vendor_application_id}-${Date.now()}`,
-                    type: 'vendor_submitted',
-                    title: 'New Vendor Application',
-                    message: `${event.user_name} has submitted a vendor application`,
-                    data: {
-                        vendor_application_id: event.vendor_application_id,
-                        user_id: event.user_id,
-                        action_url: '/admin/vendors',
-                    },
-                    user_id: event.user_id,
-                    read_at: null,
-                    created_at: event.submitted_at,
-                    updated_at: event.submitted_at,
-                };
+            const notification: Notification = {
+                id: data.id,
+                type: data.type ?? 'unknown',
+                title: data.title ?? '',
+                message: data.message ?? '',
+                action_url: data.action_url ?? null,
+                actor: data.actor ?? null,
+                data: data,
+                read_at: null,
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+            };
 
-                addNotification(notification);
-                showNotificationToast(notification);
-                fetchUnreadCount();
-            },
-        );
-
-        channel.listen(
-            'vendor.approved',
-            (event: VendorApprovalEvent) => {
-                if (isDevelopment) {
-                    console.log('✅ [useEchoNotifications] Vendor approved:', event);
-                }
-
-                const notification: Notification = {
-                    id: `vendor-approved-${event.vendor_application_id}-${Date.now()}`,
-                    type: 'vendor_approved',
-                    title: 'Vendor Approved',
-                    message: `${event.user_name}'s vendor application has been approved`,
-                    data: {
-                        vendor_application_id: event.vendor_application_id,
-                        action_url: '/admin/vendors',
-                    },
-                    user_id: event.user_id,
-                    read_at: null,
-                    created_at: new Date().toISOString(),
-                    updated_at: new Date().toISOString(),
-                };
-
-                addNotification(notification);
-                showNotificationToast(notification);
-                fetchUnreadCount();
-            },
-        );
-
-        channel.listen(
-            'vendor.rejected',
-            (event: VendorApprovalEvent) => {
-                if (isDevelopment) {
-                    console.log('✅ [useEchoNotifications] Vendor rejected:', event);
-                }
-
-                const notification: Notification = {
-                    id: `vendor-rejected-${event.vendor_application_id}-${Date.now()}`,
-                    type: 'vendor_rejected',
-                    title: 'Vendor Rejected',
-                    message: `${event.user_name}'s vendor application has been rejected`,
-                    data: {
-                        vendor_application_id: event.vendor_application_id,
-                        action_url: '/admin/vendors',
-                    },
-                    user_id: event.user_id,
-                    read_at: null,
-                    created_at: new Date().toISOString(),
-                    updated_at: new Date().toISOString(),
-                };
-
-                addNotification(notification);
-                showNotificationToast(notification);
-                fetchUnreadCount();
-            },
-        );
-
-        channel.listen(
-            'message.sent',
-            (event: MessageSentEvent) => {
-                if (isDevelopment) {
-                    console.log('✅ [useEchoNotifications] Message sent:', event);
-                }
-
-                const notification: Notification = {
-                    id: `message-${event.conversation_id}-${Date.now()}`,
-                    type: 'chat_message',
-                    title: 'New Message',
-                    message: `${event.sender_name}: ${event.preview || event.message}`,
-                    data: {
-                        conversation_id: event.conversation_id,
-                        action_url: '/admin/chat',
-                    },
-                    user_id: event.sender_id,
-                    read_at: null,
-                    created_at: new Date().toISOString(),
-                    updated_at: new Date().toISOString(),
-                };
-
-                addNotification(notification);
-                showNotificationToast(notification);
-                fetchUnreadCount();
-            },
-        );
+            addNotification(notification);
+            showNotificationToast(notification);
+            fetchUnreadCount();
+        });
 
         channel.error((error: unknown) => {
             if (isDevelopment) {
-                console.error(
-                    '❌ [useEchoNotifications] Channel error:',
-                    error,
-                );
+                console.error('[useEchoNotifications] Channel error:', error);
             }
         });
 
         return () => {
             if (isDevelopment) {
                 console.log(
-                    '📡 [useEchoNotifications] Cleaning up - leaving admin channel',
+                    `[useEchoNotifications] Leaving user.${userId} channel`,
                 );
             }
-            echo.leaveChannel('admin');
+            echo.leaveChannel(`private-user.${userId}`);
         };
-    }, [addNotification, fetchUnreadCount]);
+    }, [auth?.user?.id, addNotification, fetchUnreadCount]);
 }

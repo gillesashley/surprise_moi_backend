@@ -509,26 +509,28 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     * Get all notifications for this user.
+     * Get all FCM device tokens for this user.
      */
-    public function notifications()
+    public function deviceTokens(): HasMany
     {
-        return $this->hasMany(Notification::class);
+        return $this->hasMany(DeviceToken::class);
     }
 
     /**
-     * Get unread notifications for this user.
+     * Route notifications for the FCM channel.
+     *
+     * @return array<int, string>
      */
-    public function unreadNotifications()
+    public function routeNotificationForFcm(): array
     {
-        return $this->notifications()->unread();
+        return $this->deviceTokens->pluck('token')->toArray();
     }
 
     /**
-     * Get unread notifications count.
+     * The channels the user receives notification broadcasts on.
      */
-    public function getUnreadNotificationsCount(): int
+    public function receivesBroadcastNotificationsOn(): string
     {
-        return $this->unreadNotifications()->count();
+        return 'user.'.$this->id;
     }
 }

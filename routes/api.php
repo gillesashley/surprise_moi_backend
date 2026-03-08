@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\CartController;
 use App\Http\Controllers\Api\V1\ChatController;
 use App\Http\Controllers\Api\V1\CouponController;
+use App\Http\Controllers\Api\V1\DeviceTokenController;
 use App\Http\Controllers\Api\V1\FieldAgentDashboardController;
 use App\Http\Controllers\Api\V1\FilterController;
 use App\Http\Controllers\Api\V1\HealthController;
@@ -213,10 +214,14 @@ Route::prefix('v1')->group(function () {
         Route::get('/notifications', [NotificationController::class, 'index']);
         Route::get('/notifications/unread', [NotificationController::class, 'unread']);
         Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount']);
-        Route::patch('/notifications/{notification}/read', [NotificationController::class, 'markAsRead']);
-        Route::patch('/notifications/{notification}/unread', [NotificationController::class, 'markAsUnread']);
+        Route::patch('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
+        Route::patch('/notifications/{id}/unread', [NotificationController::class, 'markAsUnread']);
         Route::patch('/notifications/read-all', [NotificationController::class, 'markAllAsRead']);
-        Route::delete('/notifications/{notification}', [NotificationController::class, 'destroy']);
+        Route::delete('/notifications/{id}', [NotificationController::class, 'destroy']);
+
+        // Device token routes (FCM push notifications)
+        Route::post('/device-tokens', [DeviceTokenController::class, 'store']);
+        Route::delete('/device-tokens', [DeviceTokenController::class, 'destroy']);
 
         // Coupon routes
         Route::get('/coupons/available', [CouponController::class, 'available']);

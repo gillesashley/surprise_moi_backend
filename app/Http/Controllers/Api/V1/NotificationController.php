@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
-use App\Models\Notification;
+use App\Http\Resources\NotificationResource;
 use App\Services\NotificationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -14,20 +14,16 @@ class NotificationController extends Controller
         protected NotificationService $notificationService
     ) {}
 
-    /**
-     * Get all notifications for the authenticated user.
-     */
     public function index(Request $request): JsonResponse
     {
         $user = $request->user();
         $perPage = min($request->input('per_page', 20), 100);
-
         $notifications = $this->notificationService->getNotificationsForUser($user, $perPage);
 
         return response()->json([
             'success' => true,
             'data' => [
-                'notifications' => $notifications->items(),
+                'notifications' => NotificationResource::collection($notifications),
                 'meta' => [
                     'current_page' => $notifications->currentPage(),
                     'last_page' => $notifications->lastPage(),
@@ -38,25 +34,18 @@ class NotificationController extends Controller
         ]);
     }
 
-    /**
-     * Get unread notifications count.
-     */
     public function unreadCount(Request $request): JsonResponse
     {
         $user = $request->user();
-        $count = $this->notificationService->getUnreadCount($user);
 
         return response()->json([
             'success' => true,
             'data' => [
-                'unread_count' => $count,
+                'unread_count' => $this->notificationService->getUnreadCount($user),
             ],
         ]);
     }
 
-    /**
-     * Get unread notifications.
-     */
     public function unread(Request $request): JsonResponse
     {
         $user = $request->user();
@@ -65,25 +54,14 @@ class NotificationController extends Controller
         return response()->json([
             'success' => true,
             'data' => [
-                'notifications' => $notifications,
+                'notifications' => NotificationResource::collection($notifications),
             ],
         ]);
     }
 
-    /**
-     * Mark a notification as read.
-     */
-    public function markAsRead(Request $request, Notification $notification): JsonResponse
+    public function markAsRead(Request $request, string $id): JsonResponse
     {
-        $user = $request->user();
-
-        if ($notification->user_id !== $user->id) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Unauthorized',
-            ], 403);
-        }
-
+        $notification = $request->user()->notifications()->findOrFail($id);
         $this->notificationService->markAsRead($notification);
 
         return response()->json([
@@ -92,20 +70,9 @@ class NotificationController extends Controller
         ]);
     }
 
-    /**
-     * Mark a notification as unread.
-     */
-    public function markAsUnread(Request $request, Notification $notification): JsonResponse
+    public function markAsUnread(Request $request, string $id): JsonResponse
     {
-        $user = $request->user();
-
-        if ($notification->user_id !== $user->id) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Unauthorized',
-            ], 403);
-        }
-
+        $notification = $request->user()->notifications()->findOrFail($id);
         $this->notificationService->markAsUnread($notification);
 
         return response()->json([
@@ -114,13 +81,9 @@ class NotificationController extends Controller
         ]);
     }
 
-    /**
-     * Mark all notifications as read.
-     */
     public function markAllAsRead(Request $request): JsonResponse
     {
-        $user = $request->user();
-        $count = $this->notificationService->markAllAsRead($user);
+        $count = $this->notificationService->markAllAsRead($request->user());
 
         return response()->json([
             'success' => true,
@@ -131,20 +94,9 @@ class NotificationController extends Controller
         ]);
     }
 
-    /**
-     * Delete a notification.
-     */
-    public function destroy(Request $request, Notification $notification): JsonResponse
+    public function destroy(Request $request, string $id): JsonResponse
     {
-        $user = $request->user();
-
-        if ($notification->user_id !== $user->id) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Unauthorized',
-            ], 403);
-        }
-
+        $notification = $request->user()->notifications()->findOrFail($id);
         $this->notificationService->deleteNotification($notification);
 
         return response()->json([

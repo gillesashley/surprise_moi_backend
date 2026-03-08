@@ -4,7 +4,9 @@ namespace App\Providers;
 
 use App\Contracts\Sms\SmsProviderInterface;
 use App\Models\Product;
+use App\Models\Review;
 use App\Observers\ProductObserver;
+use App\Observers\ReviewObserver;
 use App\Services\KairosAfrikaSmsService;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -34,6 +36,11 @@ class AppServiceProvider extends ServiceProvider
         }
 
         Product::observe(ProductObserver::class);
+        Review::observe(ReviewObserver::class);
+        \App\Models\WawVideoLike::observe(\App\Observers\WawVideoLikeObserver::class);
+        \App\Models\ReviewReply::observe(\App\Observers\ReviewReplyObserver::class);
+        \App\Models\Order::observe(\App\Observers\OrderObserver::class);
+        \App\Models\Message::observe(\App\Observers\MessageObserver::class);
 
         // Configure morph map for polymorphic relationships
         Relation::morphMap([
