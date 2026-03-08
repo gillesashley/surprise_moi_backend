@@ -40,6 +40,7 @@ class AppServiceProvider extends ServiceProvider
         \App\Models\WawVideoLike::observe(\App\Observers\WawVideoLikeObserver::class);
         \App\Models\ReviewReply::observe(\App\Observers\ReviewReplyObserver::class);
         \App\Models\Order::observe(\App\Observers\OrderObserver::class);
+        \App\Models\Message::observe(\App\Observers\MessageObserver::class);
 
         // Configure morph map for polymorphic relationships
         Relation::morphMap([
