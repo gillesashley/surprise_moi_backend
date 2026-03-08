@@ -115,29 +115,49 @@ class VendorPayoutDetailController extends Controller
     }
 
     /**
-     * Save mobile money payout details (no Paystack verification).
+     * Save mobile money payout details with Paystack verification.
      */
     private function storeMobileMoney(StoreVendorPayoutDetailRequest $request, $vendor): JsonResponse
     {
+        $accountName = $request->input('account_name', $vendor->name);
+
+        $recipientResult = $this->paystackService->createTransferRecipient(
+            type: 'mobile_money',
+            name: $accountName,
+            accountNumber: $request->input('account_number'),
+            bankCode: $request->input('bank_code'),
+            currency: 'GHS'
+        );
+
+        if (! $recipientResult['success']) {
+            return response()->json([
+                'success' => false,
+                'message' => $recipientResult['message'] ?? 'Could not verify mobile money account. Please check your details.',
+            ], 422);
+        }
+
+        $bankName = $recipientResult['data']['details']['bank_name']
+            ?? $this->resolveMoMoProviderName($request->input('bank_code'));
+
         // Unset existing defaults
         $vendor->payoutDetails()->update(['is_default' => false]);
 
         $detail = VendorPayoutDetail::create([
             'vendor_id' => $vendor->id,
             'payout_method' => VendorPayoutDetail::METHOD_MOBILE_MONEY,
-            'account_name' => $request->input('account_name', $vendor->name),
+            'account_name' => $accountName,
             'account_number' => $request->input('account_number'),
             'bank_code' => $request->input('bank_code'),
-            'bank_name' => $this->resolveMoMoProviderName($request->input('bank_code')),
+            'bank_name' => $bankName,
             'provider' => $request->input('provider'),
-            'paystack_recipient_code' => null,
-            'is_verified' => false,
+            'paystack_recipient_code' => $recipientResult['data']['recipient_code'],
+            'is_verified' => true,
             'is_default' => true,
         ]);
 
         return response()->json([
             'success' => true,
-            'message' => 'Mobile money payout details saved successfully.',
+            'message' => 'Mobile money payout details saved and verified successfully.',
             'payout_detail' => $detail,
         ], 201);
     }

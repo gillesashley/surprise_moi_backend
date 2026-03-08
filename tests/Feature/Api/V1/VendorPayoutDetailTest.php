@@ -22,6 +22,16 @@ class VendorPayoutDetailTest extends TestCase
 
     public function test_vendor_can_save_mobile_money_payout_details(): void
     {
+        Http::fake([
+            'https://api.paystack.co/transferrecipient' => Http::response([
+                'status' => true,
+                'data' => [
+                    'recipient_code' => 'RCP_momo_test123',
+                    'details' => ['bank_name' => 'MTN Mobile Money'],
+                ],
+            ]),
+        ]);
+
         $response = $this->actingAs($this->vendor, 'sanctum')
             ->postJson('/api/v1/vendor/payout-details', [
                 'payout_method' => 'mobile_money',
@@ -35,6 +45,7 @@ class VendorPayoutDetailTest extends TestCase
             ->assertJsonPath('payout_detail.payout_method', 'mobile_money')
             ->assertJsonPath('payout_detail.account_number', '0244123456')
             ->assertJsonPath('payout_detail.account_name', 'Kwame Asante')
+            ->assertJsonPath('payout_detail.is_verified', true)
             ->assertJsonPath('payout_detail.is_default', true);
 
         $this->assertDatabaseHas('vendor_payout_details', [
@@ -43,8 +54,35 @@ class VendorPayoutDetailTest extends TestCase
             'account_number' => '0244123456',
             'bank_code' => 'MTN',
             'account_name' => 'Kwame Asante',
-            'is_verified' => false,
+            'is_verified' => true,
             'is_default' => true,
+            'paystack_recipient_code' => 'RCP_momo_test123',
+        ]);
+    }
+
+    public function test_mobile_money_save_fails_when_paystack_rejects(): void
+    {
+        Http::fake([
+            'https://api.paystack.co/transferrecipient' => Http::response([
+                'status' => false,
+                'message' => 'Could not verify mobile money account.',
+            ], 400),
+        ]);
+
+        $response = $this->actingAs($this->vendor, 'sanctum')
+            ->postJson('/api/v1/vendor/payout-details', [
+                'payout_method' => 'mobile_money',
+                'account_number' => '0000000000',
+                'bank_code' => 'MTN',
+                'account_name' => 'Invalid User',
+            ]);
+
+        $response->assertStatus(422)
+            ->assertJsonPath('success', false);
+
+        $this->assertDatabaseMissing('vendor_payout_details', [
+            'vendor_id' => $this->vendor->id,
+            'account_number' => '0000000000',
         ]);
     }
 
