@@ -274,6 +274,42 @@ class VendorApiTest extends TestCase
         $this->assertEquals($photographyVendor->id, $vendors[0]['id']);
     }
 
+    public function test_vendor_response_includes_banner_field(): void
+    {
+        $vendorWithBanner = User::factory()->create([
+            'role' => 'vendor',
+            'banner' => 'banners/test-banner.jpg',
+        ]);
+        $vendorWithoutBanner = User::factory()->create([
+            'role' => 'vendor',
+            'banner' => null,
+        ]);
+
+        // Test vendor listing includes banner
+        $response = $this->getJson('/api/v1/vendors');
+        $response->assertStatus(200);
+
+        $vendors = collect($response->json('data.vendors'));
+        $withBanner = $vendors->firstWhere('id', $vendorWithBanner->id);
+        $withoutBanner = $vendors->firstWhere('id', $vendorWithoutBanner->id);
+
+        $this->assertArrayHasKey('banner', $withBanner);
+        $this->assertNotNull($withBanner['banner']);
+        $this->assertStringContainsString('banners/test-banner.jpg', $withBanner['banner']);
+
+        $this->assertArrayHasKey('banner', $withoutBanner);
+        $this->assertNull($withoutBanner['banner']);
+
+        // Test single vendor includes banner
+        $response = $this->getJson("/api/v1/vendors/{$vendorWithBanner->id}");
+        $response->assertStatus(200);
+
+        $vendor = $response->json('data.vendor');
+        $this->assertArrayHasKey('banner', $vendor);
+        $this->assertNotNull($vendor['banner']);
+        $this->assertStringContainsString('banners/test-banner.jpg', $vendor['banner']);
+    }
+
     public function test_vendor_list_includes_product_and_service_counts(): void
     {
         $vendor = User::factory()->create(['role' => 'vendor']);

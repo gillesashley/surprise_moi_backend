@@ -19,6 +19,7 @@ class VendorResource extends JsonResource
             'name' => $this->name,
             'shop_name' => $this->name,
             'profile_image' => $this->avatar ? storage_url($this->avatar) : null,
+            'banner' => $this->banner ? storage_url($this->banner) : null,
             'location' => $this->bio,
             'products_rating' => $this->whenNotNull($this->products_avg_rating !== null ? (float) $this->products_avg_rating : null),
             'services_rating' => $this->whenNotNull($this->services_avg_rating !== null ? (float) $this->services_avg_rating : null),

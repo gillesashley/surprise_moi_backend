@@ -3,72 +3,70 @@
 namespace Tests\Feature\Notifications;
 
 use App\Models\User;
-use App\Notifications\WelcomeNotification;
-use Illuminate\Auth\Events\Registered;
+use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Notifications\Messages\MailMessage;
-use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
 
 class WelcomeNotificationTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_via_includes_only_mail_channel(): void
+    public function test_verification_email_has_welcome_subject(): void
     {
         $user = User::factory()->create();
 
-        $notification = new WelcomeNotification;
-
-        $this->assertSame(['mail'], $notification->via($user));
-    }
-
-    public function test_to_mail_has_correct_subject(): void
-    {
-        $user = User::factory()->create();
-
-        $notification = new WelcomeNotification;
+        $notification = new VerifyEmail;
         $mail = $notification->toMail($user);
 
         $this->assertInstanceOf(MailMessage::class, $mail);
-        $this->assertSame('Welcome to Surprise Moi!', $mail->subject);
+        $this->assertSame('Welcome to Surprise Moi! Verify Your Email', $mail->subject);
     }
 
-    public function test_to_mail_contains_user_name_in_greeting(): void
+    public function test_verification_email_contains_user_name_in_greeting(): void
     {
         $user = User::factory()->create(['name' => 'Jane Doe']);
 
-        $notification = new WelcomeNotification;
+        $notification = new VerifyEmail;
         $mail = $notification->toMail($user);
 
         $this->assertSame('Hello Jane Doe,', $mail->greeting);
     }
 
-    public function test_to_mail_has_correct_action_url(): void
+    public function test_verification_email_contains_welcome_message(): void
     {
         $user = User::factory()->create();
 
-        $notification = new WelcomeNotification;
+        $notification = new VerifyEmail;
         $mail = $notification->toMail($user);
 
-        $this->assertSame(config('deep_links.share_base_url'), $mail->actionUrl);
+        $this->assertContains(
+            'Your Surprise Moi account has been created successfully. Let the surprises begin!',
+            $mail->introLines
+        );
     }
 
-    public function test_notification_is_queued_on_notifications_queue(): void
+    public function test_verification_email_contains_verify_prompt(): void
     {
-        $notification = new WelcomeNotification;
-
-        $this->assertSame('notifications', $notification->queue);
-    }
-
-    public function test_registered_event_dispatches_welcome_notification(): void
-    {
-        Notification::fake();
-
         $user = User::factory()->create();
 
-        event(new Registered($user));
+        $notification = new VerifyEmail;
+        $mail = $notification->toMail($user);
 
-        Notification::assertSentTo($user, WelcomeNotification::class);
+        $this->assertContains(
+            'Please click the button below to verify your email address and get started.',
+            $mail->introLines
+        );
+    }
+
+    public function test_verification_email_has_verify_action_button(): void
+    {
+        $user = User::factory()->create();
+
+        $notification = new VerifyEmail;
+        $mail = $notification->toMail($user);
+
+        $this->assertSame('Verify Email Address', $mail->actionText);
+        $this->assertNotEmpty($mail->actionUrl);
     }
 }
