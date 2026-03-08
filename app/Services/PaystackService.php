@@ -805,6 +805,43 @@ class PaystackService
     }
 
     /**
+     * List mobile money providers for a given currency.
+     *
+     * @return array{success: bool, data?: array<int, mixed>, message?: string}
+     */
+    public function listMobileMoneyProviders(string $currency = 'GHS'): array
+    {
+        try {
+            $response = Http::withToken($this->secretKey)
+                ->timeout(30)
+                ->withOptions(['verify' => false])
+                ->get("{$this->baseUrl}/bank", [
+                    'currency' => $currency,
+                    'type' => 'mobile_money',
+                ]);
+
+            if ($response->successful() && $response->json('status') === true) {
+                return [
+                    'success' => true,
+                    'data' => $response->json('data'),
+                ];
+            }
+
+            return [
+                'success' => false,
+                'message' => $response->json('message') ?? 'Failed to fetch mobile money providers.',
+            ];
+        } catch (RequestException $e) {
+            Log::error('Paystack list mobile money providers failed', ['error' => $e->getMessage()]);
+
+            return [
+                'success' => false,
+                'message' => 'Service temporarily unavailable.',
+            ];
+        }
+    }
+
+    /**
      * Resolve/verify a bank account number.
      *
      * @return array{success: bool, data?: array<string, mixed>, message?: string}

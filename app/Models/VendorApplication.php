@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Events\VendorApprovalSubmitted;
 use App\Events\VendorApproved;
 use App\Events\VendorRejected;
+use App\Notifications\VendorApplicationSubmittedNotification;
 use App\Notifications\VendorApprovalNotification;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -337,7 +338,7 @@ class VendorApplication extends Model
 
     /**
      * Submit the vendor application for review.
-     * 
+     *
      * Fires VendorApprovalSubmitted event to notify admins in real-time.
      */
     public function submit(): bool
@@ -350,6 +351,9 @@ class VendorApplication extends Model
 
         // Fire submission event to notify admins
         event(new VendorApprovalSubmitted($this));
+
+        // Send confirmation notification to the vendor
+        $this->user->notify(new VendorApplicationSubmittedNotification($this));
 
         return true;
     }
