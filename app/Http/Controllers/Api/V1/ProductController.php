@@ -34,6 +34,11 @@ class ProductController extends Controller
             $query->whereIn('category_id', $categoryIds);
         }
 
+        // Filter by single category ID
+        if ($request->filled('category_id') && ! $request->filled('category_ids')) {
+            $query->where('category_id', $request->integer('category_id'));
+        }
+
         // Search in name and description (case-insensitive)
         if ($request->filled('search')) {
             $search = strtolower($request->search);
@@ -57,11 +62,15 @@ class ProductController extends Controller
             $query->where('vendor_id', $request->vendor_id);
         }
 
-        // Filter by location (vendor's location - bio field)
+        // Filter by location (vendor bio or shop location, case-insensitive)
         if ($request->filled('location')) {
             $location = strtolower($request->location);
-            $query->whereHas('vendor', function ($q) use ($location) {
-                $q->whereRaw('LOWER(bio) LIKE ?', ["%{$location}%"]);
+            $query->where(function ($q) use ($location) {
+                $q->whereHas('vendor', function ($subQ) use ($location) {
+                    $subQ->whereRaw('LOWER(bio) LIKE ?', ["%{$location}%"]);
+                })->orWhereHas('shop', function ($subQ) use ($location) {
+                    $subQ->whereRaw('LOWER(location) LIKE ?', ["%{$location}%"]);
+                });
             });
         }
 
@@ -74,6 +83,11 @@ class ProductController extends Controller
             $query->where('rating', '<', $request->rating_max);
         }
 
+        // Filter by minimum rating (alias for rating_min)
+        if ($request->filled('min_rating') && ! $request->filled('rating_min')) {
+            $query->where('rating', '>=', $request->min_rating);
+        }
+
         // Filter by colors (supports single color or comma-separated colors)
         if ($request->filled('colors')) {
             $colors = array_map('trim', explode(',', strtolower($request->colors)));
@@ -83,6 +97,15 @@ class ProductController extends Controller
                     $q->orWhere('colors', 'LIKE', "%\"{$color}\"%")
                         ->orWhere('colors', 'LIKE', '%"'.ucfirst($color).'"%');
                 }
+            });
+        }
+
+        // Filter by single color (alias)
+        if ($request->filled('color') && ! $request->filled('colors')) {
+            $color = strtolower(trim($request->color));
+            $query->where(function ($q) use ($color) {
+                $q->where('colors', 'LIKE', "%\"{$color}\"%")
+                    ->orWhere('colors', 'LIKE', '%"'.ucfirst($color).'"%');
             });
         }
 
@@ -118,6 +141,21 @@ class ProductController extends Controller
                 ->where('discount_price', '>', 0);
         }
 
+        // Filter by popular vendors
+        if ($request->boolean('popular')) {
+            $query->whereHas('vendor', function ($q) {
+                $q->where('is_popular', true);
+            });
+        }
+
+        // Filter by occasion/tag name (case-insensitive exact match)
+        if ($request->filled('occasion') && ! $request->filled('tags')) {
+            $occasion = strtolower(trim($request->occasion));
+            $query->whereHas('tags', function ($q) use ($occasion) {
+                $q->whereRaw('LOWER(name) = ?', [$occasion]);
+            });
+        }
+
         // Sorting
         $sortBy = $request->input('sort_by', 'created_at');
         $sortOrder = $request->input('sort_order', 'desc');
@@ -145,6 +183,7 @@ class ProductController extends Controller
                 ],
                 'filters_applied' => $request->only([
                     'category',
+                    'category_id',
                     'category_ids',
                     'search',
                     'min_price',
@@ -153,12 +192,16 @@ class ProductController extends Controller
                     'location',
                     'rating_min',
                     'rating_max',
+                    'min_rating',
                     'colors',
+                    'color',
                     'tags',
                     'tag_ids',
+                    'occasion',
                     'featured',
                     'free_delivery',
                     'has_discount',
+                    'popular',
                 ]),
             ],
         ]);

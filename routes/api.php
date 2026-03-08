@@ -103,6 +103,7 @@ Route::prefix('v1')->group(function () {
         Route::get('/price-range', [FilterController::class, 'priceRange']);
         Route::get('/colors', [FilterController::class, 'colors']);
         Route::get('/occasions', [FilterController::class, 'occasions']);
+        Route::get('/locations', [FilterController::class, 'locations']);
         Route::get('/ratings', [FilterController::class, 'ratings']);
     });
 

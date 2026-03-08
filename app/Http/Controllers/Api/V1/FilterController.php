@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\Shop;
 use App\Models\Tag;
 use Illuminate\Http\JsonResponse;
 
@@ -77,6 +78,29 @@ class FilterController extends Controller
             'success' => true,
             'data' => [
                 'occasions' => $this->getOccasions(),
+            ],
+        ]);
+    }
+
+    /**
+     * Get unique vendor/shop locations.
+     */
+    public function locations(): JsonResponse
+    {
+        $locations = Shop::query()
+            ->where('is_active', true)
+            ->whereNotNull('location')
+            ->where('location', '!=', '')
+            ->distinct()
+            ->orderBy('location')
+            ->pluck('location')
+            ->map(fn (string $name) => ['name' => $name])
+            ->values();
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'locations' => $locations,
             ],
         ]);
     }

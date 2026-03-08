@@ -42,21 +42,43 @@ class ServiceController extends Controller
             $query->where('charge_start', '<=', $request->charge_max);
         }
 
+        // Filter by max price (alias for charge_max)
+        if ($request->filled('max_price') && ! $request->filled('charge_max')) {
+            $query->where('charge_start', '<=', $request->max_price);
+        }
+
         // Filter by vendor
         if ($request->filled('vendor_id')) {
             $query->where('vendor_id', $request->vendor_id);
         }
 
-        // Filter by location (vendor's location)
+        // Filter by location (vendor bio or shop location, case-insensitive)
         if ($request->filled('location')) {
-            $query->whereHas('vendor', function ($q) use ($request) {
-                $q->where('bio', 'LIKE', "%{$request->location}%");
+            $location = strtolower($request->location);
+            $query->where(function ($q) use ($location) {
+                $q->whereHas('vendor', function ($subQ) use ($location) {
+                    $subQ->whereRaw('LOWER(bio) LIKE ?', ["%{$location}%"]);
+                })->orWhereHas('shop', function ($subQ) use ($location) {
+                    $subQ->whereRaw('LOWER(location) LIKE ?', ["%{$location}%"]);
+                });
             });
         }
 
         // Filter by minimum rating
         if ($request->filled('rating_min')) {
             $query->where('rating', '>=', $request->rating_min);
+        }
+
+        // Filter by minimum rating (alias for rating_min)
+        if ($request->filled('min_rating') && ! $request->filled('rating_min')) {
+            $query->where('rating', '>=', $request->min_rating);
+        }
+
+        // Filter by popular vendors
+        if ($request->boolean('popular')) {
+            $query->whereHas('vendor', function ($q) {
+                $q->where('is_popular', true);
+            });
         }
 
         // Sorting
