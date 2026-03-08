@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\DB;
 class VendorAnalyticsController extends Controller
 {
     /**
-     * Get comprehensive vendor analytics dashboard data.
+     * Get vendor sales analytics for mobile dashboard.
      */
     public function index(Request $request): JsonResponse
     {
@@ -30,22 +30,54 @@ class VendorAnalyticsController extends Controller
             ? $request->input('vendor_id')
             : $user->id;
 
-        $period = $request->input('period', 'month'); // day, week, month, year
-        $dateRange = $this->getDateRange($period, $request);
+        $validPeriods = ['today', 'week', 'month', 'year'];
+        $period = in_array($request->input('period'), $validPeriods)
+            ? $request->input('period')
+            : 'month';
+        $completedStatuses = ['fulfilled', 'delivered'];
+
+        [$currentStart, $currentEnd] = $this->getMobileDateRange($period);
+        [$previousStart, $previousEnd] = $this->getMobilePreviousDateRange($period);
+
+        $currentRevenue = Order::query()
+            ->where('vendor_id', $vendorId)
+            ->whereIn('status', $completedStatuses)
+            ->whereBetween('created_at', [$currentStart, $currentEnd])
+            ->sum('total');
+
+        $previousRevenue = Order::query()
+            ->where('vendor_id', $vendorId)
+            ->whereIn('status', $completedStatuses)
+            ->whereBetween('created_at', [$previousStart, $previousEnd])
+            ->sum('total');
+
+        $currentOrders = Order::query()
+            ->where('vendor_id', $vendorId)
+            ->whereIn('status', $completedStatuses)
+            ->whereBetween('created_at', [$currentStart, $currentEnd])
+            ->count();
+
+        $previousOrders = Order::query()
+            ->where('vendor_id', $vendorId)
+            ->whereIn('status', $completedStatuses)
+            ->whereBetween('created_at', [$previousStart, $previousEnd])
+            ->count();
 
         return response()->json([
-            'success' => true,
             'data' => [
-                'overview' => $this->getOverviewStats($vendorId, $dateRange),
-                'revenue_by_category' => $this->getRevenueByCategory($vendorId, $dateRange),
-                'top_products' => $this->getTopProducts($vendorId, $dateRange),
-                'orders_trend' => $this->getOrdersTrend($vendorId, $dateRange),
-                'revenue_trend' => $this->getRevenueTrend($vendorId, $dateRange),
                 'period' => $period,
-                'date_range' => [
-                    'start' => $dateRange['start']->toDateTimeString(),
-                    'end' => $dateRange['end']->toDateTimeString(),
+                'revenue' => [
+                    'total' => round((float) $currentRevenue, 2),
+                    'previous_total' => round((float) $previousRevenue, 2),
+                    'growth_percentage' => $this->calculateGrowth($currentRevenue, $previousRevenue),
                 ],
+                'orders' => [
+                    'total' => $currentOrders,
+                    'previous_total' => $previousOrders,
+                    'growth_percentage' => $this->calculateGrowth($currentOrders, $previousOrders),
+                ],
+                'revenue_by_category' => $this->getMobileRevenueByCategory($vendorId, $currentStart, $currentEnd),
+                'top_products' => $this->getMobileTopProducts($vendorId, $currentStart, $currentEnd),
             ],
         ]);
     }
@@ -603,5 +635,179 @@ class VendorAnalyticsController extends Controller
         $calculatedTarget = ($averageMonthlyRevenue ?? 0) * 1.10;
 
         return max($calculatedTarget, 1000);
+    }
+
+    /**
+     * Calculate growth percentage between two values.
+     */
+    protected function calculateGrowth(float|int $current, float|int $previous): float
+    {
+        if ($previous == 0) {
+            return 0;
+        }
+
+        return round((($current - $previous) / $previous) * 100, 2);
+    }
+
+    /**
+     * Get current date range for mobile analytics periods.
+     *
+     * @return array{0: Carbon, 1: Carbon}
+     */
+    protected function getMobileDateRange(string $period): array
+    {
+        return match ($period) {
+            'today' => [Carbon::today(), Carbon::now()],
+            'week' => [Carbon::now()->startOfWeek(), Carbon::now()],
+            'year' => [Carbon::now()->startOfYear(), Carbon::now()],
+            default => [Carbon::now()->startOfMonth(), Carbon::now()],
+        };
+    }
+
+    /**
+     * Get previous date range for mobile analytics comparison periods.
+     * Calendar-aligned: yesterday, last week, last month, last year.
+     *
+     * @return array{0: Carbon, 1: Carbon}
+     */
+    protected function getMobilePreviousDateRange(string $period): array
+    {
+        return match ($period) {
+            'today' => [Carbon::yesterday()->startOfDay(), Carbon::yesterday()->endOfDay()],
+            'week' => [Carbon::now()->subWeek()->startOfWeek(), Carbon::now()->subWeek()->endOfWeek()],
+            'year' => [Carbon::now()->subYear()->startOfYear(), Carbon::now()->subYear()->endOfYear()],
+            default => [Carbon::now()->subMonth()->startOfMonth(), Carbon::now()->subMonth()->endOfMonth()],
+        };
+    }
+
+    /**
+     * Get revenue by category for mobile analytics.
+     * Top 5 categories by revenue desc, includes "Bespoke Services" bucket.
+     *
+     * @return array<int, array{category_id: int|null, category_name: string, revenue: float}>
+     */
+    protected function getMobileRevenueByCategory(int $vendorId, Carbon $start, Carbon $end): array
+    {
+        $completedStatuses = ['fulfilled', 'delivered'];
+
+        $categoryRevenue = OrderItem::query()
+            ->join('orders', 'order_items.order_id', '=', 'orders.id')
+            ->where('orders.vendor_id', $vendorId)
+            ->whereBetween('orders.created_at', [$start, $end])
+            ->whereIn('orders.status', $completedStatuses)
+            ->where('order_items.orderable_type', Product::class)
+            ->join('products', 'order_items.orderable_id', '=', 'products.id')
+            ->join('categories', 'products.category_id', '=', 'categories.id')
+            ->select(
+                'categories.id as category_id',
+                'categories.name as category_name',
+                DB::raw('SUM(order_items.subtotal) as revenue')
+            )
+            ->groupBy('categories.id', 'categories.name')
+            ->orderByDesc('revenue')
+            ->get()
+            ->map(fn ($row) => [
+                'category_id' => (int) $row->category_id,
+                'category_name' => $row->category_name,
+                'revenue' => round((float) $row->revenue, 2),
+            ])
+            ->toArray();
+
+        $servicesRevenue = OrderItem::query()
+            ->join('orders', 'order_items.order_id', '=', 'orders.id')
+            ->where('orders.vendor_id', $vendorId)
+            ->whereBetween('orders.created_at', [$start, $end])
+            ->whereIn('orders.status', $completedStatuses)
+            ->where('order_items.orderable_type', Service::class)
+            ->select(DB::raw('SUM(order_items.subtotal) as revenue'))
+            ->first();
+
+        if ($servicesRevenue && (float) $servicesRevenue->revenue > 0) {
+            $categoryRevenue[] = [
+                'category_id' => null,
+                'category_name' => 'Bespoke Services',
+                'revenue' => round((float) $servicesRevenue->revenue, 2),
+            ];
+
+            usort($categoryRevenue, fn ($a, $b) => $b['revenue'] <=> $a['revenue']);
+        }
+
+        return array_slice($categoryRevenue, 0, 5);
+    }
+
+    /**
+     * Get top products/services for mobile analytics.
+     * Top 5 by revenue desc, merges Products and Services.
+     *
+     * @return array<int, array{id: int, name: string, category: string, image_url: string|null, revenue: float, orders_count: int, average_order_value: float}>
+     */
+    protected function getMobileTopProducts(int $vendorId, Carbon $start, Carbon $end): array
+    {
+        $completedStatuses = ['fulfilled', 'delivered'];
+
+        $products = OrderItem::query()
+            ->join('orders', 'order_items.order_id', '=', 'orders.id')
+            ->where('orders.vendor_id', $vendorId)
+            ->whereBetween('orders.created_at', [$start, $end])
+            ->whereIn('orders.status', $completedStatuses)
+            ->where('order_items.orderable_type', Product::class)
+            ->join('products', 'order_items.orderable_id', '=', 'products.id')
+            ->leftJoin('categories', 'products.category_id', '=', 'categories.id')
+            ->select(
+                'products.id',
+                'products.name',
+                'categories.name as category',
+                'products.thumbnail as image_url',
+                DB::raw('SUM(order_items.subtotal) as revenue'),
+                DB::raw('COUNT(DISTINCT orders.id) as orders_count')
+            )
+            ->groupBy('products.id', 'products.name', 'categories.name', 'products.thumbnail')
+            ->get()
+            ->map(fn ($row) => [
+                'id' => (int) $row->id,
+                'name' => $row->name,
+                'category' => $row->category,
+                'image_url' => $row->image_url,
+                'revenue' => round((float) $row->revenue, 2),
+                'orders_count' => (int) $row->orders_count,
+                'average_order_value' => (int) $row->orders_count > 0
+                    ? round((float) $row->revenue / (int) $row->orders_count, 2)
+                    : 0,
+            ])
+            ->toArray();
+
+        $services = OrderItem::query()
+            ->join('orders', 'order_items.order_id', '=', 'orders.id')
+            ->where('orders.vendor_id', $vendorId)
+            ->whereBetween('orders.created_at', [$start, $end])
+            ->whereIn('orders.status', $completedStatuses)
+            ->where('order_items.orderable_type', Service::class)
+            ->join('services', 'order_items.orderable_id', '=', 'services.id')
+            ->select(
+                'services.id',
+                'services.name',
+                'services.thumbnail as image_url',
+                DB::raw('SUM(order_items.subtotal) as revenue'),
+                DB::raw('COUNT(DISTINCT orders.id) as orders_count')
+            )
+            ->groupBy('services.id', 'services.name', 'services.thumbnail')
+            ->get()
+            ->map(fn ($row) => [
+                'id' => (int) $row->id,
+                'name' => $row->name,
+                'category' => 'Bespoke Services',
+                'image_url' => $row->image_url,
+                'revenue' => round((float) $row->revenue, 2),
+                'orders_count' => (int) $row->orders_count,
+                'average_order_value' => (int) $row->orders_count > 0
+                    ? round((float) $row->revenue / (int) $row->orders_count, 2)
+                    : 0,
+            ])
+            ->toArray();
+
+        $merged = array_merge($products, $services);
+        usort($merged, fn ($a, $b) => $b['revenue'] <=> $a['revenue']);
+
+        return array_slice($merged, 0, 5);
     }
 }
