@@ -509,26 +509,10 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     * Get all notifications for this user.
+     * The channels the user receives notification broadcasts on.
      */
-    public function notifications()
+    public function receivesBroadcastNotificationsOn(): string
     {
-        return $this->hasMany(Notification::class);
-    }
-
-    /**
-     * Get unread notifications for this user.
-     */
-    public function unreadNotifications()
-    {
-        return $this->notifications()->unread();
-    }
-
-    /**
-     * Get unread notifications count.
-     */
-    public function getUnreadNotificationsCount(): int
-    {
-        return $this->unreadNotifications()->count();
+        return 'user.'.$this->id;
     }
 }
