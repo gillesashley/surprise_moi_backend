@@ -509,6 +509,24 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Get all FCM device tokens for this user.
+     */
+    public function deviceTokens(): HasMany
+    {
+        return $this->hasMany(DeviceToken::class);
+    }
+
+    /**
+     * Route notifications for the FCM channel.
+     *
+     * @return array<int, string>
+     */
+    public function routeNotificationForFcm(): array
+    {
+        return $this->deviceTokens->pluck('token')->toArray();
+    }
+
+    /**
      * The channels the user receives notification broadcasts on.
      */
     public function receivesBroadcastNotificationsOn(): string
