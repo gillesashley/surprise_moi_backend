@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Notifications;
 
+use App\Models\DeviceToken;
 use App\Models\VendorApplication;
 use App\Notifications\VendorApprovalNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -87,7 +88,26 @@ class VendorApprovalNotificationTest extends TestCase
         $this->assertSame('notifications', $notification->queue);
     }
 
-    public function test_via_includes_fcm_channel(): void
+    public function test_via_includes_fcm_channel_when_user_has_device_tokens(): void
+    {
+        $vendorApplication = VendorApplication::factory()->create();
+        $user = $vendorApplication->user;
+
+        DeviceToken::create([
+            'user_id' => $user->id,
+            'token' => 'fake-fcm-token',
+            'device_name' => 'Test Device',
+            'platform' => 'android',
+        ]);
+
+        $notification = new VendorApprovalNotification($vendorApplication, 'approved');
+
+        $channels = $notification->via($user);
+
+        $this->assertContains(FcmChannel::class, $channels);
+    }
+
+    public function test_via_excludes_fcm_channel_when_user_has_no_device_tokens(): void
     {
         $vendorApplication = VendorApplication::factory()->create();
 
@@ -95,7 +115,7 @@ class VendorApprovalNotificationTest extends TestCase
 
         $channels = $notification->via($vendorApplication->user);
 
-        $this->assertContains(FcmChannel::class, $channels);
+        $this->assertNotContains(FcmChannel::class, $channels);
     }
 
     public function test_to_fcm_returns_correct_message_for_approved(): void

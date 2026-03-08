@@ -30,7 +30,13 @@ class ReviewReplied extends Notification implements ShouldQueue
      */
     public function via(object $notifiable): array
     {
-        return ['database', 'broadcast', FcmChannel::class];
+        $channels = ['database', 'broadcast'];
+
+        if ($notifiable->deviceTokens()->exists()) {
+            $channels[] = FcmChannel::class;
+        }
+
+        return $channels;
     }
 
     /**

@@ -55,7 +55,13 @@ class VendorApprovalNotification extends Notification implements ShouldQueue
      */
     public function via(object $notifiable): array
     {
-        return ['database', 'mail', BroadcastChannel::class, FcmChannel::class];
+        $channels = ['database', 'mail', BroadcastChannel::class];
+
+        if ($notifiable->deviceTokens()->exists()) {
+            $channels[] = FcmChannel::class;
+        }
+
+        return $channels;
     }
 
     /**
