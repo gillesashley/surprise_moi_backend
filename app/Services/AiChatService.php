@@ -139,6 +139,14 @@ class AiChatService
                 ];
                 break;
 
+            case 'product_card':
+                $content = $json['message'] ?? 'Here\'s the product you selected:';
+                $metadata = [
+                    'selected_product_id' => $json['selected_product_id'] ?? null,
+                    'personalization_reason' => $json['personalization_reason'] ?? '',
+                ];
+                break;
+
             default:
                 $content = $json['message'] ?? $response;
         }

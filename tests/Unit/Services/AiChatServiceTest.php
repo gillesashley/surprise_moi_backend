@@ -184,4 +184,50 @@ class AiChatServiceTest extends TestCase
         $this->assertEquals('', $result['content']);
         $this->assertNull($result['metadata']);
     }
+
+    public function test_parse_product_card_response(): void
+    {
+        $json = json_encode([
+            'type' => 'product_card',
+            'selected_product_id' => 42,
+            'personalization_reason' => 'Perfect for her love of gardening.',
+            'message' => 'Great choice! Here are the full details.',
+        ]);
+
+        $result = $this->service->parseAiResponse($json);
+
+        $this->assertEquals('product_card', $result['type']);
+        $this->assertEquals('Great choice! Here are the full details.', $result['content']);
+        $this->assertEquals(42, $result['metadata']['selected_product_id']);
+        $this->assertEquals('Perfect for her love of gardening.', $result['metadata']['personalization_reason']);
+    }
+
+    public function test_parse_product_card_without_message_uses_default(): void
+    {
+        $json = json_encode([
+            'type' => 'product_card',
+            'selected_product_id' => 10,
+            'personalization_reason' => 'Great fit.',
+        ]);
+
+        $result = $this->service->parseAiResponse($json);
+
+        $this->assertEquals('product_card', $result['type']);
+        $this->assertNotEmpty($result['content']);
+        $this->assertEquals(10, $result['metadata']['selected_product_id']);
+    }
+
+    public function test_parse_product_card_without_selected_product_id(): void
+    {
+        $json = json_encode([
+            'type' => 'product_card',
+            'personalization_reason' => 'A thoughtful choice.',
+            'message' => 'Here you go!',
+        ]);
+
+        $result = $this->service->parseAiResponse($json);
+
+        $this->assertEquals('product_card', $result['type']);
+        $this->assertNull($result['metadata']['selected_product_id']);
+    }
 }
