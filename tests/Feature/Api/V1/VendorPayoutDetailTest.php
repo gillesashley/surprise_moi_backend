@@ -141,6 +141,27 @@ class VendorPayoutDetailTest extends TestCase
             ->assertJsonCount(2, 'payout_details');
     }
 
+    public function test_vendor_can_list_mobile_money_providers(): void
+    {
+        Http::fake([
+            'https://api.paystack.co/bank?currency=GHS&type=mobile_money' => Http::response([
+                'status' => true,
+                'data' => [
+                    ['name' => 'MTN', 'code' => 'MTN', 'type' => 'mobile_money'],
+                    ['name' => 'Vodafone', 'code' => 'VOD', 'type' => 'mobile_money'],
+                    ['name' => 'AirtelTigo', 'code' => 'ATL', 'type' => 'mobile_money'],
+                ],
+            ]),
+        ]);
+
+        $response = $this->actingAs($this->vendor, 'sanctum')
+            ->getJson('/api/v1/vendor/payout-details/mobile-money-providers');
+
+        $response->assertStatus(200)
+            ->assertJsonPath('success', true)
+            ->assertJsonCount(3, 'providers');
+    }
+
     public function test_validation_rejects_invalid_payout_method(): void
     {
         $response = $this->actingAs($this->vendor, 'sanctum')

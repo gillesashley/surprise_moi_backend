@@ -477,6 +477,7 @@ Route::prefix('v1')->group(function () {
 
         // Vendor payout details management
         Route::middleware('role:vendor')->prefix('vendor')->group(function () {
+            Route::get('payout-details/mobile-money-providers', [\App\Http\Controllers\Api\V1\VendorPayoutDetailController::class, 'mobileMoneyProviders']);
             Route::get('payout-details/banks', [\App\Http\Controllers\Api\V1\VendorPayoutDetailController::class, 'banks']);
             Route::get('payout-details', [\App\Http\Controllers\Api\V1\VendorPayoutDetailController::class, 'index']);
             Route::post('payout-details', [\App\Http\Controllers\Api\V1\VendorPayoutDetailController::class, 'store']);

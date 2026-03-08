@@ -95,6 +95,26 @@ class VendorPayoutDetailController extends Controller
     }
 
     /**
+     * Fetch available mobile money providers from Paystack.
+     */
+    public function mobileMoneyProviders(): JsonResponse
+    {
+        $result = $this->paystackService->listMobileMoneyProviders('GHS');
+
+        if (! $result['success']) {
+            return response()->json([
+                'success' => false,
+                'message' => $result['message'],
+            ], 500);
+        }
+
+        return response()->json([
+            'success' => true,
+            'providers' => $result['data'],
+        ]);
+    }
+
+    /**
      * Save mobile money payout details (no Paystack verification).
      */
     private function storeMobileMoney(StoreVendorPayoutDetailRequest $request, $vendor): JsonResponse
