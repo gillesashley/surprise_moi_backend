@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreVendorPayoutDetailRequest;
+use App\Models\User;
 use App\Models\VendorPayoutDetail;
 use App\Services\PaystackService;
 use Illuminate\Http\JsonResponse;
@@ -117,7 +118,7 @@ class VendorPayoutDetailController extends Controller
     /**
      * Save mobile money payout details with Paystack verification.
      */
-    private function storeMobileMoney(StoreVendorPayoutDetailRequest $request, $vendor): JsonResponse
+    private function storeMobileMoney(StoreVendorPayoutDetailRequest $request, User $vendor): JsonResponse
     {
         $accountName = $request->input('account_name', $vendor->name);
 
@@ -165,7 +166,7 @@ class VendorPayoutDetailController extends Controller
     /**
      * Save bank transfer payout details with Paystack verification.
      */
-    private function storeBankTransfer(StoreVendorPayoutDetailRequest $request, $vendor): JsonResponse
+    private function storeBankTransfer(StoreVendorPayoutDetailRequest $request, User $vendor): JsonResponse
     {
         $resolveResult = $this->paystackService->resolveAccountNumber(
             $request->input('account_number'),

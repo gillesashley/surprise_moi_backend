@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verify Your Email Address</title>
+    <title>Welcome to Surprise Moi!</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -44,29 +44,31 @@
 </head>
 <body>
     <div class="header">
-        <h1>Verify Your Email Address</h1>
+        <h1>Welcome to Surprise Moi!</h1>
     </div>
-    
+
     <div class="content">
         <p>Hello {{ $userName }},</p>
-        
-        <p>Thank you for registering with our service! To complete your registration and verify your email address, please click the button below:</p>
-        
+
+        <p>Your Surprise Moi account has been created successfully. Let the surprises begin!</p>
+
+        <p>Please click the button below to verify your email address and get started:</p>
+
         <div style="text-align: center;">
             <a href="{{ $verificationUrl }}" class="button">Verify Email Address</a>
         </div>
-        
+
         <p>Or you can copy and paste this link into your browser:</p>
         <p style="word-break: break-all; color: #4f46e5;">{{ $verificationUrl }}</p>
-        
+
         <p><strong>Important:</strong> This verification link will expire in 60 minutes for security reasons.</p>
-        
+
         <p>If you did not create an account with us, please ignore this email.</p>
     </div>
-    
+
     <div class="footer">
-        <p>This is an automated message. Please do not reply to this email.</p>
-        <p>&copy; {{ date('Y') }} Your Application. All rights reserved.</p>
+        <p>Best regards, The Surprise Moi Team</p>
+        <p>&copy; {{ date('Y') }} Surprise Moi. All rights reserved.</p>
     </div>
 </body>
 </html>

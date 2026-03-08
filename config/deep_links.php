@@ -10,6 +10,8 @@ return [
     | domain that hosts Universal Links / App Links association files.
     |
     */
+    'scheme' => env('DEEP_LINK_SCHEME', 'surprisemoi'),
+
     'share_base_url' => env('DEEP_LINK_SHARE_BASE_URL', 'https://surprisemoi.com'),
 
     'android' => [

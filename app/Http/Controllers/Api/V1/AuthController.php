@@ -17,6 +17,7 @@ use App\Models\User;
 use App\Services\KairosAfrikaSmsService;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
@@ -309,40 +310,42 @@ class AuthController extends Controller
 
     /**
      * Verify email using signed URL.
+     *
+     * Returns a branded HTML page that auto-redirects to the mobile app
+     * via deep link (surprisemoi://email-verified).
      */
-    public function verifyEmail(VerifyEmailRequest $request): JsonResponse
+    public function verifyEmail(VerifyEmailRequest $request): Response
     {
         $user = User::findOrFail($request->route('id'));
+        $deepLink = config('deep_links.scheme').'://email-verified';
 
         if (! hash_equals((string) $request->route('hash'), sha1($user->getEmailForVerification()))) {
-            return response()->json([
+            return response()->view('auth.email-verified', [
                 'success' => false,
-                'message' => 'Invalid verification link',
+                'title' => 'Invalid Link',
+                'message' => 'This verification link is invalid or has expired. Please request a new one from the app.',
+                'deepLink' => null,
             ], 403);
         }
 
         if ($user->hasVerifiedEmail()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Email already verified',
-            ], 400);
+            return response()->view('auth.email-verified', [
+                'success' => true,
+                'title' => 'Already Verified',
+                'message' => 'Your email address has already been verified. You can continue using the app.',
+                'deepLink' => $deepLink,
+            ]);
         }
 
         if ($user->markEmailAsVerified()) {
             event(new Verified($user));
         }
 
-        return response()->json([
+        return response()->view('auth.email-verified', [
             'success' => true,
-            'message' => 'Email verified successfully',
-            'data' => [
-                'user' => [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'email_verified_at' => $user->email_verified_at,
-                ],
-            ],
+            'title' => 'Email Verified!',
+            'message' => 'Your email address has been verified successfully. You can now enjoy the full Surprise Moi experience.',
+            'deepLink' => $deepLink,
         ]);
     }
 
