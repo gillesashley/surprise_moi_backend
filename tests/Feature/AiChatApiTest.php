@@ -6,6 +6,7 @@ use App\Ai\Agents\GiftAssistant;
 use App\Models\AiConversation;
 use App\Models\AiMessage;
 use App\Models\PartnerProfile;
+use App\Models\Product;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -337,5 +338,116 @@ class AiChatApiTest extends TestCase
         ]);
 
         $response->assertStatus(401);
+    }
+
+    // ==================== Product Card Resolution Tests ====================
+
+    public function test_product_card_response_returns_full_product_data(): void
+    {
+        $product = Product::factory()->create([
+            'name' => 'Sweet Bouquet',
+            'price' => 6.00,
+            'is_available' => true,
+        ]);
+
+        GiftAssistant::fake([
+            json_encode([
+                'type' => 'product_card',
+                'selected_product_id' => $product->id,
+                'personalization_reason' => 'Perfect for a romantic surprise.',
+                'message' => 'Great choice! Here are the full details.',
+            ]),
+        ]);
+
+        $conversation = AiConversation::factory()->create([
+            'user_id' => $this->user->id,
+        ]);
+
+        AiMessage::factory()->greeting()->create([
+            'ai_conversation_id' => $conversation->id,
+        ]);
+
+        $response = $this->actingAs($this->user)
+            ->postJson("/api/v1/ai-chat/conversations/{$conversation->id}/messages", [
+                'message' => 'I like option 1',
+            ]);
+
+        $response->assertStatus(200);
+
+        $data = $response->json('data');
+        $this->assertEquals('suggestions', $data['type']);
+        $this->assertEquals('product_card', $data['metadata']['display_type']);
+        $this->assertCount(1, $data['metadata']['suggestions']);
+
+        $suggestion = $data['metadata']['suggestions'][0];
+        $this->assertEquals($product->id, $suggestion['id']);
+        $this->assertEquals('Sweet Bouquet', $suggestion['name']);
+        $this->assertEquals('Perfect for a romantic surprise.', $suggestion['personalization_reason']);
+    }
+
+    public function test_product_card_falls_back_to_text_when_product_unavailable(): void
+    {
+        $product = Product::factory()->create([
+            'is_available' => false,
+        ]);
+
+        GiftAssistant::fake([
+            json_encode([
+                'type' => 'product_card',
+                'selected_product_id' => $product->id,
+                'personalization_reason' => 'Great fit.',
+                'message' => 'Here you go!',
+            ]),
+        ]);
+
+        $conversation = AiConversation::factory()->create([
+            'user_id' => $this->user->id,
+        ]);
+
+        AiMessage::factory()->greeting()->create([
+            'ai_conversation_id' => $conversation->id,
+        ]);
+
+        $response = $this->actingAs($this->user)
+            ->postJson("/api/v1/ai-chat/conversations/{$conversation->id}/messages", [
+                'message' => 'I want that one',
+            ]);
+
+        $response->assertStatus(200);
+
+        $data = $response->json('data');
+        $this->assertEquals('text', $data['type']);
+        $this->assertStringContainsString('no longer available', $data['content']);
+    }
+
+    public function test_product_card_falls_back_to_text_when_product_not_found(): void
+    {
+        GiftAssistant::fake([
+            json_encode([
+                'type' => 'product_card',
+                'selected_product_id' => 99999,
+                'personalization_reason' => 'Great fit.',
+                'message' => 'Here you go!',
+            ]),
+        ]);
+
+        $conversation = AiConversation::factory()->create([
+            'user_id' => $this->user->id,
+        ]);
+
+        AiMessage::factory()->greeting()->create([
+            'ai_conversation_id' => $conversation->id,
+        ]);
+
+        $response = $this->actingAs($this->user)
+            ->postJson("/api/v1/ai-chat/conversations/{$conversation->id}/messages", [
+                'message' => 'Option 3 please',
+            ]);
+
+        $response->assertStatus(200);
+
+        $data = $response->json('data');
+        $this->assertEquals('text', $data['type']);
+        $this->assertStringContainsString('no longer available', $data['content']);
     }
 }

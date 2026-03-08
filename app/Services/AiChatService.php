@@ -3,9 +3,11 @@
 namespace App\Services;
 
 use App\Ai\Agents\GiftAssistant;
+use App\Http\Resources\ProductResource;
 use App\Models\AiConversation;
 use App\Models\AiMessage;
 use App\Models\PartnerProfile;
+use App\Models\Product;
 use App\Models\User;
 use Illuminate\Support\Facades\Log;
 
@@ -67,6 +69,10 @@ class AiChatService
             }
 
             $parsed = $this->parseAiResponse($response->text);
+
+            if ($parsed['type'] === 'product_card') {
+                $parsed = $this->resolveProductCard($parsed, $conversation);
+            }
         } catch (\Throwable $e) {
             Log::error('AI agent error', [
                 'conversation_id' => $conversation->id,
@@ -133,8 +139,17 @@ class AiChatService
             case 'suggestions':
                 $content = $json['analysis'] ?? $json['message'] ?? 'Here are some gift suggestions for you:';
                 $metadata = [
+                    'display_type' => 'browse',
                     'analysis' => $json['analysis'] ?? '',
                     'suggestions' => $json['suggestions'] ?? [],
+                ];
+                break;
+
+            case 'product_card':
+                $content = $json['message'] ?? 'Here\'s the product you selected:';
+                $metadata = [
+                    'selected_product_id' => $json['selected_product_id'] ?? null,
+                    'personalization_reason' => $json['personalization_reason'] ?? '',
                 ];
                 break;
 
@@ -249,5 +264,53 @@ class AiChatService
             : $firstMessage;
 
         $conversation->update(['title' => $title]);
+    }
+
+    /**
+     * Resolve a product_card AI response into a full suggestions response with ProductResource data.
+     *
+     * @param  array{type: string, content: string, metadata: ?array<string, mixed>}  $parsed
+     * @return array{type: string, content: string, metadata: ?array<string, mixed>}
+     */
+    private function resolveProductCard(array $parsed, AiConversation $conversation): array
+    {
+        $productId = $parsed['metadata']['selected_product_id'] ?? null;
+
+        if (! $productId) {
+            return [
+                'type' => 'text',
+                'content' => $parsed['content'],
+                'metadata' => null,
+            ];
+        }
+
+        $product = Product::with(['category', 'vendor', 'shop', 'images', 'tags', 'activeOffer'])
+            ->where('is_available', true)
+            ->find($productId);
+
+        if (! $product) {
+            Log::warning('AI referenced unavailable product', [
+                'conversation_id' => $conversation->id,
+                'product_id' => $productId,
+            ]);
+
+            return [
+                'type' => 'text',
+                'content' => "I'm sorry, that product is no longer available. Would you like me to suggest some alternatives?",
+                'metadata' => null,
+            ];
+        }
+
+        $data = (new ProductResource($product))->resolve();
+        $data['personalization_reason'] = $parsed['metadata']['personalization_reason'] ?? '';
+
+        return [
+            'type' => 'suggestions',
+            'content' => $parsed['content'],
+            'metadata' => [
+                'display_type' => 'product_card',
+                'suggestions' => [$data],
+            ],
+        ];
     }
 }
