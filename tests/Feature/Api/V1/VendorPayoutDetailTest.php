@@ -118,6 +118,16 @@ class VendorPayoutDetailTest extends TestCase
 
     public function test_mobile_money_does_not_require_provider_field(): void
     {
+        Http::fake([
+            'https://api.paystack.co/transferrecipient' => Http::response([
+                'status' => true,
+                'data' => [
+                    'recipient_code' => 'RCP_momo_noprovider',
+                    'details' => ['bank_name' => 'MTN Mobile Money'],
+                ],
+            ]),
+        ]);
+
         $response = $this->actingAs($this->vendor, 'sanctum')
             ->postJson('/api/v1/vendor/payout-details', [
                 'payout_method' => 'mobile_money',
@@ -134,6 +144,16 @@ class VendorPayoutDetailTest extends TestCase
         VendorPayoutDetail::factory()->create([
             'vendor_id' => $this->vendor->id,
             'is_default' => true,
+        ]);
+
+        Http::fake([
+            'https://api.paystack.co/transferrecipient' => Http::response([
+                'status' => true,
+                'data' => [
+                    'recipient_code' => 'RCP_momo_replace',
+                    'details' => ['bank_name' => 'Vodafone Cash'],
+                ],
+            ]),
         ]);
 
         $response = $this->actingAs($this->vendor, 'sanctum')
