@@ -18,7 +18,6 @@ class Shop extends Model
         'vendor_id',
         'category_id',
         'name',
-        'business_name',
         'owner_name',
         'slug',
         'description',
