@@ -50,7 +50,7 @@ class VendorApplicationResource extends JsonResource
             'facebook_handle' => $this->facebook_handle,
             'instagram_handle' => $this->instagram_handle,
             'twitter_handle' => $this->twitter_handle,
-            'step_3_completed' => $this->completed_step >= 3,
+            'step_3_completed' => $this->completed_step >= 3 && $this->isStep3Complete(),
 
             // Step 4: Bespoke Services
             'bespoke_services' => BespokeServiceResource::collection($this->whenLoaded('bespokeServices')),

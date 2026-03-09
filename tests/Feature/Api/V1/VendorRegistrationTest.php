@@ -412,6 +412,109 @@ class VendorRegistrationTest extends TestCase
             ]);
     }
 
+    public function test_unregistered_vendor_documents_persists_all_fields(): void
+    {
+        $user = User::factory()->create();
+        VendorApplication::factory()
+            ->for($user)
+            ->withGhanaCard()
+            ->unregisteredVendor()
+            ->create();
+
+        $response = $this->actingAs($user)->postJson('/api/v1/vendor-registration/step-3/unregistered-documents', [
+            'selfie_image' => $this->createFakeImage('selfie.jpg'),
+            'mobile_money_number' => '0542441224',
+            'mobile_money_provider' => 'mtn',
+            'proof_of_business' => UploadedFile::fake()->create('proof.pdf', 500),
+            'facebook_handle' => 'vendor_fb',
+            'instagram_handle' => 'vendor_ig',
+            'twitter_handle' => 'vendor_tw',
+        ]);
+
+        $response->assertStatus(200);
+
+        $application = VendorApplication::where('user_id', $user->id)->first();
+
+        $this->assertNotNull($application->selfie_image, 'selfie_image should be persisted');
+        $this->assertEquals('0542441224', $application->mobile_money_number);
+        $this->assertEquals('mtn', $application->mobile_money_provider);
+        $this->assertNotNull($application->proof_of_business, 'proof_of_business should be persisted');
+        $this->assertEquals('vendor_fb', $application->facebook_handle);
+        $this->assertEquals('vendor_ig', $application->instagram_handle);
+        $this->assertEquals('vendor_tw', $application->twitter_handle);
+        $this->assertEquals(3, $application->completed_step);
+        $this->assertEquals(4, $application->current_step);
+    }
+
+    public function test_changing_registration_type_resets_step3_progress(): void
+    {
+        $user = User::factory()->create();
+
+        // Start as registered vendor with completed step 3A documents
+        $application = VendorApplication::factory()
+            ->for($user)
+            ->withGhanaCard()
+            ->registeredVendor()
+            ->withRegisteredDocuments()
+            ->create();
+
+        $this->assertEquals(3, $application->completed_step);
+        $this->assertNotNull($application->business_certificate_document);
+
+        // Change to unregistered vendor via step 2
+        $response = $this->actingAs($user)->postJson('/api/v1/vendor-registration/step-2/business-registration', [
+            'has_business_certificate' => false,
+        ]);
+
+        $response->assertStatus(200);
+
+        $application->refresh();
+
+        // Step 3 progress should be reset since registration type changed
+        $this->assertEquals(2, $application->completed_step, 'completed_step should reset to 2 when registration type changes');
+        $this->assertNull($application->business_certificate_document, 'Old step 3A documents should be cleared');
+        $this->assertNull($application->selfie_image, 'Step 3B fields should be null');
+        $this->assertNull($application->mobile_money_number);
+
+        // Status should reflect step 3 as incomplete
+        $statusResponse = $this->actingAs($user)->getJson('/api/v1/vendor-registration/status');
+        $statusResponse->assertStatus(200);
+
+        $appData = $statusResponse->json('data.application');
+        $this->assertFalse($appData['step_3_completed'], 'step_3_completed should be false after registration type change');
+        $this->assertFalse($appData['is_registered_vendor']);
+    }
+
+    public function test_same_registration_type_preserves_step3_progress(): void
+    {
+        $user = User::factory()->create();
+
+        // Start as unregistered vendor with completed step 3B documents
+        $application = VendorApplication::factory()
+            ->for($user)
+            ->withGhanaCard()
+            ->unregisteredVendor()
+            ->withUnregisteredDocuments()
+            ->create();
+
+        $this->assertEquals(3, $application->completed_step);
+        $this->assertNotNull($application->selfie_image);
+
+        // Re-submit step 2 with the SAME registration type
+        $response = $this->actingAs($user)->postJson('/api/v1/vendor-registration/step-2/business-registration', [
+            'has_business_certificate' => false,
+        ]);
+
+        $response->assertStatus(200);
+
+        $application->refresh();
+
+        // Step 3 progress should be preserved since registration type didn't change
+        $this->assertEquals(3, $application->completed_step, 'completed_step should stay at 3');
+        $this->assertNotNull($application->selfie_image, 'Step 3B documents should be preserved');
+        $this->assertNotNull($application->mobile_money_number);
+    }
+
     // ==========================================
     // Step 4: Bespoke Services Selection Tests
     // ==========================================

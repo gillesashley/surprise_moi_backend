@@ -183,11 +183,27 @@ class VendorApplication extends Model
     }
 
     /**
+     * Check if step 3 documents are actually present for the current registration type.
+     */
+    public function isStep3Complete(): bool
+    {
+        if ($this->isRegisteredVendor()) {
+            return ! empty($this->business_certificate_document);
+        }
+
+        return ! empty($this->selfie_image)
+            && ! empty($this->mobile_money_number)
+            && ! empty($this->mobile_money_provider)
+            && ! empty($this->proof_of_business);
+    }
+
+    /**
      * Check if application can be submitted.
      */
     public function canSubmit(): bool
     {
         return $this->completed_step >= 4
+            && $this->isStep3Complete()
             && $this->status === self::STATUS_PENDING
             && is_null($this->submitted_at)
             && $this->payment_completed;

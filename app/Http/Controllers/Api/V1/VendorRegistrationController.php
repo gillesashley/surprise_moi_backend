@@ -198,12 +198,45 @@ class VendorRegistrationController extends Controller
         DB::beginTransaction();
 
         try {
-            $application->fill([
+            $registrationTypeChanged = (bool) $application->has_business_certificate !== (bool) $request->has_business_certificate;
+
+            $data = [
                 'has_business_certificate' => $request->has_business_certificate,
                 'current_step' => 3,
                 'completed_step' => max($application->completed_step, 2),
-            ]);
+            ];
 
+            // When registration type changes, reset step 3+ progress and clear stale document fields
+            if ($registrationTypeChanged && $application->completed_step >= 3) {
+                $data['completed_step'] = 2;
+
+                // Clear step 3A (registered) document fields
+                $data['business_certificate_document'] = null;
+
+                // Clear step 3B (unregistered) document fields
+                $data['selfie_image'] = null;
+                $data['mobile_money_number'] = null;
+                $data['mobile_money_provider'] = null;
+                $data['proof_of_business'] = null;
+
+                // Clear social media handles (set in both step 3 paths)
+                $data['facebook_handle'] = null;
+                $data['instagram_handle'] = null;
+                $data['twitter_handle'] = null;
+
+                // Delete old files from storage
+                if ($application->business_certificate_document) {
+                    Storage::disk()->delete($application->business_certificate_document);
+                }
+                if ($application->selfie_image) {
+                    Storage::disk()->delete($application->selfie_image);
+                }
+                if ($application->proof_of_business) {
+                    Storage::disk()->delete($application->proof_of_business);
+                }
+            }
+
+            $application->fill($data);
             $application->save();
 
             DB::commit();
@@ -266,8 +299,19 @@ class VendorRegistrationController extends Controller
                 if ($application->business_certificate_document) {
                     Storage::disk()->delete($application->business_certificate_document);
                 }
-                $data['business_certificate_document'] = $request->file('business_certificate_document')
+                $path = $request->file('business_certificate_document')
                     ->store('vendor-applications/business-documents');
+
+                if (! $path) {
+                    DB::rollBack();
+
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Failed to store uploaded file. Please try again.',
+                    ], 500);
+                }
+
+                $data['business_certificate_document'] = $path;
             }
 
             // Social media handles
@@ -343,6 +387,15 @@ class VendorRegistrationController extends Controller
                 ->store('vendor-applications/selfies');
             $proofPath = $request->file('proof_of_business')
                 ->store('vendor-applications/proof-of-business');
+
+            if (! $selfiePath || ! $proofPath) {
+                DB::rollBack();
+
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to store uploaded files. Please try again.',
+                ], 500);
+            }
 
             $application->fill([
                 'selfie_image' => $selfiePath,
