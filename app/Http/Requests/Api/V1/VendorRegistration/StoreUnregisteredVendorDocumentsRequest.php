@@ -17,6 +17,18 @@ class StoreUnregisteredVendorDocumentsRequest extends FormRequest
     }
 
     /**
+     * Prepare the data for validation.
+     */
+    protected function prepareForValidation(): void
+    {
+        if ($this->has('mobile_money_provider')) {
+            $this->merge([
+                'mobile_money_provider' => strtolower($this->mobile_money_provider),
+            ]);
+        }
+    }
+
+    /**
      * Get the validation rules that apply to the request.
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>

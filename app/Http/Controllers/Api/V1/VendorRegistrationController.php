@@ -498,12 +498,23 @@ class VendorRegistrationController extends Controller
         }
 
         if (! $application->canSubmit()) {
+            $reason = match (true) {
+                $application->completed_step < 4 => 'Please complete all registration steps first.',
+                ! $application->isStep3Complete() => 'Please complete the document upload step.',
+                $application->status !== VendorApplication::STATUS_PENDING => 'This application cannot be submitted in its current status.',
+                ! is_null($application->submitted_at) => 'This application has already been submitted.',
+                $application->payment_required && ! $application->payment_completed => 'Please complete the onboarding payment before submitting.',
+                default => 'Please complete all steps before submitting your application.',
+            };
+
             return response()->json([
                 'success' => false,
-                'message' => 'Please complete all steps before submitting your application.',
+                'message' => $reason,
                 'data' => [
                     'completed_step' => $application->completed_step,
                     'required_steps' => 4,
+                    'payment_required' => $application->payment_required,
+                    'payment_completed' => $application->payment_completed,
                 ],
             ], 422);
         }

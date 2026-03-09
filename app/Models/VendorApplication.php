@@ -206,7 +206,7 @@ class VendorApplication extends Model
             && $this->isStep3Complete()
             && $this->status === self::STATUS_PENDING
             && is_null($this->submitted_at)
-            && $this->payment_completed;
+            && (! $this->payment_required || $this->payment_completed);
     }
 
     /**

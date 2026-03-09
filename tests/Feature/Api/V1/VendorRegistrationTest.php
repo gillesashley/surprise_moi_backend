@@ -412,6 +412,30 @@ class VendorRegistrationTest extends TestCase
             ]);
     }
 
+    public function test_mobile_money_provider_accepts_uppercase(): void
+    {
+        $user = User::factory()->create();
+        VendorApplication::factory()
+            ->for($user)
+            ->withGhanaCard()
+            ->unregisteredVendor()
+            ->create();
+
+        $response = $this->actingAs($user)->postJson('/api/v1/vendor-registration/step-3/unregistered-documents', [
+            'selfie_image' => $this->createFakeImage('selfie.jpg'),
+            'mobile_money_number' => '0241234567',
+            'mobile_money_provider' => 'MTN',
+            'proof_of_business' => UploadedFile::fake()->create('receipt.pdf', 500),
+        ]);
+
+        $response->assertStatus(200);
+
+        $this->assertDatabaseHas('vendor_applications', [
+            'user_id' => $user->id,
+            'mobile_money_provider' => 'mtn',
+        ]);
+    }
+
     public function test_unregistered_vendor_documents_persists_all_fields(): void
     {
         $user = User::factory()->create();
@@ -656,6 +680,55 @@ class VendorRegistrationTest extends TestCase
         $this->assertNotNull($application->fresh()->submitted_at);
     }
 
+    public function test_unregistered_vendor_can_submit_without_payment(): void
+    {
+        $user = User::factory()->create();
+        $application = VendorApplication::factory()
+            ->for($user)
+            ->withGhanaCard()
+            ->unregisteredVendor()
+            ->withUnregisteredDocuments()
+            ->readyToSubmit()
+            ->create([
+                'payment_required' => false,
+                'payment_completed' => false,
+            ]);
+
+        $application->bespokeServices()->attach(BespokeService::first()->id);
+
+        $response = $this->actingAs($user)->postJson('/api/v1/vendor-registration/submit');
+
+        $response->assertStatus(201)
+            ->assertJson(['success' => true]);
+
+        $this->assertNotNull($application->fresh()->submitted_at);
+    }
+
+    public function test_submit_blocked_when_payment_required_but_not_completed(): void
+    {
+        $user = User::factory()->create();
+        $application = VendorApplication::factory()
+            ->for($user)
+            ->withGhanaCard()
+            ->unregisteredVendor()
+            ->withUnregisteredDocuments()
+            ->readyToSubmit()
+            ->create([
+                'payment_required' => true,
+                'payment_completed' => false,
+            ]);
+
+        $application->bespokeServices()->attach(BespokeService::first()->id);
+
+        $response = $this->actingAs($user)->postJson('/api/v1/vendor-registration/submit');
+
+        $response->assertStatus(422)
+            ->assertJson([
+                'success' => false,
+                'message' => 'Please complete the onboarding payment before submitting.',
+            ]);
+    }
+
     public function test_user_cannot_submit_incomplete_application(): void
     {
         $user = User::factory()->create();
@@ -669,7 +742,7 @@ class VendorRegistrationTest extends TestCase
         $response->assertStatus(422)
             ->assertJson([
                 'success' => false,
-                'message' => 'Please complete all steps before submitting your application.',
+                'message' => 'Please complete all registration steps first.',
             ]);
     }
 

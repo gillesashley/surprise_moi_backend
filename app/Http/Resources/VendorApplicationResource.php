@@ -56,6 +56,11 @@ class VendorApplicationResource extends JsonResource
             'bespoke_services' => BespokeServiceResource::collection($this->whenLoaded('bespokeServices')),
             'step_4_completed' => $this->completed_step >= 4,
 
+            // Payment
+            'payment_required' => $this->payment_required,
+            'payment_completed' => $this->payment_completed,
+            'needs_payment' => $this->needsPayment(),
+
             // Admin Review
             'rejection_reason' => $this->rejection_reason,
             'reviewed_at' => $this->reviewed_at?->toIso8601String(),
