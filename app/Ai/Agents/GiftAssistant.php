@@ -16,7 +16,7 @@ use Laravel\Ai\Messages\Message;
 use Laravel\Ai\Promptable;
 
 #[Provider('gemini')]
-#[Model('gemini-2.5-flash')]
+#[Model('gemini-2.5-flash-lite')]
 #[Temperature(0.7)]
 #[MaxTokens(2048)]
 class GiftAssistant implements Agent, Conversational, HasTools

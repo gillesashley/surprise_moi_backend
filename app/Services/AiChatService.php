@@ -70,6 +70,20 @@ class AiChatService
 
             $parsed = $this->parseAiResponse($response->text);
 
+            // Handle empty AI response
+            if (empty(trim($parsed['content'])) && $parsed['type'] === 'text') {
+                Log::warning('AI agent returned empty response', [
+                    'conversation_id' => $conversation->id,
+                    'raw_text' => $response->text,
+                ]);
+
+                $parsed = [
+                    'type' => 'text',
+                    'content' => "I'm sorry, I couldn't process that right now. Could you try rephrasing your message?",
+                    'metadata' => ['error' => true],
+                ];
+            }
+
             if ($parsed['type'] === 'product_card') {
                 $parsed = $this->resolveProductCard($parsed, $conversation);
             }
