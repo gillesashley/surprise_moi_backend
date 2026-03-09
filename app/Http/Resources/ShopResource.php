@@ -17,6 +17,7 @@ class ShopResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
+            'business_name' => $this->business_name,
             'owner_name' => $this->owner_name,
             'slug' => $this->slug,
             'description' => $this->description,

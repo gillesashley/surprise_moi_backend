@@ -24,6 +24,7 @@ class StoreShopRequest extends FormRequest
         return [
             'category_id' => ['required', 'exists:categories,id'],
             'name' => ['required', 'string', 'max:255'],
+            'business_name' => ['nullable', 'string', 'max:255'],
             'owner_name' => ['required', 'string', 'max:255'],
             'slug' => ['nullable', 'string', 'max:255', 'unique:shops,slug'],
             'description' => ['nullable', 'string'],

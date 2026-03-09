@@ -30,6 +30,7 @@ class UpdateShopRequest extends FormRequest
         return [
             'category_id' => ['sometimes', 'required', 'exists:categories,id'],
             'name' => ['sometimes', 'required', 'string', 'max:255'],
+            'business_name' => ['nullable', 'string', 'max:255'],
             'owner_name' => ['sometimes', 'required', 'string', 'max:255'],
             'slug' => ['nullable', 'string', 'max:255', 'unique:shops,slug,'.$shopId],
             'description' => ['nullable', 'string'],
