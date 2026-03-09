@@ -210,13 +210,13 @@ class AiChatService
     {
         if ($partnerProfile) {
             return "Hi! I see you're looking for a gift for {$partnerProfile->name}. "
-                 .'I already have some details about them. Tell me more about what you have in mind, '
-                 .'or I can start searching for the perfect gift right away!';
+                .'I already have some details about them. Tell me more about what you have in mind, '
+                .'or I can start searching for the perfect gift right away!';
         }
 
-        return "Hi! I'm your gift assistant at Surprise Moi. "
-             ."Tell me about the person you're shopping for — their personality, hobbies, "
-             ."what they love (or hate!) — and I'll find the perfect surprise for them.";
+        return "Hi! I'm Cupid, your gift assistant at Surprise Moi. "
+            ."Tell me about the person you're shopping for — their personality, hobbies, "
+            ."what they love (or hate!) — and I'll find the perfect surprise for them.";
     }
 
     /**

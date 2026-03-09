@@ -247,4 +247,36 @@ class VendorApplicationController extends Controller
 
         return back()->with('error', 'Application cannot be marked as under review.');
     }
+
+    /**
+     * Permanently delete a vendor application and clean up all associated files.
+     */
+    public function destroy(Request $request, VendorApplication $vendorApplication)
+    {
+        if (! Auth::user()->isSuperAdmin()) {
+            return back()->with('error', 'Only super admins can delete vendor applications.');
+        }
+
+        $request->validate([
+            'confirmation' => ['required', 'string', 'in:DELETE'],
+        ], [
+            'confirmation.in' => 'You must type "DELETE" to confirm this action.',
+        ]);
+
+        // If the vendor was approved, revert their role
+        if ($vendorApplication->status === VendorApplication::STATUS_APPROVED) {
+            $vendorApplication->user->update([
+                'role' => 'user',
+                'vendor_tier' => null,
+            ]);
+        }
+
+        $applicantName = $vendorApplication->user->name;
+
+        // forceDelete triggers VendorApplicationObserver::forceDeleting for R2 cleanup
+        $vendorApplication->forceDelete();
+
+        return redirect()->route('vendor-applications.index')
+            ->with('success', "Vendor application for {$applicantName} has been permanently deleted.");
+    }
 }

@@ -41,6 +41,7 @@ class AppServiceProvider extends ServiceProvider
         \App\Models\ReviewReply::observe(\App\Observers\ReviewReplyObserver::class);
         \App\Models\Order::observe(\App\Observers\OrderObserver::class);
         \App\Models\Message::observe(\App\Observers\MessageObserver::class);
+        \App\Models\VendorApplication::observe(\App\Observers\VendorApplicationObserver::class);
 
         // Configure morph map for polymorphic relationships
         Relation::morphMap([

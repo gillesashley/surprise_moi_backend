@@ -15,10 +15,11 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem } from '@/types';
-import { Head, Link, router, useForm } from '@inertiajs/react';
+import { type BreadcrumbItem, type SharedData } from '@/types';
+import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
 import Typography from '@mui/material/Typography';
@@ -31,6 +32,7 @@ import {
     Eye,
     IdCard,
     Package,
+    Trash2,
     User as UserIcon,
     Users,
     XCircle,
@@ -170,6 +172,27 @@ export default function VendorApplicationShow({ application }: Props) {
     const canApproveOrReject = application.can_be_reviewed
         && ['pending', 'under_review'].includes(application.status);
 
+    const { auth } = usePage<SharedData>().props;
+    const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+    const [deleteConfirmation, setDeleteConfirmation] = useState('');
+    const [isDeleting, setIsDeleting] = useState(false);
+
+    const handleDelete = () => {
+        if (deleteConfirmation !== 'DELETE') return;
+        setIsDeleting(true);
+        router.delete(
+            `/dashboard/vendor-applications/${application.id}`,
+            {
+                data: { confirmation: deleteConfirmation },
+                onFinish: () => {
+                    setIsDeleting(false);
+                    setShowDeleteDialog(false);
+                    setDeleteConfirmation('');
+                },
+            },
+        );
+    };
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={`Vendor Application - ${application.user.name}`} />
@@ -230,6 +253,19 @@ export default function VendorApplicationShow({ application }: Props) {
                         </Box>
                     )}
                 </Box>
+
+                {auth.isSuperAdmin && (
+                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: -1 }}>
+                        <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => setShowDeleteDialog(true)}
+                        >
+                            <Trash2 style={{ marginRight: 8, width: 16, height: 16 }} />
+                            Delete Application
+                        </Button>
+                    </Box>
+                )}
 
                 {/* Application Summary */}
                 <Card>
@@ -810,6 +846,64 @@ export default function VendorApplicationShow({ application }: Props) {
                             }
                         >
                             Reject Application
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            {/* Delete Confirmation Dialog */}
+            <Dialog open={showDeleteDialog} onOpenChange={(open) => {
+                if (!open) {
+                    setShowDeleteDialog(false);
+                    setDeleteConfirmation('');
+                }
+            }}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Delete Vendor Application</DialogTitle>
+                        <DialogDescription>
+                            This will permanently delete this vendor application and all
+                            associated documents (Ghana Card, selfie, proof of business,
+                            etc.). This action cannot be undone.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <Box sx={{ py: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
+                        {application.status === 'approved' && (
+                            <Box sx={{ bgcolor: 'warning.light', color: 'warning.dark', borderRadius: 2, p: 1.5, fontSize: '0.875rem' }}>
+                                This vendor has been approved. Deleting this application
+                                will revoke their vendor status and revert their role to
+                                regular user.
+                            </Box>
+                        )}
+                        <Box>
+                            <Typography sx={{ fontSize: '0.875rem', mb: 1 }}>
+                                Type <strong>DELETE</strong> to confirm:
+                            </Typography>
+                            <Input
+                                value={deleteConfirmation}
+                                onChange={(e) => setDeleteConfirmation(e.target.value)}
+                                placeholder='Type "DELETE" to confirm'
+                                autoComplete="off"
+                            />
+                        </Box>
+                    </Box>
+                    <DialogFooter>
+                        <Button
+                            variant="outline"
+                            onClick={() => {
+                                setShowDeleteDialog(false);
+                                setDeleteConfirmation('');
+                            }}
+                            disabled={isDeleting}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            variant="destructive"
+                            onClick={handleDelete}
+                            disabled={deleteConfirmation !== 'DELETE' || isDeleting}
+                        >
+                            {isDeleting ? 'Deleting...' : 'Permanently Delete'}
                         </Button>
                     </DialogFooter>
                 </DialogContent>
