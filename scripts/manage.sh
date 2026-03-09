@@ -234,10 +234,28 @@ do_build_frontend() {
         pnpm install
     fi
     
-    # Generate Wayfinder types via Docker (host PHP can't reach DB inside container)
+    # Generate Wayfinder types (required — these files are gitignored)
+    log_info "Generating Wayfinder route types..."
+    local wayfinder_generated=false
+
     if services_running; then
-        log_info "Generating Wayfinder route types..."
-        docker compose exec -T app php artisan wayfinder:generate --with-form || true
+        if docker compose exec -T app php artisan wayfinder:generate --with-form 2>/dev/null; then
+            wayfinder_generated=true
+        fi
+    fi
+
+    if [ "$wayfinder_generated" = false ] && command -v php >/dev/null 2>&1; then
+        if php artisan wayfinder:generate --with-form 2>/dev/null; then
+            wayfinder_generated=true
+        fi
+    fi
+
+    if [ "$wayfinder_generated" = false ]; then
+        log_warn "Could not generate Wayfinder types. Checking if they already exist..."
+        if [ ! -d "$PROJECT_DIR/resources/js/actions" ] || [ -z "$(ls -A "$PROJECT_DIR/resources/js/actions" 2>/dev/null)" ]; then
+            log_warn "Wayfinder files missing! Build will likely fail."
+            log_warn "Start Docker services first (./manage.sh start) or ensure PHP is available."
+        fi
     fi
 
     # Build assets (skip Wayfinder plugin since we generated types above)
