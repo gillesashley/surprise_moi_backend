@@ -74,6 +74,15 @@ class User extends Authenticatable implements MustVerifyEmail
         ];
     }
 
+    protected static function booted(): void
+    {
+        static::deleting(function (User $user) {
+            $user->vendorApplications()->withTrashed()->each(function (VendorApplication $application) {
+                $application->forceDelete();
+            });
+        });
+    }
+
     /**
      * Get all products created by this vendor.
      * Only applicable for users with 'vendor' role.

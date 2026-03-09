@@ -70,6 +70,20 @@ class AiChatService
 
             $parsed = $this->parseAiResponse($response->text);
 
+            // Handle empty AI response
+            if (empty(trim($parsed['content'])) && $parsed['type'] === 'text') {
+                Log::warning('AI agent returned empty response', [
+                    'conversation_id' => $conversation->id,
+                    'raw_text' => $response->text,
+                ]);
+
+                $parsed = [
+                    'type' => 'text',
+                    'content' => "I'm sorry, I couldn't process that right now. Could you try rephrasing your message?",
+                    'metadata' => ['error' => true],
+                ];
+            }
+
             if ($parsed['type'] === 'product_card') {
                 $parsed = $this->resolveProductCard($parsed, $conversation);
             }
@@ -210,13 +224,13 @@ class AiChatService
     {
         if ($partnerProfile) {
             return "Hi! I see you're looking for a gift for {$partnerProfile->name}. "
-                 .'I already have some details about them. Tell me more about what you have in mind, '
-                 .'or I can start searching for the perfect gift right away!';
+                .'I already have some details about them. Tell me more about what you have in mind, '
+                .'or I can start searching for the perfect gift right away!';
         }
 
-        return "Hi! I'm your gift assistant at Surprise Moi. "
-             ."Tell me about the person you're shopping for — their personality, hobbies, "
-             ."what they love (or hate!) — and I'll find the perfect surprise for them.";
+        return "Hi! I'm Cupid, your gift assistant at Surprise Moi. "
+            ."Tell me about the person you're shopping for — their personality, hobbies, "
+            ."what they love (or hate!) — and I'll find the perfect surprise for them.";
     }
 
     /**
