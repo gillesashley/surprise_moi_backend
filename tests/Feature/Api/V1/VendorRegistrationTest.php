@@ -186,7 +186,7 @@ class VendorRegistrationTest extends TestCase
             ->assertJsonValidationErrors(['ghana_card_front']);
     }
 
-    public function test_user_cannot_upload_ghana_card_with_pending_application(): void
+    public function test_user_cannot_upload_ghana_card_with_submitted_pending_application(): void
     {
         $user = User::factory()->create();
         VendorApplication::factory()
@@ -204,6 +204,34 @@ class VendorRegistrationTest extends TestCase
             ->assertJson([
                 'success' => false,
             ]);
+    }
+
+    public function test_user_can_reupload_ghana_card_for_editable_application(): void
+    {
+        $user = User::factory()->create();
+        $application = VendorApplication::factory()
+            ->for($user)
+            ->withGhanaCard()
+            ->create([
+                'status' => VendorApplication::STATUS_PENDING,
+                'submitted_at' => null,
+                'completed_step' => 2,
+                'current_step' => 3,
+            ]);
+
+        $oldFront = $application->ghana_card_front;
+
+        $response = $this->actingAs($user)->postJson('/api/v1/vendor-registration/step-1/ghana-card', [
+            'ghana_card_front' => $this->createFakeImage('new_front.jpg'),
+            'ghana_card_back' => $this->createFakeImage('new_back.jpg'),
+        ]);
+
+        $response->assertStatus(201)
+            ->assertJson(['success' => true]);
+
+        $application->refresh();
+        $this->assertNotEquals($oldFront, $application->ghana_card_front);
+        $this->assertEquals(2, $application->completed_step);
     }
 
     // ==========================================

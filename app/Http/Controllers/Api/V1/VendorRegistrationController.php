@@ -106,39 +106,39 @@ class VendorRegistrationController extends Controller
     {
         $user = auth()->user();
 
-        // Check if user already has a pending or approved application
-        $existingApplication = $user->vendorApplications()
-            ->whereIn('status', [VendorApplication::STATUS_PENDING, VendorApplication::STATUS_UNDER_REVIEW, VendorApplication::STATUS_APPROVED])
-            ->first();
+        // Get existing editable application (pending unsubmitted or rejected)
+        $application = $this->getEditableApplication();
 
-        if ($existingApplication) {
-            return response()->json([
-                'success' => false,
-                'message' => 'You already have an active or approved vendor application.',
-                'data' => [
-                    'application' => new VendorApplicationResource($existingApplication),
-                ],
-            ], 422);
+        // If no editable application, check for non-editable ones before creating new
+        if (! $application) {
+            $existingApplication = $user->vendorApplications()
+                ->whereIn('status', [VendorApplication::STATUS_PENDING, VendorApplication::STATUS_UNDER_REVIEW, VendorApplication::STATUS_APPROVED])
+                ->first();
+
+            if ($existingApplication) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'You already have an active or approved vendor application.',
+                    'data' => [
+                        'application' => new VendorApplicationResource($existingApplication),
+                    ],
+                ], 422);
+            }
         }
 
         DB::beginTransaction();
 
         try {
-            // Get or create pending application
-            $application = $user->vendorApplications()
-                ->where('status', VendorApplication::STATUS_PENDING)
-                ->first();
+            if (! $application) {
+                $application = new VendorApplication(['user_id' => $user->id]);
+            }
 
             // Delete old files if updating
-            if ($application) {
-                if ($application->ghana_card_front) {
-                    Storage::disk()->delete($application->ghana_card_front);
-                }
-                if ($application->ghana_card_back) {
-                    Storage::disk()->delete($application->ghana_card_back);
-                }
-            } else {
-                $application = new VendorApplication(['user_id' => $user->id]);
+            if ($application->ghana_card_front) {
+                Storage::disk()->delete($application->ghana_card_front);
+            }
+            if ($application->ghana_card_back) {
+                Storage::disk()->delete($application->ghana_card_back);
             }
 
             // Store new files
@@ -519,35 +519,17 @@ class VendorRegistrationController extends Controller
             ], 422);
         }
 
-        DB::beginTransaction();
+        // Use model's submit() which fires events and sends notifications
+        $application->submit();
+        $application->load('bespokeServices');
 
-        try {
-            $application->fill([
-                'status' => VendorApplication::STATUS_PENDING,
-                'submitted_at' => now(),
-            ]);
-
-            $application->save();
-            $application->load('bespokeServices');
-
-            DB::commit();
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Your vendor application has been submitted successfully. We will review it and get back to you soon.',
-                'data' => [
-                    'application' => new VendorApplicationResource($application),
-                ],
-            ], 201);
-        } catch (\Exception $e) {
-            DB::rollBack();
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to submit application.',
-                'error' => $e->getMessage(),
-            ], 500);
-        }
+        return response()->json([
+            'success' => true,
+            'message' => 'Your vendor application has been submitted successfully. We will review it and get back to you soon.',
+            'data' => [
+                'application' => new VendorApplicationResource($application),
+            ],
+        ], 201);
     }
 
     /**
