@@ -67,6 +67,10 @@ Route::middleware(['auth', 'dashboard'])->prefix('dashboard')->group(function ()
     // All Transactions
     Route::get('transactions', [AdminDashboardController::class, 'allTransactions'])->name('transactions');
 
+    Route::get('users/export-pdf', [UserController::class, 'exportPdf'])
+        ->name('users.export-pdf')
+        ->middleware('user-management');
+
     Route::resource('users', UserController::class)->names([
         'index' => 'users.index',
         'create' => 'users.create',

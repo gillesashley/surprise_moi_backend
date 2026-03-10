@@ -2,7 +2,7 @@ import { router } from '@inertiajs/react';
 import { useEffect, useRef } from 'react';
 import { show } from '@/routes/user-management-access';
 
-const INACTIVITY_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes
+const INACTIVITY_TIMEOUT_MS = 15 * 60 * 1000; // 15 minutes
 const ACTIVITY_EVENTS = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'] as const;
 
 /**

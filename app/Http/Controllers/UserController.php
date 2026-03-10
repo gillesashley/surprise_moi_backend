@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -16,14 +18,12 @@ class UserController extends Controller
     private const ROLES = ['customer', 'vendor', 'admin', 'super_admin', 'influencer', 'field_agent', 'marketer'];
 
     /**
-     * Display a listing of users, optionally filtered by role.
+     * Apply shared filtering and sorting to a user query.
+     *
+     * @return array{role_filter: string|null, sort_by: string, sort_order: string}
      */
-    public function index(Request $request)
+    private function applyFiltersAndSorting(Request $request, Builder $query): array
     {
-        $query = User::query()
-            ->select(['id', 'name', 'email', 'phone', 'role', 'email_verified_at', 'created_at']);
-
-        // Role filtering
         $roleFilter = $request->input('role');
         if ($roleFilter) {
             $roles = array_intersect(explode(',', $roleFilter), self::ROLES);
@@ -32,7 +32,6 @@ class UserController extends Controller
             }
         }
 
-        // Search functionality
         if ($request->filled('search')) {
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
@@ -42,7 +41,6 @@ class UserController extends Controller
             });
         }
 
-        // Sorting functionality
         $sortBy = $request->input('sort_by', 'created_at');
         $sortOrder = $request->input('sort_order', 'desc');
 
@@ -53,20 +51,66 @@ class UserController extends Controller
             $query->latest();
         }
 
+        return [
+            'role_filter' => $roleFilter,
+            'sort_by' => $sortBy,
+            'sort_order' => $sortOrder,
+        ];
+    }
+
+    /**
+     * Display a listing of users, optionally filtered by role.
+     */
+    public function index(Request $request)
+    {
+        $query = User::query()
+            ->select(['id', 'name', 'email', 'phone', 'role', 'email_verified_at', 'created_at']);
+
+        $filters = $this->applyFiltersAndSorting($request, $query);
+
         $users = $query->paginate(15)->withQueryString();
 
         return Inertia::render('users/index', [
             'users' => $users,
             'roles' => self::ROLES,
             'canDelete' => Auth::user()->isSuperAdmin(),
-            'activeRole' => $roleFilter,
+            'activeRole' => $filters['role_filter'],
             'filters' => [
                 'search' => $request->input('search'),
-                'role' => $roleFilter,
-                'sort_by' => $sortBy,
-                'sort_order' => $sortOrder,
+                'role' => $filters['role_filter'],
+                'sort_by' => $filters['sort_by'],
+                'sort_order' => $filters['sort_order'],
             ],
         ]);
+    }
+
+    /**
+     * Export users list as a PDF file.
+     */
+    public function exportPdf(Request $request): \Illuminate\Http\Response
+    {
+        $query = User::query()
+            ->select(['id', 'name', 'email', 'phone', 'role', 'created_at']);
+
+        $filters = $this->applyFiltersAndSorting($request, $query);
+
+        $users = $query->get();
+
+        // Role breakdown stats
+        $roleBreakdown = $users->groupBy('role')->map->count();
+
+        $pdf = Pdf::loadView('exports.users-pdf', [
+            'users' => $users,
+            'totalUsers' => $users->count(),
+            'roleBreakdown' => $roleBreakdown,
+            'roleFilter' => $filters['role_filter'],
+            'searchFilter' => $request->input('search'),
+            'generatedAt' => now()->format('F j, Y \a\t g:i A'),
+        ]);
+
+        $pdf->setPaper('a4', 'landscape');
+
+        return $pdf->download('users-report.pdf');
     }
 
     /**
