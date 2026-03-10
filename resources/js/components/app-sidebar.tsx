@@ -108,6 +108,11 @@ const getNavItemsForRole = (role: string): NavItem[] => {
                         href: '/dashboard/transactions',
                         icon: List,
                     },
+                    {
+                        title: 'Vendor Onboarding',
+                        href: '/dashboard/vendor-onboarding-stats',
+                        icon: UserCheck,
+                    },
                 ],
             },
             {
