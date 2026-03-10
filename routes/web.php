@@ -67,6 +67,9 @@ Route::middleware(['auth', 'dashboard'])->prefix('dashboard')->group(function ()
     // All Transactions
     Route::get('transactions', [AdminDashboardController::class, 'allTransactions'])->name('transactions');
 
+    // Vendor Onboarding Stats
+    Route::get('vendor-onboarding-stats', [AdminDashboardController::class, 'vendorOnboardingStats'])->name('vendor-onboarding-stats');
+
     Route::get('users/export-pdf', [UserController::class, 'exportPdf'])
         ->name('users.export-pdf')
         ->middleware('user-management');

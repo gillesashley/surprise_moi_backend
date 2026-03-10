@@ -421,6 +421,30 @@ class AdminDashboardController extends Controller
         ]);
     }
 
+    public function vendorOnboardingStats(): Response
+    {
+        $totalVendors = User::where('role', 'vendor')->count();
+        $tier1Vendors = User::where('role', 'vendor')->where('vendor_tier', 1)->count();
+        $tier2Vendors = User::where('role', 'vendor')->where('vendor_tier', 2)->count();
+
+        $approvedApps = VendorApplication::where('status', VendorApplication::STATUS_APPROVED);
+
+        $totalOnboardingFees = (clone $approvedApps)->sum('onboarding_fee');
+        $tier1OnboardingFees = (clone $approvedApps)->where('has_business_certificate', true)->sum('onboarding_fee');
+        $tier2OnboardingFees = (clone $approvedApps)->where('has_business_certificate', false)->sum('onboarding_fee');
+
+        return Inertia::render('vendor-onboarding-stats/index', [
+            'stats' => [
+                'total_vendors' => $totalVendors,
+                'tier1_vendors' => $tier1Vendors,
+                'tier2_vendors' => $tier2Vendors,
+                'total_onboarding_fees' => number_format($totalOnboardingFees, 2, '.', ''),
+                'tier1_onboarding_fees' => number_format($tier1OnboardingFees, 2, '.', ''),
+                'tier2_onboarding_fees' => number_format($tier2OnboardingFees, 2, '.', ''),
+            ],
+        ]);
+    }
+
     private function getOrderStatistics(): array
     {
         return [
