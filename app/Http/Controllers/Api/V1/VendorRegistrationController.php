@@ -466,13 +466,18 @@ class VendorRegistrationController extends Controller
 
             DB::commit();
 
+            $needsPayment = $application->needsPayment();
+
             return response()->json([
                 'success' => true,
-                'message' => 'Bespoke services selected. Please review and submit your application.',
+                'message' => $needsPayment
+                    ? 'Bespoke services selected. Please complete payment to submit your application.'
+                    : 'Bespoke services selected. Please review and submit your application.',
                 'data' => [
                     'application' => new VendorApplicationResource($application),
                     'next_step' => 5,
-                    'can_submit' => true,
+                    'can_submit' => $application->canSubmit(),
+                    'needs_payment' => $needsPayment,
                 ],
             ]);
         } catch (\Exception $e) {
@@ -759,8 +764,18 @@ class VendorRegistrationController extends Controller
     private function getNextStepsAdvice(VendorApplication $application): array
     {
         if ($application->completed_step >= 4) {
+            if ($application->needsPayment()) {
+                return [
+                    'can_submit' => false,
+                    'needs_payment' => true,
+                    'message' => 'All steps complete! Please complete the onboarding payment before submitting.',
+                    'action' => 'Call POST /api/v1/vendor-registration/payment/initiate',
+                ];
+            }
+
             return [
-                'can_submit' => true,
+                'can_submit' => $application->canSubmit(),
+                'needs_payment' => false,
                 'message' => 'All steps complete! You can review and submit your application.',
                 'action' => 'Call POST /api/v1/vendor-registration/submit',
             ];
