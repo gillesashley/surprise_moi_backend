@@ -144,9 +144,19 @@ class PaymentController extends Controller
      */
     public function callback(Request $request)
     {
-        $reference = $request->query('reference') ?? $request->query('trxref');
-        $orderId = $request->query('order_id');
-        $type = $request->query('type', 'order');
+        // Use input() instead of query() to handle both GET query params and POST body
+        // (some 3DS flows redirect via POST instead of GET)
+        $reference = $request->input('reference') ?? $request->input('trxref');
+        $orderId = $request->input('order_id');
+        $type = $request->input('type', 'order');
+
+        Log::info('Payment callback received', [
+            'reference' => $reference,
+            'method' => $request->method(),
+            'query_params' => $request->query(),
+            'has_body' => $request->getContent() !== '',
+            'user_agent' => $request->userAgent(),
+        ]);
 
         if (! $reference) {
             return $this->redirectToApp('failed', null, 'Payment reference is required', $type, $orderId);
@@ -199,6 +209,7 @@ class PaymentController extends Controller
         Log::info('Payment verified successfully', [
             'reference' => $reference,
             'order_id' => $payment->order_id,
+            'channel' => $result['data']['channel'] ?? 'unknown',
         ]);
 
         return $this->redirectToApp('success', $reference, null, $type, $payment->order_id ?? $orderId);
@@ -206,6 +217,11 @@ class PaymentController extends Controller
 
     /**
      * Redirect to mobile app via deep link.
+     *
+     * Uses an HTML intermediate page with JavaScript instead of a bare 302 redirect.
+     * This is necessary because mobile browsers (especially Chrome) may not follow
+     * HTTP 302 redirects to custom URI schemes (surprisemoi://) after 3D Secure
+     * cross-domain redirect chains used in card payments.
      */
     private function redirectToApp(
         string $status,
@@ -233,9 +249,79 @@ class PaymentController extends Controller
         Log::info('Redirecting to mobile app', [
             'deep_link' => $deepLinkUrl,
             'status' => $status,
+            'reference' => $reference,
         ]);
 
-        return redirect($deepLinkUrl);
+        $statusText = $status === 'success' ? 'Payment Successful' : 'Payment Failed';
+        $statusMessage = $status === 'success'
+            ? 'Your payment has been processed. Returning you to the app...'
+            : ($message ?: 'Something went wrong with your payment.');
+        $escapedDeepLink = htmlspecialchars($deepLinkUrl, ENT_QUOTES, 'UTF-8');
+        $jsDeepLink = json_encode($deepLinkUrl, JSON_UNESCAPED_SLASHES);
+
+        $html = <<<HTML
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>{$statusText} - SurpriseMoi</title>
+            <style>
+                * { margin: 0; padding: 0; box-sizing: border-box; }
+                body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; background: #f5f5f5; padding: 20px; }
+                .card { background: white; border-radius: 16px; padding: 40px 24px; text-align: center; max-width: 400px; width: 100%; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+                .icon { font-size: 48px; margin-bottom: 16px; }
+                h1 { font-size: 20px; color: #1a1a1a; margin-bottom: 8px; }
+                p { font-size: 14px; color: #666; margin-bottom: 24px; line-height: 1.5; }
+                .btn { display: inline-block; background: #6366f1; color: white; text-decoration: none; padding: 14px 32px; border-radius: 12px; font-size: 16px; font-weight: 600; }
+                .btn:active { background: #4f46e5; }
+                .spinner { width: 24px; height: 24px; border: 3px solid #e5e7eb; border-top-color: #6366f1; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 16px; }
+                @keyframes spin { to { transform: rotate(360deg); } }
+                #fallback { display: none; }
+            </style>
+        </head>
+        <body>
+            <div class="card">
+                <div class="icon">{$this->getStatusEmoji($status)}</div>
+                <h1>{$statusText}</h1>
+                <p>{$statusMessage}</p>
+                <div id="loading">
+                    <div class="spinner"></div>
+                    <p>Opening SurpriseMoi app...</p>
+                </div>
+                <div id="fallback">
+                    <a href="{$escapedDeepLink}" class="btn">Open SurpriseMoi App</a>
+                    <p style="margin-top: 16px; font-size: 12px; color: #999;">If the app doesn't open, please return to the SurpriseMoi app manually.</p>
+                </div>
+            </div>
+            <script>
+                (function() {
+                    var deepLink = {$jsDeepLink};
+                    // Attempt deep link via location change
+                    window.location.href = deepLink;
+                    // Show fallback button after 2 seconds if app didn't open
+                    setTimeout(function() {
+                        document.getElementById('loading').style.display = 'none';
+                        document.getElementById('fallback').style.display = 'block';
+                    }, 2000);
+                })();
+            </script>
+        </body>
+        </html>
+        HTML;
+
+        return response($html)->header('Content-Type', 'text/html');
+    }
+
+    /**
+     * Get an emoji for the payment status.
+     */
+    private function getStatusEmoji(string $status): string
+    {
+        return match ($status) {
+            'success' => '&#10003;&#65039;',
+            default => '&#10060;',
+        };
     }
 
     /**

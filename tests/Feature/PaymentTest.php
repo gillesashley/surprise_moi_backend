@@ -720,18 +720,17 @@ class PaymentTest extends TestCase
 
         $response = $this->get("/api/v1/payments/callback?reference={$payment->reference}");
 
-        $response->assertRedirect(
-            "surprisemoi://payment-callback?status=success&type=order&reference={$payment->reference}&order_id={$this->order->id}"
-        );
+        $expectedDeepLink = "surprisemoi://payment-callback?status=success&type=order&reference={$payment->reference}&order_id={$this->order->id}";
+        $response->assertOk();
+        $response->assertSee($expectedDeepLink, false);
     }
 
     public function test_callback_requires_reference(): void
     {
         $response = $this->get('/api/v1/payments/callback');
 
-        $response->assertRedirect(
-            'surprisemoi://payment-callback?status=failed&type=order&message=Payment+reference+is+required'
-        );
+        $response->assertOk();
+        $response->assertSee('surprisemoi://payment-callback?status=failed&type=order&message=Payment+reference+is+required', false);
     }
 
     public function test_callback_skips_reverification_for_successful_payment(): void
@@ -745,9 +744,9 @@ class PaymentTest extends TestCase
 
         $response = $this->get("/api/v1/payments/callback?reference={$payment->reference}");
 
-        $response->assertRedirect(
-            "surprisemoi://payment-callback?status=success&type=order&reference={$payment->reference}&order_id={$this->order->id}"
-        );
+        $expectedDeepLink = "surprisemoi://payment-callback?status=success&type=order&reference={$payment->reference}&order_id={$this->order->id}";
+        $response->assertOk();
+        $response->assertSee($expectedDeepLink, false);
 
         Http::assertNothingSent();
     }
@@ -764,11 +763,42 @@ class PaymentTest extends TestCase
 
         $response = $this->get("/api/v1/payments/callback?reference={$payment->reference}");
 
-        $response->assertRedirect(
-            "surprisemoi://payment-callback?status=failed&type=order&reference={$payment->reference}&order_id={$this->order->id}&message=Insufficient+funds"
-        );
+        $expectedDeepLink = "surprisemoi://payment-callback?status=failed&type=order&reference={$payment->reference}&order_id={$this->order->id}&message=Insufficient+funds";
+        $response->assertOk();
+        $response->assertSee($expectedDeepLink, false);
 
         Http::assertNothingSent();
+    }
+
+    public function test_callback_handles_post_requests_from_3ds(): void
+    {
+        $payment = Payment::factory()->pending()->create([
+            'user_id' => $this->user->id,
+            'order_id' => $this->order->id,
+            'amount' => 100.00,
+            'amount_in_kobo' => 10000,
+        ]);
+
+        Http::fake([
+            'https://api.paystack.co/transaction/verify/*' => Http::response([
+                'status' => true,
+                'message' => 'Verification successful',
+                'data' => [
+                    'status' => 'success',
+                    'reference' => $payment->reference,
+                    'amount' => 10000,
+                ],
+            ], 200),
+        ]);
+
+        // Simulate POST callback (some 3DS flows POST instead of GET)
+        $response = $this->post('/api/v1/payments/callback', [
+            'reference' => $payment->reference,
+        ]);
+
+        $expectedDeepLink = "surprisemoi://payment-callback?status=success&type=order&reference={$payment->reference}&order_id={$this->order->id}";
+        $response->assertOk();
+        $response->assertSee($expectedDeepLink, false);
     }
 
     // ==========================================
