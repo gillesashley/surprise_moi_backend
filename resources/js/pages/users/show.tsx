@@ -15,6 +15,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useInactivityLock } from '@/hooks/use-inactivity-lock';
 import AppLayout from '@/layouts/app-layout';
@@ -181,21 +182,25 @@ const breadcrumbs = (user: User): BreadcrumbItem[] => [
 export default function UserShow({ user, canDelete }: Props) {
     useInactivityLock();
     const [showRejectDialog, setShowRejectDialog] = useState(false);
+    const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+    const [deleteConfirmation, setDeleteConfirmation] = useState('');
+    const [isDeleting, setIsDeleting] = useState(false);
     const [previewDoc, setPreviewDoc] = useState<{ url: string; title: string } | null>(null);
     const { data, setData, post, processing } = useForm({
         rejection_reason: '',
     });
 
     const handleDelete = () => {
-        if (
-            confirm(
-                `Are you sure you want to delete ${user.name}? This action cannot be undone.`,
-            )
-        ) {
-            router.delete(userShow.url(user.id), {
-                onSuccess: () => router.visit(usersIndex.url()),
-            });
-        }
+        if (deleteConfirmation !== 'DELETE') return;
+        setIsDeleting(true);
+        router.delete(userShow.url(user.id), {
+            onSuccess: () => router.visit(usersIndex.url()),
+            onFinish: () => {
+                setIsDeleting(false);
+                setShowDeleteDialog(false);
+                setDeleteConfirmation('');
+            },
+        });
     };
 
     const handleApprove = (applicationId: number) => {
@@ -251,7 +256,7 @@ export default function UserShow({ user, canDelete }: Props) {
                             <Button
                                 variant="destructive"
                                 size="sm"
-                                onClick={handleDelete}
+                                onClick={() => setShowDeleteDialog(true)}
                             >
                                 <Trash2 style={{ marginRight: 8, width: 16, height: 16 }} />
                                 Delete
@@ -1322,6 +1327,56 @@ export default function UserShow({ user, canDelete }: Props) {
                             </DialogFooter>
                         </Box>
                     )}
+                </DialogContent>
+            </Dialog>
+
+            {/* Delete Confirmation Dialog */}
+            <Dialog open={showDeleteDialog} onOpenChange={(open) => {
+                if (!open) {
+                    setShowDeleteDialog(false);
+                    setDeleteConfirmation('');
+                }
+            }}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Delete User</DialogTitle>
+                        <DialogDescription>
+                            This will permanently delete {user.name} and all their associated data.
+                            This action cannot be undone.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <Box sx={{ py: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
+                        <Box>
+                            <Typography sx={{ fontSize: '0.875rem', mb: 1 }}>
+                                Type <strong>DELETE</strong> to confirm:
+                            </Typography>
+                            <Input
+                                value={deleteConfirmation}
+                                onChange={(e) => setDeleteConfirmation(e.target.value)}
+                                placeholder='Type "DELETE" to confirm'
+                                autoComplete="off"
+                            />
+                        </Box>
+                    </Box>
+                    <DialogFooter>
+                        <Button
+                            variant="outline"
+                            onClick={() => {
+                                setShowDeleteDialog(false);
+                                setDeleteConfirmation('');
+                            }}
+                            disabled={isDeleting}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            variant="destructive"
+                            onClick={handleDelete}
+                            disabled={deleteConfirmation !== 'DELETE' || isDeleting}
+                        >
+                            {isDeleting ? 'Deleting...' : 'Permanently Delete'}
+                        </Button>
+                    </DialogFooter>
                 </DialogContent>
             </Dialog>
 

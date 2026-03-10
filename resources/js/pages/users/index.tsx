@@ -6,6 +6,14 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { useInactivityLock } from '@/hooks/use-inactivity-lock';
 import AppLayout from '@/layouts/app-layout';
@@ -67,6 +75,10 @@ const getRoleBadgeColor = (role: string): 'error' | 'secondary' | 'info' | 'defa
 export default function UsersIndex({ users, canDelete, activeRole, filters }: Props) {
     useInactivityLock();
     const [searchTerm, setSearchTerm] = useState(filters.search || '');
+    const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+    const [deleteConfirmation, setDeleteConfirmation] = useState('');
+    const [isDeleting, setIsDeleting] = useState(false);
+    const [userToDelete, setUserToDelete] = useState<{ id: number; name: string } | null>(null);
     const roleInfo = activeRole ? roleLabelMap[activeRole] : null;
     const pageTitle = roleInfo?.title ?? 'All Users';
     const pageDescription = roleInfo?.description ?? 'Manage all registered users in the system';
@@ -99,16 +111,18 @@ export default function UsersIndex({ users, canDelete, activeRole, filters }: Pr
         return () => clearTimeout(delayDebounceFn);
     }, [searchTerm]);
 
-    const handleDelete = (userId: number, userName: string) => {
-        if (
-            confirm(
-                `Are you sure you want to delete ${userName}? This action cannot be undone.`,
-            )
-        ) {
-            router.delete(userShow.url(userId), {
-                preserveScroll: true,
-            });
-        }
+    const handleDelete = () => {
+        if (!userToDelete || deleteConfirmation !== 'DELETE') return;
+        setIsDeleting(true);
+        router.delete(userShow.url(userToDelete.id), {
+            preserveScroll: true,
+            onFinish: () => {
+                setIsDeleting(false);
+                setShowDeleteDialog(false);
+                setDeleteConfirmation('');
+                setUserToDelete(null);
+            },
+        });
     };
 
     const handlePageChange = (page: number) => {
@@ -314,12 +328,10 @@ export default function UsersIndex({ users, canDelete, activeRole, filters }: Pr
                                                         <Button
                                                             variant="ghost"
                                                             size="sm"
-                                                            onClick={() =>
-                                                                handleDelete(
-                                                                    user.id,
-                                                                    user.name,
-                                                                )
-                                                            }
+                                                            onClick={() => {
+                                                                setUserToDelete({ id: user.id, name: user.name });
+                                                                setShowDeleteDialog(true);
+                                                            }}
                                                         >
                                                             <Trash2 style={{ width: 16, height: 16, color: 'var(--destructive)' }} />
                                                         </Button>
@@ -377,6 +389,58 @@ export default function UsersIndex({ users, canDelete, activeRole, filters }: Pr
                     </CardContent>
                 </Card>
             </Box>
+
+            {/* Delete Confirmation Dialog */}
+            <Dialog open={showDeleteDialog} onOpenChange={(open) => {
+                if (!open) {
+                    setShowDeleteDialog(false);
+                    setDeleteConfirmation('');
+                    setUserToDelete(null);
+                }
+            }}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Delete User</DialogTitle>
+                        <DialogDescription>
+                            This will permanently delete {userToDelete?.name} and all their associated data.
+                            This action cannot be undone.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <Box sx={{ py: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
+                        <Box>
+                            <Typography sx={{ fontSize: '0.875rem', mb: 1 }}>
+                                Type <strong>DELETE</strong> to confirm:
+                            </Typography>
+                            <Input
+                                value={deleteConfirmation}
+                                onChange={(e) => setDeleteConfirmation(e.target.value)}
+                                placeholder='Type "DELETE" to confirm'
+                                autoComplete="off"
+                            />
+                        </Box>
+                    </Box>
+                    <DialogFooter>
+                        <Button
+                            variant="outline"
+                            onClick={() => {
+                                setShowDeleteDialog(false);
+                                setDeleteConfirmation('');
+                                setUserToDelete(null);
+                            }}
+                            disabled={isDeleting}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            variant="destructive"
+                            onClick={handleDelete}
+                            disabled={deleteConfirmation !== 'DELETE' || isDeleting}
+                        >
+                            {isDeleting ? 'Deleting...' : 'Permanently Delete'}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </AppLayout>
     );
 }

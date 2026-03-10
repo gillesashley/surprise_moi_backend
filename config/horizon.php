@@ -216,7 +216,7 @@ return [
         'production' => [
             'supervisor-1' => [
                 'connection' => 'redis',
-                'queue' => ['default', 'emails', 'notifications'],
+                'queue' => ['default', 'tokens', 'emails', 'notifications'],
                 'balance' => 'auto',
                 'autoScalingStrategy' => 'time',
                 'minProcesses' => 2,
@@ -232,7 +232,7 @@ return [
         'staging' => [
             'supervisor-1' => [
                 'connection' => 'redis',
-                'queue' => ['default'],
+                'queue' => ['default', 'tokens', 'emails', 'notifications'],
                 'balance' => 'auto',
                 'minProcesses' => 1,
                 'maxProcesses' => 5,
@@ -245,7 +245,7 @@ return [
         'local' => [
             'supervisor-1' => [
                 'connection' => 'redis',
-                'queue' => ['default'],
+                'queue' => ['default', 'tokens', 'emails', 'notifications'],
                 'balance' => 'auto',
                 'minProcesses' => 1,
                 'maxProcesses' => 3,
