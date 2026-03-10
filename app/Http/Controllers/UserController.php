@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -67,6 +68,63 @@ class UserController extends Controller
                 'sort_order' => $sortOrder,
             ],
         ]);
+    }
+
+    /**
+     * Export users list as a PDF file.
+     */
+    public function exportPdf(Request $request): \Illuminate\Http\Response
+    {
+        $query = User::query()
+            ->select(['id', 'name', 'email', 'phone', 'role', 'created_at']);
+
+        // Role filtering (same logic as index)
+        $roleFilter = $request->input('role');
+        if ($roleFilter) {
+            $roles = array_intersect(explode(',', $roleFilter), self::ROLES);
+            if (! empty($roles)) {
+                $query->whereIn('role', $roles);
+            }
+        }
+
+        // Search functionality (same logic as index)
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('phone', 'like', "%{$search}%");
+            });
+        }
+
+        // Sorting (same logic as index)
+        $sortBy = $request->input('sort_by', 'created_at');
+        $sortOrder = $request->input('sort_order', 'desc');
+
+        $allowedSorts = ['name', 'email', 'phone', 'role', 'created_at'];
+        if (in_array($sortBy, $allowedSorts)) {
+            $query->orderBy($sortBy, $sortOrder);
+        } else {
+            $query->latest();
+        }
+
+        $users = $query->get();
+
+        // Role breakdown stats
+        $roleBreakdown = $users->groupBy('role')->map->count();
+
+        $pdf = Pdf::loadView('exports.users-pdf', [
+            'users' => $users,
+            'totalUsers' => $users->count(),
+            'roleBreakdown' => $roleBreakdown,
+            'roleFilter' => $roleFilter,
+            'searchFilter' => $request->input('search'),
+            'generatedAt' => now()->format('F j, Y \a\t g:i A'),
+        ]);
+
+        $pdf->setPaper('a4', 'landscape');
+
+        return $pdf->download('users-report.pdf');
     }
 
     /**

@@ -342,4 +342,62 @@ class UserManagementTest extends TestCase
                 ->where('user.orders_count', 2)
         );
     }
+
+    public function test_admin_can_export_users_pdf(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        User::factory()->count(3)->create(['role' => 'customer']);
+
+        $response = $this->actingAs($admin)
+            ->withSession(['user_management.verified_at' => time()])
+            ->get('/dashboard/users/export-pdf');
+
+        $response->assertOk();
+        $response->assertHeader('content-type', 'application/pdf');
+    }
+
+    public function test_pdf_export_respects_role_filter(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        User::factory()->count(3)->create(['role' => 'customer']);
+        User::factory()->count(2)->create(['role' => 'vendor']);
+
+        $response = $this->actingAs($admin)
+            ->withSession(['user_management.verified_at' => time()])
+            ->get('/dashboard/users/export-pdf?role=customer');
+
+        $response->assertOk();
+        $response->assertHeader('content-type', 'application/pdf');
+    }
+
+    public function test_pdf_export_respects_search_filter(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        User::factory()->create(['name' => 'Unique Export Name']);
+        User::factory()->count(3)->create();
+
+        $response = $this->actingAs($admin)
+            ->withSession(['user_management.verified_at' => time()])
+            ->get('/dashboard/users/export-pdf?search=Unique+Export');
+
+        $response->assertOk();
+        $response->assertHeader('content-type', 'application/pdf');
+    }
+
+    public function test_guest_cannot_export_users_pdf(): void
+    {
+        $response = $this->get('/dashboard/users/export-pdf');
+
+        $response->assertRedirect('/login');
+    }
+
+    public function test_unverified_access_cannot_export_pdf(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+
+        $response = $this->actingAs($admin)
+            ->get('/dashboard/users/export-pdf');
+
+        $response->assertRedirect('/user-management-access');
+    }
 }
