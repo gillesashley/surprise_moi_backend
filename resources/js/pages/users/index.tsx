@@ -19,7 +19,7 @@ import { Head, Link, router } from '@inertiajs/react';
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
 import Typography from '@mui/material/Typography';
-import { ArrowDown, ArrowUp, Eye, Pencil, Search, Trash2 } from 'lucide-react';
+import { ArrowDown, ArrowUp, Eye, FileDown, Pencil, Search, Trash2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 interface Props {
@@ -171,7 +171,7 @@ export default function UsersIndex({ users, canDelete, activeRole, filters }: Pr
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        {/* Search Bar */}
+                        {/* Search Bar & Export */}
                         <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
                             <Box sx={{ position: 'relative', flex: 1 }}>
                                 <Search style={{ position: 'absolute', top: 10, left: 10, width: 16, height: 16, color: 'var(--muted-foreground)' }} />
@@ -185,6 +185,22 @@ export default function UsersIndex({ users, canDelete, activeRole, filters }: Pr
                                     style={{ paddingLeft: 36 }}
                                 />
                             </Box>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => {
+                                    const params = new URLSearchParams();
+                                    if (filters.role) params.set('role', filters.role);
+                                    if (filters.search) params.set('search', filters.search);
+                                    if (filters.sort_by) params.set('sort_by', filters.sort_by);
+                                    if (filters.sort_order) params.set('sort_order', filters.sort_order);
+                                    const query = params.toString();
+                                    window.open(`/dashboard/users/export-pdf${query ? `?${query}` : ''}`, '_blank');
+                                }}
+                            >
+                                <FileDown style={{ width: 16, height: 16, marginRight: 4 }} />
+                                Export PDF
+                            </Button>
                         </Box>
 
                         <Box sx={{ overflowX: 'auto' }}>
