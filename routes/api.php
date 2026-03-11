@@ -32,6 +32,7 @@ use App\Http\Controllers\Api\V1\VendorAnalyticsController;
 use App\Http\Controllers\Api\V1\VendorOnboardingPaymentController;
 use App\Http\Controllers\Api\V1\VendorRegistrationController;
 use App\Http\Controllers\Api\V1\VendorReviewController;
+use App\Http\Controllers\Api\V1\VendorRiderController;
 use App\Http\Controllers\Api\V1\VendorWawVideoController;
 use App\Http\Controllers\Api\V1\WawVideoController;
 use App\Http\Controllers\Api\V1\WishlistController;
@@ -505,6 +506,17 @@ Route::prefix('v1')->group(function () {
         // Vendor Waw Videos management
         Route::middleware('role:vendor')->prefix('vendor')->group(function () {
             Route::get('waw-videos', [VendorWawVideoController::class, 'index']);
+        });
+
+        // Vendor Rider Management
+        Route::middleware('role:vendor')->group(function () {
+            Route::prefix('vendor/riders')->group(function () {
+                Route::get('/', [VendorRiderController::class, 'index']);
+                Route::post('/', [VendorRiderController::class, 'store']);
+                Route::delete('{vendorRider}', [VendorRiderController::class, 'destroy']);
+            });
+            Route::post('vendor/orders/{order}/dispatch', [VendorRiderController::class, 'dispatch']);
+            Route::get('vendor/orders/{order}/delivery-status', [VendorRiderController::class, 'deliveryStatus']);
         });
     });
 

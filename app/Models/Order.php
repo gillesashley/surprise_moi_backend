@@ -183,6 +183,14 @@ class Order extends Model
     }
 
     /**
+     * Get all delivery requests for this order.
+     */
+    public function deliveryRequests(): HasMany
+    {
+        return $this->hasMany(DeliveryRequest::class);
+    }
+
+    /**
      * Get all payments for this order.
      */
     public function payments(): HasMany
