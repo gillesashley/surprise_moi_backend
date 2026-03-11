@@ -17,7 +17,7 @@ class UpdateCategoryRequest extends FormRequest
         return [
             'name' => ['sometimes', 'required', 'string', 'max:255', Rule::unique('categories', 'name')->ignore($this->route('category'))],
             'description' => ['nullable', 'string', 'max:1000'],
-            'icon' => ['nullable', 'string', 'max:255'],
+            'icon' => ['nullable', 'image', 'mimes:png', 'max:2048'],
             'image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:5120'],
             'is_active' => ['boolean'],
             'sort_order' => ['nullable', 'integer', 'min:0'],

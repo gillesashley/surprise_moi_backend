@@ -38,6 +38,11 @@ class AdminCategoryController extends Controller
         $data = $request->validated();
         $data['slug'] = Str::slug($data['name']);
 
+        // Handle icon upload
+        if ($request->hasFile('icon')) {
+            $data['icon'] = $request->file('icon')->store('categories/icons');
+        }
+
         // Handle image upload
         if ($request->hasFile('image')) {
             $imagePath = $request->file('image')->store('categories');
@@ -81,6 +86,14 @@ class AdminCategoryController extends Controller
             $data['slug'] = Str::slug($data['name']);
         }
 
+        // Handle icon upload
+        if ($request->hasFile('icon')) {
+            if ($category->icon) {
+                Storage::disk()->delete($category->icon);
+            }
+            $data['icon'] = $request->file('icon')->store('categories/icons');
+        }
+
         // Handle image upload
         if ($request->hasFile('image')) {
             // Delete old image if exists
@@ -115,6 +128,11 @@ class AdminCategoryController extends Controller
                 'success' => false,
                 'message' => 'Cannot delete category with existing products. Please reassign or delete the products first.',
             ], 422);
+        }
+
+        // Delete icon if exists
+        if ($category->icon) {
+            Storage::disk()->delete($category->icon);
         }
 
         // Delete image if exists

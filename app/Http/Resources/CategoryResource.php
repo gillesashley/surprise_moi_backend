@@ -20,7 +20,7 @@ class CategoryResource extends JsonResource
             'slug' => $this->slug,
             'type' => $this->type,
             'description' => $this->description,
-            'icon' => $this->icon ? asset($this->icon) : null,
+            'icon' => $this->icon ? storage_url($this->icon) : null,
             'image' => $this->image ? storage_url($this->image) : null,
             'products_count' => $this->whenCounted('products'),
             'is_active' => $this->is_active,

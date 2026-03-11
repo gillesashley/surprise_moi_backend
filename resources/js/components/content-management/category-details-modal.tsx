@@ -188,7 +188,7 @@ export function CategoryDetailsModal({ category, onClose }: Props) {
                                                             '/',
                                                         )
                                                       ? category.icon
-                                                      : `/${category.icon}`
+                                                      : `/storage/${category.icon}`
                                             }
                                             alt="Category icon"
                                             sx={{

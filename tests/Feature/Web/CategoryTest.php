@@ -53,7 +53,6 @@ class CategoryTest extends TestCase
                 'name' => 'Updated Name',
                 'type' => 'product',
                 'description' => 'Updated description',
-                'icon' => '🎁',
                 'sort_order' => 5,
                 'is_active' => true,
             ]);
@@ -64,7 +63,6 @@ class CategoryTest extends TestCase
             'name' => 'Updated Name',
             'slug' => 'updated-name',
             'description' => 'Updated description',
-            'icon' => '🎁',
             'sort_order' => 5,
         ]);
     }
@@ -232,7 +230,6 @@ class CategoryTest extends TestCase
                 'type' => 'product',
                 'description' => 'A brand new category',
                 'image' => $image,
-                'icon' => '📦',
                 'sort_order' => 10,
                 'is_active' => true,
             ]);
@@ -302,5 +299,98 @@ class CategoryTest extends TestCase
             ]);
 
         $response->assertSessionHasErrors('description');
+    }
+
+    public function test_super_admin_can_create_category_with_icon(): void
+    {
+        Storage::fake('public');
+        /** @var User $superAdmin */
+        $superAdmin = User::factory()->create(['role' => 'super_admin']);
+        $icon = UploadedFile::fake()->create('icon.png', 50, 'image/png');
+
+        $response = $this->actingAs($superAdmin)
+            ->post('/dashboard/categories', [
+                'name' => 'Icon Category',
+                'type' => 'product',
+                'description' => 'Category with icon',
+                'icon' => $icon,
+                'is_active' => true,
+            ]);
+
+        $response->assertRedirect();
+        $category = Category::where('name', 'Icon Category')->first();
+        $this->assertNotNull($category->icon);
+        $this->assertTrue(str_contains($category->icon, 'categories/icons/'));
+        Storage::disk()->assertExists($category->icon);
+    }
+
+    public function test_super_admin_can_update_category_icon(): void
+    {
+        Storage::fake('public');
+        /** @var User $superAdmin */
+        $superAdmin = User::factory()->create(['role' => 'super_admin']);
+        $oldIcon = UploadedFile::fake()->create('old-icon.png', 50, 'image/png');
+        $newIcon = UploadedFile::fake()->create('new-icon.png', 50, 'image/png');
+
+        $category = Category::factory()->create();
+        $oldIconPath = $oldIcon->store('categories/icons');
+        $category->update(['icon' => $oldIconPath]);
+
+        Storage::disk()->assertExists($oldIconPath);
+
+        $response = $this->actingAs($superAdmin)
+            ->put("/dashboard/categories/{$category->id}", [
+                'name' => $category->name,
+                'type' => 'product',
+                'description' => $category->description,
+                'icon' => $newIcon,
+                'is_active' => true,
+            ]);
+
+        $response->assertRedirect();
+        $category->refresh();
+
+        $this->assertNotNull($category->icon);
+        Storage::disk()->assertExists($category->icon);
+        Storage::disk()->assertMissing($oldIconPath);
+    }
+
+    public function test_non_png_icon_is_rejected(): void
+    {
+        Storage::fake('public');
+        /** @var User $superAdmin */
+        $superAdmin = User::factory()->create(['role' => 'super_admin']);
+        $invalidIcon = UploadedFile::fake()->create('icon.jpg', 50, 'image/jpeg');
+
+        $response = $this->actingAs($superAdmin)
+            ->post('/dashboard/categories', [
+                'name' => 'Bad Icon Category',
+                'type' => 'product',
+                'icon' => $invalidIcon,
+                'is_active' => true,
+            ]);
+
+        $response->assertSessionHasErrors('icon');
+    }
+
+    public function test_delete_category_also_deletes_icon(): void
+    {
+        Storage::fake('public');
+        /** @var User $superAdmin */
+        $superAdmin = User::factory()->create(['role' => 'super_admin']);
+        $icon = UploadedFile::fake()->create('icon.png', 50, 'image/png');
+
+        $category = Category::factory()->create();
+        $iconPath = $icon->store('categories/icons');
+        $category->update(['icon' => $iconPath]);
+
+        Storage::disk()->assertExists($iconPath);
+
+        $response = $this->actingAs($superAdmin)
+            ->delete("/dashboard/categories/{$category->id}");
+
+        $response->assertRedirect();
+        $this->assertDatabaseMissing('categories', ['id' => $category->id]);
+        Storage::disk()->assertMissing($iconPath);
     }
 }
