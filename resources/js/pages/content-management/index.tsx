@@ -112,7 +112,7 @@ export default function ContentManagementIndex({
 
     const handleTabChange = (value: string) => {
         setCurrentTab(value);
-        window.history.replaceState({}, '', `/content-management?tab=${value}`);
+        window.history.replaceState({}, '', `/dashboard/content-management?tab=${value}`);
     };
 
     const iconStyle = { width: 16, height: 16 };

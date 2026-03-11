@@ -162,9 +162,9 @@ export function MusicGenresTab({ musicGenres, canCreate, canDelete }: Props) {
                 currentPage={musicGenres.current_page}
                 lastPage={musicGenres.last_page}
                 onPageChange={(page) => {
-                    router.get('/content-management', {
+                    router.get('/dashboard/content-management', {
                         tab: 'music',
-                        page,
+                        music_page: page,
                     });
                 }}
             />

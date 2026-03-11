@@ -25,28 +25,28 @@ class ContentManagementController extends Controller
             })
             ->withCount('products')
             ->orderBy('sort_order')
-            ->paginate(15);
+            ->paginate(15, ['*'], 'categories_page');
 
         $interests = Interest::query()
             ->withCount('users')
             ->orderBy('name')
-            ->paginate(15);
+            ->paginate(15, ['*'], 'interests_page');
 
         $personalityTraits = PersonalityTrait::query()
             ->withCount('users')
             ->orderBy('name')
-            ->paginate(15);
+            ->paginate(15, ['*'], 'traits_page');
 
         $musicGenres = MusicGenre::query()
             ->withCount('users')
             ->orderBy('name')
-            ->paginate(15);
+            ->paginate(15, ['*'], 'music_page');
 
         $bespokeServices = BespokeService::query()
             ->withCount('vendorApplications')
             ->orderBy('sort_order')
             ->orderBy('name')
-            ->paginate(15);
+            ->paginate(15, ['*'], 'bespoke_page');
 
         return Inertia::render('content-management/index', [
             'categories' => [

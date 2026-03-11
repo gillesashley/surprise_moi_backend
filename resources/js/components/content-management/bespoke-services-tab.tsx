@@ -198,9 +198,9 @@ export function BespokeServicesTab({
                 currentPage={bespokeServices.current_page}
                 lastPage={bespokeServices.last_page}
                 onPageChange={(page) => {
-                    router.get('/content-management', {
+                    router.get('/dashboard/content-management', {
                         tab: 'bespoke',
-                        page,
+                        bespoke_page: page,
                     });
                 }}
             />

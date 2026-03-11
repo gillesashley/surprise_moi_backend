@@ -224,9 +224,9 @@ export function CategoriesTab({
                 currentPage={categories.current_page}
                 lastPage={categories.last_page}
                 onPageChange={(page) => {
-                    router.get('/content-management', {
+                    router.get('/dashboard/content-management', {
                         tab: 'categories',
-                        page,
+                        categories_page: page,
                     });
                 }}
             />

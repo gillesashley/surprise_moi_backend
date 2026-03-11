@@ -166,9 +166,9 @@ export function PersonalityTraitsTab({
                 currentPage={personalityTraits.current_page}
                 lastPage={personalityTraits.last_page}
                 onPageChange={(page) => {
-                    router.get('/content-management', {
+                    router.get('/dashboard/content-management', {
                         tab: 'traits',
-                        page,
+                        traits_page: page,
                     });
                 }}
             />

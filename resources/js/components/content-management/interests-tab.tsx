@@ -162,9 +162,9 @@ export function InterestsTab({ interests, canCreate, canDelete }: Props) {
                 currentPage={interests.current_page}
                 lastPage={interests.last_page}
                 onPageChange={(page) => {
-                    router.get('/content-management', {
+                    router.get('/dashboard/content-management', {
                         tab: 'interests',
-                        page,
+                        interests_page: page,
                     });
                 }}
             />
