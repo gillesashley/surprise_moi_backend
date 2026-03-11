@@ -741,9 +741,9 @@ do_artisan() {
 
 do_deploy() {
     local fresh="${1:-}"
-    
+
     print_banner
-    
+
     # Check Docker
     log_step "Checking prerequisites..."
     if ! check_docker; then
@@ -751,13 +751,20 @@ do_deploy() {
         exit 1
     fi
     log_info "Docker is ready!"
-    
+
     # Setup if needed
     if ! env_configured; then
         log_action "Environment not configured. Running setup..."
         do_setup
     fi
-    
+
+    # Pull latest code
+    cd "$PROJECT_DIR"
+    if git rev-parse --git-dir > /dev/null 2>&1; then
+        log_action "Pulling latest code..."
+        git pull origin $(git branch --show-current) || log_warn "Git pull failed - continuing with local code"
+    fi
+
     # Build
     log_action "Building application..."
     do_build "$fresh"
