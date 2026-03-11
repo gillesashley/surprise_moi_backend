@@ -53,13 +53,18 @@ class CategoryController extends Controller
             'name' => ['required', 'string', 'max:255', 'unique:categories,name'],
             'type' => ['required', 'string', 'in:product,service'],
             'description' => ['nullable', 'string', 'max:1000'],
-            'icon' => ['nullable', 'string', 'max:255'],
+            'icon' => ['nullable', 'image', 'mimes:png', 'max:2048'],
             'image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:5120'],
             'is_active' => ['boolean'],
             'sort_order' => ['nullable', 'integer', 'min:0'],
         ]);
 
         $validated['slug'] = Str::slug($validated['name']);
+
+        // Handle icon upload
+        if ($request->hasFile('icon')) {
+            $validated['icon'] = $request->file('icon')->store('categories/icons');
+        }
 
         // Handle image upload
         if ($request->hasFile('image')) {
@@ -103,7 +108,7 @@ class CategoryController extends Controller
             'name' => ['required', 'string', 'max:255', 'unique:categories,name,'.$category->id],
             'type' => ['required', 'string', 'in:product,service'],
             'description' => ['nullable', 'string', 'max:1000'],
-            'icon' => ['nullable', 'string', 'max:255'],
+            'icon' => ['nullable', 'image', 'mimes:png', 'max:2048'],
             'image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:5120'],
             'is_active' => ['nullable', 'boolean'],
             'sort_order' => ['nullable', 'integer', 'min:0'],
@@ -113,6 +118,14 @@ class CategoryController extends Controller
 
         // Handle is_active checkbox - if not present, set to false
         $validated['is_active'] = $request->has('is_active') ? (bool) $request->input('is_active') : false;
+
+        // Handle icon upload
+        if ($request->hasFile('icon')) {
+            if ($category->icon) {
+                Storage::disk()->delete($category->icon);
+            }
+            $validated['icon'] = $request->file('icon')->store('categories/icons');
+        }
 
         // Handle image upload
         if ($request->hasFile('image')) {
@@ -141,6 +154,11 @@ class CategoryController extends Controller
 
         if ($category->products()->exists()) {
             return back()->with('error', 'Cannot delete category with existing products.');
+        }
+
+        // Delete icon if exists
+        if ($category->icon) {
+            Storage::disk()->delete($category->icon);
         }
 
         // Delete image if exists
