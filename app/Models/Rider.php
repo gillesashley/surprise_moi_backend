@@ -219,7 +219,7 @@ class Rider extends Authenticatable
             ->whereNotNull('current_latitude')
             ->whereNotNull('current_longitude')
             ->selectRaw("*, {$haversine} AS distance_km", [$latitude, $longitude, $latitude])
-            ->havingRaw('distance_km <= ?', [$radiusKm])
-            ->orderBy('distance_km');
+            ->whereRaw("{$haversine} <= ?", [$latitude, $longitude, $latitude, $radiusKm])
+            ->orderByRaw("{$haversine} ASC", [$latitude, $longitude, $latitude]);
     }
 }
