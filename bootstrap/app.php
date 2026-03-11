@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\EnsureDashboardAccess;
+use App\Http\Middleware\EnsureRiderApproved;
 use App\Http\Middleware\EnsureUserIsAdmin;
 use App\Http\Middleware\EnsureUserManagementAccess;
 use App\Http\Middleware\EnsureUserRole;
@@ -10,6 +11,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
+use Illuminate\Support\Facades\Route;
 use Symfony\Component\HttpFoundation\Request;
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -18,6 +20,11 @@ return Application::configure(basePath: dirname(__DIR__))
         api: __DIR__.'/../routes/api.php',
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
+        then: function () {
+            Route::middleware('api')
+                ->prefix('api/rider')
+                ->group(base_path('routes/api_rider.php'));
+        },
     )
     ->withBroadcasting(
         __DIR__.'/../routes/channels.php',
@@ -50,6 +57,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'admin' => EnsureUserIsAdmin::class,
             'dashboard' => EnsureDashboardAccess::class,
+            'rider.approved' => EnsureRiderApproved::class,
             'role' => EnsureUserRole::class,
             'user-management' => EnsureUserManagementAccess::class,
         ]);
