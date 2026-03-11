@@ -174,21 +174,15 @@ export default function CategoryEdit({ category }: Props) {
                                         error={errors.image as string}
                                     />
 
-                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                                        <Label htmlFor="icon">
-                                            Icon (emoji)
-                                        </Label>
-                                        <Input
-                                            id="icon"
-                                            name="icon"
-                                            defaultValue={category.icon || ''}
-                                        />
-                                        {errors.icon && (
-                                            <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
-                                                {errors.icon}
-                                            </Typography>
-                                        )}
-                                    </Box>
+                                    <ImageUpload
+                                        name="icon"
+                                        label="Category Icon"
+                                        helperText="Upload a .png icon for this category (e.g. from Flaticon)"
+                                        existingImage={category.icon}
+                                        error={errors.icon as string}
+                                        maxSizeMB={2}
+                                        acceptedFormats={['image/png']}
+                                    />
 
                                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                         <Label htmlFor="sort_order">
