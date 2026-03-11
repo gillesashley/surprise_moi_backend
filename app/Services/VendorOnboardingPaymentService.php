@@ -3,12 +3,15 @@
 namespace App\Services;
 
 use App\Models\Coupon;
+use App\Models\User;
 use App\Models\VendorApplication;
 use App\Models\VendorOnboardingPayment;
+use App\Notifications\VendorOnboardingPaidNotification;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Notification;
 
 class VendorOnboardingPaymentService
 {
@@ -395,6 +398,10 @@ class VendorOnboardingPaymentService
                         'used_at' => now(),
                     ]);
                 }
+
+                // Notify admins to review the new vendor application
+                $admins = User::whereIn('role', ['admin', 'super_admin'])->get();
+                Notification::send($admins, new VendorOnboardingPaidNotification($application));
 
                 return [
                     'success' => true,
