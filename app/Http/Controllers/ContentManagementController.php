@@ -32,6 +32,17 @@ class ContentManagementController extends Controller
             ->orderBy('sort_order')
             ->paginate(15, ['*'], 'categories_page');
 
+        // Normalize icon paths to proper URLs (public assets vs storage files)
+        $categories->getCollection()->transform(function ($category) {
+            if ($category->icon && ! str_starts_with($category->icon, 'http') && ! str_starts_with($category->icon, '/')) {
+                $category->icon = file_exists(public_path($category->icon))
+                    ? '/'.$category->icon
+                    : '/storage/'.$category->icon;
+            }
+
+            return $category;
+        });
+
         $interests = Interest::query()
             ->when($search, function ($query) use ($search) {
                 $query->where('name', 'like', "%{$search}%");
