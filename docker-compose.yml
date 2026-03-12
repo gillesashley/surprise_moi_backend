@@ -20,10 +20,10 @@ services:
       resources:
         limits:
           cpus: "2.0"
-          memory: 1024M
+          memory: 1536M
         reservations:
           cpus: "1.0"
-          memory: 512M
+          memory: 768M
     ports:
       - "8082:80"
     env_file:
