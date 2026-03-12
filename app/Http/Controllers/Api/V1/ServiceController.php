@@ -54,12 +54,12 @@ class ServiceController extends Controller
 
         // Filter by location (vendor bio or shop location, case-insensitive)
         if ($request->filled('location')) {
-            $location = strtolower($request->location);
+            $location = $request->location;
             $query->where(function ($q) use ($location) {
                 $q->whereHas('vendor', function ($subQ) use ($location) {
-                    $subQ->whereRaw('LOWER(bio) LIKE ?', ["%{$location}%"]);
+                    $subQ->where('bio', 'ILIKE', "%{$location}%");
                 })->orWhereHas('shop', function ($subQ) use ($location) {
-                    $subQ->whereRaw('LOWER(location) LIKE ?', ["%{$location}%"]);
+                    $subQ->where('location', 'ILIKE', "%{$location}%");
                 });
             });
         }

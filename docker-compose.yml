@@ -16,6 +16,14 @@ services:
       target: production
     container_name: surprisemoi-app
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 1024M
+        reservations:
+          cpus: "1.0"
+          memory: 512M
     ports:
       - "8082:80"
     env_file:
@@ -52,6 +60,14 @@ services:
     image: pgvector/pgvector:pg16
     container_name: surprisemoi-db
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 1024M
+        reservations:
+          cpus: "0.5"
+          memory: 256M
     environment:
       POSTGRES_DB: ${DB_DATABASE:-surprise_moi_db}
       POSTGRES_USER: ${DB_USERNAME:-laraveluser}
@@ -80,6 +96,14 @@ services:
     image: redis:7-alpine
     container_name: surprisemoi-redis
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
+        reservations:
+          cpus: "0.25"
+          memory: 128M
     command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-Gilash@123}
     volumes:
       - redis-data:/data

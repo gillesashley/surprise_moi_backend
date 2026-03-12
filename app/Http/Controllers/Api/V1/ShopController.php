@@ -31,18 +31,17 @@ class ShopController extends Controller
 
         // Search in name, description, and location
         if ($request->filled('search')) {
-            $search = strtolower($request->search);
+            $search = $request->search;
             $query->where(function ($q) use ($search) {
-                $q->whereRaw('LOWER(name) LIKE ?', ["%{$search}%"])
-                    ->orWhereRaw('LOWER(description) LIKE ?', ["%{$search}%"])
-                    ->orWhereRaw('LOWER(location) LIKE ?', ["%{$search}%"]);
+                $q->where('name', 'ILIKE', "%{$search}%")
+                    ->orWhere('description', 'ILIKE', "%{$search}%")
+                    ->orWhere('location', 'ILIKE', "%{$search}%");
             });
         }
 
         // Filter by location
         if ($request->filled('location')) {
-            $location = strtolower($request->location);
-            $query->whereRaw('LOWER(location) LIKE ?', ["%{$location}%"]);
+            $query->where('location', 'ILIKE', "%{$request->location}%");
         }
 
         // Sorting
@@ -201,10 +200,10 @@ class ShopController extends Controller
 
         // Apply standard product filters
         if ($request->filled('search')) {
-            $search = strtolower($request->search);
+            $search = $request->search;
             $query->where(function ($q) use ($search) {
-                $q->whereRaw('LOWER(name) LIKE ?', ["%{$search}%"])
-                    ->orWhereRaw('LOWER(description) LIKE ?', ["%{$search}%"]);
+                $q->where('name', 'ILIKE', "%{$search}%")
+                    ->orWhere('description', 'ILIKE', "%{$search}%");
             });
         }
 
@@ -254,10 +253,10 @@ class ShopController extends Controller
 
         // Apply standard service filters
         if ($request->filled('search')) {
-            $search = strtolower($request->search);
+            $search = $request->search;
             $query->where(function ($q) use ($search) {
-                $q->whereRaw('LOWER(name) LIKE ?', ["%{$search}%"])
-                    ->orWhereRaw('LOWER(description) LIKE ?', ["%{$search}%"]);
+                $q->where('name', 'ILIKE', "%{$search}%")
+                    ->orWhere('description', 'ILIKE', "%{$search}%");
             });
         }
 

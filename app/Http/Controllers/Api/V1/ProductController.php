@@ -41,10 +41,10 @@ class ProductController extends Controller
 
         // Search in name and description (case-insensitive)
         if ($request->filled('search')) {
-            $search = strtolower($request->search);
+            $search = $request->search;
             $query->where(function ($q) use ($search) {
-                $q->whereRaw('LOWER(name) LIKE ?', ["%{$search}%"])
-                    ->orWhereRaw('LOWER(description) LIKE ?', ["%{$search}%"]);
+                $q->where('name', 'ILIKE', "%{$search}%")
+                    ->orWhere('description', 'ILIKE', "%{$search}%");
             });
         }
 
@@ -64,12 +64,12 @@ class ProductController extends Controller
 
         // Filter by location (vendor bio or shop location, case-insensitive)
         if ($request->filled('location')) {
-            $location = strtolower($request->location);
+            $location = $request->location;
             $query->where(function ($q) use ($location) {
                 $q->whereHas('vendor', function ($subQ) use ($location) {
-                    $subQ->whereRaw('LOWER(bio) LIKE ?', ["%{$location}%"]);
+                    $subQ->where('bio', 'ILIKE', "%{$location}%");
                 })->orWhereHas('shop', function ($subQ) use ($location) {
-                    $subQ->whereRaw('LOWER(location) LIKE ?', ["%{$location}%"]);
+                    $subQ->where('location', 'ILIKE', "%{$location}%");
                 });
             });
         }
@@ -150,9 +150,9 @@ class ProductController extends Controller
 
         // Filter by occasion/tag name (case-insensitive exact match)
         if ($request->filled('occasion') && ! $request->filled('tags')) {
-            $occasion = strtolower(trim($request->occasion));
+            $occasion = trim($request->occasion);
             $query->whereHas('tags', function ($q) use ($occasion) {
-                $q->whereRaw('LOWER(name) = ?', [$occasion]);
+                $q->where('name', 'ILIKE', $occasion);
             });
         }
 

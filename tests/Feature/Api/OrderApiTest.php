@@ -184,11 +184,13 @@ class OrderApiTest extends TestCase
         $product1 = Product::factory()->create([
             'vendor_id' => $this->vendor->id,
             'is_available' => true,
+            'stock' => 10,
         ]);
 
         $product2 = Product::factory()->create([
             'vendor_id' => $vendor2->id,
             'is_available' => true,
+            'stock' => 10,
         ]);
 
         $response = $this->actingAs($this->customer)

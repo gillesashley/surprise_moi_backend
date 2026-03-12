@@ -25,9 +25,9 @@ class AdvertisementController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        // Increment impressions for each ad
-        foreach ($advertisements as $ad) {
-            $ad->incrementImpressions();
+        // Batch increment impressions in a single query instead of N individual updates
+        if ($advertisements->isNotEmpty()) {
+            Advertisement::whereIn('id', $advertisements->pluck('id'))->increment('impressions');
         }
 
         return AdvertisementResource::collection($advertisements);

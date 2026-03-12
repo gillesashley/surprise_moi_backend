@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Models\Shop;
 use App\Models\Tag;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Cache;
 
 class FilterController extends Controller
 {
@@ -206,59 +207,58 @@ class FilterController extends Controller
      */
     private function getAvailableColors(): array
     {
-        // Get all colors from products
-        $products = Product::query()
-            ->where('is_available', true)
-            ->whereNotNull('colors')
-            ->pluck('colors');
+        return Cache::remember('filters:available_colors', now()->addMinutes(10), function () {
+            $products = Product::query()
+                ->where('is_available', true)
+                ->whereNotNull('colors')
+                ->pluck('colors');
 
-        $allColors = collect();
+            $allColors = collect();
 
-        foreach ($products as $colors) {
-            if (is_array($colors)) {
-                $allColors = $allColors->merge($colors);
+            foreach ($products as $colors) {
+                if (is_array($colors)) {
+                    $allColors = $allColors->merge($colors);
+                }
             }
-        }
 
-        // Get unique colors and map to standard format
-        $uniqueColors = $allColors->unique()->filter()->values();
+            $uniqueColors = $allColors->unique()->filter()->values();
 
-        // Map common color names to hex codes
-        $colorHexMap = [
-            'red' => '#FF0000',
-            'pink' => '#FFC0CB',
-            'purple' => '#800080',
-            'white' => '#FFFFFF',
-            'black' => '#000000',
-            'blue' => '#0000FF',
-            'green' => '#008000',
-            'yellow' => '#FFFF00',
-            'orange' => '#FFA500',
-            'brown' => '#A52A2A',
-            'gold' => '#FFD700',
-            'silver' => '#C0C0C0',
-            'rose' => '#FF007F',
-            'lavender' => '#E6E6FA',
-            'cream' => '#FFFDD0',
-            'peach' => '#FFCBA4',
-            'coral' => '#FF7F50',
-            'teal' => '#008080',
-            'navy' => '#000080',
-            'maroon' => '#800000',
-            'burgundy' => '#800020',
-            'magenta' => '#FF00FF',
-            'turquoise' => '#40E0D0',
-            'beige' => '#F5F5DC',
-        ];
-
-        return $uniqueColors->map(function ($color) use ($colorHexMap) {
-            $colorLower = strtolower(trim($color));
-
-            return [
-                'name' => ucfirst($colorLower),
-                'hex' => $colorHexMap[$colorLower] ?? null,
+            $colorHexMap = [
+                'red' => '#FF0000',
+                'pink' => '#FFC0CB',
+                'purple' => '#800080',
+                'white' => '#FFFFFF',
+                'black' => '#000000',
+                'blue' => '#0000FF',
+                'green' => '#008000',
+                'yellow' => '#FFFF00',
+                'orange' => '#FFA500',
+                'brown' => '#A52A2A',
+                'gold' => '#FFD700',
+                'silver' => '#C0C0C0',
+                'rose' => '#FF007F',
+                'lavender' => '#E6E6FA',
+                'cream' => '#FFFDD0',
+                'peach' => '#FFCBA4',
+                'coral' => '#FF7F50',
+                'teal' => '#008080',
+                'navy' => '#000080',
+                'maroon' => '#800000',
+                'burgundy' => '#800020',
+                'magenta' => '#FF00FF',
+                'turquoise' => '#40E0D0',
+                'beige' => '#F5F5DC',
             ];
-        })->sortBy('name')->values()->toArray();
+
+            return $uniqueColors->map(function ($color) use ($colorHexMap) {
+                $colorLower = strtolower(trim($color));
+
+                return [
+                    'name' => ucfirst($colorLower),
+                    'hex' => $colorHexMap[$colorLower] ?? null,
+                ];
+            })->sortBy('name')->values()->toArray();
+        });
     }
 
     /**

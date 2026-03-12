@@ -449,17 +449,17 @@ class OrderController extends Controller
             $query->where('vendor_id', $request->user()->id);
         }
 
-        $stats = [
-            'total_orders' => (clone $query)->count(),
-            'pending_orders' => (clone $query)->where('status', 'pending')->count(),
-            'confirmed_orders' => (clone $query)->where('status', 'confirmed')->count(),
-            'processing_orders' => (clone $query)->where('status', 'processing')->count(),
-            'fulfilled_orders' => (clone $query)->where('status', 'fulfilled')->count(),
-            'shipped_orders' => (clone $query)->where('status', 'shipped')->count(),
-            'delivered_orders' => (clone $query)->where('status', 'delivered')->count(),
-            'total_revenue' => (clone $query)->whereIn('status', ['fulfilled', 'shipped', 'delivered'])->sum('total'),
-            'average_order_value' => (clone $query)->whereIn('status', ['fulfilled', 'shipped', 'delivered'])->avg('total'),
-        ];
+        $stats = $query->selectRaw("
+            COUNT(*) as total_orders,
+            COUNT(*) FILTER (WHERE status = 'pending') as pending_orders,
+            COUNT(*) FILTER (WHERE status = 'confirmed') as confirmed_orders,
+            COUNT(*) FILTER (WHERE status = 'processing') as processing_orders,
+            COUNT(*) FILTER (WHERE status = 'fulfilled') as fulfilled_orders,
+            COUNT(*) FILTER (WHERE status = 'shipped') as shipped_orders,
+            COUNT(*) FILTER (WHERE status = 'delivered') as delivered_orders,
+            COALESCE(SUM(total) FILTER (WHERE status IN ('fulfilled', 'shipped', 'delivered')), 0) as total_revenue,
+            AVG(total) FILTER (WHERE status IN ('fulfilled', 'shipped', 'delivered')) as average_order_value
+        ")->first()->toArray();
 
         return response()->json([
             'success' => true,
