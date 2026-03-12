@@ -46,3 +46,4 @@ composer.phar
 
 /AGENTS.md
 firebase-credentials.json
+/k6-summary.json
