@@ -108,9 +108,9 @@ class AdminDashboardController extends Controller
 
     public function commissionStatistics(): Response
     {
-        $totalOrders = Order::count();
-        $totalSales = Order::sum('total') ?? 0;
-        $totalCommission = Order::sum('platform_commission_amount') ?? 0;
+        $totalOrders = Order::where('payment_status', 'paid')->count();
+        $totalSales = Order::where('payment_status', 'paid')->sum('total') ?? 0;
+        $totalCommission = Order::where('payment_status', 'paid')->sum('platform_commission_amount') ?? 0;
         $totalPayouts = PayoutRequest::where('status', 'paid')->sum('amount') ?? 0;
 
         $averageCommissionRate = $totalOrders > 0 && $totalSales > 0
