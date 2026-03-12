@@ -768,15 +768,11 @@ do_deploy() {
     # Build
     log_action "Building application..."
     do_build "$fresh"
-    
-    # Build frontend assets
-    log_action "Building frontend assets..."
-    do_build_frontend
-    
+
     # Start services
     log_action "Starting services..."
     do_start
-    
+
     # Wait for DB
     log_action "Waiting for database to be ready..."
     local retries=0
@@ -787,10 +783,14 @@ do_deploy() {
         sleep 2
         retries=$((retries + 1))
     done
-    
+
     # Run migrations
     log_action "Running migrations..."
     do_migrate
+
+    # Build frontend assets (after services are running so Wayfinder can use Docker)
+    log_action "Building frontend assets..."
+    do_build_frontend
     
     # Optimize
     log_action "Optimizing application..."
