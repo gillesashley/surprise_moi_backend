@@ -579,7 +579,7 @@ class VendorRegistrationTest extends TestCase
             ->withGhanaCard()
             ->unregisteredVendor()
             ->withUnregisteredDocuments()
-            ->create();
+            ->create(['payment_required' => false]);
 
         $serviceIds = BespokeService::pluck('id')->toArray();
 

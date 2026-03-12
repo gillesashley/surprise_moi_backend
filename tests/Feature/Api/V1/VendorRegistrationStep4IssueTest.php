@@ -49,6 +49,7 @@ class VendorRegistrationStep4IssueTest extends TestCase
                 'mobile_money_number' => '0240000000',
                 'mobile_money_provider' => 'mtn',
                 'proof_of_business' => 'test-proof.jpg',
+                'payment_required' => false,
             ]);
 
         // Verify starting state

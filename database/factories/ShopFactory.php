@@ -23,7 +23,7 @@ class ShopFactory extends Factory
             'category_id' => \App\Models\Category::factory(),
             'name' => $name,
             'owner_name' => $this->faker->name(),
-            'slug' => \Illuminate\Support\Str::slug($name),
+            'slug' => \Illuminate\Support\Str::slug($name).'-'.$this->faker->unique()->randomNumber(6),
             'description' => $this->faker->paragraph(),
             'logo' => 'storage/shops/'.$this->faker->slug().'.jpg',
             'is_active' => $this->faker->boolean(90),

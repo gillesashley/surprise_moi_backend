@@ -106,6 +106,9 @@ class VendorApplicationSubmittedNotificationTest extends TestCase
         $user = User::factory()->create();
         $vendorApplication = VendorApplication::factory()
             ->for($user)
+            ->withGhanaCard()
+            ->unregisteredVendor()
+            ->withUnregisteredDocuments()
             ->readyToSubmit()
             ->withPaymentCompleted()
             ->create();

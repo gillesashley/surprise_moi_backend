@@ -4,12 +4,19 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use App\Models\VendorApplication;
+use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class VendorApprovalTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->withoutMiddleware(ValidateCsrfToken::class);
+    }
 
     public function test_admin_can_approve_vendor_application(): void
     {

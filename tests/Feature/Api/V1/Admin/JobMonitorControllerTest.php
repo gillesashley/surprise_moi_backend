@@ -17,6 +17,9 @@ class JobMonitorControllerTest extends TestCase
         $admin = User::factory()->create(['role' => 'admin']);
         $this->actingAs($admin);
 
+        // Clear any leftover failed jobs from other tests
+        DB::table('failed_jobs')->delete();
+
         // Create a failed job for testing
         DB::table('failed_jobs')->insert([
             'uuid' => 'test-uuid-123',
