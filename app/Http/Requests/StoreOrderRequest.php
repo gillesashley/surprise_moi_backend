@@ -52,6 +52,8 @@ class StoreOrderRequest extends FormRequest
             'items.*.quantity' => ['required', 'integer', 'min:1'],          // How many
             'coupon_code' => ['nullable', 'string', 'exists:coupons,code'],  // Discount code
             'delivery_address_id' => ['required', 'integer', 'exists:user_addresses,id'],
+            'receiver_name' => ['nullable', 'string', 'max:255'],               // Person receiving the delivery
+            'receiver_phone' => ['nullable', 'string', 'min:10', 'max:20'],  // Receiver's phone number
             'special_instructions' => ['nullable', 'string', 'max:500'],     // Notes for vendor
             'occasion' => ['nullable', 'in:birthday,anniversary,random_surprise,graduation,wedding,engagement,baby_shower,valentines_day,mothers_day,fathers_day,christmas,new_year,get_well_soon,congratulations,apology,thank_you,other'],
             'scheduled_datetime' => ['nullable', 'date', 'after:now'],       // Future delivery

@@ -887,6 +887,106 @@ class OrderApiTest extends TestCase
         $this->assertEquals(0, $cart->fresh()->total_cents);
     }
 
+    public function test_order_stores_receiver_name_and_phone_from_request(): void
+    {
+        $product = Product::factory()->create([
+            'vendor_id' => $this->vendor->id,
+            'price' => 50.00,
+            'is_available' => true,
+            'stock' => 10,
+        ]);
+
+        $response = $this->actingAs($this->customer)
+            ->postJson('/api/v1/orders', [
+                'items' => [
+                    [
+                        'orderable_type' => 'product',
+                        'orderable_id' => $product->id,
+                        'quantity' => 1,
+                    ],
+                ],
+                'delivery_address_id' => $this->address->id,
+                'receiver_name' => 'John Doe',
+                'receiver_phone' => '0241234567',
+            ]);
+
+        $response->assertStatus(201)
+            ->assertJsonPath('order.receiver_name', 'John Doe')
+            ->assertJsonPath('order.receiver_phone', '0241234567');
+
+        $this->assertDatabaseHas('orders', [
+            'user_id' => $this->customer->id,
+            'receiver_name' => 'John Doe',
+            'receiver_phone' => '0241234567',
+        ]);
+    }
+
+    public function test_order_falls_back_to_address_receiver_name_when_not_provided(): void
+    {
+        $this->address->update(['receiver_name' => 'Address Receiver']);
+
+        $product = Product::factory()->create([
+            'vendor_id' => $this->vendor->id,
+            'price' => 50.00,
+            'is_available' => true,
+            'stock' => 10,
+        ]);
+
+        $response = $this->actingAs($this->customer)
+            ->postJson('/api/v1/orders', [
+                'items' => [
+                    [
+                        'orderable_type' => 'product',
+                        'orderable_id' => $product->id,
+                        'quantity' => 1,
+                    ],
+                ],
+                'delivery_address_id' => $this->address->id,
+            ]);
+
+        $response->assertStatus(201)
+            ->assertJsonPath('order.receiver_name', 'Address Receiver');
+
+        $this->assertDatabaseHas('orders', [
+            'user_id' => $this->customer->id,
+            'receiver_name' => 'Address Receiver',
+        ]);
+    }
+
+    public function test_order_receiver_fields_returned_in_show_response(): void
+    {
+        $order = Order::factory()->create([
+            'user_id' => $this->customer->id,
+            'vendor_id' => $this->vendor->id,
+            'receiver_name' => 'Jane Smith',
+            'receiver_phone' => '0551234567',
+        ]);
+
+        $response = $this->actingAs($this->customer)
+            ->getJson("/api/v1/orders/{$order->id}");
+
+        $response->assertStatus(200)
+            ->assertJsonPath('order.receiver_name', 'Jane Smith')
+            ->assertJsonPath('order.receiver_phone', '0551234567');
+    }
+
+    public function test_order_receiver_fields_returned_in_index_response(): void
+    {
+        Order::factory()->create([
+            'user_id' => $this->customer->id,
+            'vendor_id' => $this->vendor->id,
+            'receiver_name' => 'Jane Smith',
+            'receiver_phone' => '0551234567',
+        ]);
+
+        $response = $this->actingAs($this->customer)
+            ->getJson('/api/v1/orders');
+
+        $response->assertStatus(200);
+        $this->assertEquals('Jane Smith', $response->json('data.0.receiver_name'));
+        $this->assertEquals('0551234567', $response->json('data.0.receiver_phone'));
+    }
+
     public function test_order_works_without_cart_using_current_product_prices(): void
     {
         $product = Product::factory()->create([

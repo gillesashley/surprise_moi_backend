@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreOrderRequest;
 use App\Http\Requests\UpdateOrderStatusRequest;
 use App\Http\Resources\OrderResource;
+use App\Models\Address;
 use App\Models\Cart;
 use App\Models\Coupon;
 use App\Models\CouponUsage;
@@ -201,6 +202,11 @@ class OrderController extends Controller
 
             $total = $subtotal - $discountAmount + $deliveryFee;
 
+            // Resolve receiver info: request values take precedence, fallback to delivery address
+            $deliveryAddress = Address::find($request->input('delivery_address_id'));
+            $receiverName = $request->input('receiver_name') ?? $deliveryAddress?->receiver_name;
+            $receiverPhone = $request->input('receiver_phone');
+
             // Retry logic for handling duplicate order_number (race condition)
             $maxAttempts = 3;
             $attempt = 0;
@@ -221,6 +227,8 @@ class OrderController extends Controller
                         'status' => 'pending',
                         'payment_status' => Order::PAYMENT_STATUS_UNPAID,
                         'delivery_address_id' => $request->input('delivery_address_id'),
+                        'receiver_name' => $receiverName,
+                        'receiver_phone' => $receiverPhone,
                         'special_instructions' => $request->input('special_instructions'),
                         'scheduled_datetime' => $request->input('scheduled_datetime'),
                     ]);
