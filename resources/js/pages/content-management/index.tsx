@@ -11,13 +11,16 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import Box from '@mui/material/Box';
-import { Head } from '@inertiajs/react';
-import { FolderKanban, Heart, Music, Sparkles } from 'lucide-react';
+import InputAdornment from '@mui/material/InputAdornment';
+import { Head, router, usePage } from '@inertiajs/react';
+import { FolderKanban, Heart, Music, Search, Sparkles } from 'lucide-react';
 import * as React from 'react';
+import { toast } from 'sonner';
 
 interface Category {
     id: number;
@@ -87,6 +90,7 @@ interface Props {
     canCreate: boolean;
     canDelete: boolean;
     activeTab?: string;
+    search?: string;
 }
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -105,14 +109,46 @@ export default function ContentManagementIndex({
     canCreate,
     canDelete,
     activeTab = 'categories',
+    search: initialSearch = '',
 }: Props) {
     const [viewingCategory, setViewingCategory] =
         React.useState<Category | null>(null);
     const [currentTab, setCurrentTab] = React.useState(activeTab);
+    const [searchTerm, setSearchTerm] = React.useState(initialSearch);
+    const { flash } = usePage<{ flash: { success?: string; error?: string } }>().props;
+
+    React.useEffect(() => {
+        if (flash?.success) {
+            toast.success(flash.success);
+        }
+        if (flash?.error) {
+            toast.error(flash.error);
+        }
+    }, [flash?.success, flash?.error]);
+
+    React.useEffect(() => {
+        const delay = setTimeout(() => {
+            if (searchTerm !== initialSearch) {
+                router.get('/dashboard/content-management', {
+                    tab: currentTab,
+                    ...(searchTerm ? { search: searchTerm } : {}),
+                }, {
+                    preserveState: true,
+                    preserveScroll: true,
+                });
+            }
+        }, 300);
+        return () => clearTimeout(delay);
+    }, [searchTerm]);
 
     const handleTabChange = (value: string) => {
         setCurrentTab(value);
-        window.history.replaceState({}, '', `/dashboard/content-management?tab=${value}`);
+        const params = new URLSearchParams();
+        params.set('tab', value);
+        if (searchTerm) {
+            params.set('search', searchTerm);
+        }
+        window.history.replaceState({}, '', `/dashboard/content-management?${params.toString()}`);
     };
 
     const iconStyle = { width: 16, height: 16 };
@@ -123,11 +159,26 @@ export default function ContentManagementIndex({
             <Box sx={{ display: 'flex', flex: 1, flexDirection: 'column', gap: 2, p: 2 }}>
                 <Card>
                     <CardHeader>
-                        <CardTitle>Content Management</CardTitle>
-                        <CardDescription>
-                            Manage categories, interests, personality traits,
-                            music genres, and bespoke services
-                        </CardDescription>
+                        <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 2, flexWrap: 'wrap' }}>
+                            <Box>
+                                <CardTitle>Content Management</CardTitle>
+                                <CardDescription>
+                                    Manage categories, interests, personality traits,
+                                    music genres, and bespoke services
+                                </CardDescription>
+                            </Box>
+                            <Input
+                                placeholder="Search by name..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm((e.target as HTMLInputElement).value)}
+                                startAdornment={
+                                    <InputAdornment position="start">
+                                        <Search style={{ width: 16, height: 16, color: '#9e9e9e' }} />
+                                    </InputAdornment>
+                                }
+                                style={{ maxWidth: 300 }}
+                            />
+                        </Box>
                     </CardHeader>
                     <CardContent>
                         <Tabs
@@ -188,6 +239,7 @@ export default function ContentManagementIndex({
                                     canCreate={canCreate}
                                     canDelete={canDelete}
                                     onViewCategory={setViewingCategory}
+                                    search={searchTerm}
                                 />
                             </TabsContent>
 
@@ -196,6 +248,7 @@ export default function ContentManagementIndex({
                                     interests={interests}
                                     canCreate={canCreate}
                                     canDelete={canDelete}
+                                    search={searchTerm}
                                 />
                             </TabsContent>
 
@@ -204,6 +257,7 @@ export default function ContentManagementIndex({
                                     personalityTraits={personalityTraits}
                                     canCreate={canCreate}
                                     canDelete={canDelete}
+                                    search={searchTerm}
                                 />
                             </TabsContent>
 
@@ -212,6 +266,7 @@ export default function ContentManagementIndex({
                                     musicGenres={musicGenres}
                                     canCreate={canCreate}
                                     canDelete={canDelete}
+                                    search={searchTerm}
                                 />
                             </TabsContent>
 
@@ -220,6 +275,7 @@ export default function ContentManagementIndex({
                                     bespokeServices={bespokeServices}
                                     canCreate={canCreate}
                                     canDelete={canDelete}
+                                    search={searchTerm}
                                 />
                             </TabsContent>
                         </Tabs>

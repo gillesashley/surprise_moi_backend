@@ -44,12 +44,14 @@ interface Props {
     bespokeServices: PaginatedData<BespokeService>;
     canCreate: boolean;
     canDelete: boolean;
+    search?: string;
 }
 
 export function BespokeServicesTab({
     bespokeServices,
     canCreate,
     canDelete,
+    search,
 }: Props) {
     const handleDelete = (serviceId: number, serviceName: string) => {
         if (
@@ -201,6 +203,7 @@ export function BespokeServicesTab({
                     router.get('/dashboard/content-management', {
                         tab: 'bespoke',
                         bespoke_page: page,
+                        ...(search ? { search } : {}),
                     });
                 }}
             />

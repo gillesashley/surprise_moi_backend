@@ -38,9 +38,10 @@ interface Props {
     musicGenres: PaginatedData<MusicGenre>;
     canCreate: boolean;
     canDelete: boolean;
+    search?: string;
 }
 
-export function MusicGenresTab({ musicGenres, canCreate, canDelete }: Props) {
+export function MusicGenresTab({ musicGenres, canCreate, canDelete, search }: Props) {
     const handleDelete = (genreId: number, genreName: string) => {
         if (
             confirm(
@@ -165,6 +166,7 @@ export function MusicGenresTab({ musicGenres, canCreate, canDelete }: Props) {
                     router.get('/dashboard/content-management', {
                         tab: 'music',
                         music_page: page,
+                        ...(search ? { search } : {}),
                     });
                 }}
             />

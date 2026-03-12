@@ -38,12 +38,14 @@ interface Props {
     personalityTraits: PaginatedData<PersonalityTrait>;
     canCreate: boolean;
     canDelete: boolean;
+    search?: string;
 }
 
 export function PersonalityTraitsTab({
     personalityTraits,
     canCreate,
     canDelete,
+    search,
 }: Props) {
     const handleDelete = (traitId: number, traitName: string) => {
         if (
@@ -169,6 +171,7 @@ export function PersonalityTraitsTab({
                     router.get('/dashboard/content-management', {
                         tab: 'traits',
                         traits_page: page,
+                        ...(search ? { search } : {}),
                     });
                 }}
             />

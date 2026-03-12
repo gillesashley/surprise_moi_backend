@@ -38,9 +38,10 @@ interface Props {
     interests: PaginatedData<Interest>;
     canCreate: boolean;
     canDelete: boolean;
+    search?: string;
 }
 
-export function InterestsTab({ interests, canCreate, canDelete }: Props) {
+export function InterestsTab({ interests, canCreate, canDelete, search }: Props) {
     const handleDelete = (interestId: number, interestName: string) => {
         if (
             confirm(
@@ -165,6 +166,7 @@ export function InterestsTab({ interests, canCreate, canDelete }: Props) {
                     router.get('/dashboard/content-management', {
                         tab: 'interests',
                         interests_page: page,
+                        ...(search ? { search } : {}),
                     });
                 }}
             />

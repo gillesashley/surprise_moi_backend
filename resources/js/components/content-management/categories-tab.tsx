@@ -46,6 +46,7 @@ interface Props {
     canCreate: boolean;
     canDelete: boolean;
     onViewCategory: (category: Category) => void;
+    search?: string;
 }
 
 export function CategoriesTab({
@@ -53,6 +54,7 @@ export function CategoriesTab({
     canCreate,
     canDelete,
     onViewCategory,
+    search,
 }: Props) {
     const handleDelete = (categoryId: number, categoryName: string) => {
         if (
@@ -227,6 +229,7 @@ export function CategoriesTab({
                     router.get('/dashboard/content-management', {
                         tab: 'categories',
                         categories_page: page,
+                        ...(search ? { search } : {}),
                     });
                 }}
             />

@@ -18,31 +18,48 @@ class ContentManagementController extends Controller
      */
     public function index(Request $request)
     {
+        $search = $request->input('search');
+
         $categories = Category::query()
             ->select('id', 'name', 'slug', 'type', 'description', 'icon', 'image', 'is_active', 'sort_order')
             ->when($request->filled('type'), function ($query) use ($request) {
                 $query->where('type', $request->input('type'));
+            })
+            ->when($search, function ($query) use ($search) {
+                $query->where('name', 'like', "%{$search}%");
             })
             ->withCount('products')
             ->orderBy('sort_order')
             ->paginate(15, ['*'], 'categories_page');
 
         $interests = Interest::query()
+            ->when($search, function ($query) use ($search) {
+                $query->where('name', 'like', "%{$search}%");
+            })
             ->withCount('users')
             ->orderBy('name')
             ->paginate(15, ['*'], 'interests_page');
 
         $personalityTraits = PersonalityTrait::query()
+            ->when($search, function ($query) use ($search) {
+                $query->where('name', 'like', "%{$search}%");
+            })
             ->withCount('users')
             ->orderBy('name')
             ->paginate(15, ['*'], 'traits_page');
 
         $musicGenres = MusicGenre::query()
+            ->when($search, function ($query) use ($search) {
+                $query->where('name', 'like', "%{$search}%");
+            })
             ->withCount('users')
             ->orderBy('name')
             ->paginate(15, ['*'], 'music_page');
 
         $bespokeServices = BespokeService::query()
+            ->when($search, function ($query) use ($search) {
+                $query->where('name', 'like', "%{$search}%");
+            })
             ->withCount('vendorApplications')
             ->orderBy('sort_order')
             ->orderBy('name')
@@ -87,6 +104,7 @@ class ContentManagementController extends Controller
             'canCreate' => Auth::user()->isSuperAdmin(),
             'canDelete' => Auth::user()->isSuperAdmin(),
             'activeTab' => $request->get('tab', 'categories'),
+            'search' => $search ?? '',
         ]);
     }
 }
