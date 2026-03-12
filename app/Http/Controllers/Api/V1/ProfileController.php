@@ -252,6 +252,7 @@ class ProfileController extends Controller
             'avatar' => storage_url($user->avatar),
             'banner' => storage_url($user->banner),
             'role' => $user->role,
+            'business_name' => $user->business_name,
             'date_of_birth' => $user->date_of_birth?->format('Y-m-d'),
             'gender' => $user->gender,
             'bio' => $user->bio,

@@ -21,6 +21,7 @@ class AddressFactory extends Factory
         return [
             'user_id' => \App\Models\User::factory(),
             'name' => $this->faker->randomElement($names),
+            'receiver_name' => $this->faker->optional()->name(),
             'address_line_1' => $this->faker->streetAddress(),
             'city' => $this->faker->city(),
             'state' => $this->faker->state(),

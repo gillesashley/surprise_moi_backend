@@ -23,6 +23,7 @@ class StoreAddressRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:100'],
+            'receiver_name' => ['nullable', 'string', 'max:255'],
             'address_line_1' => ['required', 'string', 'max:255'],
             'city' => ['required', 'string', 'max:100'],
             'state' => ['required', 'string', 'max:100'],

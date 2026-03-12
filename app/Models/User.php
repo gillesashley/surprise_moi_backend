@@ -37,6 +37,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'role',
         'vendor_tier',
         'vendor_hash',
+        'business_name',
         'date_of_birth',
         'gender',
         'bio',

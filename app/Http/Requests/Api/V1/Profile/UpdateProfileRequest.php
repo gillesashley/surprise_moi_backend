@@ -25,6 +25,7 @@ class UpdateProfileRequest extends FormRequest
 
         return [
             'name' => ['sometimes', 'string', 'max:255'],
+            'business_name' => ['sometimes', 'nullable', 'string', 'max:255'],
             'phone' => ['sometimes', 'string', 'regex:/^0[0-9]{9}$/', 'unique:users,phone,'.$userId],
             'date_of_birth' => ['sometimes', 'date', 'before:today'],
             'gender' => ['sometimes', 'in:male,female'],

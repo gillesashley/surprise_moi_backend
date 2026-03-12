@@ -533,4 +533,64 @@ class ProfileTest extends TestCase
         $response->assertStatus(200)
             ->assertJsonPath('data.user.banner', null);
     }
+
+    public function test_profile_response_includes_business_name(): void
+    {
+        $user = User::factory()->create([
+            'role' => 'vendor',
+            'business_name' => 'Kofi Gifts Ltd',
+        ]);
+
+        $response = $this->actingAs($user)->getJson('/api/v1/profile');
+
+        $response->assertStatus(200)
+            ->assertJsonPath('data.user.business_name', 'Kofi Gifts Ltd');
+    }
+
+    public function test_vendor_can_update_business_name(): void
+    {
+        $user = User::factory()->create(['role' => 'vendor']);
+
+        $response = $this->actingAs($user)->putJson('/api/v1/profile', [
+            'business_name' => 'Surprise Express',
+        ]);
+
+        $response->assertStatus(200)
+            ->assertJsonPath('data.user.business_name', 'Surprise Express');
+
+        $this->assertDatabaseHas('users', [
+            'id' => $user->id,
+            'business_name' => 'Surprise Express',
+        ]);
+    }
+
+    public function test_business_name_is_nullable(): void
+    {
+        $user = User::factory()->create([
+            'role' => 'vendor',
+            'business_name' => 'Old Name',
+        ]);
+
+        $response = $this->actingAs($user)->putJson('/api/v1/profile', [
+            'business_name' => null,
+        ]);
+
+        $response->assertStatus(200)
+            ->assertJsonPath('data.user.business_name', null);
+
+        $this->assertDatabaseHas('users', [
+            'id' => $user->id,
+            'business_name' => null,
+        ]);
+    }
+
+    public function test_business_name_defaults_to_null_for_new_users(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->getJson('/api/v1/profile');
+
+        $response->assertStatus(200)
+            ->assertJsonPath('data.user.business_name', null);
+    }
 }

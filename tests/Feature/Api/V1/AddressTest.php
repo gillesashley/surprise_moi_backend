@@ -34,6 +34,7 @@ class AddressTest extends TestCase
                     '*' => [
                         'id',
                         'name',
+                        'receiver_name',
                         'address_line_1',
                         'city',
                         'state',
@@ -266,6 +267,76 @@ class AddressTest extends TestCase
             'id' => $newDefault->id,
             'is_default' => true,
         ]);
+    }
+
+    public function test_user_can_create_address_with_receiver_name(): void
+    {
+        $addressData = [
+            'name' => 'Home',
+            'receiver_name' => 'John Doe',
+            'address_line_1' => '1901 Thornridge Cir.',
+            'city' => 'Shiloh',
+            'state' => 'Hawaii',
+            'postal_code' => '81063',
+            'country' => 'US',
+        ];
+
+        $response = $this->actingAs($this->user, 'sanctum')
+            ->postJson('/api/v1/addresses', $addressData);
+
+        $response->assertCreated()
+            ->assertJsonPath('data.receiver_name', 'John Doe');
+
+        $this->assertDatabaseHas('user_addresses', [
+            'user_id' => $this->user->id,
+            'receiver_name' => 'John Doe',
+        ]);
+    }
+
+    public function test_user_can_update_receiver_name(): void
+    {
+        $address = Address::factory()->create([
+            'user_id' => $this->user->id,
+            'receiver_name' => null,
+        ]);
+
+        $updateData = [
+            'name' => $address->name ?? 'Home',
+            'receiver_name' => 'Jane Smith',
+            'address_line_1' => $address->address_line_1,
+            'city' => $address->city,
+            'state' => $address->state,
+            'postal_code' => $address->postal_code,
+        ];
+
+        $response = $this->actingAs($this->user, 'sanctum')
+            ->putJson("/api/v1/addresses/{$address->id}", $updateData);
+
+        $response->assertOk()
+            ->assertJsonPath('data.receiver_name', 'Jane Smith');
+
+        $this->assertDatabaseHas('user_addresses', [
+            'id' => $address->id,
+            'receiver_name' => 'Jane Smith',
+        ]);
+    }
+
+    public function test_receiver_name_is_nullable(): void
+    {
+        $addressData = [
+            'name' => 'Office',
+            'address_line_1' => '456 Business Ave',
+            'city' => 'Accra',
+            'state' => 'Greater Accra',
+            'postal_code' => '00233',
+            'country' => 'GH',
+        ];
+
+        $response = $this->actingAs($this->user, 'sanctum')
+            ->postJson('/api/v1/addresses', $addressData);
+
+        $response->assertCreated()
+            ->assertJsonPath('data.receiver_name', null);
     }
 
     public function test_address_validation_requires_required_fields(): void
