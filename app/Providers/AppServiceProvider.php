@@ -9,9 +9,12 @@ use App\Observers\ProductObserver;
 use App\Observers\ReviewObserver;
 use App\Services\KairosAfrikaSmsService;
 use Illuminate\Auth\Notifications\VerifyEmail;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 
@@ -31,6 +34,29 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Log lazy loading violations to catch N+1 queries without breaking the app
+        Model::preventLazyLoading();
+        Model::handleLazyLoadingViolationUsing(function (Model $model, string $relation) {
+            Log::warning('Lazy loading detected', [
+                'model' => $model::class,
+                'relation' => $relation,
+                'id' => $model->getKey(),
+            ]);
+        });
+
+        // Log slow queries (> 100ms) in production for monitoring
+        if ($this->app->isProduction()) {
+            DB::listen(function ($query) {
+                if ($query->time > 100) {
+                    Log::warning('Slow query detected', [
+                        'sql' => $query->sql,
+                        'time_ms' => $query->time,
+                        'connection' => $query->connectionName,
+                    ]);
+                }
+            });
+        }
+
         if ($this->app->environment('production')) {
             URL::forceScheme('https');
         }
