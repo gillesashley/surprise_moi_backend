@@ -97,65 +97,70 @@ Route::prefix('v1')->group(function () {
         Route::get('/personality-traits', [ProfileController::class, 'personalityTraits']);
     });
 
-    // Filter options routes (public)
-    Route::prefix('filters')->group(function () {
-        Route::get('/', [FilterController::class, 'index']);
-        Route::get('/categories', [FilterController::class, 'categories']);
-        Route::get('/price-range', [FilterController::class, 'priceRange']);
-        Route::get('/colors', [FilterController::class, 'colors']);
-        Route::get('/occasions', [FilterController::class, 'occasions']);
-        Route::get('/locations', [FilterController::class, 'locations']);
-        Route::get('/ratings', [FilterController::class, 'ratings']);
+    // Public browsing routes with HTTP cache headers (CDN/client caching)
+    Route::middleware('cache.headers:public;max_age=60;s_maxage=300')->group(function () {
+        // Filter options routes (public)
+        Route::prefix('filters')->group(function () {
+            Route::get('/', [FilterController::class, 'index']);
+            Route::get('/categories', [FilterController::class, 'categories']);
+            Route::get('/price-range', [FilterController::class, 'priceRange']);
+            Route::get('/colors', [FilterController::class, 'colors']);
+            Route::get('/occasions', [FilterController::class, 'occasions']);
+            Route::get('/locations', [FilterController::class, 'locations']);
+            Route::get('/ratings', [FilterController::class, 'ratings']);
+        });
+
+        // Products & Services routes (public and authenticated)
+        Route::get('/categories', [\App\Http\Controllers\Api\V1\CategoryController::class, 'index']);
+
+        // Advertisements routes (public)
+        Route::prefix('advertisements')->group(function () {
+            Route::get('/', [AdvertisementController::class, 'index']);
+            Route::get('/{advertisement}', [AdvertisementController::class, 'show']);
+        });
+
+        // Public shop routes
+        Route::get('/shops', [\App\Http\Controllers\Api\V1\ShopController::class, 'index']);
+        Route::get('/shops/{shop}', [\App\Http\Controllers\Api\V1\ShopController::class, 'show']);
+        Route::get('/shops/{shop}/products', [\App\Http\Controllers\Api\V1\ShopController::class, 'products']);
+        Route::get('/shops/{shop}/services', [\App\Http\Controllers\Api\V1\ShopController::class, 'services']);
+
+        // Public product routes
+        Route::get('/products', [\App\Http\Controllers\Api\V1\ProductController::class, 'index']);
+        Route::get('/products/by-slug/{slug}', [\App\Http\Controllers\Api\V1\ProductController::class, 'showBySlug']);
+        Route::get('/products/{product}', [\App\Http\Controllers\Api\V1\ProductController::class, 'show']);
+        Route::get('/products/{product}/reviews', [ReviewController::class, 'productReviews']);
+
+        // Public special offers
+        Route::get('/special-offers', [\App\Http\Controllers\Api\V1\PublicSpecialOfferController::class, 'index']);
+
+        // Public service routes
+        Route::get('/services', [\App\Http\Controllers\Api\V1\ServiceController::class, 'index']);
+        Route::get('/services/{service}', [\App\Http\Controllers\Api\V1\ServiceController::class, 'show']);
+        Route::get('/services/{service}/reviews', [ReviewController::class, 'serviceReviews']);
+
+        // Public review routes
+        Route::get('/reviews', [ReviewController::class, 'index']);
+        Route::get('/reviews/{review}', [ReviewController::class, 'show']);
+        Route::get('/reviews/{review}/replies', [ReviewReplyController::class, 'index']);
+
+        // Public vendor routes (for browsing vendor products/services before ordering)
+        Route::get('/vendors', [\App\Http\Controllers\Api\V1\VendorController::class, 'index']);
+        Route::get('/vendors/{vendor}', [\App\Http\Controllers\Api\V1\VendorController::class, 'show']);
+        Route::get('/vendors/{vendor}/products', [\App\Http\Controllers\Api\V1\VendorController::class, 'products']);
+        Route::get('/vendors/{vendor}/services', [\App\Http\Controllers\Api\V1\VendorController::class, 'services']);
+        Route::get('/vendors/{vendor}/reviews', [ReviewController::class, 'vendorReviews']);
     });
 
-    // Location services routes (public - Google Maps API integration)
+    // Non-cached advertisement actions (POST routes must remain outside cache group)
+    Route::post('/advertisements/{advertisement}/click', [AdvertisementController::class, 'trackClick']);
+
+    // Location services routes (public - Google Maps API integration, not cached)
     Route::prefix('locations')->group(function () {
         Route::get('/autocomplete', [LocationController::class, 'autocomplete']);
         Route::get('/place-details', [LocationController::class, 'placeDetails']);
         Route::get('/geocode', [LocationController::class, 'geocode']);
     });
-
-    // Products & Services routes (public and authenticated)
-    Route::get('/categories', [\App\Http\Controllers\Api\V1\CategoryController::class, 'index']);
-
-    // Advertisements routes (public)
-    Route::prefix('advertisements')->group(function () {
-        Route::get('/', [AdvertisementController::class, 'index']);
-        Route::get('/{advertisement}', [AdvertisementController::class, 'show']);
-        Route::post('/{advertisement}/click', [AdvertisementController::class, 'trackClick']);
-    });
-
-    // Public shop routes
-    Route::get('/shops', [\App\Http\Controllers\Api\V1\ShopController::class, 'index']);
-    Route::get('/shops/{shop}', [\App\Http\Controllers\Api\V1\ShopController::class, 'show']);
-    Route::get('/shops/{shop}/products', [\App\Http\Controllers\Api\V1\ShopController::class, 'products']);
-    Route::get('/shops/{shop}/services', [\App\Http\Controllers\Api\V1\ShopController::class, 'services']);
-
-    // Public product routes
-    Route::get('/products', [\App\Http\Controllers\Api\V1\ProductController::class, 'index']);
-    Route::get('/products/by-slug/{slug}', [\App\Http\Controllers\Api\V1\ProductController::class, 'showBySlug']);
-    Route::get('/products/{product}', [\App\Http\Controllers\Api\V1\ProductController::class, 'show']);
-    Route::get('/products/{product}/reviews', [ReviewController::class, 'productReviews']);
-
-    // Public special offers
-    Route::get('/special-offers', [\App\Http\Controllers\Api\V1\PublicSpecialOfferController::class, 'index']);
-
-    // Public service routes
-    Route::get('/services', [\App\Http\Controllers\Api\V1\ServiceController::class, 'index']);
-    Route::get('/services/{service}', [\App\Http\Controllers\Api\V1\ServiceController::class, 'show']);
-    Route::get('/services/{service}/reviews', [ReviewController::class, 'serviceReviews']);
-
-    // Public review routes
-    Route::get('/reviews', [ReviewController::class, 'index']);
-    Route::get('/reviews/{review}', [ReviewController::class, 'show']);
-    Route::get('/reviews/{review}/replies', [ReviewReplyController::class, 'index']);
-
-    // Public vendor routes (for browsing vendor products/services before ordering)
-    Route::get('/vendors', [\App\Http\Controllers\Api\V1\VendorController::class, 'index']);
-    Route::get('/vendors/{vendor}', [\App\Http\Controllers\Api\V1\VendorController::class, 'show']);
-    Route::get('/vendors/{vendor}/products', [\App\Http\Controllers\Api\V1\VendorController::class, 'products']);
-    Route::get('/vendors/{vendor}/services', [\App\Http\Controllers\Api\V1\VendorController::class, 'services']);
-    Route::get('/vendors/{vendor}/reviews', [ReviewController::class, 'vendorReviews']);
 
     // Cart routes (supports both authenticated users and guests with cart token)
     Route::prefix('cart')->group(function () {

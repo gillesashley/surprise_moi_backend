@@ -56,6 +56,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'admin' => EnsureUserIsAdmin::class,
+            'cache.headers' => \App\Http\Middleware\SetCacheHeaders::class,
             'dashboard' => EnsureDashboardAccess::class,
             'rider.approved' => EnsureRiderApproved::class,
             'role' => EnsureUserRole::class,
