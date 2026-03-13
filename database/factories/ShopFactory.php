@@ -32,4 +32,24 @@ class ShopFactory extends Factory
             'email' => $this->faker->companyEmail(),
         ];
     }
+
+    /**
+     * Set custom service hours on the shop.
+     *
+     * @param  array<string, array{is_open: bool, open: string|null, close: string|null}>|null  $hours
+     */
+    public function withServiceHours(?array $hours = null): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'service_hours' => $hours ?? [
+                'monday'    => ['is_open' => true,  'open' => '09:00', 'close' => '17:00'],
+                'tuesday'   => ['is_open' => true,  'open' => '09:00', 'close' => '17:00'],
+                'wednesday' => ['is_open' => true,  'open' => '09:00', 'close' => '17:00'],
+                'thursday'  => ['is_open' => true,  'open' => '09:00', 'close' => '17:00'],
+                'friday'    => ['is_open' => true,  'open' => '09:00', 'close' => '17:00'],
+                'saturday'  => ['is_open' => false, 'open' => null,    'close' => null],
+                'sunday'    => ['is_open' => false, 'open' => null,    'close' => null],
+            ],
+        ]);
+    }
 }
