@@ -259,6 +259,9 @@ class CartService
      */
     public function mergeCarts(Cart $userCart, Cart $guestCart): Cart
     {
+        // Eager load products to prevent N+1 queries during merge
+        $guestCart->load('items.product');
+
         return DB::transaction(function () use ($userCart, $guestCart) {
             foreach ($guestCart->items as $guestItem) {
                 // Check if user cart already has this product+SKU

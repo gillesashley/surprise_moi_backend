@@ -158,14 +158,9 @@ class TargetService
      */
     public function expireTargets(): int
     {
-        $expired = Target::where('status', Target::STATUS_ACTIVE)
+        // Bulk update instead of N individual UPDATE queries
+        return Target::where('status', Target::STATUS_ACTIVE)
             ->where('end_date', '<', now())
-            ->get();
-
-        foreach ($expired as $target) {
-            $target->update(['status' => Target::STATUS_EXPIRED]);
-        }
-
-        return $expired->count();
+            ->update(['status' => Target::STATUS_EXPIRED]);
     }
 }

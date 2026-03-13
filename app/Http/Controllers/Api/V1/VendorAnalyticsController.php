@@ -39,29 +39,31 @@ class VendorAnalyticsController extends Controller
         [$currentStart, $currentEnd] = $this->getMobileDateRange($period);
         [$previousStart, $previousEnd] = $this->getMobilePreviousDateRange($period);
 
-        $currentRevenue = Order::query()
+        // Single query for current + previous period stats (replaces 4 queries)
+        $stats = Order::query()
             ->where('vendor_id', $vendorId)
             ->whereIn('status', $completedStatuses)
-            ->whereBetween('created_at', [$currentStart, $currentEnd])
-            ->sum('total');
+            ->where(function ($q) use ($currentStart, $currentEnd, $previousStart, $previousEnd) {
+                $q->whereBetween('created_at', [$currentStart, $currentEnd])
+                    ->orWhereBetween('created_at', [$previousStart, $previousEnd]);
+            })
+            ->selectRaw('
+                SUM(CASE WHEN created_at BETWEEN ? AND ? THEN total ELSE 0 END) as current_revenue,
+                SUM(CASE WHEN created_at BETWEEN ? AND ? THEN total ELSE 0 END) as previous_revenue,
+                COUNT(CASE WHEN created_at BETWEEN ? AND ? THEN 1 END) as current_orders,
+                COUNT(CASE WHEN created_at BETWEEN ? AND ? THEN 1 END) as previous_orders
+            ', [
+                $currentStart, $currentEnd,
+                $previousStart, $previousEnd,
+                $currentStart, $currentEnd,
+                $previousStart, $previousEnd,
+            ])
+            ->first();
 
-        $previousRevenue = Order::query()
-            ->where('vendor_id', $vendorId)
-            ->whereIn('status', $completedStatuses)
-            ->whereBetween('created_at', [$previousStart, $previousEnd])
-            ->sum('total');
-
-        $currentOrders = Order::query()
-            ->where('vendor_id', $vendorId)
-            ->whereIn('status', $completedStatuses)
-            ->whereBetween('created_at', [$currentStart, $currentEnd])
-            ->count();
-
-        $previousOrders = Order::query()
-            ->where('vendor_id', $vendorId)
-            ->whereIn('status', $completedStatuses)
-            ->whereBetween('created_at', [$previousStart, $previousEnd])
-            ->count();
+        $currentRevenue = (float) ($stats->current_revenue ?? 0);
+        $previousRevenue = (float) ($stats->previous_revenue ?? 0);
+        $currentOrders = (int) ($stats->current_orders ?? 0);
+        $previousOrders = (int) ($stats->previous_orders ?? 0);
 
         return response()->json([
             'data' => [
@@ -298,14 +300,20 @@ class VendorAnalyticsController extends Controller
     protected function getOrderStatusBreakdown(int $vendorId, array $dateRange): array
     {
         $statuses = ['pending', 'confirmed', 'processing', 'fulfilled', 'shipped', 'delivered', 'refunded'];
-        $breakdown = [];
 
+        // Single query with GROUP BY instead of 7 separate COUNT queries
+        $counts = Order::query()
+            ->where('vendor_id', $vendorId)
+            ->whereBetween('created_at', [$dateRange['start'], $dateRange['end']])
+            ->whereIn('status', $statuses)
+            ->selectRaw('status, COUNT(*) as count')
+            ->groupBy('status')
+            ->pluck('count', 'status');
+
+        // Ensure all statuses are present in the result (default 0)
+        $breakdown = [];
         foreach ($statuses as $status) {
-            $breakdown[$status] = Order::query()
-                ->where('vendor_id', $vendorId)
-                ->whereBetween('created_at', [$dateRange['start'], $dateRange['end']])
-                ->where('status', $status)
-                ->count();
+            $breakdown[$status] = (int) ($counts[$status] ?? 0);
         }
 
         return $breakdown;
