@@ -72,6 +72,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'two_factor_confirmed_at' => 'datetime',
             'date_of_birth' => 'date',
             'is_popular' => 'boolean',
+            'vendor_tier' => 'integer',
         ];
     }
 

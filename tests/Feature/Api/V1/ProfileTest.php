@@ -593,4 +593,33 @@ class ProfileTest extends TestCase
         $response->assertStatus(200)
             ->assertJsonPath('data.user.business_name', null);
     }
+
+    public function test_profile_response_includes_vendor_tier(): void
+    {
+        $user = User::factory()->create([
+            'role' => 'vendor',
+            'vendor_tier' => 2,
+        ]);
+
+        $response = $this->actingAs($user)->getJson('/api/v1/profile');
+
+        $response->assertStatus(200)
+            ->assertJsonPath('data.user.vendor_tier', 2);
+
+        // Verify it's an integer, not a string
+        $vendorTier = $response->json('data.user.vendor_tier');
+        $this->assertIsInt($vendorTier);
+    }
+
+    public function test_vendor_tier_is_null_for_non_vendor_users(): void
+    {
+        $user = User::factory()->create([
+            'role' => 'customer',
+        ]);
+
+        $response = $this->actingAs($user)->getJson('/api/v1/profile');
+
+        $response->assertStatus(200)
+            ->assertJsonPath('data.user.vendor_tier', null);
+    }
 }
