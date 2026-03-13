@@ -36,3 +36,5 @@ Schedule::command('backup:cleanup')
 Schedule::job(new \App\Jobs\ReleasePendingFundsJob)->hourly();
 
 Schedule::job(new \App\Jobs\VerifyPendingTransfersJob)->everyThirtyMinutes();
+
+Schedule::command('tier-upgrade:expire-stale')->hourly();
