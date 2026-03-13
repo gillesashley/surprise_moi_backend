@@ -28,6 +28,7 @@ class VendorResource extends JsonResource
             'is_popular' => (bool) ($this->is_popular ?? false),
             'products_count' => (int) ($this->products_count ?? 0),
             'services_count' => (int) ($this->services_count ?? 0),
+            'completed_orders_count' => (int) ($this->completed_orders_count ?? 0),
             'response_time' => 'Within 2 hours',
             'delivery_time' => 'Same day delivery',
             'created_at' => $this->created_at?->toIso8601String(),

@@ -120,6 +120,14 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Get all orders assigned to this vendor.
+     */
+    public function vendorOrders(): HasMany
+    {
+        return $this->hasMany(Order::class, 'vendor_id');
+    }
+
+    /**
      * Get all wishlist items for this user.
      */
     public function wishlists(): HasMany

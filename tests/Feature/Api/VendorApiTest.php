@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Api;
 
+use App\Models\Order;
 use App\Models\Product;
 use App\Models\Service;
 use App\Models\User;
@@ -308,6 +309,36 @@ class VendorApiTest extends TestCase
         $this->assertArrayHasKey('banner', $vendor);
         $this->assertNotNull($vendor['banner']);
         $this->assertStringContainsString('banners/test-banner.jpg', $vendor['banner']);
+    }
+
+    public function test_vendor_show_includes_completed_orders_count(): void
+    {
+        $vendor = User::factory()->create(['role' => 'vendor']);
+        $customer = User::factory()->create(['role' => 'customer']);
+
+        // Create delivered orders (should be counted)
+        Order::factory()->count(3)->delivered()->create([
+            'vendor_id' => $vendor->id,
+            'user_id' => $customer->id,
+        ]);
+
+        // Create non-delivered orders (should NOT be counted)
+        Order::factory()->count(2)->pending()->create([
+            'vendor_id' => $vendor->id,
+            'user_id' => $customer->id,
+        ]);
+        Order::factory()->confirmed()->create([
+            'vendor_id' => $vendor->id,
+            'user_id' => $customer->id,
+        ]);
+
+        $response = $this->getJson("/api/v1/vendors/{$vendor->id}");
+
+        $response->assertStatus(200);
+
+        $data = $response->json('data.vendor');
+        $this->assertArrayHasKey('completed_orders_count', $data);
+        $this->assertEquals(3, $data['completed_orders_count']);
     }
 
     public function test_vendor_list_includes_product_and_service_counts(): void

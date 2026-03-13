@@ -77,7 +77,13 @@ class VendorController extends Controller
     public function show(int $vendorId): JsonResponse
     {
         $vendor = User::where('role', 'vendor')
-            ->withCount(['products', 'services'])
+            ->withCount([
+                'products',
+                'services',
+                'vendorOrders as completed_orders_count' => function ($query) {
+                    $query->where('status', 'delivered');
+                },
+            ])
             ->withAvg('products', 'rating')
             ->withAvg('services', 'rating')
             ->findOrFail($vendorId);
