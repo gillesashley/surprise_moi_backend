@@ -377,7 +377,7 @@ class VendorOnboardingPaymentService
                 ];
             }
 
-            return DB::transaction(function () use ($payment, $updateData) {
+            $result = DB::transaction(function () use ($payment, $updateData) {
                 // Mark payment as successful
                 $payment->markAsSuccessful($updateData);
 
@@ -399,22 +399,27 @@ class VendorOnboardingPaymentService
                     ]);
                 }
 
-                // Notify admins to review the new vendor application
-                $admins = User::whereIn('role', ['admin', 'super_admin'])->get();
-                Notification::send($admins, new VendorOnboardingPaidNotification($application));
-
                 return [
-                    'success' => true,
-                    'data' => [
-                        'status' => 'success',
-                        'reference' => $payment->reference,
-                        'amount' => $payment->amount,
-                        'paid_at' => $payment->paid_at,
+                    'application' => $application,
+                    'result' => [
+                        'success' => true,
+                        'data' => [
+                            'status' => 'success',
+                            'reference' => $payment->reference,
+                            'amount' => $payment->amount,
+                            'paid_at' => $payment->paid_at,
+                        ],
+                        'payment' => $payment->fresh(),
+                        'message' => 'Payment verified successfully.',
                     ],
-                    'payment' => $payment->fresh(),
-                    'message' => 'Payment verified successfully.',
                 ];
             });
+
+            // Notify admins AFTER transaction commits so queued jobs can read committed data
+            $admins = User::whereIn('role', ['admin', 'super_admin'])->get();
+            Notification::send($admins, new VendorOnboardingPaidNotification($result['application']));
+
+            return $result['result'];
         } else {
             // Payment failed
             $failureReason = $gatewayResponse ?: 'Payment was not successful.';
