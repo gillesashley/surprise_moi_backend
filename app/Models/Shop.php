@@ -33,8 +33,7 @@ class Shop extends Model
     protected function casts(): array
     {
         return [
-            'is_active'     => 'boolean',
-            'service_hours' => 'array',
+            'is_active' => 'boolean',
         ];
     }
 
