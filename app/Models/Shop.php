@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -26,13 +27,37 @@ class Shop extends Model
         'location',
         'phone',
         'email',
+        'service_hours',
     ];
 
     protected function casts(): array
     {
         return [
-            'is_active' => 'boolean',
+            'is_active'     => 'boolean',
+            'service_hours' => 'array',
         ];
+    }
+
+    /**
+     * Get service hours with default Mon-Fri 09:00-17:00 when not set.
+     *
+     * @return array<string, array{is_open: bool, open: string|null, close: string|null}>
+     */
+    protected function serviceHours(): Attribute
+    {
+        $default = [
+            'monday'    => ['is_open' => true,  'open' => '09:00', 'close' => '17:00'],
+            'tuesday'   => ['is_open' => true,  'open' => '09:00', 'close' => '17:00'],
+            'wednesday' => ['is_open' => true,  'open' => '09:00', 'close' => '17:00'],
+            'thursday'  => ['is_open' => true,  'open' => '09:00', 'close' => '17:00'],
+            'friday'    => ['is_open' => true,  'open' => '09:00', 'close' => '17:00'],
+            'saturday'  => ['is_open' => false, 'open' => null,    'close' => null],
+            'sunday'    => ['is_open' => false, 'open' => null,    'close' => null],
+        ];
+
+        return Attribute::make(
+            get: fn ($value) => $value ?? $default,
+        );
     }
 
     protected static function boot(): void
