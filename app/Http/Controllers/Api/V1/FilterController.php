@@ -7,6 +7,7 @@ use App\Models\Category;
 use App\Models\Product;
 use App\Models\Shop;
 use App\Models\Tag;
+use App\Services\CacheService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Cache;
 
@@ -19,15 +20,19 @@ class FilterController extends Controller
      */
     public function index(): JsonResponse
     {
-        return response()->json([
-            'success' => true,
-            'data' => [
+        $data = Cache::remember('filters:all', CacheService::TTL_FILTERS, function () {
+            return [
                 'categories' => $this->getCategories(),
                 'price_range' => $this->getPriceRange(),
                 'rating_options' => $this->getRatingOptions(),
                 'colors' => $this->getAvailableColors(),
                 'occasions' => $this->getOccasions(),
-            ],
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'data' => $data,
         ]);
     }
 
@@ -88,15 +93,18 @@ class FilterController extends Controller
      */
     public function locations(): JsonResponse
     {
-        $locations = Shop::query()
-            ->where('is_active', true)
-            ->whereNotNull('location')
-            ->where('location', '!=', '')
-            ->distinct()
-            ->orderBy('location')
-            ->pluck('location')
-            ->map(fn (string $name) => ['name' => $name])
-            ->values();
+        $locations = Cache::remember('filters:locations', CacheService::TTL_LOCATIONS, function () {
+            return Shop::query()
+                ->where('is_active', true)
+                ->whereNotNull('location')
+                ->where('location', '!=', '')
+                ->distinct()
+                ->orderBy('location')
+                ->pluck('location')
+                ->map(fn (string $name) => ['name' => $name])
+                ->values()
+                ->toArray();
+        });
 
         return response()->json([
             'success' => true,
@@ -126,23 +134,25 @@ class FilterController extends Controller
      */
     private function getCategories(): array
     {
-        $categories = Category::query()
-            ->where('is_active', true)
-            ->withCount(['products' => function ($query) {
-                $query->where('is_available', true);
-            }])
-            ->orderBy('sort_order')
-            ->get();
+        return Cache::remember('filters:categories', CacheService::TTL_CATEGORIES, function () {
+            $categories = Category::query()
+                ->where('is_active', true)
+                ->withCount(['products' => function ($query) {
+                    $query->where('is_available', true);
+                }])
+                ->orderBy('sort_order')
+                ->get();
 
-        return $categories->map(fn (Category $category) => [
-            'id' => $category->id,
-            'name' => $category->name,
-            'slug' => $category->slug,
-            'type' => $category->type,
-            'icon' => $category->icon ? url($category->icon) : null,
-            'image' => $category->image ? url($category->image) : null,
-            'products_count' => $category->products_count,
-        ])->toArray();
+            return $categories->map(fn (Category $category) => [
+                'id' => $category->id,
+                'name' => $category->name,
+                'slug' => $category->slug,
+                'type' => $category->type,
+                'icon' => $category->icon ? url($category->icon) : null,
+                'image' => $category->image ? url($category->image) : null,
+                'products_count' => $category->products_count,
+            ])->toArray();
+        });
     }
 
     /**
@@ -152,16 +162,18 @@ class FilterController extends Controller
      */
     private function getPriceRange(): array
     {
-        $priceData = Product::query()
-            ->where('is_available', true)
-            ->selectRaw('MIN(price) as min_price, MAX(price) as max_price')
-            ->first();
+        return Cache::remember('filters:price_range', CacheService::TTL_PRICE_RANGE, function () {
+            $priceData = Product::query()
+                ->where('is_available', true)
+                ->selectRaw('MIN(price) as min_price, MAX(price) as max_price')
+                ->first();
 
-        return [
-            'min' => (float) ($priceData->min_price ?? 0),
-            'max' => (float) ($priceData->max_price ?? 0),
-            'currency' => 'GHS',
-        ];
+            return [
+                'min' => (float) ($priceData->min_price ?? 0),
+                'max' => (float) ($priceData->max_price ?? 0),
+                'currency' => 'GHS',
+            ];
+        });
     }
 
     /**
@@ -268,18 +280,20 @@ class FilterController extends Controller
      */
     private function getOccasions(): array
     {
-        $tags = Tag::query()
-            ->withCount(['products' => function ($query) {
-                $query->where('is_available', true);
-            }])
-            ->orderBy('name')
-            ->get();
+        return Cache::remember('filters:occasions', CacheService::TTL_FILTERS, function () {
+            $tags = Tag::query()
+                ->withCount(['products' => function ($query) {
+                    $query->where('is_available', true);
+                }])
+                ->orderBy('name')
+                ->get();
 
-        return $tags->map(fn (Tag $tag) => [
-            'id' => $tag->id,
-            'name' => $tag->name,
-            'slug' => $tag->slug,
-            'products_count' => $tag->products_count,
-        ])->toArray();
+            return $tags->map(fn (Tag $tag) => [
+                'id' => $tag->id,
+                'name' => $tag->name,
+                'slug' => $tag->slug,
+                'products_count' => $tag->products_count,
+            ])->toArray();
+        });
     }
 }
