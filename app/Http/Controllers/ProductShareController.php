@@ -55,6 +55,7 @@ class ProductShareController extends Controller
             'images',
             'variants',
             'tags',
+            'activeOffer',
         ])->where('slug', $slug)->firstOrFail();
 
         $productPayload = ProductDetailResource::make($product)->resolve($request);

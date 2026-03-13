@@ -16,14 +16,14 @@ class CategoryController extends Controller
      */
     public function index(Request $request)
     {
-        $type = $request->input('type', 'all');
-        $cacheKey = "categories:list:{$type}";
+        $type = $request->input('type');
+        $cacheKey = 'categories:list:'.($type ?? 'all');
 
-        $categories = Cache::remember($cacheKey, CacheService::TTL_CATEGORIES, function () use ($request) {
+        $categories = Cache::remember($cacheKey, CacheService::TTL_CATEGORIES, function () use ($type) {
             return Category::query()
                 ->where('is_active', true)
-                ->when($request->filled('type'), function ($query) use ($request) {
-                    $query->where('type', $request->input('type'));
+                ->when($type, function ($query) use ($type) {
+                    $query->where('type', $type);
                 })
                 ->withCount('products')
                 ->orderBy('sort_order')

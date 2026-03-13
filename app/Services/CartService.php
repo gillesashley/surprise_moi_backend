@@ -82,7 +82,7 @@ class CartService
     public function addItem(Cart $cart, array $data): CartItem
     {
         return DB::transaction(function () use ($cart, $data) {
-            $product = Product::findOrFail($data['product_id']);
+            $product = Product::with('activeOffer')->findOrFail($data['product_id']);
 
             // Validate product availability
             if (! $product->is_available) {

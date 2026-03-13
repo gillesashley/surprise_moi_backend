@@ -478,7 +478,7 @@ class OrderController extends Controller
     protected function getOrderable(string $type, int $id)
     {
         return match ($type) {
-            'product' => Product::find($id),
+            'product' => Product::with('activeOffer')->find($id),
             'service' => Service::find($id),
             default => null,
         };

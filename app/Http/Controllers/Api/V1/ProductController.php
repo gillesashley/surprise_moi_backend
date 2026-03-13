@@ -286,7 +286,7 @@ class ProductController extends Controller
             $product->tags()->attach($data['tag_ids']);
         }
 
-        $product->load(['category', 'vendor', 'shop', 'images', 'tags']);
+        $product->load(['category', 'vendor', 'shop', 'images', 'tags', 'activeOffer']);
 
         return response()->json([
             'success' => true,
@@ -344,7 +344,7 @@ class ProductController extends Controller
             $product->tags()->sync($data['tag_ids']);
         }
 
-        $product->load(['category', 'vendor', 'shop', 'images', 'tags']);
+        $product->load(['category', 'vendor', 'shop', 'images', 'tags', 'activeOffer']);
 
         return response()->json([
             'success' => true,

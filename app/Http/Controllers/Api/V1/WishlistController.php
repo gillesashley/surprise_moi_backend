@@ -41,7 +41,7 @@ class WishlistController extends Controller
                 ->pluck('item_id');
 
             if ($productIds->isNotEmpty()) {
-                $products = Product::with(['vendor', 'shop', 'category', 'images', 'tags'])
+                $products = Product::with(['vendor', 'shop', 'category', 'images', 'tags', 'activeOffer'])
                     ->whereIn('id', $productIds)
                     ->get();
             }

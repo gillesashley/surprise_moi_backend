@@ -46,6 +46,9 @@ class SetCacheHeaders
 
         $response->headers->set('Cache-Control', implode(', ', $directives));
 
+        // Ensure CDNs vary on auth token so personalized fields (e.g. is_wishlist) aren't shared
+        $response->headers->set('Vary', 'Authorization');
+
         return $response;
     }
 }

@@ -195,7 +195,7 @@ class ShopController extends Controller
         $shop = Shop::findOrFail($id);
 
         $query = $shop->products()
-            ->with(['category', 'vendor', 'images', 'tags'])
+            ->with(['category', 'vendor', 'images', 'tags', 'activeOffer'])
             ->where('is_available', true);
 
         // Apply standard product filters
