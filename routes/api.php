@@ -355,6 +355,16 @@ Route::prefix('v1')->group(function () {
             ->name('api.v1.vendor-onboarding-payment.callback')
             ->withoutMiddleware(['auth:sanctum']);
 
+        // Tier upgrade payment webhook (public, no auth)
+        Route::post('/vendor/upgrade-tier/webhook', [\App\Http\Controllers\Api\V1\TierUpgradeController::class, 'webhook'])
+            ->name('api.v1.tier-upgrade.webhook')
+            ->withoutMiddleware(['auth:sanctum']);
+
+        // Tier upgrade payment callback (public, no auth)
+        Route::get('/vendor/upgrade-tier/payment/callback', [\App\Http\Controllers\Api\V1\TierUpgradeController::class, 'callback'])
+            ->name('api.v1.tier-upgrade.callback')
+            ->withoutMiddleware(['auth:sanctum']);
+
         // Admin routes (admin only)
         Route::prefix('admin')->middleware('admin')->group(function () {
             // Vendor management
@@ -416,6 +426,14 @@ Route::prefix('v1')->group(function () {
                 Route::post('/failed/{id}/retry', [JobMonitorController::class, 'retry']);
                 Route::post('/retry-all', [JobMonitorController::class, 'retryAll']);
                 Route::delete('/clear', [JobMonitorController::class, 'clear']);
+            });
+
+            // Tier upgrade management
+            Route::prefix('vendor/upgrade-tier')->group(function () {
+                Route::get('/', [\App\Http\Controllers\Api\V1\Admin\AdminTierUpgradeController::class, 'index']);
+                Route::get('/{tierUpgradeRequest}', [\App\Http\Controllers\Api\V1\Admin\AdminTierUpgradeController::class, 'show']);
+                Route::post('/{tierUpgradeRequest}/approve', [\App\Http\Controllers\Api\V1\Admin\AdminTierUpgradeController::class, 'approve']);
+                Route::post('/{tierUpgradeRequest}/reject', [\App\Http\Controllers\Api\V1\Admin\AdminTierUpgradeController::class, 'reject']);
             });
         });
 
@@ -480,6 +498,19 @@ Route::prefix('v1')->group(function () {
             Route::post('payouts/request', [\App\Http\Controllers\Api\V1\VendorPayoutController::class, 'store']);
             Route::get('payouts/{payoutRequest}', [\App\Http\Controllers\Api\V1\VendorPayoutController::class, 'show']);
             Route::get('balance', [\App\Http\Controllers\Api\V1\VendorPayoutController::class, 'balance']);
+        });
+
+        // Tier upgrade routes (vendor only)
+        Route::prefix('vendor/upgrade-tier')->middleware('role:vendor')->group(function () {
+            Route::get('/summary', [\App\Http\Controllers\Api\V1\TierUpgradeController::class, 'summary']);
+            Route::post('/payment/initiate', [\App\Http\Controllers\Api\V1\TierUpgradeController::class, 'initiatePayment'])
+                ->middleware('throttle:5,1');
+            Route::post('/payment/verify', [\App\Http\Controllers\Api\V1\TierUpgradeController::class, 'verifyPayment'])
+                ->middleware('throttle:10,1');
+            Route::post('/submit-document', [\App\Http\Controllers\Api\V1\TierUpgradeController::class, 'submitDocument'])
+                ->middleware('throttle:5,1');
+            Route::get('/status', [\App\Http\Controllers\Api\V1\TierUpgradeController::class, 'status']);
+            Route::delete('/cancel', [\App\Http\Controllers\Api\V1\TierUpgradeController::class, 'cancel']);
         });
 
         // Vendor payout details management
