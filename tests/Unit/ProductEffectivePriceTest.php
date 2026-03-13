@@ -62,7 +62,8 @@ class ProductEffectivePriceTest extends TestCase
             'discount_percentage' => 40,
         ]);
 
-        $this->assertEquals(120.00, $product->fresh()->effective_price);
+        $loaded = Product::with('activeOffer')->find($product->id);
+        $this->assertEquals(120.00, $loaded->effective_price);
     }
 
     public function test_effective_price_ignores_expired_offer(): void
@@ -130,7 +131,8 @@ class ProductEffectivePriceTest extends TestCase
             'discount_percentage' => 40,
         ]);
 
-        $this->assertEquals(40, $product->fresh()->effective_discount_percentage);
+        $loaded = Product::with('activeOffer')->find($product->id);
+        $this->assertEquals(40, $loaded->effective_discount_percentage);
     }
 
     public function test_effective_discount_percentage_falls_back_to_vendor(): void

@@ -98,7 +98,7 @@ class VendorController extends Controller
         $vendor = User::where('role', 'vendor')->findOrFail($vendorId);
 
         $query = Product::query()
-            ->with(['category', 'vendor', 'images', 'tags'])
+            ->with(['category', 'vendor', 'images', 'tags', 'activeOffer'])
             ->where('vendor_id', $vendorId)
             ->where('is_available', true);
 

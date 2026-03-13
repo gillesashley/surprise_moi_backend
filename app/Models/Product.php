@@ -180,15 +180,12 @@ class Product extends Model
      * Get the effective selling price considering active special offers.
      *
      * Priority: active special offer > vendor discount_price > base price.
+     * Only uses activeOffer if it was eager-loaded to prevent N+1 queries.
      */
     public function getEffectivePriceAttribute(): float
     {
-        $offer = $this->relationLoaded('activeOffer')
-            ? $this->activeOffer
-            : $this->activeOffer()->first();
-
-        if ($offer) {
-            return round((float) $this->price * (1 - $offer->discount_percentage / 100), 2);
+        if ($this->relationLoaded('activeOffer') && $this->activeOffer) {
+            return round((float) $this->price * (1 - $this->activeOffer->discount_percentage / 100), 2);
         }
 
         return (float) ($this->discount_price ?? $this->price);
@@ -196,15 +193,12 @@ class Product extends Model
 
     /**
      * Get the effective discount percentage considering active special offers.
+     * Only uses activeOffer if it was eager-loaded to prevent N+1 queries.
      */
     public function getEffectiveDiscountPercentageAttribute(): ?int
     {
-        $offer = $this->relationLoaded('activeOffer')
-            ? $this->activeOffer
-            : $this->activeOffer()->first();
-
-        if ($offer) {
-            return $offer->discount_percentage;
+        if ($this->relationLoaded('activeOffer') && $this->activeOffer) {
+            return $this->activeOffer->discount_percentage;
         }
 
         return $this->discount_percentage;
