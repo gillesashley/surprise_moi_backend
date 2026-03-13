@@ -296,12 +296,12 @@ class ChatController extends Controller
             ->with(['customer', 'vendor', 'lastMessageSender'])
             ->where(function ($q) use ($query) {
                 $q->whereHas('customer', function ($customerQuery) use ($query) {
-                    $customerQuery->whereRaw('LOWER(name) LIKE ?', ['%'.strtolower($query).'%']);
+                    $customerQuery->where('name', 'ILIKE', "%{$query}%");
                 })
                     ->orWhereHas('vendor', function ($vendorQuery) use ($query) {
-                        $vendorQuery->whereRaw('LOWER(name) LIKE ?', ['%'.strtolower($query).'%']);
+                        $vendorQuery->where('name', 'ILIKE', "%{$query}%");
                     })
-                    ->orWhereRaw('LOWER(last_message) LIKE ?', ['%'.strtolower($query).'%']);
+                    ->orWhere('last_message', 'ILIKE', "%{$query}%");
             })
             ->latestMessage()
             ->paginate($request->input('per_page', 20));

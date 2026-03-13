@@ -24,12 +24,12 @@ class ServiceController extends Controller
             $query->where('service_type', $request->service_type);
         }
 
-        // Search in name and description
+        // Search in name and description (case-insensitive)
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
-                $q->where('name', 'LIKE', "%{$search}%")
-                    ->orWhere('description', 'LIKE', "%{$search}%");
+                $q->where('name', 'ILIKE', "%{$search}%")
+                    ->orWhere('description', 'ILIKE', "%{$search}%");
             });
         }
 
