@@ -25,6 +25,7 @@ class ShopResource extends JsonResource
             'location' => $this->location,
             'phone' => $this->phone,
             'email' => $this->email,
+            'service_hours' => $this->service_hours,
             'category' => new CategoryResource($this->whenLoaded('category')),
             'vendor' => new VendorResource($this->whenLoaded('vendor')),
             'products_count' => $this->whenCounted('products'),

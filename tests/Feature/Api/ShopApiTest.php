@@ -271,4 +271,56 @@ class ShopApiTest extends TestCase
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['owner_name']);
     }
+
+    public function test_my_shops_response_includes_service_hours(): void
+    {
+        $shop = Shop::factory()->create(['vendor_id' => $this->vendor->id]);
+
+        $response = $this->actingAs($this->vendor, 'sanctum')
+            ->getJson('/api/v1/my-shops');
+
+        $response->assertStatus(200);
+
+        $shopData = $response->json('data.shops.0');
+        $this->assertArrayHasKey('service_hours', $shopData);
+        $this->assertArrayHasKey('monday', $shopData['service_hours']);
+        $this->assertArrayHasKey('sunday', $shopData['service_hours']);
+    }
+
+    public function test_shop_show_response_includes_service_hours(): void
+    {
+        $shop = Shop::factory()->create(['is_active' => true]);
+
+        $response = $this->getJson("/api/v1/shops/{$shop->id}");
+
+        $response->assertStatus(200);
+
+        $shopData = $response->json('data.shop');
+        $this->assertArrayHasKey('service_hours', $shopData);
+        $this->assertArrayHasKey('monday', $shopData['service_hours']);
+    }
+
+    public function test_new_shop_returns_default_service_hours(): void
+    {
+        $shop = Shop::factory()->create([
+            'vendor_id' => $this->vendor->id,
+            'service_hours' => null,
+        ]);
+
+        $response = $this->actingAs($this->vendor, 'sanctum')
+            ->getJson('/api/v1/my-shops');
+
+        $response->assertStatus(200);
+
+        $serviceHours = $response->json('data.shops.0.service_hours');
+
+        // Default: Mon-Fri open 09:00-17:00, Sat-Sun closed
+        $this->assertTrue($serviceHours['monday']['is_open']);
+        $this->assertEquals('09:00', $serviceHours['monday']['open']);
+        $this->assertEquals('17:00', $serviceHours['monday']['close']);
+        $this->assertFalse($serviceHours['saturday']['is_open']);
+        $this->assertNull($serviceHours['saturday']['open']);
+        $this->assertFalse($serviceHours['sunday']['is_open']);
+        $this->assertNull($serviceHours['sunday']['open']);
+    }
 }
