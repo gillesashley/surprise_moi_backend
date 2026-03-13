@@ -240,6 +240,28 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Get all tier upgrade requests for this vendor.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<TierUpgradeRequest, $this>
+     */
+    public function tierUpgradeRequests(): HasMany
+    {
+        return $this->hasMany(TierUpgradeRequest::class, 'vendor_id');
+    }
+
+    /**
+     * Get the vendor's active (non-approved) tier upgrade request, if any.
+     */
+    public function activeTierUpgradeRequest(): ?TierUpgradeRequest
+    {
+        return TierUpgradeRequest::query()
+            ->where('vendor_id', $this->id)
+            ->nonApproved()
+            ->latest()
+            ->first();
+    }
+
+    /**
      * Get platform commission rate for this vendor based on their tier.
      * Tier 1 (registered business) and Tier 2 (individual vendor) have different rates.
      */
