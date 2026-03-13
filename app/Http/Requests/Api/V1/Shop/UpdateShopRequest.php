@@ -3,9 +3,14 @@
 namespace App\Http\Requests\Api\V1\Shop;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Validator;
 
 class UpdateShopRequest extends FormRequest
 {
+    private const DAYS = [
+        'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday',
+    ];
+
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -27,7 +32,7 @@ class UpdateShopRequest extends FormRequest
     {
         $shopId = $this->route('shop')->id;
 
-        return [
+        $rules = [
             'category_id' => ['sometimes', 'required', 'exists:categories,id'],
             'name' => ['sometimes', 'required', 'string', 'max:255'],
             'owner_name' => ['sometimes', 'required', 'string', 'max:255'],
@@ -38,7 +43,71 @@ class UpdateShopRequest extends FormRequest
             'location' => ['nullable', 'string', 'max:255'],
             'phone' => ['nullable', 'string', 'max:20'],
             'email' => ['nullable', 'email', 'max:255'],
+            'service_hours' => ['sometimes', 'array'],
         ];
+
+        foreach (self::DAYS as $day) {
+            $rules["service_hours.{$day}"] = ['required_with:service_hours', 'array'];
+            $rules["service_hours.{$day}.is_open"] = ['required_with:service_hours', 'boolean'];
+            $rules["service_hours.{$day}.open"] = ['nullable', 'date_format:H:i'];
+            $rules["service_hours.{$day}.close"] = ['nullable', 'date_format:H:i'];
+        }
+
+        return $rules;
+    }
+
+    /**
+     * Configure the validator instance.
+     */
+    public function withValidator(Validator $validator): void
+    {
+        $validator->after(function (Validator $validator) {
+            $serviceHours = $this->input('service_hours');
+
+            if ($serviceHours === null) {
+                return;
+            }
+
+            // Reject extra keys beyond the 7 valid days
+            $extraKeys = array_diff(array_keys($serviceHours), self::DAYS);
+            if (! empty($extraKeys)) {
+                $validator->errors()->add('service_hours', 'Service hours contains invalid day keys: '.implode(', ', $extraKeys));
+
+                return;
+            }
+
+            foreach (self::DAYS as $day) {
+                if (! isset($serviceHours[$day])) {
+                    continue; // Already caught by required_with
+                }
+
+                $dayData = $serviceHours[$day];
+                $isOpen = filter_var($dayData['is_open'] ?? false, FILTER_VALIDATE_BOOLEAN);
+                $open = $dayData['open'] ?? null;
+                $close = $dayData['close'] ?? null;
+
+                if ($isOpen && ($open === null || $close === null)) {
+                    $validator->errors()->add(
+                        "service_hours.{$day}",
+                        "Opening and closing times are required when {$day} is marked as open."
+                    );
+                }
+
+                if (! $isOpen && ($open !== null || $close !== null)) {
+                    $validator->errors()->add(
+                        "service_hours.{$day}",
+                        "Times must be null when {$day} is marked as closed."
+                    );
+                }
+
+                if ($open !== null && $close !== null && $close <= $open) {
+                    $validator->errors()->add(
+                        "service_hours.{$day}.close",
+                        "Closing time must be after opening time for {$day}."
+                    );
+                }
+            }
+        });
     }
 
     /**
@@ -48,7 +117,7 @@ class UpdateShopRequest extends FormRequest
      */
     public function messages(): array
     {
-        return [
+        $messages = [
             'category_id.required' => 'Shop category is required.',
             'category_id.exists' => 'The selected category does not exist.',
             'name.required' => 'Shop name is required.',
@@ -60,5 +129,15 @@ class UpdateShopRequest extends FormRequest
             'logo.max' => 'Logo size must not exceed 5MB.',
             'email.email' => 'Please provide a valid email address.',
         ];
+
+        foreach (self::DAYS as $day) {
+            $dayLabel = ucfirst($day);
+            $messages["service_hours.{$day}.required_with"] = "{$dayLabel} schedule is required when updating service hours.";
+            $messages["service_hours.{$day}.is_open.required_with"] = "The open/closed status for {$dayLabel} is required.";
+            $messages["service_hours.{$day}.open.date_format"] = "Opening time for {$dayLabel} must be in HH:MM format (e.g., 09:00).";
+            $messages["service_hours.{$day}.close.date_format"] = "Closing time for {$dayLabel} must be in HH:MM format (e.g., 17:00).";
+        }
+
+        return $messages;
     }
 }

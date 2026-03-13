@@ -56,7 +56,8 @@ class Shop extends Model
         ];
 
         return Attribute::make(
-            get: fn ($value) => $value ?? $default,
+            get: fn ($value) => is_string($value) ? (json_decode($value, true) ?? $default) : ($value ?? $default),
+            set: fn ($value) => is_array($value) ? json_encode($value) : $value,
         );
     }
 

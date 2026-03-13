@@ -323,4 +323,165 @@ class ShopApiTest extends TestCase
         $this->assertFalse($serviceHours['sunday']['is_open']);
         $this->assertNull($serviceHours['sunday']['open']);
     }
+
+    public function test_vendor_can_update_service_hours(): void
+    {
+        $shop = Shop::factory()->create(['vendor_id' => $this->vendor->id]);
+
+        $serviceHours = [
+            'monday'    => ['is_open' => true,  'open' => '08:00', 'close' => '18:00'],
+            'tuesday'   => ['is_open' => true,  'open' => '08:00', 'close' => '18:00'],
+            'wednesday' => ['is_open' => true,  'open' => '08:00', 'close' => '18:00'],
+            'thursday'  => ['is_open' => true,  'open' => '08:00', 'close' => '18:00'],
+            'friday'    => ['is_open' => true,  'open' => '08:00', 'close' => '18:00'],
+            'saturday'  => ['is_open' => true,  'open' => '09:00', 'close' => '14:00'],
+            'sunday'    => ['is_open' => false, 'open' => null,    'close' => null],
+        ];
+
+        $response = $this->actingAs($this->vendor, 'sanctum')
+            ->putJson("/api/v1/shops/{$shop->id}", [
+                'service_hours' => $serviceHours,
+            ]);
+
+        $response->assertStatus(200)
+            ->assertJson(['success' => true]);
+
+        $shop->refresh();
+        $this->assertTrue($shop->service_hours['monday']['is_open']);
+        $this->assertEquals('08:00', $shop->service_hours['monday']['open']);
+        $this->assertEquals('18:00', $shop->service_hours['monday']['close']);
+        $this->assertFalse($shop->service_hours['sunday']['is_open']);
+    }
+
+    public function test_omitting_service_hours_preserves_existing(): void
+    {
+        $existingHours = [
+            'monday'    => ['is_open' => true,  'open' => '10:00', 'close' => '20:00'],
+            'tuesday'   => ['is_open' => true,  'open' => '10:00', 'close' => '20:00'],
+            'wednesday' => ['is_open' => true,  'open' => '10:00', 'close' => '20:00'],
+            'thursday'  => ['is_open' => true,  'open' => '10:00', 'close' => '20:00'],
+            'friday'    => ['is_open' => true,  'open' => '10:00', 'close' => '20:00'],
+            'saturday'  => ['is_open' => false, 'open' => null,    'close' => null],
+            'sunday'    => ['is_open' => false, 'open' => null,    'close' => null],
+        ];
+
+        $shop = Shop::factory()->withServiceHours($existingHours)->create([
+            'vendor_id' => $this->vendor->id,
+        ]);
+
+        $response = $this->actingAs($this->vendor, 'sanctum')
+            ->putJson("/api/v1/shops/{$shop->id}", [
+                'name' => 'Updated Name Only',
+            ]);
+
+        $response->assertStatus(200);
+
+        $shop->refresh();
+        $this->assertEquals('10:00', $shop->service_hours['monday']['open']);
+        $this->assertEquals('20:00', $shop->service_hours['monday']['close']);
+    }
+
+    public function test_service_hours_rejects_missing_days(): void
+    {
+        $shop = Shop::factory()->create(['vendor_id' => $this->vendor->id]);
+
+        $response = $this->actingAs($this->vendor, 'sanctum')
+            ->putJson("/api/v1/shops/{$shop->id}", [
+                'service_hours' => [
+                    'monday' => ['is_open' => true, 'open' => '09:00', 'close' => '17:00'],
+                ],
+            ]);
+
+        $response->assertStatus(422);
+    }
+
+    public function test_service_hours_rejects_close_before_open(): void
+    {
+        $shop = Shop::factory()->create(['vendor_id' => $this->vendor->id]);
+
+        $allDays = [];
+        foreach (['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] as $day) {
+            $allDays[$day] = ['is_open' => false, 'open' => null, 'close' => null];
+        }
+        $allDays['monday'] = ['is_open' => true, 'open' => '17:00', 'close' => '09:00'];
+
+        $response = $this->actingAs($this->vendor, 'sanctum')
+            ->putJson("/api/v1/shops/{$shop->id}", [
+                'service_hours' => $allDays,
+            ]);
+
+        $response->assertStatus(422);
+    }
+
+    public function test_service_hours_rejects_open_without_times(): void
+    {
+        $shop = Shop::factory()->create(['vendor_id' => $this->vendor->id]);
+
+        $allDays = [];
+        foreach (['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] as $day) {
+            $allDays[$day] = ['is_open' => false, 'open' => null, 'close' => null];
+        }
+        $allDays['monday'] = ['is_open' => true, 'open' => null, 'close' => null];
+
+        $response = $this->actingAs($this->vendor, 'sanctum')
+            ->putJson("/api/v1/shops/{$shop->id}", [
+                'service_hours' => $allDays,
+            ]);
+
+        $response->assertStatus(422);
+    }
+
+    public function test_service_hours_rejects_invalid_time_format(): void
+    {
+        $shop = Shop::factory()->create(['vendor_id' => $this->vendor->id]);
+
+        $allDays = [];
+        foreach (['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] as $day) {
+            $allDays[$day] = ['is_open' => false, 'open' => null, 'close' => null];
+        }
+        $allDays['monday'] = ['is_open' => true, 'open' => '9am', 'close' => '5pm'];
+
+        $response = $this->actingAs($this->vendor, 'sanctum')
+            ->putJson("/api/v1/shops/{$shop->id}", [
+                'service_hours' => $allDays,
+            ]);
+
+        $response->assertStatus(422);
+    }
+
+    public function test_service_hours_rejects_extra_day_keys(): void
+    {
+        $shop = Shop::factory()->create(['vendor_id' => $this->vendor->id]);
+
+        $allDays = [];
+        foreach (['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] as $day) {
+            $allDays[$day] = ['is_open' => false, 'open' => null, 'close' => null];
+        }
+        $allDays['holiday'] = ['is_open' => false, 'open' => null, 'close' => null];
+
+        $response = $this->actingAs($this->vendor, 'sanctum')
+            ->putJson("/api/v1/shops/{$shop->id}", [
+                'service_hours' => $allDays,
+            ]);
+
+        $response->assertStatus(422);
+    }
+
+    public function test_service_hours_rejects_times_when_closed(): void
+    {
+        $shop = Shop::factory()->create(['vendor_id' => $this->vendor->id]);
+
+        $allDays = [];
+        foreach (['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] as $day) {
+            $allDays[$day] = ['is_open' => false, 'open' => null, 'close' => null];
+        }
+        $allDays['monday'] = ['is_open' => false, 'open' => '09:00', 'close' => '17:00'];
+
+        $response = $this->actingAs($this->vendor, 'sanctum')
+            ->putJson("/api/v1/shops/{$shop->id}", [
+                'service_hours' => $allDays,
+            ]);
+
+        $response->assertStatus(422);
+    }
 }
