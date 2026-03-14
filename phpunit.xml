@@ -35,5 +35,6 @@
         <env name="PAYSTACK_SECRET_KEY" value="sk_test_secret_key"/>
         <env name="PAYSTACK_PUBLIC_KEY" value="pk_test_public_key"/>
         <env name="PAYSTACK_WEBHOOK_SECRET" value="test_webhook_secret"/>
+        <env name="DEEP_LINK_DOMAIN" value=""/>
     </php>
 </phpunit>
