@@ -33,6 +33,7 @@
         "laravel/pint": "^1.24",
         "laravel/sail": "^1.41",
         "mockery/mockery": "^1.6",
+        "laravel/telescope": "^5.18",
         "nunomaduro/collision": "^8.6",
         "phpunit/phpunit": "^11.5.3"
     },
