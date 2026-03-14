@@ -82,6 +82,21 @@ return [
     |
     */
 
+    /*
+    |--------------------------------------------------------------------------
+    | Google OAuth (Social Login)
+    |--------------------------------------------------------------------------
+    |
+    | The Web client ID is used to verify Google ID tokens sent from the
+    | mobile app. Google Sign-In on mobile sends tokens with the web
+    | client audience, so this must be the Web client ID (not Android).
+    |
+    */
+
+    'google' => [
+        'client_id' => env('GOOGLE_CLIENT_ID'),
+    ],
+
     'google_maps' => [
         'api_key' => env('GOOGLE_MAPS_API_KEY'),
         'places_api_url' => 'https://maps.googleapis.com/maps/api/place',

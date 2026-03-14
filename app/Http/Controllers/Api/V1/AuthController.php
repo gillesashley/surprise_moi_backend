@@ -9,16 +9,20 @@ use App\Http\Requests\Api\V1\Auth\RegisterRequest;
 use App\Http\Requests\Api\V1\Auth\ResendOtpRequest;
 use App\Http\Requests\Api\V1\Auth\ResendVerificationRequest;
 use App\Http\Requests\Api\V1\Auth\ResetPasswordRequest;
+use App\Http\Requests\Api\V1\Auth\SocialLoginRequest;
 use App\Http\Requests\Api\V1\Auth\VerifyEmailRequest;
 use App\Http\Requests\Api\V1\Auth\VerifyPhoneRequest;
 use App\Jobs\SendPasswordResetToken;
 use App\Jobs\SendVerificationEmail;
+use App\Models\SocialAccount;
 use App\Models\User;
 use App\Services\KairosAfrikaSmsService;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -189,6 +193,146 @@ class AuthController extends Controller
                 'token_type' => 'Bearer',
             ],
         ]);
+    }
+
+    /**
+     * Authenticate a user via a social provider (Google, Apple, etc.).
+     *
+     * Verifies the provider's ID token, finds or creates a user,
+     * and returns a Sanctum token.
+     */
+    public function socialLogin(SocialLoginRequest $request): JsonResponse
+    {
+        $providerData = match ($request->provider) {
+            'google' => $this->verifyGoogleToken($request->id_token),
+            default => null,
+        };
+
+        if (! $providerData) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid or expired token',
+            ], 401);
+        }
+
+        $isNewUser = false;
+
+        // Look up by provider_id in social_accounts first
+        $socialAccount = SocialAccount::where('provider', $request->provider)
+            ->where('provider_id', $providerData['provider_id'])
+            ->first();
+
+        if ($socialAccount) {
+            $user = $socialAccount->user;
+
+            // Update avatar if changed
+            if ($providerData['avatar'] && $providerData['avatar'] !== $socialAccount->avatar_url) {
+                $socialAccount->update(['avatar_url' => $providerData['avatar']]);
+            }
+        } else {
+            // No social account found — try to match by email
+            $user = User::where('email', $providerData['email'])->first();
+
+            if ($user) {
+                // Link social account to existing user
+                $user->socialAccounts()->create([
+                    'provider' => $request->provider,
+                    'provider_id' => $providerData['provider_id'],
+                    'provider_email' => $providerData['email'],
+                    'avatar_url' => $providerData['avatar'],
+                ]);
+            } else {
+                // Create new user
+                $user = User::create([
+                    'name' => $providerData['name'],
+                    'email' => $providerData['email'],
+                    'password' => Str::random(32),
+                    'avatar' => $providerData['avatar'],
+                    'role' => $request->input('role', 'customer'),
+                ]);
+
+                // Mark email as verified (not mass-assignable for security)
+                $user->forceFill(['email_verified_at' => now()])->save();
+
+                $user->socialAccounts()->create([
+                    'provider' => $request->provider,
+                    'provider_id' => $providerData['provider_id'],
+                    'provider_email' => $providerData['email'],
+                    'avatar_url' => $providerData['avatar'],
+                ]);
+
+                $isNewUser = true;
+            }
+        }
+
+        $token = $user->createToken('mobile-app')->plainTextToken;
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Login successful',
+            'data' => [
+                'token_type' => 'Bearer',
+                'token' => $token,
+                'user' => [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'phone' => $user->phone,
+                    'avatar' => $user->avatar,
+                    'role' => $user->role,
+                    'email_verified_at' => $user->email_verified_at,
+                    'phone_verified_at' => $user->phone_verified_at,
+                    'is_new_user' => $isNewUser,
+                ],
+            ],
+        ]);
+    }
+
+    /**
+     * Verify a Google ID token via Google's tokeninfo endpoint.
+     *
+     * @return array{provider_id: string, email: string, name: string, avatar: string|null}|null
+     */
+    private function verifyGoogleToken(string $idToken): ?array
+    {
+        try {
+            $response = Http::get('https://oauth2.googleapis.com/tokeninfo', [
+                'id_token' => $idToken,
+            ]);
+
+            if ($response->failed()) {
+                return null;
+            }
+
+            $payload = $response->json();
+
+            // Validate audience matches our client ID
+            $clientId = config('services.google.client_id');
+            if ($clientId && ($payload['aud'] ?? null) !== $clientId) {
+                Log::warning('Google token audience mismatch', [
+                    'expected' => $clientId,
+                    'got' => $payload['aud'] ?? 'missing',
+                ]);
+
+                return null;
+            }
+
+            // Ensure we have the required fields
+            if (empty($payload['sub']) || empty($payload['email'])) {
+                return null;
+            }
+
+            return [
+                'provider_id' => $payload['sub'],
+                'email' => $payload['email'],
+                'name' => $payload['name'] ?? $payload['email'],
+                'avatar' => $payload['picture'] ?? null,
+            ];
+        } catch (\Exception $e) {
+            Log::error('Google token verification failed', ['error' => $e->getMessage()]);
+
+            return null;
+        }
     }
 
     /**

@@ -534,6 +534,14 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Get all linked social accounts for this user.
+     */
+    public function socialAccounts(): HasMany
+    {
+        return $this->hasMany(SocialAccount::class);
+    }
+
+    /**
      * Get all partner profiles created by this user.
      */
     public function partnerProfiles(): HasMany
