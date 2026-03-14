@@ -105,6 +105,8 @@ RUN cp .env.example .env \
     && sed -i 's/DB_CONNECTION=pgsql/DB_CONNECTION=sqlite/' .env \
     && sed -i 's/DB_HOST=.*//' .env \
     && sed -i 's/DB_DATABASE=.*/DB_DATABASE=:memory:/' .env \
+    && sed -i 's/REDIS_CLIENT=phpredis/REDIS_CLIENT=predis/' .env \
+    && sed -i 's/CACHE_STORE=redis/CACHE_STORE=array/' .env \
     && php artisan key:generate --ansi
 
 # Generate Wayfinder routes BEFORE building (with form support for formVariants)
@@ -252,6 +254,8 @@ RUN cp .env.example .env \
     && sed -i 's/DB_CONNECTION=pgsql/DB_CONNECTION=sqlite/' .env \
     && sed -i 's/DB_HOST=.*//' .env \
     && sed -i 's/DB_DATABASE=.*/DB_DATABASE=:memory:/' .env \
+    && sed -i 's/REDIS_CLIENT=phpredis/REDIS_CLIENT=predis/' .env \
+    && sed -i 's/CACHE_STORE=redis/CACHE_STORE=array/' .env \
     && php artisan key:generate --ansi \
     && pnpm install --frozen-lockfile \
     && php artisan wayfinder:generate --with-form \
