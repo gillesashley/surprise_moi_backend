@@ -208,8 +208,8 @@ class ShopController extends Controller
         }
 
         if ($request->filled('category')) {
-            $query->whereHas('category', function ($q) use ($request) {
-                $q->where('slug', $request->category);
+            $query->whereIn('category_id', function ($sub) use ($request) {
+                $sub->select('id')->from('categories')->where('slug', $request->category);
             });
         }
 

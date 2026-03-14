@@ -23,8 +23,8 @@ class ProductController extends Controller
         // Filter by category (supports single slug or comma-separated slugs)
         if ($request->filled('category')) {
             $categories = array_map('trim', explode(',', $request->category));
-            $query->whereHas('category', function ($q) use ($categories) {
-                $q->whereIn('slug', $categories);
+            $query->whereIn('category_id', function ($sub) use ($categories) {
+                $sub->select('id')->from('categories')->whereIn('slug', $categories);
             });
         }
 
@@ -66,10 +66,10 @@ class ProductController extends Controller
         if ($request->filled('location')) {
             $location = $request->location;
             $query->where(function ($q) use ($location) {
-                $q->whereHas('vendor', function ($subQ) use ($location) {
-                    $subQ->where('bio', 'ILIKE', "%{$location}%");
-                })->orWhereHas('shop', function ($subQ) use ($location) {
-                    $subQ->where('location', 'ILIKE', "%{$location}%");
+                $q->whereIn('vendor_id', function ($sub) use ($location) {
+                    $sub->select('id')->from('users')->where('bio', 'ILIKE', "%{$location}%");
+                })->orWhereIn('shop_id', function ($sub) use ($location) {
+                    $sub->select('id')->from('shops')->where('location', 'ILIKE', "%{$location}%");
                 });
             });
         }
@@ -112,16 +112,22 @@ class ProductController extends Controller
         // Filter by tags/occasions (supports single tag or comma-separated tags)
         if ($request->filled('tags')) {
             $tags = array_map('trim', explode(',', $request->tags));
-            $query->whereHas('tags', function ($q) use ($tags) {
-                $q->whereIn('slug', $tags);
+            $query->whereIn('id', function ($sub) use ($tags) {
+                $sub->select('product_id')
+                    ->from('product_tag')
+                    ->whereIn('tag_id', function ($inner) use ($tags) {
+                        $inner->select('id')->from('tags')->whereIn('slug', $tags);
+                    });
             });
         }
 
         // Filter by tag IDs (supports single ID or comma-separated IDs)
         if ($request->filled('tag_ids')) {
             $tagIds = array_map('intval', explode(',', $request->tag_ids));
-            $query->whereHas('tags', function ($q) use ($tagIds) {
-                $q->whereIn('tags.id', $tagIds);
+            $query->whereIn('id', function ($sub) use ($tagIds) {
+                $sub->select('product_id')
+                    ->from('product_tag')
+                    ->whereIn('tag_id', $tagIds);
             });
         }
 
@@ -143,16 +149,20 @@ class ProductController extends Controller
 
         // Filter by popular vendors
         if ($request->boolean('popular')) {
-            $query->whereHas('vendor', function ($q) {
-                $q->where('is_popular', true);
+            $query->whereIn('vendor_id', function ($sub) {
+                $sub->select('id')->from('users')->where('is_popular', true);
             });
         }
 
         // Filter by occasion/tag name (case-insensitive exact match)
         if ($request->filled('occasion') && ! $request->filled('tags')) {
             $occasion = trim($request->occasion);
-            $query->whereHas('tags', function ($q) use ($occasion) {
-                $q->where('name', 'ILIKE', $occasion);
+            $query->whereIn('id', function ($sub) use ($occasion) {
+                $sub->select('product_id')
+                    ->from('product_tag')
+                    ->whereIn('tag_id', function ($inner) use ($occasion) {
+                        $inner->select('id')->from('tags')->where('name', 'ILIKE', $occasion);
+                    });
             });
         }
 

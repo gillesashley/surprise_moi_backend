@@ -56,10 +56,10 @@ class ServiceController extends Controller
         if ($request->filled('location')) {
             $location = $request->location;
             $query->where(function ($q) use ($location) {
-                $q->whereHas('vendor', function ($subQ) use ($location) {
-                    $subQ->where('bio', 'ILIKE', "%{$location}%");
-                })->orWhereHas('shop', function ($subQ) use ($location) {
-                    $subQ->where('location', 'ILIKE', "%{$location}%");
+                $q->whereIn('vendor_id', function ($sub) use ($location) {
+                    $sub->select('id')->from('users')->where('bio', 'ILIKE', "%{$location}%");
+                })->orWhereIn('shop_id', function ($sub) use ($location) {
+                    $sub->select('id')->from('shops')->where('location', 'ILIKE', "%{$location}%");
                 });
             });
         }
@@ -76,8 +76,8 @@ class ServiceController extends Controller
 
         // Filter by popular vendors
         if ($request->boolean('popular')) {
-            $query->whereHas('vendor', function ($q) {
-                $q->where('is_popular', true);
+            $query->whereIn('vendor_id', function ($sub) {
+                $sub->select('id')->from('users')->where('is_popular', true);
             });
         }
 

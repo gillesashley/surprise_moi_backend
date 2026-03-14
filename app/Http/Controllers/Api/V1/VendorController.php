@@ -35,8 +35,10 @@ class VendorController extends Controller
 
         // Filter by service type
         if ($request->filled('service_type')) {
-            $query->whereHas('services', function ($q) use ($request) {
-                $q->where('service_type', $request->input('service_type'));
+            $query->whereIn('id', function ($sub) use ($request) {
+                $sub->select('vendor_id')
+                    ->from('services')
+                    ->where('service_type', $request->input('service_type'));
             });
         }
 
@@ -110,8 +112,8 @@ class VendorController extends Controller
 
         // Filter by category
         if ($request->filled('category')) {
-            $query->whereHas('category', function ($q) use ($request) {
-                $q->where('slug', $request->input('category'));
+            $query->whereIn('category_id', function ($sub) use ($request) {
+                $sub->select('id')->from('categories')->where('slug', $request->input('category'));
             });
         }
 
