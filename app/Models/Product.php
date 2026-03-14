@@ -23,19 +23,42 @@ class Product extends Model
 
         static::creating(function (Product $product) {
             if (empty($product->slug)) {
-                $product->slug = static::generateUniqueSlug();
+                $product->slug = static::generateUniqueSlug($product->name ?? '');
+            }
+        });
+
+        static::updating(function (Product $product) {
+            if ($product->isDirty('slug')) {
+                $product->slug = $product->getOriginal('slug');
             }
         });
     }
 
     /**
-     * Generate a unique 16-character slug.
+     * Generate a unique slug from the given name.
+     *
+     * Falls back to a random 16-character string when the name cannot
+     * produce a valid slug (e.g. empty or non-latin characters only).
      */
-    public static function generateUniqueSlug(): string
+    public static function generateUniqueSlug(string $name): string
     {
-        do {
-            $slug = Str::random(16);
-        } while (static::where('slug', $slug)->exists());
+        $baseSlug = Str::slug($name);
+
+        if ($baseSlug === '') {
+            do {
+                $slug = Str::random(16);
+            } while (static::where('slug', $slug)->exists());
+
+            return $slug;
+        }
+
+        $slug = $baseSlug;
+        $counter = 2;
+
+        while (static::where('slug', $slug)->exists()) {
+            $slug = $baseSlug.'-'.$counter;
+            $counter++;
+        }
 
         return $slug;
     }
@@ -45,7 +68,6 @@ class Product extends Model
      * Includes pricing, inventory, delivery, and SEO-related fields.
      */
     protected $fillable = [
-        'slug',
         'category_id',
         'vendor_id',
         'shop_id',

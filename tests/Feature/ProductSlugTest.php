@@ -10,9 +10,17 @@ class ProductSlugTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_product_auto_generates_slug_on_creation(): void
+    public function test_product_auto_generates_name_based_slug_on_creation(): void
     {
-        $product = Product::factory()->create(['slug' => null]);
+        $product = Product::factory()->create(['name' => 'Red Roses Bouquet']);
+
+        $this->assertNotNull($product->slug);
+        $this->assertSame('red-roses-bouquet', $product->slug);
+    }
+
+    public function test_product_falls_back_to_random_slug_when_name_has_no_latin_chars(): void
+    {
+        $product = Product::factory()->create(['name' => '']);
 
         $this->assertNotNull($product->slug);
         $this->assertSame(16, strlen($product->slug));

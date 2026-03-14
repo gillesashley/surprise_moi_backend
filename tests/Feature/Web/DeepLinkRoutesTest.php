@@ -47,8 +47,11 @@ class DeepLinkRoutesTest extends TestCase
                 'apps' => [],
                 'details' => [
                     [
-                        'appID' => 'TEAMID.com.surprisemoi.app',
+                        'appIDs' => ['TEAMID.com.surprisemoi.app'],
                         'paths' => ['/products/*'],
+                        'components' => [
+                            ['/' => '/products/*'],
+                        ],
                     ],
                 ],
             ],

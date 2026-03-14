@@ -38,8 +38,11 @@ class ProductShareController extends Controller
                 'apps' => [],
                 'details' => [
                     [
-                        'appID' => trim($teamId.'.'.$bundleId, '.'),
+                        'appIDs' => [trim($teamId.'.'.$bundleId, '.')],
                         'paths' => ['/products/*'],
+                        'components' => [
+                            ['/' => '/products/*'],
+                        ],
                     ],
                 ],
             ],
@@ -56,7 +59,7 @@ class ProductShareController extends Controller
             'variants',
             'tags',
             'activeOffer',
-        ])->where('slug', $slug)->firstOrFail();
+        ])->whereRaw('LOWER(slug) = ?', [strtolower($slug)])->firstOrFail();
 
         $productPayload = ProductDetailResource::make($product)->resolve($request);
         $imageUrls = $this->buildAbsoluteImageUrls($productPayload);

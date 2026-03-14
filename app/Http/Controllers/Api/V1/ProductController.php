@@ -253,7 +253,7 @@ class ProductController extends Controller
             'variants',
             'tags',
             'activeOffer',
-        ])->where('slug', $slug)->firstOrFail();
+        ])->whereRaw('LOWER(slug) = ?', [strtolower($slug)])->firstOrFail();
 
         return response()->json([
             'success' => true,

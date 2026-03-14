@@ -29,20 +29,29 @@ Route::get('/', function () {
     ]);
 })->name('home');
 
-Route::prefix('.well-known')->group(function () {
-    Route::get('/assetlinks.json', [ProductShareController::class, 'assetLinks'])
-        ->name('well-known.assetlinks');
-    Route::get('/apple-app-site-association', [ProductShareController::class, 'appleAppSiteAssociation'])
-        ->name('well-known.apple-app-site-association');
-});
+$deepLinkRoutes = function () {
+    Route::prefix('.well-known')->group(function () {
+        Route::get('/assetlinks.json', [ProductShareController::class, 'assetLinks'])
+            ->name('well-known.assetlinks');
+        Route::get('/apple-app-site-association', [ProductShareController::class, 'appleAppSiteAssociation'])
+            ->name('well-known.apple-app-site-association');
+    });
 
-Route::get('/products/{slug}', [ProductShareController::class, 'show'])
-    ->where('slug', '[A-Za-z0-9]{16}')
-    ->name('products.share');
+    Route::get('/products/{id}', [ProductShareController::class, 'showById'])
+        ->whereNumber('id')
+        ->name('products.share.legacy');
 
-Route::get('/products/{id}', [ProductShareController::class, 'showById'])
-    ->whereNumber('id')
-    ->name('products.share.legacy');
+    Route::get('/products/{slug}', [ProductShareController::class, 'show'])
+        ->where('slug', '[A-Za-z0-9][A-Za-z0-9\-]*')
+        ->name('products.share');
+};
+
+$deepLinkDomain = config('deep_links.domain');
+if ($deepLinkDomain) {
+    Route::domain($deepLinkDomain)->group($deepLinkRoutes);
+} else {
+    $deepLinkRoutes();
+}
 
 Route::get('/waw/{wawVideo}', WawVideoShareController::class)->name('waw.share');
 

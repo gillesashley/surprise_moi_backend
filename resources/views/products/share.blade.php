@@ -11,6 +11,21 @@
     <meta property="og:url" content="{{ $openGraph['url'] }}">
     <meta property="og:type" content="product">
 
+    <script>
+        (function() {
+            var ua = navigator.userAgent || navigator.vendor || window.opera;
+            var isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
+            var iosUrl = @json($downloadLinks['ios']);
+            var androidUrl = @json($downloadLinks['android']);
+
+            if (isIOS && iosUrl) {
+                window.location.replace(iosUrl);
+            } else if (androidUrl) {
+                window.location.replace(androidUrl);
+            }
+        })();
+    </script>
+
     <style>
         :root {
             color-scheme: light;
