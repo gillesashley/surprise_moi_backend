@@ -18,6 +18,8 @@ return [
 
     'enabled' => env('TELESCOPE_ENABLED', true),
 
+    'profiling' => env('TELESCOPE_PROFILING', false),
+
     /*
     |--------------------------------------------------------------------------
     | Telescope Domain
