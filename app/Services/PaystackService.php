@@ -354,6 +354,20 @@ class PaystackService
                 $payment->order->markAsConfirmed();
             }
 
+            // Notify vendor of new paid order
+            try {
+                if ($payment->order->vendor) {
+                    $payment->order->vendor->notify(
+                        new \App\Notifications\NewOrderReceived($payment->order->load(['items.orderable', 'user']))
+                    );
+                }
+            } catch (\Exception $e) {
+                Log::warning('Failed to notify vendor of new order', [
+                    'order_id' => $payment->order->id,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+
             // Credit vendor's pending balance
             try {
                 $this->vendorBalanceService->creditPendingBalance($payment->order);
