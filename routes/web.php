@@ -10,6 +10,7 @@ use App\Http\Controllers\InfluencerDashboardController;
 use App\Http\Controllers\InterestController;
 use App\Http\Controllers\MarketerDashboardController;
 use App\Http\Controllers\MusicGenreController;
+use App\Http\Controllers\OrderManagementController;
 use App\Http\Controllers\PersonalityTraitController;
 use App\Http\Controllers\ProductShareController;
 use App\Http\Controllers\ReferralCodeController;
@@ -144,6 +145,13 @@ Route::middleware(['auth', 'dashboard'])->prefix('dashboard')->group(function ()
     Route::resource('music-genres', MusicGenreController::class)->names('dashboard.music-genres');
     Route::resource('bespoke-services', BespokeServiceController::class)->names('dashboard.bespoke-services');
     Route::resource('advertisements', AdvertisementController::class)->names('dashboard.advertisements');
+
+    // Order Management
+    Route::prefix('orders')->name('orders.')->group(function () {
+        Route::get('/', [OrderManagementController::class, 'index'])->name('index');
+        Route::get('/{order}', [OrderManagementController::class, 'show'])->name('show');
+        Route::post('/{order}/status', [OrderManagementController::class, 'updateStatus'])->name('update-status');
+    });
 
     // SPA catch-all - must be LAST in the group
     Route::get('/{any?}', [AdminDashboardController::class, 'index'])
