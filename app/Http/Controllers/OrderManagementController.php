@@ -94,17 +94,70 @@ class OrderManagementController extends Controller
     {
         $order->load([
             'user:id,name,email,phone',
-            'vendor:id,name,email',
+            'vendor:id,name,email,phone',
             'items.orderable',
             'deliveryAddress',
-            'coupon',
             'latestPayment',
         ]);
 
         $allowedTransitions = self::TRANSITIONS[$order->status] ?? [];
 
         return Inertia::render('orders/show', [
-            'order' => $order,
+            'order' => [
+                'id' => $order->id,
+                'order_number' => $order->order_number,
+                'status' => $order->status,
+                'payment_status' => $order->payment_status,
+                'currency' => $order->currency ?? 'GHS',
+                'subtotal' => (string) $order->subtotal,
+                'discount_amount' => (string) ($order->discount_amount ?? '0.00'),
+                'delivery_fee' => (string) ($order->delivery_fee ?? '0.00'),
+                'total' => (string) $order->total,
+                'platform_commission_amount' => (string) ($order->platform_commission_amount ?? '0.00'),
+                'vendor_payout_amount' => (string) ($order->vendor_payout_amount ?? '0.00'),
+                'customer' => $order->user ? [
+                    'name' => $order->user->name,
+                    'email' => $order->user->email,
+                    'phone' => $order->user->phone ?? null,
+                ] : null,
+                'vendor' => $order->vendor ? [
+                    'name' => $order->vendor->name,
+                    'email' => $order->vendor->email,
+                    'phone' => $order->vendor->phone ?? null,
+                ] : null,
+                'items' => $order->items->map(fn ($item) => [
+                    'id' => $item->id,
+                    'name' => $item->snapshot['name'] ?? ($item->orderable->name ?? 'Unknown Item'),
+                    'thumbnail' => $item->snapshot['thumbnail'] ?? ($item->orderable->thumbnail ?? null),
+                    'quantity' => $item->quantity,
+                    'unit_price' => (string) $item->unit_price,
+                    'subtotal' => (string) $item->subtotal,
+                ])->toArray(),
+                'delivery_address' => $order->deliveryAddress ? [
+                    'address_line_1' => $order->deliveryAddress->address_line_1,
+                    'city' => $order->deliveryAddress->city,
+                    'state' => $order->deliveryAddress->state,
+                    'postal_code' => $order->deliveryAddress->postal_code,
+                    'country' => $order->deliveryAddress->country,
+                ] : null,
+                'receiver_name' => $order->receiver_name,
+                'receiver_phone' => $order->receiver_phone,
+                'special_instructions' => $order->special_instructions,
+                'occasion' => $order->occasion,
+                'payment' => $order->latestPayment ? [
+                    'reference' => $order->latestPayment->reference,
+                    'status' => $order->latestPayment->status,
+                    'channel' => $order->latestPayment->channel,
+                    'amount' => (string) $order->latestPayment->amount,
+                    'currency' => $order->latestPayment->currency ?? 'GHS',
+                    'paid_at' => $order->latestPayment->paid_at?->toIso8601String(),
+                ] : null,
+                'created_at' => $order->created_at?->toIso8601String(),
+                'confirmed_at' => $order->confirmed_at?->toIso8601String(),
+                'fulfilled_at' => $order->fulfilled_at?->toIso8601String(),
+                'shipped_at' => $order->shipped_at?->toIso8601String(),
+                'delivered_at' => $order->delivered_at?->toIso8601String(),
+            ],
             'allowedTransitions' => $allowedTransitions,
         ]);
     }
