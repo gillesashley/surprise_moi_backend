@@ -385,7 +385,7 @@ class OrderApiTest extends TestCase
         $response->assertStatus(200);
     }
 
-    public function test_vendor_can_view_their_orders(): void
+    public function test_vendor_can_view_their_vendor_orders(): void
     {
         Order::factory()->count(2)->create([
             'vendor_id' => $this->vendor->id,
@@ -397,6 +397,29 @@ class OrderApiTest extends TestCase
 
         $response = $this->actingAs($this->vendor)
             ->getJson('/api/v1/orders');
+
+        $response->assertStatus(200)
+            ->assertJsonCount(2, 'data');
+    }
+
+    public function test_vendor_can_view_their_purchase_orders(): void
+    {
+        // Vendor buys from another vendor
+        $otherVendor = User::factory()->create(['role' => 'vendor']);
+
+        Order::factory()->count(2)->create([
+            'user_id' => $this->vendor->id,
+            'vendor_id' => $otherVendor->id,
+        ]);
+
+        // Order where this vendor is the SELLER (should NOT appear)
+        Order::factory()->create([
+            'vendor_id' => $this->vendor->id,
+            'user_id' => User::factory(),
+        ]);
+
+        $response = $this->actingAs($this->vendor)
+            ->getJson('/api/v1/orders?scope=customer');
 
         $response->assertStatus(200)
             ->assertJsonCount(2, 'data');

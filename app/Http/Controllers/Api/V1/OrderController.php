@@ -40,9 +40,14 @@ class OrderController extends Controller
         $query = Order::query()
             ->with(['items.orderable', 'deliveryAddress', 'coupon', 'vendor']);
 
-        if ($request->user()->role === 'vendor') {
+        if (in_array($request->user()->role, ['admin', 'super_admin'])) {
+            // Admins see all orders
+        } elseif ($request->user()->role === 'vendor' && $request->input('scope') !== 'customer') {
+            // Vendors default to seeing orders they need to fulfill,
+            // but can pass ?scope=customer to see their own purchases
             $query->where('vendor_id', $request->user()->id);
-        } elseif (! in_array($request->user()->role, ['admin', 'super_admin'])) {
+        } else {
+            // Customers (and vendors viewing their purchases) see their own orders
             $query->where('user_id', $request->user()->id);
         }
 
