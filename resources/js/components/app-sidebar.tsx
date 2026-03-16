@@ -30,6 +30,7 @@ import {
     Settings2,
     ShieldCheck,
     ShoppingBag,
+    ShoppingCart,
     Star,
     Store,
     Target,
@@ -88,6 +89,11 @@ const getNavItemsForRole = (role: string): NavItem[] => {
                         icon: CheckCircle,
                     },
                 ],
+            },
+            {
+                title: 'Orders',
+                href: '/dashboard/orders',
+                icon: ShoppingCart,
             },
             {
                 title: 'Financial',
