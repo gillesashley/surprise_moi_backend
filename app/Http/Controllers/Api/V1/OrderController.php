@@ -42,7 +42,7 @@ class OrderController extends Controller
 
         if ($request->user()->role === 'vendor') {
             $query->where('vendor_id', $request->user()->id);
-        } elseif ($request->user()->role !== 'admin') {
+        } elseif (! in_array($request->user()->role, ['admin', 'super_admin'])) {
             $query->where('user_id', $request->user()->id);
         }
 
@@ -336,10 +336,12 @@ class OrderController extends Controller
      */
     public function show(Order $order): JsonResponse
     {
+        $user = request()->user();
+
         if (
-            $order->user_id !== request()->user()->id &&
-            request()->user()->role !== 'admin' &&
-            ($order->vendor_id !== request()->user()->id || request()->user()->role !== 'vendor')
+            $order->user_id !== $user->id &&
+            ! in_array($user->role, ['admin', 'super_admin']) &&
+            ($order->vendor_id !== $user->id || $user->role !== 'vendor')
         ) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
@@ -423,7 +425,9 @@ class OrderController extends Controller
      */
     public function track(Order $order): JsonResponse
     {
-        if ($order->user_id !== request()->user()->id) {
+        $user = request()->user();
+
+        if ($order->user_id !== $user->id && ! in_array($user->role, ['admin', 'super_admin'])) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
@@ -447,7 +451,7 @@ class OrderController extends Controller
      */
     public function statistics(Request $request): JsonResponse
     {
-        if ($request->user()->role !== 'vendor' && $request->user()->role !== 'admin') {
+        if (! in_array($request->user()->role, ['vendor', 'admin', 'super_admin'])) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 

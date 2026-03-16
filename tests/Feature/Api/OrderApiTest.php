@@ -352,6 +352,39 @@ class OrderApiTest extends TestCase
             ]);
     }
 
+    public function test_super_admin_can_view_all_orders(): void
+    {
+        $admin = User::factory()->create(['role' => 'super_admin']);
+
+        Order::factory()->count(2)->create([
+            'user_id' => $this->customer->id,
+            'vendor_id' => $this->vendor->id,
+        ]);
+
+        Order::factory()->create(['user_id' => User::factory()]);
+
+        $response = $this->actingAs($admin)
+            ->getJson('/api/v1/orders');
+
+        $response->assertStatus(200)
+            ->assertJsonCount(3, 'data');
+    }
+
+    public function test_super_admin_can_view_any_order(): void
+    {
+        $admin = User::factory()->create(['role' => 'super_admin']);
+
+        $order = Order::factory()->create([
+            'user_id' => $this->customer->id,
+            'vendor_id' => $this->vendor->id,
+        ]);
+
+        $response = $this->actingAs($admin)
+            ->getJson("/api/v1/orders/{$order->id}");
+
+        $response->assertStatus(200);
+    }
+
     public function test_vendor_can_view_their_orders(): void
     {
         Order::factory()->count(2)->create([
