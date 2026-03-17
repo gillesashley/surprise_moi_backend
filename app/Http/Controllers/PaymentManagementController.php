@@ -185,14 +185,80 @@ class PaymentManagementController extends Controller
 
     public function verify(VerifyPaymentRequest $request, string $type, int $id): JsonResponse
     {
-        // TODO: Task 4
-        return response()->json([]);
+        $payment = $type === 'order'
+            ? Payment::findOrFail($id)
+            : VendorOnboardingPayment::findOrFail($id);
+
+        $baseUrl = config('services.paystack.base_url', 'https://api.paystack.co');
+        $secretKey = config('services.paystack.secret_key');
+
+        try {
+            $response = Http::withToken($secretKey)
+                ->timeout(30)
+                ->get("{$baseUrl}/transaction/verify/{$payment->reference}");
+
+            if (! $response->successful()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to verify payment with Paystack.',
+                    'error' => $response->json('message') ?? 'Unknown error',
+                ], 422);
+            }
+
+            $paystackData = $response->json();
+
+            return response()->json([
+                'success' => true,
+                'local_status' => $payment->status,
+                'paystack_data' => $paystackData,
+                'status_mismatch' => ($paystackData['data']['status'] ?? '') !== $payment->status,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Paystack verification failed from admin', [
+                'payment_type' => $type,
+                'payment_id' => $id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Could not reach Paystack. Try again later.',
+            ], 422);
+        }
     }
 
     public function sync(SyncPaymentRequest $request, string $type, int $id): JsonResponse
     {
-        // TODO: Task 4
-        return response()->json([]);
+        if ($type === 'order') {
+            $payment = Payment::findOrFail($id);
+            $beforeStatus = $payment->status;
+
+            $paystackService = app(PaystackService::class);
+            $result = $paystackService->verifyTransaction($payment->reference);
+        } else {
+            $payment = VendorOnboardingPayment::findOrFail($id);
+            $beforeStatus = $payment->status;
+
+            $paymentService = app(VendorOnboardingPaymentService::class);
+            $result = $paymentService->verifyPayment($payment);
+        }
+
+        Log::info('Admin payment sync performed', [
+            'admin_id' => $request->user()->id,
+            'admin_email' => $request->user()->email,
+            'payment_type' => $type,
+            'payment_id' => $id,
+            'reference' => $payment->reference,
+            'status_before' => $beforeStatus,
+            'status_after' => $payment->fresh()->status,
+            'result' => $result['success'],
+        ]);
+
+        return response()->json([
+            'success' => $result['success'],
+            'message' => $result['message'],
+            'payment' => $this->findPayment($type, $id),
+        ]);
     }
 
     private function orderPaymentsQuery()
