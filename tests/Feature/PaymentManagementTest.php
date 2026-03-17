@@ -153,4 +153,57 @@ class PaymentManagementTest extends TestCase
             ->has('payments.data', 1)
         );
     }
+
+    public function test_admin_can_view_order_payment_detail(): void
+    {
+        $order = Order::factory()->pending()->create([
+            'user_id' => User::factory(),
+            'vendor_id' => $this->vendor->id,
+            'coupon_id' => null,
+        ]);
+        $payment = Payment::factory()->successful()->card()->create([
+            'user_id' => $order->user_id,
+            'order_id' => $order->id,
+        ]);
+
+        $response = $this->actingAs($this->admin)
+            ->get("/dashboard/payments/order/{$payment->id}");
+
+        $response->assertStatus(200);
+        $response->assertInertia(fn ($page) => $page
+            ->component('payments/show')
+            ->has('payment')
+            ->where('payment.type', 'order')
+            ->where('payment.reference', $payment->reference)
+        );
+    }
+
+    public function test_admin_can_view_vendor_onboarding_payment_detail(): void
+    {
+        $application = VendorApplication::factory()->create([
+            'user_id' => User::factory(),
+        ]);
+        $payment = VendorOnboardingPayment::factory()->successful()->create([
+            'user_id' => $application->user_id,
+            'vendor_application_id' => $application->id,
+        ]);
+
+        $response = $this->actingAs($this->admin)
+            ->get("/dashboard/payments/vendor-onboarding/{$payment->id}");
+
+        $response->assertStatus(200);
+        $response->assertInertia(fn ($page) => $page
+            ->component('payments/show')
+            ->has('payment')
+            ->where('payment.type', 'vendor_onboarding')
+        );
+    }
+
+    public function test_show_returns_404_for_invalid_payment(): void
+    {
+        $response = $this->actingAs($this->admin)
+            ->get('/dashboard/payments/order/99999');
+
+        $response->assertStatus(404);
+    }
 }

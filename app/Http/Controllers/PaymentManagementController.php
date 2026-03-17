@@ -85,8 +85,102 @@ class PaymentManagementController extends Controller
 
     public function show(string $type, int $id): Response
     {
-        // TODO: Task 3
-        return Inertia::render('payments/show', []);
+        $payment = $this->findPayment($type, $id);
+
+        return Inertia::render('payments/show', [
+            'payment' => $payment,
+        ]);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function findPayment(string $type, int $id): array
+    {
+        if ($type === 'order') {
+            $payment = Payment::with(['user:id,name,email,phone', 'order:id,order_number,status'])
+                ->findOrFail($id);
+
+            return [
+                'id' => $payment->id,
+                'type' => 'order',
+                'reference' => $payment->reference,
+                'paystack_reference' => $payment->paystack_reference,
+                'amount' => (string) $payment->amount,
+                'currency' => $payment->currency,
+                'status' => $payment->status,
+                'channel' => $payment->channel,
+                'payment_method_type' => $payment->payment_method_type,
+                'card_last4' => $payment->card_last4,
+                'card_type' => $payment->card_type,
+                'card_exp_month' => $payment->card_exp_month,
+                'card_exp_year' => $payment->card_exp_year,
+                'card_bank' => $payment->card_bank,
+                'mobile_money_number' => $payment->mobile_money_number,
+                'mobile_money_provider' => $payment->mobile_money_provider,
+                'gateway_response' => $payment->gateway_response,
+                'failure_reason' => $payment->failure_reason,
+                'ip_address' => $payment->ip_address,
+                'metadata' => $payment->metadata,
+                'paid_at' => $payment->paid_at,
+                'verified_at' => $payment->verified_at,
+                'created_at' => $payment->created_at,
+                'user' => $payment->user ? [
+                    'id' => $payment->user->id,
+                    'name' => $payment->user->name,
+                    'email' => $payment->user->email,
+                    'phone' => $payment->user->phone,
+                ] : null,
+                'related' => $payment->order ? [
+                    'order_number' => $payment->order->order_number,
+                    'order_status' => $payment->order->status,
+                    'order_id' => $payment->order->id,
+                ] : null,
+            ];
+        }
+
+        $payment = VendorOnboardingPayment::with([
+            'user:id,name,email,phone',
+            'vendorApplication:id,status,completed_step,current_step',
+        ])->findOrFail($id);
+
+        return [
+            'id' => $payment->id,
+            'type' => 'vendor_onboarding',
+            'reference' => $payment->reference,
+            'paystack_reference' => $payment->paystack_reference,
+            'amount' => (string) $payment->amount,
+            'currency' => $payment->currency,
+            'status' => $payment->status,
+            'channel' => $payment->channel,
+            'payment_method_type' => $payment->payment_method_type,
+            'card_last4' => $payment->card_last4,
+            'card_type' => $payment->card_type,
+            'card_exp_month' => $payment->card_exp_month,
+            'card_exp_year' => $payment->card_exp_year,
+            'card_bank' => $payment->card_bank,
+            'mobile_money_number' => $payment->mobile_money_number,
+            'mobile_money_provider' => $payment->mobile_money_provider,
+            'gateway_response' => $payment->gateway_response,
+            'failure_reason' => $payment->failure_reason,
+            'ip_address' => $payment->ip_address,
+            'metadata' => $payment->metadata,
+            'paid_at' => $payment->paid_at,
+            'verified_at' => $payment->verified_at,
+            'created_at' => $payment->created_at,
+            'user' => $payment->user ? [
+                'id' => $payment->user->id,
+                'name' => $payment->user->name,
+                'email' => $payment->user->email,
+                'phone' => $payment->user->phone,
+            ] : null,
+            'related' => $payment->vendorApplication ? [
+                'application_id' => $payment->vendorApplication->id,
+                'application_status' => $payment->vendorApplication->status,
+                'current_step' => $payment->vendorApplication->current_step,
+                'completed_step' => $payment->vendorApplication->completed_step,
+            ] : null,
+        ];
     }
 
     public function verify(VerifyPaymentRequest $request, string $type, int $id): JsonResponse
