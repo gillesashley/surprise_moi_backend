@@ -36,6 +36,7 @@ import {
     Target,
     UserCheck,
     Users,
+    Receipt,
     Wallet,
 } from 'lucide-react';
 import AppLogo from './app-logo';
@@ -113,6 +114,11 @@ const getNavItemsForRole = (role: string): NavItem[] => {
                         title: 'All Transactions',
                         href: '/dashboard/transactions',
                         icon: List,
+                    },
+                    {
+                        title: 'Payments',
+                        href: '/dashboard/payments',
+                        icon: Receipt,
                     },
                     {
                         title: 'Vendor Onboarding',
