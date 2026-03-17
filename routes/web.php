@@ -11,6 +11,7 @@ use App\Http\Controllers\InterestController;
 use App\Http\Controllers\MarketerDashboardController;
 use App\Http\Controllers\MusicGenreController;
 use App\Http\Controllers\OrderManagementController;
+use App\Http\Controllers\PaymentManagementController;
 use App\Http\Controllers\PersonalityTraitController;
 use App\Http\Controllers\ProductShareController;
 use App\Http\Controllers\ReferralCodeController;
@@ -151,6 +152,17 @@ Route::middleware(['auth', 'dashboard'])->prefix('dashboard')->group(function ()
         Route::get('/', [OrderManagementController::class, 'index'])->name('index');
         Route::get('/{order}', [OrderManagementController::class, 'show'])->name('show');
         Route::post('/{order}/status', [OrderManagementController::class, 'updateStatus'])->name('update-status');
+    });
+
+    // Payment Management
+    Route::prefix('payments')->name('payments.')->group(function () {
+        Route::get('/', [PaymentManagementController::class, 'index'])->name('index');
+        Route::get('/{type}/{id}', [PaymentManagementController::class, 'show'])->name('show')
+            ->whereIn('type', ['order', 'vendor-onboarding']);
+        Route::post('/{type}/{id}/verify', [PaymentManagementController::class, 'verify'])->name('verify')
+            ->whereIn('type', ['order', 'vendor-onboarding']);
+        Route::post('/{type}/{id}/sync', [PaymentManagementController::class, 'sync'])->name('sync')
+            ->whereIn('type', ['order', 'vendor-onboarding']);
     });
 
     // SPA catch-all - must be LAST in the group
