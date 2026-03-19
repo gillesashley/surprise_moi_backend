@@ -318,7 +318,7 @@ Route::prefix('v1')->group(function () {
         Route::prefix('vendor-registration')->group(function () {
             // Get application status and available services
             Route::get('/status', [VendorRegistrationController::class, 'status']);
-            Route::get('/bespoke-services', [VendorRegistrationController::class, 'getBespokeServices']);
+            // Note: GET /bespoke-services is registered as a public route (line 170) for guest browsing
             Route::get('/review', [VendorRegistrationController::class, 'review']);
 
             // Debug endpoint (TODO: Remove in production or add admin middleware)
