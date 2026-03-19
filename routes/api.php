@@ -163,6 +163,9 @@ Route::prefix('v1')->group(function () {
         Route::get('/geocode', [LocationController::class, 'geocode']);
     });
 
+    // Public WAW video browsing
+    Route::get('waw-videos', [WawVideoController::class, 'index']);
+
     // Cart routes (supports both authenticated users and guests with cart token)
     Route::prefix('cart')->group(function () {
         Route::get('/', [CartController::class, 'index']);
@@ -532,7 +535,6 @@ Route::prefix('v1')->group(function () {
         });
 
         // Waw Videos (short-form video feed)
-        Route::get('waw-videos', [WawVideoController::class, 'index']);
         Route::post('waw-videos/{wawVideo}/like', [WawVideoController::class, 'toggleLike']);
 
         Route::middleware('role:vendor')->group(function () {

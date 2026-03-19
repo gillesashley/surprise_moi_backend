@@ -21,7 +21,7 @@ class WawVideoController extends Controller
         $sortOrder = $request->input('sort_order') === 'asc' ? 'asc' : 'desc';
 
         $query = WawVideo::with(['vendor', 'product', 'service'])
-            ->with(['currentUserLike' => fn ($q) => $q->where('user_id', $request->user()->id)])
+            ->when($request->user(), fn ($query) => $query->with(['currentUserLike' => fn ($q) => $q->where('user_id', $request->user()->id)]))
             ->orderBy($sortBy, $sortOrder);
 
         if ($request->filled('vendor_id')) {
