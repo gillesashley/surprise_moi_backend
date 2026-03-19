@@ -166,6 +166,9 @@ Route::prefix('v1')->group(function () {
     // Public WAW video browsing
     Route::get('waw-videos', [WawVideoController::class, 'index']);
 
+    // Public bespoke services listing (for guest browsing)
+    Route::get('vendor-registration/bespoke-services', [VendorRegistrationController::class, 'getBespokeServices']);
+
     // Cart routes (supports both authenticated users and guests with cart token)
     Route::prefix('cart')->group(function () {
         Route::get('/', [CartController::class, 'index']);
