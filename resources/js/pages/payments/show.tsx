@@ -19,7 +19,6 @@ import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import axios from 'axios';
 import {
     AlertTriangle,
     ArrowLeft,
@@ -115,10 +114,20 @@ export default function PaymentShow({ payment }: Props) {
         setPaystackData(null);
 
         try {
-            const response = await axios.post(`/dashboard/payments/${typeSlug}/${payment.id}/verify`);
-            setPaystackData(response.data);
+            const response = await fetch(`/dashboard/payments/${typeSlug}/${payment.id}/verify`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content ?? '',
+                    'Accept': 'application/json',
+                },
+            });
+            const data = await response.json();
+            if (!response.ok) {
+                throw new Error(data.message ?? 'Verification failed');
+            }
+            setPaystackData(data);
         } catch (error: any) {
-            setVerifyError(error.response?.data?.message ?? 'Could not reach Paystack. Try again later.');
+            setVerifyError(error.message ?? 'Could not reach Paystack. Try again later.');
         } finally {
             setVerifying(false);
         }
