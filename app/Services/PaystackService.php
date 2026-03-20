@@ -5,9 +5,11 @@ namespace App\Services;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\PayoutRequest;
+use App\Models\TreasuryTransfer;
 use App\Models\User;
 use App\Models\VendorTransaction;
 use Illuminate\Http\Client\RequestException;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -584,6 +586,11 @@ class PaystackService
             return ['success' => false, 'message' => 'No reference in webhook data.'];
         }
 
+        // Handle treasury transfers (TRS- prefix)
+        if (str_starts_with($reference, 'TRS-')) {
+            return $this->handleTreasuryTransferSuccess($data);
+        }
+
         $payoutRequest = PayoutRequest::where('paystack_transfer_reference', $reference)
             ->orWhere('request_number', $reference)
             ->first();
@@ -637,6 +644,10 @@ class PaystackService
 
         if (! $reference) {
             return ['success' => false, 'message' => 'No reference in webhook data.'];
+        }
+
+        if (str_starts_with($reference, 'TRS-')) {
+            return $this->handleTreasuryTransferFailed($data);
         }
 
         $payoutRequest = PayoutRequest::where('paystack_transfer_reference', $reference)
@@ -1121,5 +1132,287 @@ class PaystackService
                 'message' => 'Transfer verification temporarily unavailable.',
             ];
         }
+    }
+
+    /**
+     * List transactions from Paystack.
+     *
+     * @param  array{from?: string, to?: string, status?: string, perPage?: int, page?: int}  $filters
+     * @return array{success: bool, data: array, meta: array}
+     */
+    public function listTransactions(array $filters = []): array
+    {
+        $query = array_filter([
+            'from' => $filters['from'] ?? null,
+            'to' => $filters['to'] ?? null,
+            'status' => $filters['status'] ?? null,
+            'perPage' => $filters['perPage'] ?? 20,
+            'page' => $filters['page'] ?? 1,
+        ]);
+
+        $cacheKey = 'treasury:transactions:'.md5(json_encode($query));
+        CacheService::registerTreasuryCacheKey($cacheKey);
+
+        return Cache::remember($cacheKey, CacheService::TTL_TREASURY, function () use ($query) {
+            $response = Http::withToken($this->secretKey)
+                ->timeout(30)
+                ->withOptions(['verify' => false])
+                ->get("{$this->baseUrl}/transaction", $query);
+
+            if ($response->successful() && $response->json('status') === true) {
+                return [
+                    'success' => true,
+                    'data' => $response->json('data', []),
+                    'meta' => $response->json('meta', []),
+                ];
+            }
+
+            Log::warning('Paystack listTransactions failed', [
+                'status' => $response->status(),
+                'body' => $response->body(),
+            ]);
+
+            return ['success' => false, 'data' => [], 'meta' => []];
+        });
+    }
+
+    /**
+     * Get transaction totals from Paystack.
+     *
+     * @param  array{from?: string, to?: string}  $filters
+     * @return array{success: bool, data: array}
+     */
+    public function getTransactionTotals(array $filters = []): array
+    {
+        $query = array_filter([
+            'from' => $filters['from'] ?? null,
+            'to' => $filters['to'] ?? null,
+        ]);
+
+        return Cache::remember('treasury:transaction_totals', CacheService::TTL_TREASURY, function () use ($query) {
+            $response = Http::withToken($this->secretKey)
+                ->timeout(30)
+                ->withOptions(['verify' => false])
+                ->get("{$this->baseUrl}/transaction/totals", $query);
+
+            if ($response->successful() && $response->json('status') === true) {
+                return [
+                    'success' => true,
+                    'data' => $response->json('data', []),
+                ];
+            }
+
+            Log::warning('Paystack getTransactionTotals failed', [
+                'status' => $response->status(),
+                'body' => $response->body(),
+            ]);
+
+            return ['success' => false, 'data' => []];
+        });
+    }
+
+    /**
+     * List settlements from Paystack.
+     *
+     * @param  array{from?: string, to?: string, perPage?: int, page?: int}  $filters
+     * @return array{success: bool, data: array, meta: array}
+     */
+    public function listSettlements(array $filters = []): array
+    {
+        $query = array_filter([
+            'from' => $filters['from'] ?? null,
+            'to' => $filters['to'] ?? null,
+            'perPage' => $filters['perPage'] ?? 20,
+            'page' => $filters['page'] ?? 1,
+        ]);
+
+        $cacheKey = 'treasury:settlements:'.md5(json_encode($query));
+        CacheService::registerTreasuryCacheKey($cacheKey);
+
+        return Cache::remember($cacheKey, CacheService::TTL_TREASURY, function () use ($query) {
+            $response = Http::withToken($this->secretKey)
+                ->timeout(30)
+                ->withOptions(['verify' => false])
+                ->get("{$this->baseUrl}/settlement", $query);
+
+            if ($response->successful() && $response->json('status') === true) {
+                return [
+                    'success' => true,
+                    'data' => $response->json('data', []),
+                    'meta' => $response->json('meta', []),
+                ];
+            }
+
+            Log::warning('Paystack listSettlements failed', [
+                'status' => $response->status(),
+                'body' => $response->body(),
+            ]);
+
+            return ['success' => false, 'data' => [], 'meta' => []];
+        });
+    }
+
+    /**
+     * List transfers from Paystack.
+     *
+     * @param  array{from?: string, to?: string, perPage?: int, page?: int}  $filters
+     * @return array{success: bool, data: array, meta: array}
+     */
+    public function listTransfers(array $filters = []): array
+    {
+        $query = array_filter([
+            'from' => $filters['from'] ?? null,
+            'to' => $filters['to'] ?? null,
+            'perPage' => $filters['perPage'] ?? 20,
+            'page' => $filters['page'] ?? 1,
+        ]);
+
+        $cacheKey = 'treasury:transfers:'.md5(json_encode($query));
+        CacheService::registerTreasuryCacheKey($cacheKey);
+
+        return Cache::remember($cacheKey, CacheService::TTL_TREASURY, function () use ($query) {
+            $response = Http::withToken($this->secretKey)
+                ->timeout(30)
+                ->withOptions(['verify' => false])
+                ->get("{$this->baseUrl}/transfer", $query);
+
+            if ($response->successful() && $response->json('status') === true) {
+                return [
+                    'success' => true,
+                    'data' => $response->json('data', []),
+                    'meta' => $response->json('meta', []),
+                ];
+            }
+
+            Log::warning('Paystack listTransfers failed', [
+                'status' => $response->status(),
+                'body' => $response->body(),
+            ]);
+
+            return ['success' => false, 'data' => [], 'meta' => []];
+        });
+    }
+
+    /**
+     * Get balance ledger from Paystack.
+     *
+     * @return array{success: bool, data: array}
+     */
+    public function getBalanceLedger(): array
+    {
+        return Cache::remember('treasury:balance_ledger', CacheService::TTL_TREASURY, function () {
+            $response = Http::withToken($this->secretKey)
+                ->timeout(30)
+                ->withOptions(['verify' => false])
+                ->get("{$this->baseUrl}/balance/ledger");
+
+            if ($response->successful() && $response->json('status') === true) {
+                return [
+                    'success' => true,
+                    'data' => $response->json('data', []),
+                ];
+            }
+
+            Log::warning('Paystack getBalanceLedger failed', [
+                'status' => $response->status(),
+                'body' => $response->body(),
+            ]);
+
+            return ['success' => false, 'data' => []];
+        });
+    }
+
+    /**
+     * Resend OTP for a pending transfer.
+     *
+     * @return array{success: bool, message: string}
+     */
+    public function resendTransferOtp(string $transferCode): array
+    {
+        $response = Http::withToken($this->secretKey)
+            ->timeout(30)
+            ->withOptions(['verify' => false])
+            ->post("{$this->baseUrl}/transfer/resend_otp", [
+                'transfer_code' => $transferCode,
+            ]);
+
+        if ($response->successful() && $response->json('status') === true) {
+            return [
+                'success' => true,
+                'message' => $response->json('message', 'OTP resent successfully'),
+            ];
+        }
+
+        Log::warning('Paystack resendTransferOtp failed', [
+            'transfer_code' => $transferCode,
+            'status' => $response->status(),
+            'body' => $response->body(),
+        ]);
+
+        return [
+            'success' => false,
+            'message' => $response->json('message', 'Failed to resend OTP'),
+        ];
+    }
+
+    /**
+     * Handle a successful treasury transfer webhook.
+     */
+    private function handleTreasuryTransferSuccess(array $data): array
+    {
+        $reference = $data['reference'] ?? '';
+        $transfer = TreasuryTransfer::where('paystack_reference', $reference)->first();
+
+        if (! $transfer) {
+            Log::warning('Treasury transfer not found for success webhook', ['reference' => $reference]);
+
+            return ['success' => false, 'message' => 'Treasury transfer not found.'];
+        }
+
+        if ($transfer->isSuccessful()) {
+            return ['success' => true, 'message' => 'Treasury transfer already processed.'];
+        }
+
+        $transfer->update([
+            'status' => TreasuryTransfer::STATUS_SUCCESS,
+            'paystack_response' => $data,
+            'completed_at' => now(),
+        ]);
+
+        CacheService::flushTreasuryTransferCaches();
+
+        Log::info('Treasury transfer success processed', ['reference' => $reference, 'amount' => $transfer->amount]);
+
+        return ['success' => true, 'message' => 'Treasury transfer marked as successful.'];
+    }
+
+    /**
+     * Handle a failed treasury transfer webhook.
+     */
+    private function handleTreasuryTransferFailed(array $data): array
+    {
+        $reference = $data['reference'] ?? '';
+        $transfer = TreasuryTransfer::where('paystack_reference', $reference)->first();
+
+        if (! $transfer) {
+            Log::warning('Treasury transfer not found for failed webhook', ['reference' => $reference]);
+
+            return ['success' => false, 'message' => 'Treasury transfer not found.'];
+        }
+
+        if ($transfer->hasFailed()) {
+            return ['success' => true, 'message' => 'Treasury transfer already marked as failed.'];
+        }
+
+        $transfer->update([
+            'status' => TreasuryTransfer::STATUS_FAILED,
+            'paystack_response' => $data,
+        ]);
+
+        CacheService::flushTreasuryTransferCaches();
+
+        Log::warning('Treasury transfer failed', ['reference' => $reference, 'reason' => $data['reason'] ?? 'unknown']);
+
+        return ['success' => true, 'message' => 'Treasury transfer marked as failed.'];
     }
 }
