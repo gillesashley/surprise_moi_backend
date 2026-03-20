@@ -17,6 +17,7 @@ use App\Http\Controllers\ProductShareController;
 use App\Http\Controllers\ReferralCodeController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\TargetController;
+use App\Http\Controllers\TreasuryController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserManagementAccessController;
 use App\Http\Controllers\VendorApplicationController;
@@ -163,6 +164,26 @@ Route::middleware(['auth', 'dashboard'])->prefix('dashboard')->group(function ()
             ->whereIn('type', ['order', 'vendor-onboarding']);
         Route::post('/{type}/{id}/sync', [PaymentManagementController::class, 'sync'])->name('sync')
             ->whereIn('type', ['order', 'vendor-onboarding']);
+    });
+
+    // Treasury (super_admin only - enforced in controller)
+    Route::prefix('treasury')->name('treasury.')->group(function () {
+        Route::get('/', [TreasuryController::class, 'index'])->name('index');
+        Route::get('/transactions', [TreasuryController::class, 'transactions'])->name('transactions');
+        Route::get('/settlements', [TreasuryController::class, 'settlements'])->name('settlements');
+        Route::get('/transfers', [TreasuryController::class, 'transfers'])->name('transfers');
+
+        Route::post('/refresh', [TreasuryController::class, 'refresh'])->name('refresh');
+
+        Route::get('/bank-account', [TreasuryController::class, 'bankAccount'])->name('bank-account');
+        Route::post('/bank-account', [TreasuryController::class, 'saveBankAccount'])->name('bank-account.save');
+        Route::post('/bank-account/verify', [TreasuryController::class, 'verifyBankAccount'])->name('bank-account.verify');
+
+        Route::post('/transfer', [TreasuryController::class, 'initiateTransfer'])
+            ->middleware('throttle:treasury-transfer')
+            ->name('transfer.initiate');
+        Route::post('/transfer/finalize', [TreasuryController::class, 'finalizeTransfer'])->name('transfer.finalize');
+        Route::post('/transfer/resend-otp', [TreasuryController::class, 'resendTransferOtp'])->name('transfer.resend-otp');
     });
 
     // SPA catch-all - must be LAST in the group
