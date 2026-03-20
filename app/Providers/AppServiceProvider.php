@@ -9,12 +9,15 @@ use App\Observers\ProductObserver;
 use App\Observers\ReviewObserver;
 use App\Services\KairosAfrikaSmsService;
 use Illuminate\Auth\Notifications\VerifyEmail;
+use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Http\Request;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 
@@ -78,6 +81,10 @@ class AppServiceProvider extends ServiceProvider
             'product' => \App\Models\Product::class,
             'service' => \App\Models\Service::class,
         ]);
+
+        RateLimiter::for('treasury-transfer', function (Request $request) {
+            return Limit::perHour(5)->by($request->user()?->id ?: $request->ip());
+        });
 
         // Allow public access to API documentation
         Gate::define('viewApiDocs', function () {

@@ -24,6 +24,7 @@ import {
     DollarSign,
     Footprints,
     LayoutGrid,
+    Landmark,
     List,
     Megaphone,
     MonitorPlay,
@@ -165,6 +166,14 @@ const getNavItemsForRole = (role: string): NavItem[] => {
                 icon: Settings2,
             },
         ];
+
+        if (role === 'super_admin') {
+            items.push({
+                title: 'Treasury',
+                href: '/dashboard/treasury',
+                icon: Landmark,
+            });
+        }
 
         return items;
     }
