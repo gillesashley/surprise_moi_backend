@@ -49,7 +49,7 @@ class VendorApplicationSubmittedNotification extends Notification implements Sho
             ->greeting("Hello {$notifiable->name},")
             ->line('Your vendor registration has been received. We will review your application and notify you once it is approved.')
             ->line('This process usually takes a short while. We appreciate your patience.')
-            ->line('If you have any questions in the meantime, feel free to contact our support team.')
+            ->line('If you have any questions in the meantime, feel free to contact our support team at operations@teczaleel.com or WhatsApp us on +233 245 261 266.')
             ->salutation('Best regards, The Surprise Moi Team');
     }
 
