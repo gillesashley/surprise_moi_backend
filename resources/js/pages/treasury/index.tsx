@@ -928,16 +928,16 @@ export default function Treasury(props: TreasuryProps) {
                     <h1 className="text-3xl font-bold">Treasury</h1>
                 </div>
 
-                <div className="flex gap-1 border-b">
+                <div className="flex items-center gap-6 border-b">
                     {tabs.map((t) => (
                         <Link
                             key={t.key}
                             href={t.href}
                             preserveState
-                            className={`border-b-2 px-4 py-2 text-sm font-medium transition-colors ${
+                            className={`-mb-px inline-block border-b-2 px-1 py-3 text-sm font-medium whitespace-nowrap transition-colors ${
                                 tab === t.key
                                     ? 'border-primary text-primary'
-                                    : 'text-muted-foreground hover:text-foreground border-transparent'
+                                    : 'border-transparent text-muted-foreground hover:border-muted-foreground/30 hover:text-foreground'
                             }`}
                         >
                             {t.label}
