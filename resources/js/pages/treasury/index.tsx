@@ -34,6 +34,8 @@ import {
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
 import { Building2, Landmark, RefreshCw, Send } from 'lucide-react';
 import { useState } from 'react';
 
@@ -176,59 +178,54 @@ function OverviewTab({
     };
 
     return (
-        <div className="space-y-6">
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
             <Card>
-                <CardHeader className="flex flex-row items-center justify-between">
-                    <div>
-                        <CardDescription>Paystack Balance</CardDescription>
-                        <CardTitle className="text-3xl">
-                            {formatGhs(balanceAmount)}
-                        </CardTitle>
-                    </div>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={handleRefresh}
-                    >
-                        <RefreshCw className="mr-2 h-4 w-4" /> Refresh
-                    </Button>
+                <CardHeader>
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <Box>
+                            <CardDescription>Paystack Balance</CardDescription>
+                            <Typography variant="h4" sx={{ fontWeight: 700 }}>
+                                {formatGhs(balanceAmount)}
+                            </Typography>
+                        </Box>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={handleRefresh}
+                        >
+                            <RefreshCw style={{ width: 16, height: 16, marginRight: 8 }} /> Refresh
+                        </Button>
+                    </Box>
                 </CardHeader>
             </Card>
 
             {totals?.success && (
-                <div className="grid gap-4 md:grid-cols-3">
+                <Box sx={{ display: 'grid', gap: 2, gridTemplateColumns: { md: 'repeat(3, 1fr)' } }}>
                     <Card>
-                        <CardHeader className="pb-2">
-                            <CardDescription>
-                                Total Transactions
-                            </CardDescription>
-                            <CardTitle className="text-2xl">
-                                {totals.data?.total_transactions?.toLocaleString() ??
-                                    '0'}
-                            </CardTitle>
+                        <CardHeader>
+                            <CardDescription>Total Transactions</CardDescription>
+                            <Typography variant="h5" sx={{ fontWeight: 600 }}>
+                                {totals.data?.total_transactions?.toLocaleString() ?? '0'}
+                            </Typography>
                         </CardHeader>
                     </Card>
                     <Card>
-                        <CardHeader className="pb-2">
+                        <CardHeader>
                             <CardDescription>Total Volume</CardDescription>
-                            <CardTitle className="text-2xl">
-                                {formatGhs(
-                                    totals.data?.total_volume ?? 0,
-                                )}
-                            </CardTitle>
+                            <Typography variant="h5" sx={{ fontWeight: 600 }}>
+                                {formatGhs(totals.data?.total_volume ?? 0)}
+                            </Typography>
                         </CardHeader>
                     </Card>
                     <Card>
-                        <CardHeader className="pb-2">
+                        <CardHeader>
                             <CardDescription>Pending</CardDescription>
-                            <CardTitle className="text-2xl">
-                                {formatGhs(
-                                    totals.data?.pending_amount ?? 0,
-                                )}
-                            </CardTitle>
+                            <Typography variant="h5" sx={{ fontWeight: 600 }}>
+                                {formatGhs(totals.data?.pending_amount ?? 0)}
+                            </Typography>
                         </CardHeader>
                     </Card>
-                </div>
+                </Box>
             )}
 
             <Card>
@@ -252,37 +249,31 @@ function OverviewTab({
                                     .map((tx, i) => (
                                         <TableRow key={i}>
                                             <TableCell>
-                                                {formatDate(
-                                                    tx.created_at as string,
-                                                )}
-                                            </TableCell>
-                                            <TableCell className="font-mono text-xs">
-                                                {tx.reference as string}
+                                                {formatDate(tx.created_at as string)}
                                             </TableCell>
                                             <TableCell>
-                                                {formatGhs(
-                                                    tx.amount as number,
-                                                )}
+                                                <Typography sx={{ fontFamily: 'monospace', fontSize: '0.75rem' }}>
+                                                    {tx.reference as string}
+                                                </Typography>
                                             </TableCell>
                                             <TableCell>
-                                                <StatusBadge
-                                                    status={
-                                                        tx.status as string
-                                                    }
-                                                />
+                                                {formatGhs(tx.amount as number)}
+                                            </TableCell>
+                                            <TableCell>
+                                                <StatusBadge status={tx.status as string} />
                                             </TableCell>
                                         </TableRow>
                                     ))}
                             </TableBody>
                         </Table>
                     ) : (
-                        <p className="text-muted-foreground py-8 text-center">
+                        <Typography sx={{ py: 4, textAlign: 'center', color: 'text.secondary' }}>
                             No recent transactions.
-                        </p>
+                        </Typography>
                     )}
                 </CardContent>
             </Card>
-        </div>
+        </Box>
     );
 }
 
@@ -301,56 +292,50 @@ function TransactionsTab({ transactions, filters }: TreasuryProps) {
     };
 
     return (
-        <div className="space-y-4">
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             <Card>
-                <CardContent className="pt-6">
-                    <div className="flex flex-wrap items-end gap-4">
-                        <div>
+                <CardContent>
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-end', gap: 2, pt: 1 }}>
+                        <Box>
                             <Label>From</Label>
                             <Input
                                 type="date"
                                 value={from}
                                 onChange={(e) => setFrom(e.target.value)}
                             />
-                        </div>
-                        <div>
+                        </Box>
+                        <Box>
                             <Label>To</Label>
                             <Input
                                 type="date"
                                 value={to}
                                 onChange={(e) => setTo(e.target.value)}
                             />
-                        </div>
-                        <div>
+                        </Box>
+                        <Box>
                             <Label>Status</Label>
                             <Select
                                 value={status}
                                 onValueChange={setStatus}
                             >
-                                <SelectTrigger className="w-[150px]">
+                                <SelectTrigger style={{ width: 150 }}>
                                     <SelectValue placeholder="All" />
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="all">All</SelectItem>
-                                    <SelectItem value="success">
-                                        Success
-                                    </SelectItem>
-                                    <SelectItem value="failed">
-                                        Failed
-                                    </SelectItem>
-                                    <SelectItem value="abandoned">
-                                        Abandoned
-                                    </SelectItem>
+                                    <SelectItem value="success">Success</SelectItem>
+                                    <SelectItem value="failed">Failed</SelectItem>
+                                    <SelectItem value="abandoned">Abandoned</SelectItem>
                                 </SelectContent>
                             </Select>
-                        </div>
+                        </Box>
                         <Button onClick={handleFilter}>Filter</Button>
-                    </div>
+                    </Box>
                 </CardContent>
             </Card>
 
             <Card>
-                <CardContent className="pt-6">
+                <CardContent>
                     {transactions?.data?.length ? (
                         <Table>
                             <TableHeader>
@@ -367,49 +352,37 @@ function TransactionsTab({ transactions, filters }: TreasuryProps) {
                                 {transactions.data.map((tx, i) => (
                                     <TableRow key={i}>
                                         <TableCell>
-                                            {formatDate(
-                                                tx.created_at as string,
-                                            )}
-                                        </TableCell>
-                                        <TableCell className="font-mono text-xs">
-                                            {tx.reference as string}
+                                            {formatDate(tx.created_at as string)}
                                         </TableCell>
                                         <TableCell>
-                                            {(
-                                                tx.customer as Record<
-                                                    string,
-                                                    string
-                                                >
-                                            )?.email ?? '-'}
+                                            <Typography sx={{ fontFamily: 'monospace', fontSize: '0.75rem' }}>
+                                                {tx.reference as string}
+                                            </Typography>
                                         </TableCell>
                                         <TableCell>
-                                            {formatGhs(
-                                                tx.amount as number,
-                                            )}
+                                            {(tx.customer as Record<string, string>)?.email ?? '-'}
                                         </TableCell>
                                         <TableCell>
-                                            {(tx.channel as string) ??
-                                                '-'}
+                                            {formatGhs(tx.amount as number)}
                                         </TableCell>
                                         <TableCell>
-                                            <StatusBadge
-                                                status={
-                                                    tx.status as string
-                                                }
-                                            />
+                                            {(tx.channel as string) ?? '-'}
+                                        </TableCell>
+                                        <TableCell>
+                                            <StatusBadge status={tx.status as string} />
                                         </TableCell>
                                     </TableRow>
                                 ))}
                             </TableBody>
                         </Table>
                     ) : (
-                        <p className="text-muted-foreground py-8 text-center">
+                        <Typography sx={{ py: 4, textAlign: 'center', color: 'text.secondary' }}>
                             No transactions found.
-                        </p>
+                        </Typography>
                     )}
                 </CardContent>
             </Card>
-        </div>
+        </Box>
     );
 }
 
@@ -427,33 +400,33 @@ function SettlementsTab({ settlements, filters }: TreasuryProps) {
     };
 
     return (
-        <div className="space-y-4">
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             <Card>
-                <CardContent className="pt-6">
-                    <div className="flex flex-wrap items-end gap-4">
-                        <div>
+                <CardContent>
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-end', gap: 2, pt: 1 }}>
+                        <Box>
                             <Label>From</Label>
                             <Input
                                 type="date"
                                 value={from}
                                 onChange={(e) => setFrom(e.target.value)}
                             />
-                        </div>
-                        <div>
+                        </Box>
+                        <Box>
                             <Label>To</Label>
                             <Input
                                 type="date"
                                 value={to}
                                 onChange={(e) => setTo(e.target.value)}
                             />
-                        </div>
+                        </Box>
                         <Button onClick={handleFilter}>Filter</Button>
-                    </div>
+                    </Box>
                 </CardContent>
             </Card>
 
             <Card>
-                <CardContent className="pt-6">
+                <CardContent>
                     {settlements?.data?.length ? (
                         <Table>
                             <TableHeader>
@@ -468,37 +441,27 @@ function SettlementsTab({ settlements, filters }: TreasuryProps) {
                                     <TableRow key={i}>
                                         <TableCell>
                                             {formatDate(
-                                                ((s.settled_date ??
-                                                    s.created_at) as string) ??
-                                                    '',
+                                                ((s.settled_date ?? s.created_at) as string) ?? '',
                                             )}
                                         </TableCell>
                                         <TableCell>
-                                            {formatGhs(
-                                                (s.total_amount as number) ??
-                                                    0,
-                                            )}
+                                            {formatGhs((s.total_amount as number) ?? 0)}
                                         </TableCell>
                                         <TableCell>
-                                            <StatusBadge
-                                                status={
-                                                    (s.status as string) ??
-                                                    'unknown'
-                                                }
-                                            />
+                                            <StatusBadge status={(s.status as string) ?? 'unknown'} />
                                         </TableCell>
                                     </TableRow>
                                 ))}
                             </TableBody>
                         </Table>
                     ) : (
-                        <p className="text-muted-foreground py-8 text-center">
+                        <Typography sx={{ py: 4, textAlign: 'center', color: 'text.secondary' }}>
                             No settlements found.
-                        </p>
+                        </Typography>
                     )}
                 </CardContent>
             </Card>
-        </div>
+        </Box>
     );
 }
 
@@ -652,65 +615,66 @@ function TransfersTab({
     };
 
     return (
-        <div className="space-y-6">
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
             <Card>
-                <CardHeader className="flex flex-row items-center justify-between">
-                    <div>
-                        <CardTitle className="flex items-center gap-2">
-                            <Building2 className="h-5 w-5" /> Company Bank
-                            Account
-                        </CardTitle>
-                        {bankAccount ? (
-                            <CardDescription>
-                                {bankAccount.account_name} -{' '}
-                                {bankAccount.bank_name} (
-                                {bankAccount.account_number})
-                            </CardDescription>
-                        ) : (
-                            <CardDescription>
-                                No bank account configured.
-                            </CardDescription>
-                        )}
-                    </div>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setShowBankForm(true)}
-                    >
-                        {bankAccount ? 'Change Account' : 'Set Up Account'}
-                    </Button>
+                <CardHeader>
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <Box>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
+                                <Building2 style={{ width: 20, height: 20 }} />
+                                <CardTitle>Company Bank Account</CardTitle>
+                            </Box>
+                            {bankAccount ? (
+                                <CardDescription>
+                                    {bankAccount.account_name} -{' '}
+                                    {bankAccount.bank_name} (
+                                    {bankAccount.account_number})
+                                </CardDescription>
+                            ) : (
+                                <CardDescription>
+                                    No bank account configured.
+                                </CardDescription>
+                            )}
+                        </Box>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setShowBankForm(true)}
+                        >
+                            {bankAccount ? 'Change Account' : 'Set Up Account'}
+                        </Button>
+                    </Box>
                 </CardHeader>
             </Card>
 
             <Card>
                 <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        <Send className="h-5 w-5" /> Transfer Funds
-                    </CardTitle>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
+                        <Send style={{ width: 20, height: 20 }} />
+                        <CardTitle>Transfer Funds</CardTitle>
+                    </Box>
                     <CardDescription>
                         Current balance: {formatGhs(balanceAmount)}
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
                     {!bankAccount ? (
-                        <p className="text-muted-foreground">
+                        <Typography sx={{ color: 'text.secondary' }}>
                             Set up a bank account first to make transfers.
-                        </p>
+                        </Typography>
                     ) : (
-                        <div className="flex items-end gap-4">
-                            <div className="flex-1">
+                        <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: 2 }}>
+                            <Box sx={{ flex: 1 }}>
                                 <Label>Amount (GHS)</Label>
                                 <Input
                                     type="number"
                                     step="0.01"
                                     min="0.01"
                                     value={amount}
-                                    onChange={(e) =>
-                                        setAmount(e.target.value)
-                                    }
+                                    onChange={(e) => setAmount(e.target.value)}
                                     placeholder="Enter amount"
                                 />
-                            </div>
+                            </Box>
                             <Button
                                 variant="outline"
                                 onClick={handleUseFullBalance}
@@ -723,10 +687,12 @@ function TransfersTab({
                             >
                                 {transferring ? 'Processing...' : 'Transfer'}
                             </Button>
-                        </div>
+                        </Box>
                     )}
                     {error && (
-                        <p className="mt-2 text-sm text-red-600">{error}</p>
+                        <Typography sx={{ mt: 1, fontSize: '0.875rem', color: 'error.main' }}>
+                            {error}
+                        </Typography>
                     )}
                 </CardContent>
             </Card>
@@ -755,32 +721,29 @@ function TransfersTab({
                                         </TableCell>
                                         <TableCell>
                                             GHS{' '}
-                                            {parseFloat(
-                                                t.amount,
-                                            ).toLocaleString('en-GH', {
+                                            {parseFloat(t.amount).toLocaleString('en-GH', {
                                                 minimumFractionDigits: 2,
                                             })}
                                         </TableCell>
                                         <TableCell>
-                                            {t.company_bank_account
-                                                ?.bank_name ?? '-'}
-                                        </TableCell>
-                                        <TableCell className="font-mono text-xs">
-                                            {t.paystack_reference}
+                                            {t.company_bank_account?.bank_name ?? '-'}
                                         </TableCell>
                                         <TableCell>
-                                            <StatusBadge
-                                                status={t.status}
-                                            />
+                                            <Typography sx={{ fontFamily: 'monospace', fontSize: '0.75rem' }}>
+                                                {t.paystack_reference}
+                                            </Typography>
+                                        </TableCell>
+                                        <TableCell>
+                                            <StatusBadge status={t.status} />
                                         </TableCell>
                                     </TableRow>
                                 ))}
                             </TableBody>
                         </Table>
                     ) : (
-                        <p className="text-muted-foreground py-8 text-center">
+                        <Typography sx={{ py: 4, textAlign: 'center', color: 'text.secondary' }}>
                             No transfers yet.
-                        </p>
+                        </Typography>
                     )}
                 </CardContent>
             </Card>
@@ -794,8 +757,8 @@ function TransfersTab({
                             owner. Enter it below to complete the transfer.
                         </DialogDescription>
                     </DialogHeader>
-                    <div className="space-y-4">
-                        <div>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                        <Box>
                             <Label>OTP</Label>
                             <Input
                                 value={otp}
@@ -803,11 +766,13 @@ function TransfersTab({
                                 maxLength={6}
                                 placeholder="Enter 6-digit OTP"
                             />
-                        </div>
+                        </Box>
                         {error && (
-                            <p className="text-sm text-red-600">{error}</p>
+                            <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
+                                {error}
+                            </Typography>
                         )}
-                        <div className="flex justify-between">
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                             <Button
                                 variant="ghost"
                                 size="sm"
@@ -817,16 +782,12 @@ function TransfersTab({
                             </Button>
                             <Button
                                 onClick={handleFinalizeTransfer}
-                                disabled={
-                                    transferring || otp.length !== 6
-                                }
+                                disabled={transferring || otp.length !== 6}
                             >
-                                {transferring
-                                    ? 'Confirming...'
-                                    : 'Confirm Transfer'}
+                                {transferring ? 'Confirming...' : 'Confirm Transfer'}
                             </Button>
-                        </div>
-                    </div>
+                        </Box>
+                    </Box>
                 </DialogContent>
             </Dialog>
 
@@ -839,8 +800,8 @@ function TransfersTab({
                             account will be verified with Paystack.
                         </DialogDescription>
                     </DialogHeader>
-                    <div className="space-y-4">
-                        <div>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                        <Box>
                             <Label>Account Number</Label>
                             <Input
                                 value={bankFormData.account_number}
@@ -852,8 +813,8 @@ function TransfersTab({
                                 }
                                 placeholder="Enter account number"
                             />
-                        </div>
-                        <div>
+                        </Box>
+                        <Box>
                             <Label>Bank Name</Label>
                             <Input
                                 value={bankFormData.bank_name}
@@ -865,8 +826,8 @@ function TransfersTab({
                                 }
                                 placeholder="Bank name"
                             />
-                        </div>
-                        <div>
+                        </Box>
+                        <Box>
                             <Label>Bank Code</Label>
                             <Input
                                 value={bankFormData.bank_code}
@@ -878,7 +839,7 @@ function TransfersTab({
                                 }
                                 placeholder="Bank code (e.g., 058)"
                             />
-                        </div>
+                        </Box>
                         {!verifiedName && (
                             <Button
                                 onClick={handleVerifyAccount}
@@ -888,29 +849,32 @@ function TransfersTab({
                                     !bankFormData.bank_code
                                 }
                             >
-                                {verifying
-                                    ? 'Verifying...'
-                                    : 'Verify Account'}
+                                {verifying ? 'Verifying...' : 'Verify Account'}
                             </Button>
                         )}
                         {verifiedName && (
-                            <div className="rounded border border-green-200 bg-green-50 p-3">
-                                <p className="text-sm text-green-800">
-                                    Account Name:{' '}
-                                    <strong>{verifiedName}</strong>
-                                </p>
+                            <Box sx={{
+                                borderRadius: 1,
+                                border: '1px solid',
+                                borderColor: 'success.light',
+                                bgcolor: 'success.50',
+                                p: 1.5,
+                            }}>
+                                <Typography sx={{ fontSize: '0.875rem', color: 'success.dark' }}>
+                                    Account Name: <strong>{verifiedName}</strong>
+                                </Typography>
                                 <Button
-                                    className="mt-2"
+                                    style={{ marginTop: 8 }}
                                     onClick={handleSaveBankAccount}
                                 >
                                     Confirm & Save
                                 </Button>
-                            </div>
+                            </Box>
                         )}
-                    </div>
+                    </Box>
                 </DialogContent>
             </Dialog>
-        </div>
+        </Box>
     );
 }
 
@@ -922,38 +886,44 @@ export default function Treasury(props: TreasuryProps) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Treasury" />
 
-            <div className="flex flex-col gap-6 p-6">
-                <div className="flex items-center gap-3">
-                    <Landmark className="h-8 w-8" />
-                    <h1 className="text-3xl font-bold">Treasury</h1>
-                </div>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, p: 3 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                    <Landmark style={{ width: 32, height: 32 }} />
+                    <Typography variant="h4" sx={{ fontWeight: 700 }}>
+                        Treasury
+                    </Typography>
+                </Box>
 
-                <div className="flex items-center gap-6 border-b">
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, borderBottom: 1, borderColor: 'divider' }}>
                     {tabs.map((t) => (
                         <Link
                             key={t.key}
                             href={t.href}
                             preserveState
-                            className={`-mb-px inline-block border-b-2 px-1 py-3 text-sm font-medium whitespace-nowrap transition-colors ${
-                                tab === t.key
-                                    ? 'border-primary text-primary'
-                                    : 'border-transparent text-muted-foreground hover:border-muted-foreground/30 hover:text-foreground'
-                            }`}
+                            style={{
+                                display: 'inline-block',
+                                padding: '12px 4px',
+                                marginBottom: -1,
+                                fontSize: '0.875rem',
+                                fontWeight: 500,
+                                whiteSpace: 'nowrap',
+                                textDecoration: 'none',
+                                borderBottom: '2px solid',
+                                borderColor: tab === t.key ? '#7c3aed' : 'transparent',
+                                color: tab === t.key ? '#7c3aed' : '#6b7280',
+                                transition: 'color 0.15s, border-color 0.15s',
+                            }}
                         >
                             {t.label}
                         </Link>
                     ))}
-                </div>
+                </Box>
 
                 {tab === 'overview' && <OverviewTab {...props} />}
-                {tab === 'transactions' && (
-                    <TransactionsTab {...props} />
-                )}
-                {tab === 'settlements' && (
-                    <SettlementsTab {...props} />
-                )}
+                {tab === 'transactions' && <TransactionsTab {...props} />}
+                {tab === 'settlements' && <SettlementsTab {...props} />}
                 {tab === 'transfers' && <TransfersTab {...props} />}
-            </div>
+            </Box>
         </AppLayout>
     );
 }
