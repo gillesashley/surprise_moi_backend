@@ -576,9 +576,9 @@ export default function PaymentShow({ payment }: Props) {
                                                         {formatStatus(payment.related.application_status)}
                                                     </Box>
                                                 )}
-                                                {payment.related.current_step !== undefined && payment.related.completed_step !== undefined && (
+                                                {payment.related.completed_step !== undefined && (
                                                     <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
-                                                        Steps: {payment.related.completed_step} / {payment.related.current_step} completed
+                                                        Steps: {payment.related.completed_step} / 4 completed
                                                     </Typography>
                                                 )}
                                             </Box>

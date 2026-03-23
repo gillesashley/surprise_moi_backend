@@ -258,8 +258,13 @@ class VendorOnboardingPaymentService
      */
     public function verifyPayment(VendorOnboardingPayment $payment): array
     {
-        // If already verified and successful, return early
+        // If already verified and successful, auto-submit if needed and return early
         if ($payment->isSuccessful()) {
+            $application = $payment->vendorApplication;
+            if ($application && $application->canSubmit()) {
+                $application->submit();
+            }
+
             return [
                 'success' => true,
                 'data' => [
@@ -388,6 +393,10 @@ class VendorOnboardingPaymentService
                     'payment_completed_at' => now(),
                 ]);
 
+                // Auto-submit the application now that payment is complete
+                $application->refresh();
+                $autoSubmitted = $application->canSubmit() ? $application->submit() : false;
+
                 // Update coupon usage if applicable
                 if ($payment->coupon_id) {
                     $payment->coupon->increment('used_count');
@@ -401,6 +410,7 @@ class VendorOnboardingPaymentService
 
                 return [
                     'application' => $application,
+                    'auto_submitted' => $autoSubmitted,
                     'result' => [
                         'success' => true,
                         'data' => [
