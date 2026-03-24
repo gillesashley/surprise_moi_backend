@@ -462,7 +462,7 @@ function SettlementsTab({ settlements, filters }: TreasuryProps) {
                                     <TableRow key={i}>
                                         <TableCell>
                                             {formatDate(
-                                                ((s.settled_date ?? s.created_at) as string) ?? '',
+                                                ((s.settlement_date ?? s.createdAt) as string) ?? '',
                                             )}
                                         </TableCell>
                                         <TableCell>
