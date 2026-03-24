@@ -2,7 +2,9 @@
 
 namespace App\Notifications;
 
+use App\Channels\SmsChannel;
 use App\Models\Order;
+use App\Notifications\Messages\SmsMessage;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\BroadcastMessage;
@@ -31,6 +33,10 @@ class NewOrderReceived extends Notification implements ShouldQueue
 
         if ($notifiable->deviceTokens()->exists()) {
             $channels[] = FcmChannel::class;
+        }
+
+        if (! empty($notifiable->phone)) {
+            $channels[] = SmsChannel::class;
         }
 
         return $channels;
@@ -80,6 +86,29 @@ class NewOrderReceived extends Notification implements ShouldQueue
     public function toBroadcast(object $notifiable): BroadcastMessage
     {
         return new BroadcastMessage($this->toDatabase($notifiable));
+    }
+
+    /**
+     * Get the SMS representation of the notification.
+     */
+    public function toSms(mixed $notifiable): SmsMessage
+    {
+        $itemSummary = $this->order->items->first()?->orderable?->name ?? 'an item';
+        $itemCount = $this->order->items->count();
+
+        if ($itemCount > 1) {
+            $itemSummary .= ' + '.($itemCount - 1).' more';
+        }
+
+        $content = sprintf(
+            "Surprise Moi: New order #%s! %s ordered %s (GHS %s). Log in to your dashboard to confirm and process this order.",
+            $this->order->order_number,
+            $this->order->user?->name ?? 'A customer',
+            $itemSummary,
+            number_format((float) $this->order->total, 2)
+        );
+
+        return (new SmsMessage)->content($content);
     }
 
     /**

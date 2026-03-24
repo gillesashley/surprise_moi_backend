@@ -232,8 +232,8 @@ class KairosAfrikaSmsService implements SmsProviderInterface
                 $http = $http->withoutVerifying();
             }
 
-            $response = $http->post("{$this->apiUrl}/external/send/sms", [
-                'recipient' => $phoneNumber,
+            $response = $http->post("{$this->apiUrl}/external/sms/quick", [
+                'to' => $phoneNumber,
                 'from' => $this->senderName,
                 'message' => $message,
             ]);

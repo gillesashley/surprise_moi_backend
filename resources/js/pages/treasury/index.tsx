@@ -187,6 +187,9 @@ function OverviewTab({
                             <Typography variant="h4" sx={{ fontWeight: 700 }}>
                                 {formatGhs(balanceAmount)}
                             </Typography>
+                            <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary', mt: 0.5 }}>
+                                Available funds in your Paystack account ready for withdrawal
+                            </Typography>
                         </Box>
                         <Button
                             variant="outline"
@@ -207,6 +210,9 @@ function OverviewTab({
                             <Typography variant="h5" sx={{ fontWeight: 600 }}>
                                 {totals.data?.total_transactions?.toLocaleString() ?? '0'}
                             </Typography>
+                            <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary', mt: 0.5 }}>
+                                All-time number of payments received
+                            </Typography>
                         </CardHeader>
                     </Card>
                     <Card>
@@ -214,6 +220,9 @@ function OverviewTab({
                             <CardDescription>Total Volume</CardDescription>
                             <Typography variant="h5" sx={{ fontWeight: 600 }}>
                                 {formatGhs(totals.data?.total_volume ?? 0)}
+                            </Typography>
+                            <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary', mt: 0.5 }}>
+                                Total amount collected from all successful payments
                             </Typography>
                         </CardHeader>
                     </Card>
@@ -223,6 +232,9 @@ function OverviewTab({
                             <Typography variant="h5" sx={{ fontWeight: 600 }}>
                                 {formatGhs(totals.data?.pending_amount ?? 0)}
                             </Typography>
+                            <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary', mt: 0.5 }}>
+                                Payments initiated but not yet confirmed by Paystack
+                            </Typography>
                         </CardHeader>
                     </Card>
                 </Box>
@@ -231,6 +243,9 @@ function OverviewTab({
             <Card>
                 <CardHeader>
                     <CardTitle>Recent Transactions</CardTitle>
+                    <CardDescription>
+                        Latest 10 payments from onboarding fees, orders, and other sources
+                    </CardDescription>
                 </CardHeader>
                 <CardContent>
                     {recentTransactions?.data?.length ? (
@@ -293,6 +308,9 @@ function TransactionsTab({ transactions, filters }: TreasuryProps) {
 
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
+                All payments processed through Paystack, including onboarding fees, order payments, and subscriptions. Use filters to narrow by date or status.
+            </Typography>
             <Card>
                 <CardContent>
                     <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-end', gap: 2, pt: 1 }}>
@@ -401,6 +419,9 @@ function SettlementsTab({ settlements, filters }: TreasuryProps) {
 
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
+                Paystack automatically settles collected funds into your bank account on a schedule. Each row shows a batch of settled payments and the total amount deposited.
+            </Typography>
             <Card>
                 <CardContent>
                     <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-end', gap: 2, pt: 1 }}>
@@ -635,6 +656,9 @@ function TransfersTab({
                                     No bank account configured.
                                 </CardDescription>
                             )}
+                            <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary', mt: 0.5 }}>
+                                The bank account where funds will be sent when you initiate a transfer
+                            </Typography>
                         </Box>
                         <Button
                             variant="outline"
@@ -656,6 +680,9 @@ function TransfersTab({
                     <CardDescription>
                         Current balance: {formatGhs(balanceAmount)}
                     </CardDescription>
+                    <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
+                        Move funds from your Paystack balance to the company bank account. An OTP will be sent to the Paystack account owner for confirmation.
+                    </Typography>
                 </CardHeader>
                 <CardContent>
                     {!bankAccount ? (
@@ -700,6 +727,9 @@ function TransfersTab({
             <Card>
                 <CardHeader>
                     <CardTitle>Transfer History</CardTitle>
+                    <CardDescription>
+                        Record of all fund transfers from Paystack to the company bank account
+                    </CardDescription>
                 </CardHeader>
                 <CardContent>
                     {transferHistory?.data?.length ? (
