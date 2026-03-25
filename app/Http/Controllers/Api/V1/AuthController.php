@@ -40,7 +40,7 @@ class AuthController extends Controller
     {
         $user = User::create([
             'name' => $request->name,
-            'email' => $request->email,
+            'email' => strtolower($request->email),
             'phone' => $request->phone,
             'password' => $request->password,
             'role' => $request->role,
@@ -167,7 +167,7 @@ class AuthController extends Controller
      */
     public function login(LoginRequest $request): JsonResponse
     {
-        $user = User::where('email', $request->email)->first();
+        $user = User::whereRaw('LOWER(email) = ?', [strtolower($request->email)])->first();
 
         if (! $user || ! Hash::check($request->password, $user->password)) {
             throw ValidationException::withMessages([
@@ -406,7 +406,7 @@ class AuthController extends Controller
      */
     public function forgotPassword(ForgotPasswordRequest $request): JsonResponse
     {
-        $user = User::where('email', $request->email)->first();
+        $user = User::whereRaw('LOWER(email) = ?', [strtolower($request->email)])->first();
 
         if (! $user) {
             return response()->json([
@@ -498,7 +498,7 @@ class AuthController extends Controller
      */
     public function resendVerification(ResendVerificationRequest $request): JsonResponse
     {
-        $user = User::where('email', $request->email)->first();
+        $user = User::whereRaw('LOWER(email) = ?', [strtolower($request->email)])->first();
 
         if (! $user) {
             return response()->json([
