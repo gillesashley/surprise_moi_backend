@@ -21,8 +21,8 @@ class PersonalityTraitController extends Controller
 
         return Inertia::render('personality-traits/index', [
             'personalityTraits' => $personalityTraits,
-            'canCreate' => Auth::user()->isSuperAdmin(),
-            'canDelete' => Auth::user()->isSuperAdmin(),
+            'canCreate' => Auth::user()->isAdmin(),
+            'canDelete' => Auth::user()->isAdmin(),
         ]);
     }
 
@@ -31,8 +31,8 @@ class PersonalityTraitController extends Controller
      */
     public function create()
     {
-        if (! Auth::user()->isSuperAdmin()) {
-            return back()->with('error', 'Only super admins can create personality traits.');
+        if (! Auth::user()->isAdmin()) {
+            return back()->with('error', 'Only admins can create personality traits.');
         }
 
         return Inertia::render('personality-traits/create');
@@ -43,8 +43,8 @@ class PersonalityTraitController extends Controller
      */
     public function store(Request $request)
     {
-        if (! Auth::user()->isSuperAdmin()) {
-            return back()->with('error', 'Only super admins can create personality traits.');
+        if (! Auth::user()->isAdmin()) {
+            return back()->with('error', 'Only admins can create personality traits.');
         }
 
         $validated = $request->validate([
@@ -87,8 +87,8 @@ class PersonalityTraitController extends Controller
      */
     public function destroy(PersonalityTrait $personalityTrait)
     {
-        if (! Auth::user()->isSuperAdmin()) {
-            return back()->with('error', 'Only super admins can delete personality traits.');
+        if (! Auth::user()->isAdmin()) {
+            return back()->with('error', 'Only admins can delete personality traits.');
         }
 
         $personalityTrait->users()->detach();

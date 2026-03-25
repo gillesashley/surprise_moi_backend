@@ -112,8 +112,8 @@ class ContentManagementController extends Controller
                 'per_page' => $bespokeServices->perPage(),
                 'total' => $bespokeServices->total(),
             ],
-            'canCreate' => Auth::user()->isSuperAdmin(),
-            'canDelete' => Auth::user()->isSuperAdmin(),
+            'canCreate' => Auth::user()->isAdmin(),
+            'canDelete' => Auth::user()->isAdmin(),
             'activeTab' => $request->get('tab', 'categories'),
             'search' => $search ?? '',
         ]);

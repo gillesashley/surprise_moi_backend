@@ -21,8 +21,8 @@ class MusicGenreController extends Controller
 
         return Inertia::render('music-genres/index', [
             'musicGenres' => $musicGenres,
-            'canCreate' => Auth::user()->isSuperAdmin(),
-            'canDelete' => Auth::user()->isSuperAdmin(),
+            'canCreate' => Auth::user()->isAdmin(),
+            'canDelete' => Auth::user()->isAdmin(),
         ]);
     }
 
@@ -31,8 +31,8 @@ class MusicGenreController extends Controller
      */
     public function create()
     {
-        if (! Auth::user()->isSuperAdmin()) {
-            return back()->with('error', 'Only super admins can create music genres.');
+        if (! Auth::user()->isAdmin()) {
+            return back()->with('error', 'Only admins can create music genres.');
         }
 
         return Inertia::render('music-genres/create');
@@ -43,8 +43,8 @@ class MusicGenreController extends Controller
      */
     public function store(Request $request)
     {
-        if (! Auth::user()->isSuperAdmin()) {
-            return back()->with('error', 'Only super admins can create music genres.');
+        if (! Auth::user()->isAdmin()) {
+            return back()->with('error', 'Only admins can create music genres.');
         }
 
         $validated = $request->validate([
@@ -87,8 +87,8 @@ class MusicGenreController extends Controller
      */
     public function destroy(MusicGenre $musicGenre)
     {
-        if (! Auth::user()->isSuperAdmin()) {
-            return back()->with('error', 'Only super admins can delete music genres.');
+        if (! Auth::user()->isAdmin()) {
+            return back()->with('error', 'Only admins can delete music genres.');
         }
 
         $musicGenre->users()->detach();

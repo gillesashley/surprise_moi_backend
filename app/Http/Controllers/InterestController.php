@@ -21,8 +21,8 @@ class InterestController extends Controller
 
         return Inertia::render('interests/index', [
             'interests' => $interests,
-            'canCreate' => Auth::user()->isSuperAdmin(),
-            'canDelete' => Auth::user()->isSuperAdmin(),
+            'canCreate' => Auth::user()->isAdmin(),
+            'canDelete' => Auth::user()->isAdmin(),
         ]);
     }
 
@@ -31,8 +31,8 @@ class InterestController extends Controller
      */
     public function create()
     {
-        if (! Auth::user()->isSuperAdmin()) {
-            return back()->with('error', 'Only super admins can create interests.');
+        if (! Auth::user()->isAdmin()) {
+            return back()->with('error', 'Only admins can create interests.');
         }
 
         return Inertia::render('interests/create');
@@ -43,8 +43,8 @@ class InterestController extends Controller
      */
     public function store(Request $request)
     {
-        if (! Auth::user()->isSuperAdmin()) {
-            return back()->with('error', 'Only super admins can create interests.');
+        if (! Auth::user()->isAdmin()) {
+            return back()->with('error', 'Only admins can create interests.');
         }
 
         $validated = $request->validate([
@@ -87,8 +87,8 @@ class InterestController extends Controller
      */
     public function destroy(Interest $interest)
     {
-        if (! Auth::user()->isSuperAdmin()) {
-            return back()->with('error', 'Only super admins can delete interests.');
+        if (! Auth::user()->isAdmin()) {
+            return back()->with('error', 'Only admins can delete interests.');
         }
 
         $interest->users()->detach();

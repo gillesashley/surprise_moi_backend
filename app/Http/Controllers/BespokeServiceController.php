@@ -24,8 +24,8 @@ class BespokeServiceController extends Controller
 
         return Inertia::render('bespoke-services/index', [
             'bespokeServices' => $bespokeServices,
-            'canCreate' => Auth::user()->isSuperAdmin(),
-            'canDelete' => Auth::user()->isSuperAdmin(),
+            'canCreate' => Auth::user()->isAdmin(),
+            'canDelete' => Auth::user()->isAdmin(),
         ]);
     }
 
@@ -34,8 +34,8 @@ class BespokeServiceController extends Controller
      */
     public function create()
     {
-        if (! Auth::user()->isSuperAdmin()) {
-            return back()->with('error', 'Only super admins can create bespoke services.');
+        if (! Auth::user()->isAdmin()) {
+            return back()->with('error', 'Only admins can create bespoke services.');
         }
 
         return Inertia::render('bespoke-services/create');
@@ -46,8 +46,8 @@ class BespokeServiceController extends Controller
      */
     public function store(Request $request)
     {
-        if (! Auth::user()->isSuperAdmin()) {
-            return back()->with('error', 'Only super admins can create bespoke services.');
+        if (! Auth::user()->isAdmin()) {
+            return back()->with('error', 'Only admins can create bespoke services.');
         }
 
         $validated = $request->validate([
@@ -90,7 +90,7 @@ class BespokeServiceController extends Controller
     public function update(Request $request, BespokeService $bespokeService)
     {
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255', 'unique:bespoke_services,name,' . $bespokeService->id],
+            'name' => ['required', 'string', 'max:255', 'unique:bespoke_services,name,'.$bespokeService->id],
             'description' => ['nullable', 'string', 'max:1000'],
             'icon' => ['nullable', 'string', 'max:255'],
             'image' => ['nullable', 'image', 'mimes:jpeg,jpg,png,webp', 'max:2048'],
@@ -122,8 +122,8 @@ class BespokeServiceController extends Controller
      */
     public function destroy(BespokeService $bespokeService)
     {
-        if (! Auth::user()->isSuperAdmin()) {
-            return back()->with('error', 'Only super admins can delete bespoke services.');
+        if (! Auth::user()->isAdmin()) {
+            return back()->with('error', 'Only admins can delete bespoke services.');
         }
 
         $bespokeService->vendorApplications()->detach();

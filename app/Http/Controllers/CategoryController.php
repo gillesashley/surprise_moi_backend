@@ -23,8 +23,8 @@ class CategoryController extends Controller
 
         return Inertia::render('categories/index', [
             'categories' => $categories,
-            'canCreate' => Auth::user()->isSuperAdmin(),
-            'canDelete' => Auth::user()->isSuperAdmin(),
+            'canCreate' => Auth::user()->isAdmin(),
+            'canDelete' => Auth::user()->isAdmin(),
         ]);
     }
 
@@ -33,8 +33,8 @@ class CategoryController extends Controller
      */
     public function create()
     {
-        if (! Auth::user()->isSuperAdmin()) {
-            return back()->with('error', 'Only super admins can create categories.');
+        if (! Auth::user()->isAdmin()) {
+            return back()->with('error', 'Only admins can create categories.');
         }
 
         return Inertia::render('categories/create');
@@ -45,8 +45,8 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
-        if (! Auth::user()->isSuperAdmin()) {
-            return back()->with('error', 'Only super admins can create categories.');
+        if (! Auth::user()->isAdmin()) {
+            return back()->with('error', 'Only admins can create categories.');
         }
 
         $validated = $request->validate([
@@ -148,8 +148,8 @@ class CategoryController extends Controller
      */
     public function destroy(Category $category)
     {
-        if (! Auth::user()->isSuperAdmin()) {
-            return back()->with('error', 'Only super admins can delete categories.');
+        if (! Auth::user()->isAdmin()) {
+            return back()->with('error', 'Only admins can delete categories.');
         }
 
         if ($category->products()->exists()) {
