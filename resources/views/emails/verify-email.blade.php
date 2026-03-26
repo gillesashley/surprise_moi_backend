@@ -55,7 +55,7 @@
         <p>Please click the button below to verify your email address and get started:</p>
 
         <div style="text-align: center;">
-            <a href="{{ $verificationUrl }}" class="button">Verify Email Address</a>
+            <a href="{{ $verificationUrl }}" class="button" style="display: inline-block; background-color: #4f46e5; color: #ffffff !important; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin: 20px 0;">Verify Email Address</a>
         </div>
 
         <p>Or you can copy and paste this link into your browser:</p>

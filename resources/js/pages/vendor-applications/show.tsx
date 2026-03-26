@@ -32,6 +32,7 @@ import {
     Eye,
     IdCard,
     Package,
+    ShoppingBag,
     Trash2,
     User as UserIcon,
     Users,
@@ -106,8 +107,43 @@ interface Application {
     can_be_reviewed: boolean;
 }
 
+interface VendorOrder {
+    id: number;
+    order_number: string;
+    customer: { name: string; email: string } | null;
+    total: string;
+    currency: string;
+    status: string;
+    payment_status: string;
+    created_at: string;
+}
+
+interface VendorOrderStats {
+    total: number;
+    pending: number;
+    confirmed: number;
+    processing: number;
+    fulfilled: number;
+    shipped: number;
+    delivered: number;
+    refunded: number;
+    total_revenue: string;
+    total_payout: string;
+}
+
+interface VendorOrders {
+    stats: VendorOrderStats;
+    orders: {
+        data: VendorOrder[];
+        current_page: number;
+        last_page: number;
+        total: number;
+    };
+}
+
 interface Props {
     application: Application;
+    vendorOrders: VendorOrders | null;
 }
 
 const getStatusBadge = (status: string) => {
@@ -123,7 +159,29 @@ const getStatusBadge = (status: string) => {
     return <Badge variant={config.variant}>{config.label}</Badge>;
 };
 
-export default function VendorApplicationShow({ application }: Props) {
+const statusBadgeColors: Record<string, { bg: string; text: string }> = {
+    pending: { bg: '#FEF3C7', text: '#92400E' },
+    confirmed: { bg: '#DBEAFE', text: '#1E40AF' },
+    processing: { bg: '#EDE9FE', text: '#6B21A8' },
+    fulfilled: { bg: '#D1FAE5', text: '#065F46' },
+    shipped: { bg: '#E0E7FF', text: '#3730A3' },
+    delivered: { bg: '#D1FAE5', text: '#065F46' },
+    refunded: { bg: '#FEE2E2', text: '#991B1B' },
+};
+
+const paymentBadgeColors: Record<string, { bg: string; text: string }> = {
+    unpaid: { bg: '#FEE2E2', text: '#991B1B' },
+    pending: { bg: '#FEF3C7', text: '#92400E' },
+    paid: { bg: '#D1FAE5', text: '#065F46' },
+    failed: { bg: '#FEE2E2', text: '#991B1B' },
+    refunded: { bg: '#FFEDD5', text: '#9A3412' },
+};
+
+const formatStatus = (status: string): string => {
+    return status.charAt(0).toUpperCase() + status.slice(1);
+};
+
+export default function VendorApplicationShow({ application, vendorOrders }: Props) {
     const [showRejectDialog, setShowRejectDialog] = useState(false);
     const [previewDoc, setPreviewDoc] = useState<{ url: string; title: string } | null>(null);
     const { data, setData, post, processing } = useForm({
@@ -753,6 +811,219 @@ export default function VendorApplicationShow({ application }: Props) {
                                     </Box>
                                 ))}
                             </Box>
+                        </CardContent>
+                    </Card>
+                )}
+
+                {/* Vendor Orders */}
+                {vendorOrders && (
+                    <Card>
+                        <CardHeader>
+                            <CardTitle style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '1.125rem' }}>
+                                <ShoppingBag style={{ width: 20, height: 20 }} />
+                                Vendor Orders
+                            </CardTitle>
+                            <CardDescription>
+                                Orders received and fulfilled by this vendor
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            {/* Order Stats */}
+                            <Box sx={{ display: 'grid', gap: 1.5, gridTemplateColumns: { xs: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, mb: 3 }}>
+                                <Box sx={{ borderRadius: 2, border: 1, borderColor: 'divider', p: 1.5, textAlign: 'center' }}>
+                                    <Typography sx={{ fontSize: '1.5rem', fontWeight: 700 }}>
+                                        {vendorOrders.stats.total}
+                                    </Typography>
+                                    <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
+                                        Total Orders
+                                    </Typography>
+                                </Box>
+                                <Box sx={{ borderRadius: 2, border: 1, borderColor: 'divider', p: 1.5, textAlign: 'center' }}>
+                                    <Typography sx={{ fontSize: '1.5rem', fontWeight: 700, color: '#065F46' }}>
+                                        {vendorOrders.stats.delivered}
+                                    </Typography>
+                                    <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
+                                        Delivered
+                                    </Typography>
+                                </Box>
+                                <Box sx={{ borderRadius: 2, border: 1, borderColor: 'divider', p: 1.5, textAlign: 'center' }}>
+                                    <Typography sx={{ fontSize: '1.5rem', fontWeight: 700, color: '#6B21A8' }}>
+                                        {vendorOrders.stats.processing + vendorOrders.stats.confirmed}
+                                    </Typography>
+                                    <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
+                                        In Progress
+                                    </Typography>
+                                </Box>
+                                <Box sx={{ borderRadius: 2, border: 1, borderColor: 'divider', p: 1.5, textAlign: 'center' }}>
+                                    <Typography sx={{ fontSize: '1.5rem', fontWeight: 700, color: '#92400E' }}>
+                                        {vendorOrders.stats.pending}
+                                    </Typography>
+                                    <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
+                                        Pending
+                                    </Typography>
+                                </Box>
+                            </Box>
+
+                            {/* Revenue Summary */}
+                            <Box sx={{ display: 'grid', gap: 1.5, gridTemplateColumns: { md: 'repeat(2, 1fr)' }, mb: 3 }}>
+                                <Box sx={{ borderRadius: 2, bgcolor: '#D1FAE5', p: 1.5 }}>
+                                    <Typography sx={{ fontSize: '0.75rem', color: '#065F46' }}>
+                                        Total Revenue
+                                    </Typography>
+                                    <Typography sx={{ fontSize: '1.25rem', fontWeight: 700, color: '#065F46' }}>
+                                        GHS {parseFloat(vendorOrders.stats.total_revenue).toFixed(2)}
+                                    </Typography>
+                                </Box>
+                                <Box sx={{ borderRadius: 2, bgcolor: '#DBEAFE', p: 1.5 }}>
+                                    <Typography sx={{ fontSize: '0.75rem', color: '#1E40AF' }}>
+                                        Vendor Payout
+                                    </Typography>
+                                    <Typography sx={{ fontSize: '1.25rem', fontWeight: 700, color: '#1E40AF' }}>
+                                        GHS {parseFloat(vendorOrders.stats.total_payout).toFixed(2)}
+                                    </Typography>
+                                </Box>
+                            </Box>
+
+                            {/* Orders Table */}
+                            {vendorOrders.orders.data.length > 0 ? (
+                                <>
+                                    <Box sx={{ overflowX: 'auto' }}>
+                                        <Box component="table" sx={{ width: '100%' }}>
+                                            <thead>
+                                                <Box component="tr" sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                                                    <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
+                                                        Order #
+                                                    </Box>
+                                                    <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
+                                                        Customer
+                                                    </Box>
+                                                    <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
+                                                        Total
+                                                    </Box>
+                                                    <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
+                                                        Status
+                                                    </Box>
+                                                    <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
+                                                        Payment
+                                                    </Box>
+                                                    <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
+                                                        Date
+                                                    </Box>
+                                                </Box>
+                                            </thead>
+                                            <tbody>
+                                                {vendorOrders.orders.data.map((order) => {
+                                                    const sColors = statusBadgeColors[order.status] || { bg: '#F3F4F6', text: '#374151' };
+                                                    const pColors = paymentBadgeColors[order.payment_status] || { bg: '#F3F4F6', text: '#374151' };
+
+                                                    return (
+                                                        <Box
+                                                            component="tr"
+                                                            key={order.id}
+                                                            onClick={() => router.visit(`/dashboard/orders/${order.id}`)}
+                                                            sx={{
+                                                                borderBottom: 1,
+                                                                borderColor: 'divider',
+                                                                cursor: 'pointer',
+                                                                '&:last-child': { border: 0 },
+                                                                '&:hover': { bgcolor: 'action.hover' },
+                                                            }}
+                                                        >
+                                                            <Box component="td" sx={{ p: 1, fontSize: '0.875rem', fontFamily: 'monospace' }}>
+                                                                {order.order_number}
+                                                            </Box>
+                                                            <Box component="td" sx={{ p: 1, fontSize: '0.875rem' }}>
+                                                                {order.customer?.name || 'Guest'}
+                                                            </Box>
+                                                            <Box component="td" sx={{ p: 1, fontSize: '0.875rem' }}>
+                                                                {order.currency} {parseFloat(order.total).toFixed(2)}
+                                                            </Box>
+                                                            <Box component="td" sx={{ p: 1 }}>
+                                                                <Box
+                                                                    component="span"
+                                                                    sx={{
+                                                                        display: 'inline-block',
+                                                                        px: 1,
+                                                                        py: 0.25,
+                                                                        borderRadius: '9999px',
+                                                                        fontSize: '0.75rem',
+                                                                        fontWeight: 500,
+                                                                        bgcolor: sColors.bg,
+                                                                        color: sColors.text,
+                                                                    }}
+                                                                >
+                                                                    {formatStatus(order.status)}
+                                                                </Box>
+                                                            </Box>
+                                                            <Box component="td" sx={{ p: 1 }}>
+                                                                <Box
+                                                                    component="span"
+                                                                    sx={{
+                                                                        display: 'inline-block',
+                                                                        px: 1,
+                                                                        py: 0.25,
+                                                                        borderRadius: '9999px',
+                                                                        fontSize: '0.75rem',
+                                                                        fontWeight: 500,
+                                                                        bgcolor: pColors.bg,
+                                                                        color: pColors.text,
+                                                                    }}
+                                                                >
+                                                                    {formatStatus(order.payment_status)}
+                                                                </Box>
+                                                            </Box>
+                                                            <Box component="td" sx={{ p: 1, fontSize: '0.875rem' }}>
+                                                                {new Date(order.created_at).toLocaleDateString()}
+                                                            </Box>
+                                                        </Box>
+                                                    );
+                                                })}
+                                            </tbody>
+                                        </Box>
+                                    </Box>
+
+                                    {/* Pagination */}
+                                    {vendorOrders.orders.last_page > 1 && (
+                                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 2, pt: 2, borderTop: 1, borderColor: 'divider' }}>
+                                            <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
+                                                Page {vendorOrders.orders.current_page} of {vendorOrders.orders.last_page} ({vendorOrders.orders.total} orders)
+                                            </Typography>
+                                            <Box sx={{ display: 'flex', gap: 1 }}>
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    disabled={vendorOrders.orders.current_page <= 1}
+                                                    onClick={() => router.get(
+                                                        `/dashboard/vendor-applications/${application.id}`,
+                                                        { orders_page: vendorOrders.orders.current_page - 1 },
+                                                        { preserveState: true, preserveScroll: true },
+                                                    )}
+                                                >
+                                                    Previous
+                                                </Button>
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    disabled={vendorOrders.orders.current_page >= vendorOrders.orders.last_page}
+                                                    onClick={() => router.get(
+                                                        `/dashboard/vendor-applications/${application.id}`,
+                                                        { orders_page: vendorOrders.orders.current_page + 1 },
+                                                        { preserveState: true, preserveScroll: true },
+                                                    )}
+                                                >
+                                                    Next
+                                                </Button>
+                                            </Box>
+                                        </Box>
+                                    )}
+                                </>
+                            ) : (
+                                <Box sx={{ textAlign: 'center', py: 3, color: 'text.secondary' }}>
+                                    <Typography sx={{ fontSize: '0.875rem' }}>
+                                        This vendor has not received any orders yet.
+                                    </Typography>
+                                </Box>
+                            )}
                         </CardContent>
                     </Card>
                 )}

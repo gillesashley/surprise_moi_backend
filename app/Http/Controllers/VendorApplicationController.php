@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Order;
 use App\Models\VendorApplication;
 use App\Services\ReferralService;
 use Illuminate\Http\Request;
@@ -174,7 +175,61 @@ class VendorApplicationController extends Controller
                 // Review eligibility
                 'can_be_reviewed' => $vendorApplication->canBeReviewed(),
             ],
+            'vendorOrders' => $this->getVendorOrders($vendorApplication),
         ]);
+    }
+
+    /**
+     * Get vendor orders data if the application is approved.
+     *
+     * @return array{stats: array, orders: array}|null
+     */
+    private function getVendorOrders(VendorApplication $vendorApplication): ?array
+    {
+        if ($vendorApplication->status !== VendorApplication::STATUS_APPROVED) {
+            return null;
+        }
+
+        $vendorId = $vendorApplication->user_id;
+
+        $ordersQuery = Order::query()->where('vendor_id', $vendorId);
+
+        $stats = [
+            'total' => (clone $ordersQuery)->count(),
+            'pending' => (clone $ordersQuery)->where('status', 'pending')->count(),
+            'confirmed' => (clone $ordersQuery)->where('status', 'confirmed')->count(),
+            'processing' => (clone $ordersQuery)->where('status', 'processing')->count(),
+            'fulfilled' => (clone $ordersQuery)->where('status', 'fulfilled')->count(),
+            'shipped' => (clone $ordersQuery)->where('status', 'shipped')->count(),
+            'delivered' => (clone $ordersQuery)->where('status', 'delivered')->count(),
+            'refunded' => (clone $ordersQuery)->where('status', 'refunded')->count(),
+            'total_revenue' => (clone $ordersQuery)->where('payment_status', 'paid')->sum('total'),
+            'total_payout' => (clone $ordersQuery)->where('payment_status', 'paid')->sum('vendor_payout_amount'),
+        ];
+
+        $orders = Order::query()
+            ->where('vendor_id', $vendorId)
+            ->with('user:id,name,email')
+            ->latest()
+            ->paginate(10, ['*'], 'orders_page')
+            ->through(fn (Order $order) => [
+                'id' => $order->id,
+                'order_number' => $order->order_number,
+                'customer' => $order->user ? [
+                    'name' => $order->user->name,
+                    'email' => $order->user->email,
+                ] : null,
+                'total' => $order->total,
+                'currency' => $order->currency,
+                'status' => $order->status,
+                'payment_status' => $order->payment_status,
+                'created_at' => $order->created_at->toIso8601String(),
+            ]);
+
+        return [
+            'stats' => $stats,
+            'orders' => $orders,
+        ];
     }
 
     /**
