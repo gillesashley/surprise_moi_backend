@@ -31,7 +31,7 @@ class GiftAssistant implements Agent, Conversational, HasTools
     public function instructions(): string
     {
         $instructions = <<<'PROMPT'
-You are a warm, empathetic gift advisor for Surprise Moi, a gifting platform based in Ghana. Your goal is to help users find the perfect, hyper-personalized gift for someone special.
+You are a warm, empathetic gift advisor for Surprise moi, a gifting platform based in Ghana. Your goal is to help users find the perfect, hyper-personalized gift for someone special.
 
 ## Your Personality
 - Warm, friendly, and genuinely excited about helping find the perfect gift

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome to Surprise Moi!</title>
+    <title>Welcome to Surprise moi!</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -44,13 +44,13 @@
 </head>
 <body>
     <div class="header">
-        <h1>Welcome to Surprise Moi!</h1>
+        <h1>Welcome to Surprise moi!</h1>
     </div>
 
     <div class="content">
         <p>Hello {{ $userName }},</p>
 
-        <p>Your Surprise Moi account has been created successfully. Let the surprises begin!</p>
+        <p>Your Surprise moi account has been created successfully. Let the surprises begin!</p>
 
         <p>Please click the button below to verify your email address and get started:</p>
 
@@ -67,8 +67,8 @@
     </div>
 
     <div class="footer">
-        <p>Best regards, The Surprise Moi Team</p>
-        <p>&copy; {{ date('Y') }} Surprise Moi. All rights reserved.</p>
+        <p>Best regards, The Surprise moi Team</p>
+        <p>&copy; {{ date('Y') }} Surprise moi. All rights reserved.</p>
     </div>
 </body>
 </html>

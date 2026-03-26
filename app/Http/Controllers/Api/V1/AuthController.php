@@ -488,7 +488,7 @@ class AuthController extends Controller
         return response()->view('auth.email-verified', [
             'success' => true,
             'title' => 'Email Verified!',
-            'message' => 'Your email address has been verified successfully. You can now enjoy the full Surprise Moi experience.',
+            'message' => 'Your email address has been verified successfully. You can now enjoy the full Surprise moi experience.',
             'deepLink' => $deepLink,
         ]);
     }

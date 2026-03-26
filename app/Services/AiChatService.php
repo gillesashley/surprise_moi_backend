@@ -228,7 +228,7 @@ class AiChatService
                 .'or I can start searching for the perfect gift right away!';
         }
 
-        return "Hi! I'm Cupid, your gift assistant at Surprise Moi. "
+        return "Hi! I'm Cupid, your gift assistant at Surprise moi. "
             ."Tell me about the person you're shopping for — their personality, hobbies, "
             ."what they love (or hate!) — and I'll find the perfect surprise for them.";
     }

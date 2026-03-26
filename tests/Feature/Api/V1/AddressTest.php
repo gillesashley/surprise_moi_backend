@@ -345,7 +345,7 @@ class AddressTest extends TestCase
             ->postJson('/api/v1/addresses', []);
 
         $response->assertUnprocessable()
-            ->assertJsonValidationErrors(['name', 'address_line_1', 'city', 'state', 'postal_code']);
+            ->assertJsonValidationErrors(['name', 'address_line_1', 'city', 'state']);
     }
 
     public function test_address_validation_rejects_invalid_country(): void

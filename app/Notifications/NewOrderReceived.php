@@ -101,7 +101,7 @@ class NewOrderReceived extends Notification implements ShouldQueue
         }
 
         $content = sprintf(
-            "Surprise Moi: New order #%s! %s ordered %s (GHS %s). Log in to your dashboard to confirm and process this order.",
+            'Surprise moi: New order #%s! %s ordered %s (GHS %s). Log in to your dashboard to confirm and process this order.',
             $this->order->order_number,
             $this->order->user?->name ?? 'A customer',
             $itemSummary,

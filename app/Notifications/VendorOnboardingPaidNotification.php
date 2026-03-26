@@ -45,7 +45,7 @@ class VendorOnboardingPaidNotification extends Notification implements ShouldQue
             ->line("**Amount Paid:** GHS {$this->vendorApplication->onboarding_fee}")
             ->action('Review Application', url('/dashboard/vendor-applications'))
             ->line('Please review this application at your earliest convenience.')
-            ->salutation('Best regards, The Surprise Moi Team');
+            ->salutation('Best regards, The Surprise moi Team');
     }
 
     /**

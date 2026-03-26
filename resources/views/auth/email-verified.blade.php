@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $title }} - Surprise Moi</title>
+    <title>{{ $title }} - Surprise moi</title>
     <style>
         * {
             margin: 0;
@@ -111,7 +111,7 @@
 <body>
     <div class="container">
         <div class="logo">
-            <img src="/images/logo-purple.svg" alt="Surprise Moi" />
+            <img src="/images/logo-purple.svg" alt="Surprise moi" />
         </div>
 
         @if ($success)
@@ -146,7 +146,7 @@
         @endif
 
         <div class="footer">
-            <p>&copy; {{ date('Y') }} Surprise Moi. All rights reserved.</p>
+            <p>&copy; {{ date('Y') }} Surprise moi. All rights reserved.</p>
         </div>
     </div>
 

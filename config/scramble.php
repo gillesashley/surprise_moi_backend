@@ -29,7 +29,7 @@ return [
         /*
          * Description rendered on the home page of the API documentation (`/docs/api`).
          */
-        'description' => 'Surprise Moi API - A gift delivery and bespoke services platform',
+        'description' => 'Surprise moi API - A gift delivery and bespoke services platform',
     ],
 
     /*

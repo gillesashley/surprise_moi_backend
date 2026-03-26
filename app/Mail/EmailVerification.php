@@ -44,7 +44,7 @@ class EmailVerification extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Welcome to Surprise Moi! Verify Your Email',
+            subject: 'Welcome to Surprise moi! Verify Your Email',
         );
     }
 

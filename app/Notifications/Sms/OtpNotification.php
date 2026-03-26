@@ -44,7 +44,6 @@ class OtpNotification extends Notification implements ShouldQueue
     /**
      * Get the notification's delivery channels.
      *
-     * @param  mixed  $notifiable
      * @return array<int, string>
      */
     public function via(mixed $notifiable): array
@@ -54,13 +53,10 @@ class OtpNotification extends Notification implements ShouldQueue
 
     /**
      * Get the SMS representation of the notification.
-     *
-     * @param  mixed  $notifiable
-     * @return SmsMessage
      */
     public function toSms(mixed $notifiable): SmsMessage
     {
-        $message = $this->customMessage ?? 'Your Surprise Moi verification code is {code}. It expires in 10 minutes.';
+        $message = $this->customMessage ?? 'Your Surprise moi verification code is {code}. It expires in 10 minutes.';
         $message = str_replace('{code}', $this->code, $message);
 
         return (new SmsMessage)

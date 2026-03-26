@@ -37,7 +37,7 @@ class KairosAfrikaSmsService implements SmsProviderInterface
     public function sendOtp(string $phoneNumber, ?string $message = null): array
     {
         $phoneNumber = $this->formatPhoneNumber($phoneNumber);
-        $message = $message ?? 'Your Surprise Moi verification code is {code}. It expires in {amount} {duration}.';
+        $message = $message ?? 'Your Surprise moi verification code is {code}. It expires in {amount} {duration}.';
 
         // Check if logging mode is enabled
         if (config('services.kairosafrika.log_only', false)) {

@@ -20,7 +20,7 @@ class WelcomeNotificationTest extends TestCase
 
         $mailable = new EmailVerification($user, 'https://example.com/verify');
 
-        $mailable->assertHasSubject('Welcome to Surprise Moi! Verify Your Email');
+        $mailable->assertHasSubject('Welcome to Surprise moi! Verify Your Email');
     }
 
     public function test_api_verification_email_contains_user_name(): void
@@ -38,7 +38,7 @@ class WelcomeNotificationTest extends TestCase
 
         $mailable = new EmailVerification($user, 'https://example.com/verify');
 
-        $mailable->assertSeeInHtml('Your Surprise Moi account has been created successfully. Let the surprises begin!');
+        $mailable->assertSeeInHtml('Your Surprise moi account has been created successfully. Let the surprises begin!');
     }
 
     public function test_api_verification_email_contains_verify_button(): void
@@ -60,7 +60,7 @@ class WelcomeNotificationTest extends TestCase
         $mail = $notification->toMail($user);
 
         $this->assertInstanceOf(MailMessage::class, $mail);
-        $this->assertSame('Welcome to Surprise Moi! Verify Your Email', $mail->subject);
+        $this->assertSame('Welcome to Surprise moi! Verify Your Email', $mail->subject);
     }
 
     public function test_web_verification_email_contains_welcome_message(): void
@@ -71,7 +71,7 @@ class WelcomeNotificationTest extends TestCase
         $mail = $notification->toMail($user);
 
         $this->assertContains(
-            'Your Surprise Moi account has been created successfully. Let the surprises begin!',
+            'Your Surprise moi account has been created successfully. Let the surprises begin!',
             $mail->introLines
         );
     }

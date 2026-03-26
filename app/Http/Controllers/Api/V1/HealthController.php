@@ -16,7 +16,7 @@ class HealthController extends Controller
         $health = [
             'status' => 'ok',
             'timestamp' => now()->toIso8601String(),
-            'service' => 'Surprise Moi API',
+            'service' => 'Surprise moi API',
             'version' => config('app.version', '1.0.0'),
         ];
 

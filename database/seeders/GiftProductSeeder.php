@@ -28,7 +28,7 @@ class GiftProductSeeder extends Seeder
         $vendor = User::firstOrCreate(
             ['email' => 'vendor@surprisemoi.test'],
             [
-                'name' => 'Surprise Moi Official',
+                'name' => 'Surprise moi Official',
                 'role' => 'vendor',
                 'email_verified_at' => now(),
                 'password' => bcrypt('password'),
@@ -40,7 +40,7 @@ class GiftProductSeeder extends Seeder
             [
                 'vendor_id' => $vendor->id,
                 'category_id' => $categories['gift-boxes']->id,
-                'name' => 'Surprise Moi Gift Store',
+                'name' => 'Surprise moi Gift Store',
                 'owner_name' => $vendor->name,
                 'description' => 'Premium curated gifts in Accra, Ghana',
                 'location' => 'Accra, Ghana',

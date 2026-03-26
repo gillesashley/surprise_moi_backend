@@ -287,7 +287,7 @@ class AddressTest extends TestCase
             ]);
 
         $response->assertStatus(422)
-            ->assertJsonValidationErrors(['name', 'address_line_1', 'city', 'state', 'postal_code']);
+            ->assertJsonValidationErrors(['name', 'address_line_1', 'city', 'state']);
     }
 
     public function test_unauthenticated_user_cannot_access_addresses(): void

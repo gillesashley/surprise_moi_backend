@@ -96,13 +96,13 @@ class AppServiceProvider extends ServiceProvider
             $apiUrl = $notifiable->getEmailVerificationUrl();
 
             return (new MailMessage)
-                ->subject('Welcome to Surprise Moi! Verify Your Email')
+                ->subject('Welcome to Surprise moi! Verify Your Email')
                 ->greeting("Hello {$notifiable->name},")
-                ->line('Your Surprise Moi account has been created successfully. Let the surprises begin!')
+                ->line('Your Surprise moi account has been created successfully. Let the surprises begin!')
                 ->line('Please click the button below to verify your email address and get started.')
                 ->action('Verify Email Address', $apiUrl)
                 ->line('If you did not create an account, no further action is required.')
-                ->salutation('Best regards, The Surprise Moi Team');
+                ->salutation('Best regards, The Surprise moi Team');
         });
     }
 }

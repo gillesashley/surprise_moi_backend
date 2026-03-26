@@ -85,15 +85,15 @@ class VendorApprovalNotification extends Notification implements ShouldQueue
             ->subject('Your Vendor Account Has Been Approved ✅')
             ->greeting("Hello {$notifiable->name},")
             ->line('Great news!')
-            ->line('Your vendor account on Surprise Moi has been successfully approved. You can now log in and start selling on the platform.')
+            ->line('Your vendor account on Surprise moi has been successfully approved. You can now log in and start selling on the platform.')
             ->line('You can now:')
             ->line('• Upload your products')
             ->line('• Manage your shop')
             ->line('• Receive and fulfill orders')
             ->line('• Chat with customers')
             ->action('Open the App', config('deep_links.share_base_url'))
-            ->line("We're excited to have you as part of the Surprise Moi marketplace.")
-            ->salutation('Best regards, The Surprise Moi Team');
+            ->line("We're excited to have you as part of the Surprise moi marketplace.")
+            ->salutation('Best regards, The Surprise moi Team');
     }
 
     /**
@@ -104,7 +104,7 @@ class VendorApprovalNotification extends Notification implements ShouldQueue
         $message = (new MailMessage)
             ->subject('Vendor Application Update')
             ->greeting("Hello {$notifiable->name},")
-            ->line('Thank you for applying to become a vendor on Surprise Moi.');
+            ->line('Thank you for applying to become a vendor on Surprise moi.');
 
         $message->line('Unfortunately, your application was not approved at this time.');
 
@@ -116,7 +116,7 @@ class VendorApprovalNotification extends Notification implements ShouldQueue
             ->line('Please update the required details and resubmit your application.')
             ->action('Open the App', config('deep_links.share_base_url'))
             ->line('If you have questions, please contact our support team.')
-            ->salutation('Best regards, The Surprise Moi Team');
+            ->salutation('Best regards, The Surprise moi Team');
 
         return $message;
     }
@@ -132,7 +132,7 @@ class VendorApprovalNotification extends Notification implements ShouldQueue
             'type' => 'vendor_'.$this->status,
             'title' => $isApproved ? 'Application Approved' : 'Application Rejected',
             'message' => $isApproved
-                ? 'Your Surprise Moi vendor account is approved. Upload products and start selling.'
+                ? 'Your Surprise moi vendor account is approved. Upload products and start selling.'
                 : 'Your vendor application was not approved. Please update the required details and resubmit.',
             'action_url' => '/dashboard/vendor-applications/'.$this->vendorApplication->id,
             'actor' => null,
@@ -151,7 +151,7 @@ class VendorApprovalNotification extends Notification implements ShouldQueue
     {
         if ($this->status === 'approved') {
             $title = 'Application Approved';
-            $body = 'Your Surprise Moi vendor account is approved. Upload products and start selling.';
+            $body = 'Your Surprise moi vendor account is approved. Upload products and start selling.';
         } else {
             $title = 'Application Rejected';
             $body = 'Your vendor application was not approved. Please update the required details and resubmit.';

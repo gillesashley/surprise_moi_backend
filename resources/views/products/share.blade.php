@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ $product['name'] }} | Surprise Moi</title>
+    <title>{{ $product['name'] }} | Surprise moi</title>
 
     <meta property="og:title" content="{{ $openGraph['title'] }}">
     <meta property="og:description" content="{{ $openGraph['description'] }}">

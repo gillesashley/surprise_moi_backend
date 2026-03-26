@@ -161,7 +161,7 @@
     </table>
 
     <div class="footer">
-        Surprise Moi &mdash; Confidential User Report
+        Surprise moi &mdash; Confidential User Report
     </div>
 </body>
 </html>

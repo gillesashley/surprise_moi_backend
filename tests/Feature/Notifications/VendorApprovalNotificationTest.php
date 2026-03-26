@@ -39,7 +39,7 @@ class VendorApprovalNotificationTest extends TestCase
 
         $this->assertSame('vendor_approved', $data['type']);
         $this->assertSame('Application Approved', $data['title']);
-        $this->assertSame('Your Surprise Moi vendor account is approved. Upload products and start selling.', $data['message']);
+        $this->assertSame('Your Surprise moi vendor account is approved. Upload products and start selling.', $data['message']);
         $this->assertSame('/dashboard/vendor-applications/'.$vendorApplication->id, $data['action_url']);
         $this->assertNull($data['actor']);
 
