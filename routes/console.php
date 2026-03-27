@@ -21,20 +21,11 @@ Schedule::call(function (TargetService $targetService) {
     logger()->info("Expired {$expired} targets");
 })->daily()->at('00:05');
 
-// Database backup with GFS retention policy
-Schedule::command('backup:run')
-    ->daily()
-    ->at('02:00')
-    ->emailOutputOnFailure(env('BACKUP_NOTIFICATION_EMAIL', 'admin@example.com'));
-
-// Cleanup old backups (GFS retention policy)
-Schedule::command('backup:cleanup')
-    ->daily()
-    ->at('02:30')
-    ->emailOutputOnFailure(env('BACKUP_NOTIFICATION_EMAIL', 'admin@example.com'));
-
 Schedule::job(new \App\Jobs\ReleasePendingFundsJob)->hourly();
 
 Schedule::job(new \App\Jobs\VerifyPendingTransfersJob)->everyThirtyMinutes();
 
 Schedule::command('tier-upgrade:expire-stale')->hourly();
+
+// Email database backup daily at midnight
+Schedule::command('backup:email')->daily()->at('00:00');

@@ -12,7 +12,6 @@ PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
 COMPOSE_FILE="$PROJECT_DIR/docker-compose.yml"
 ENV_FILE="$PROJECT_DIR/.env"
 ENV_DOCKER="$PROJECT_DIR/.env.docker"
-BACKUP_DIR="$PROJECT_DIR/backups"
 DOMAIN="dashboard.surprisemoi.com"
 
 # Colors
@@ -272,307 +271,6 @@ do_storage_link() {
     cd "$PROJECT_DIR"
     docker compose exec -T app php artisan storage:link 2>/dev/null || true
     log_info "Storage link created!"
-}
-
-# Backup database
-# Creates two backup types:
-#   1. Full backup (schema + data) - for exact restore to same schema
-#   2. Data-only backup (with column inserts) - survives schema changes
-do_cleanup() {
-    log_step "Running backup cleanup..."
-    
-    # Parse command line options
-    local retention_daily=${BACKUP_RETENTION_DAILY:-7}
-    local retention_weekly=${BACKUP_RETENTION_WEEKLY:-4}
-    local retention_monthly=${BACKUP_RETENTION_MONTHLY:-12}
-    
-    # Process options like --days=7 --weeks=4 --months=12
-    while [[ "$#" -gt 0 ]]; do
-        case $1 in
-            --days=*)
-                retention_daily="${1#*=}"
-                shift
-                ;;
-            --weeks=*)
-                retention_weekly="${1#*=}"
-                shift
-                ;;
-            --months=*)
-                retention_monthly="${1#*=}"
-                shift
-                ;;
-            *)
-                log_warn "Unknown option: $1"
-                shift
-                ;;
-        esac
-    done
-    
-    log_info "GFS Cleanup: daily=${retention_daily}d, weekly=${retention_weekly}w, monthly=${retention_monthly}m"
-    
-    # Get current timestamp for comparison
-    local now=$(date +%s)
-    
-    # Process all backup files
-    while IFS= read -r -d $'\0' file; do
-        # Extract timestamp from filename: surprisemoi_{type}_{YYYYMMDD_HHMMSS}.sql.gz
-        if [[ $file =~ surprisemoi_(full|data)_([0-9]{8})_([0-9]{6})\.sql\.gz ]]; then
-            local file_date=${BASH_REMATCH[2]}
-            local file_timestamp=$(date -d "${file_date:0:4}-${file_date:4:2}-${file_date:6:2}" +%s 2>/dev/null || continue)
-            
-            # Skip if date extraction failed
-            if [ $? -ne 0 ]; then
-                continue
-            fi
-            
-            # Calculate age in days
-            local age=$(( (now - file_timestamp) / 86400 ))
-            
-            # Determine backup type (daily, weekly, monthly)
-            local day_of_week=$(date -d "${file_date:0:4}-${file_date:4:2}-${file_date:6:2}" +%u 2>/dev/null) # 1=Mon, 7=Sun
-            local day_of_month=${file_date:6:2}
-            
-            # Check if this is a candidate for deletion
-            local should_delete=0
-            
-            if [ $age -gt $((retention_monthly * 30)) ]; then
-                # Older than monthly retention - delete
-                should_delete=1
-            elif [ $age -gt $((retention_weekly * 7)) ]; then
-                # Check if this is a monthly backup (first day of month)
-                if [ "$day_of_month" != "01" ]; then
-                    should_delete=1
-                fi
-            elif [ $age -gt $retention_daily ]; then
-                # Check if this is a weekly backup (Sunday)
-                if [ "$day_of_week" != "7" ]; then
-                    should_delete=1
-                fi
-            fi
-            
-            if [ $should_delete -eq 1 ]; then
-                log_info "Deleting old backup: $(basename "$file")"
-                rm -f "$file"
-            fi
-        fi
-    done < <(find "$BACKUP_DIR" -name "surprisemoi_*.sql.gz" -type f -print0)
-    
-    log_info "Cleanup completed!"
-}
-
-do_backup() {
-    log_step "Creating database backup..."
-    
-    mkdir -p "$BACKUP_DIR"
-    local timestamp=$(date +"%Y%m%d_%H%M%S")
-    local full_backup="$BACKUP_DIR/surprisemoi_full_$timestamp.sql"
-    local data_backup="$BACKUP_DIR/surprisemoi_data_$timestamp.sql"
-    
-    cd "$PROJECT_DIR"
-    
-    # Get credentials from .env
-    source "$ENV_FILE" 2>/dev/null || true
-    local db_name="${DB_DATABASE:-surprise_moi_db}"
-    local db_user="${DB_USERNAME:-laraveluser}"
-    local db_password="${DB_PASSWORD:-Gilash@123}"
-    local db_host="${DB_HOST:-db}"
-    local db_port="${DB_PORT:-5432}"
-    
-    # Check if we can run pg_dump directly (inside container) or via docker compose (outside container)
-    if command -v docker >/dev/null 2>&1 && [ -f "docker-compose.yml" ]; then
-        # Running from outside container - use docker compose
-        log_info "Creating full backup (schema + data)..."
-        docker compose exec -T db pg_dump -U "$db_user" "$db_name" > "$full_backup"
-        gzip "$full_backup"
-        
-        log_info "Creating portable data backup (survives schema changes)..."
-        docker compose exec -T db pg_dump -U "$db_user" "$db_name" \
-            --data-only \
-            --column-inserts \
-            --no-owner \
-            --no-privileges \
-            --exclude-table=migrations \
-            --exclude-table=password_reset_tokens \
-            --exclude-table=sessions \
-            --exclude-table=failed_jobs \
-            --exclude-table=job_batches \
-            --exclude-table=jobs \
-            --exclude-table=cache \
-            --exclude-table=cache_locks \
-            > "$data_backup"
-        gzip "$data_backup"
-    elif command -v pg_dump >/dev/null 2>&1; then
-        # Running from inside container - connect directly to db
-        log_info "Creating full backup (schema + data)..."
-        PGPASSWORD="$db_password" pg_dump -h "$db_host" -p "$db_port" -U "$db_user" "$db_name" > "$full_backup"
-        gzip "$full_backup"
-        
-        log_info "Creating portable data backup (survives schema changes)..."
-        PGPASSWORD="$db_password" pg_dump -h "$db_host" -p "$db_port" -U "$db_user" "$db_name" \
-            --data-only \
-            --column-inserts \
-            --no-owner \
-            --no-privileges \
-            --exclude-table=migrations \
-            --exclude-table=password_reset_tokens \
-            --exclude-table=sessions \
-            --exclude-table=failed_jobs \
-            --exclude-table=job_batches \
-            --exclude-table=jobs \
-            --exclude-table=cache \
-            --exclude-table=cache_locks \
-            > "$data_backup"
-        gzip "$data_backup"
-    else
-        log_error "Could not find pg_dump command. Please run this script from outside the container or install PostgreSQL client tools."
-        return 1
-    fi
-    
-    # Run GFS cleanup after backup
-    do_cleanup
-    
-    log_info "Backups saved:"
-    log_info "  Full:     ${full_backup}.gz"
-    log_info "  Portable: ${data_backup}.gz"
-    echo ""
-    log_info "Use 'restore' for full backup, 'restore-data' for portable backup"
-}
-
-# Restore database (full restore - same schema required)
-do_restore() {
-    local backup_file="$1"
-    
-    if [ -z "$backup_file" ]; then
-        log_info "Available backups:"
-        ls -lh "$BACKUP_DIR"/*.sql.gz 2>/dev/null || echo "No backups found"
-        echo ""
-        log_error "Usage: $0 restore <backup_file>"
-        log_info "  For full restore (same schema):   $0 restore <full_backup.sql.gz>"
-        log_info "  For data restore (any schema):    $0 restore-data <data_backup.sql.gz>"
-        exit 1
-    fi
-    
-    if [ ! -f "$backup_file" ]; then
-        log_error "Backup file not found: $backup_file"
-        exit 1
-    fi
-    
-    log_warn "WARNING: This will COMPLETELY REPLACE the current database!"
-    log_warn "The backup must match the current schema exactly."
-    log_info "For schema-independent restore, use: $0 restore-data <file>"
-    read -p "Continue with full restore? (yes/no): " confirm
-    
-    if [ "$confirm" != "yes" ]; then
-        log_info "Restore cancelled."
-        exit 0
-    fi
-    
-    log_step "Restoring database (full)..."
-    
-    cd "$PROJECT_DIR"
-    source "$ENV_FILE" 2>/dev/null || true
-    local db_name="${DB_DATABASE:-surprise_moi_db}"
-    local db_user="${DB_USERNAME:-laraveluser}"
-    
-    # Drop and recreate database for clean restore
-    log_info "Dropping and recreating database..."
-    docker compose exec -T db psql -U "$db_user" -d postgres -c "DROP DATABASE IF EXISTS $db_name;"
-    docker compose exec -T db psql -U "$db_user" -d postgres -c "CREATE DATABASE $db_name OWNER $db_user;"
-    
-    log_info "Restoring from backup..."
-    if [[ "$backup_file" == *.gz ]]; then
-        gunzip -c "$backup_file" | docker compose exec -T db psql -U "$db_user" "$db_name"
-    else
-        docker compose exec -T db psql -U "$db_user" "$db_name" < "$backup_file"
-    fi
-    
-    log_info "Full database restored!"
-}
-
-# Restore data only (survives schema changes)
-# This runs migrations first, then imports data into the new schema
-do_restore_data() {
-    local backup_file="$1"
-    
-    if [ -z "$backup_file" ]; then
-        log_info "Available data backups:"
-        ls -lh "$BACKUP_DIR"/*_data_*.sql.gz 2>/dev/null || echo "No data backups found"
-        echo ""
-        log_error "Usage: $0 restore-data <data_backup.sql.gz>"
-        exit 1
-    fi
-    
-    if [ ! -f "$backup_file" ]; then
-        log_error "Backup file not found: $backup_file"
-        exit 1
-    fi
-    
-    log_warn "WARNING: This will:"
-    log_warn "  1. Fresh migrate (drop all tables, run all migrations)"
-    log_warn "  2. Import data from backup (skipping errors for schema differences)"
-    log_warn ""
-    log_info "This is SAFE for schema changes - new columns get defaults, removed columns are ignored."
-    read -p "Continue? (yes/no): " confirm
-    
-    if [ "$confirm" != "yes" ]; then
-        log_info "Restore cancelled."
-        exit 0
-    fi
-    
-    log_step "Restoring data (schema-independent)..."
-    
-    cd "$PROJECT_DIR"
-    source "$ENV_FILE" 2>/dev/null || true
-    local db_name="${DB_DATABASE:-surprise_moi_db}"
-    local db_user="${DB_USERNAME:-laraveluser}"
-    
-    # Step 1: Fresh migrate to get current schema
-    log_info "Running fresh migrations to get current schema..."
-    docker compose exec -T app php artisan migrate:fresh --force
-    
-    # Step 2: Disable foreign key checks and restore data
-    log_info "Importing data (errors for missing/extra columns will be skipped)..."
-    
-    # Create a wrapper SQL that disables triggers during import
-    local temp_restore="/tmp/restore_$$.sql"
-    echo "SET session_replication_role = 'replica';" > "$temp_restore"
-    
-    if [[ "$backup_file" == *.gz ]]; then
-        gunzip -c "$backup_file" >> "$temp_restore"
-    else
-        cat "$backup_file" >> "$temp_restore"
-    fi
-    
-    echo "SET session_replication_role = 'origin';" >> "$temp_restore"
-    
-    # Run restore, continuing on errors (ON_ERROR_STOP=off)
-    cat "$temp_restore" | docker compose exec -T db psql -U "$db_user" "$db_name" \
-        -v ON_ERROR_STOP=off 2>&1 | grep -v "^INSERT" || true
-    
-    rm -f "$temp_restore"
-    
-    # Step 3: Reset sequences (auto-increment values)
-    log_info "Resetting sequences..."
-    docker compose exec -T db psql -U "$db_user" "$db_name" -c "
-        DO \$\$
-        DECLARE
-            r RECORD;
-        BEGIN
-            FOR r IN (
-                SELECT c.table_name, c.column_name
-                FROM information_schema.columns c
-                JOIN information_schema.tables t ON c.table_name = t.table_name
-                WHERE c.column_default LIKE 'nextval%'
-                AND t.table_schema = 'public'
-            ) LOOP
-                EXECUTE format('SELECT setval(pg_get_serial_sequence(%L, %L), COALESCE(MAX(%I), 1)) FROM %I',
-                    r.table_name, r.column_name, r.column_name, r.table_name);
-            END LOOP;
-        END \$\$;
-    "
-    
-    log_info "Data restored successfully!"
-    log_info "Note: Some rows may have been skipped if columns were removed from schema."
 }
 
 # Setup SSL - Direct approach, sets up nginx and SSL in one go
@@ -867,10 +565,6 @@ print_help() {
     echo "  status               Show service status, health, Octane & Horizon"
     echo "  logs [service]       View logs (app, queue, scheduler, db, redis)"
     echo "  artisan <cmd>        Run artisan command"
-    echo "  backup               Backup database (creates full + portable backups)"
-    echo "  cleanup [--days=n] [--weeks=n] [--months=n]  Cleanup old backups with GFS policy"
-    echo "  restore <file>       Full restore (requires same schema)"
-    echo "  restore-data <file>  Portable restore (survives schema changes)"
     echo "  nginx                Setup host nginx (requires sudo)"
     echo "  ssl [email]          Setup SSL certificate (requires sudo)"
     echo "  setup                Run initial setup only"
@@ -879,19 +573,12 @@ print_help() {
     echo "  optimize             Run Laravel optimizations"
     echo "  help                 Show this help"
     echo ""
-    echo "Backup/Restore Strategy:"
-    echo "  backup creates TWO files:"
-    echo "    *_full_*.sql.gz  - Exact copy (schema + data). Use with 'restore'."
-    echo "    *_data_*.sql.gz  - Data only. Survives schema changes. Use with 'restore-data'."
-    echo ""
     echo "Examples:"
     echo "  $0 deploy              # Smart full deployment"
     echo "  $0 deploy --fresh      # Fresh deployment (no cache)"
     echo "  $0 update              # Quick code update"
     echo "  $0 logs app            # View app logs"
     echo "  $0 artisan migrate     # Run migrations"
-    echo "  $0 backup              # Backup database"
-    echo "  $0 restore-data <file> # Restore data after schema changes"
     echo "  sudo $0 nginx          # Setup host nginx"
     echo "  sudo $0 ssl email      # Setup SSL certificate"
 }
@@ -929,15 +616,6 @@ case "${1:-}" in
         shift
         do_artisan "$@"
         ;;
-    backup)
-        do_backup
-        ;;
-    restore)
-        do_restore "${2:-}"
-        ;;
-    restore-data)
-        do_restore_data "${2:-}"
-        ;;
     nginx)
         do_nginx
         ;;
@@ -955,10 +633,6 @@ case "${1:-}" in
         ;;
     optimize)
         do_optimize
-        ;;
-    cleanup)
-        shift
-        do_cleanup "$@"
         ;;
     help|--help|-h)
         print_help
