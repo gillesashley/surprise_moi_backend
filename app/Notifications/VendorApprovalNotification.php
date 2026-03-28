@@ -115,8 +115,8 @@ class VendorApprovalNotification extends Notification implements ShouldQueue
         $message
             ->line('Please update the required details and resubmit your application.')
             ->action('Open the App', config('deep_links.share_base_url'))
-            ->line('If you have questions, please contact our support team.')
-            ->salutation('Best regards, The Surprise moi Team');
+            ->line('If you have questions, please contact our support team at operations@teczaleel.com or WhatsApp us on +233 245 261 266.')
+            ->salutation('Best regards, The Surprise Moi Team');
 
         return $message;
     }

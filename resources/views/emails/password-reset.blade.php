@@ -75,7 +75,7 @@
             </ul>
         </div>
         
-        <p>If you continue to have problems, please contact our support team.</p>
+        <p>If you continue to have problems, please contact our support team at <a href="mailto:operations@teczaleel.com">operations@teczaleel.com</a> or WhatsApp us on <a href="https://wa.me/233245261266">+233 245 261 266</a>.</p>
     </div>
     
     <div class="footer">
