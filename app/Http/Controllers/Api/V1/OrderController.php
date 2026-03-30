@@ -110,6 +110,11 @@ class OrderController extends Controller
                     throw new \Exception('Item not found: '.$item['orderable_type'].' #'.$item['orderable_id']);
                 }
 
+                // Prevent vendors from ordering their own products/services
+                if ($orderable->vendor_id === $request->user()->id) {
+                    throw new \Exception('You cannot place an order for your own '.$item['orderable_type'].'.');
+                }
+
                 if ($orderable instanceof Product) {
                     if (! $orderable->is_available) {
                         throw new \Exception('Product "'.$orderable->name.'" is not available.');
