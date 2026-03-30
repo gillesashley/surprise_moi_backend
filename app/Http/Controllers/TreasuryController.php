@@ -97,11 +97,14 @@ class TreasuryController extends Controller
             ->latest()
             ->paginate(20);
 
+        $banks = $this->paystackService->getBanks('ghana');
+
         return Inertia::render('treasury/index', [
             'tab' => 'transfers',
             'balance' => $balance,
             'bankAccount' => $bankAccount,
             'transferHistory' => $transferHistory,
+            'banks' => $banks,
         ]);
     }
 

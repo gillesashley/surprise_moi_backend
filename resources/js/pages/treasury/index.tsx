@@ -491,6 +491,7 @@ function TransfersTab({
     balance,
     bankAccount,
     transferHistory,
+    banks,
 }: TreasuryProps) {
     const [amount, setAmount] = useState('');
     const [transferring, setTransferring] = useState(false);
@@ -845,30 +846,47 @@ function TransfersTab({
                             />
                         </Box>
                         <Box>
-                            <Label>Bank Name</Label>
-                            <Input
-                                value={bankFormData.bank_name}
-                                onChange={(e) =>
-                                    setBankFormData((prev) => ({
-                                        ...prev,
-                                        bank_name: e.target.value,
-                                    }))
-                                }
-                                placeholder="Bank name"
-                            />
-                        </Box>
-                        <Box>
-                            <Label>Bank Code</Label>
-                            <Input
-                                value={bankFormData.bank_code}
-                                onChange={(e) =>
-                                    setBankFormData((prev) => ({
-                                        ...prev,
-                                        bank_code: e.target.value,
-                                    }))
-                                }
-                                placeholder="Bank code (e.g., 058)"
-                            />
+                            <Label>Bank</Label>
+                            {banks?.data?.length ? (
+                                <Select
+                                    value={bankFormData.bank_code}
+                                    onValueChange={(code) => {
+                                        const selected = banks.data.find(
+                                            (b) => b.code === code,
+                                        );
+                                        setBankFormData((prev) => ({
+                                            ...prev,
+                                            bank_code: code,
+                                            bank_name: selected?.name ?? '',
+                                        }));
+                                    }}
+                                >
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select a bank" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {banks.data.map((bank) => (
+                                            <SelectItem
+                                                key={bank.code}
+                                                value={bank.code}
+                                            >
+                                                {bank.name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            ) : (
+                                <Input
+                                    value={bankFormData.bank_name}
+                                    onChange={(e) =>
+                                        setBankFormData((prev) => ({
+                                            ...prev,
+                                            bank_name: e.target.value,
+                                        }))
+                                    }
+                                    placeholder="Bank name"
+                                />
+                            )}
                         </Box>
                         {!verifiedName && (
                             <Button
