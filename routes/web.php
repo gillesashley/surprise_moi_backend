@@ -5,6 +5,7 @@ use App\Http\Controllers\AdvertisementController;
 use App\Http\Controllers\BespokeServiceController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ContentManagementController;
+use App\Http\Controllers\CouponManagementController;
 use App\Http\Controllers\FieldAgentDashboardController;
 use App\Http\Controllers\InfluencerDashboardController;
 use App\Http\Controllers\InterestController;
@@ -147,6 +148,7 @@ Route::middleware(['auth', 'dashboard'])->prefix('dashboard')->group(function ()
     Route::resource('music-genres', MusicGenreController::class)->names('dashboard.music-genres');
     Route::resource('bespoke-services', BespokeServiceController::class)->names('dashboard.bespoke-services');
     Route::resource('advertisements', AdvertisementController::class)->names('dashboard.advertisements');
+    Route::resource('coupons', CouponManagementController::class)->names('dashboard.coupons');
 
     // Order Management
     Route::prefix('orders')->name('orders.')->group(function () {
