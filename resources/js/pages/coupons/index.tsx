@@ -123,14 +123,14 @@ export default function CouponsIndex({ coupons }: Props) {
                             <Box component="table" sx={{ width: '100%' }}>
                                 <thead>
                                     <Box component="tr" sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                                        <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>Code</Box>
-                                        <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>Title</Box>
-                                        <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>Type</Box>
-                                        <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>Value</Box>
-                                        <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>Usage</Box>
-                                        <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>Validity</Box>
-                                        <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>Status</Box>
-                                        <Box component="th" sx={{ p: 1, textAlign: 'right', fontSize: '0.875rem', fontWeight: 500 }}>Actions</Box>
+                                        <Box component="th" sx={{ px: 1.5, py: 2, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>Code</Box>
+                                        <Box component="th" sx={{ px: 1.5, py: 2, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>Title</Box>
+                                        <Box component="th" sx={{ px: 1.5, py: 2, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>Type</Box>
+                                        <Box component="th" sx={{ px: 1.5, py: 2, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>Value</Box>
+                                        <Box component="th" sx={{ px: 1.5, py: 2, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>Usage</Box>
+                                        <Box component="th" sx={{ px: 1.5, py: 2, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>Validity</Box>
+                                        <Box component="th" sx={{ px: 1.5, py: 2, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>Status</Box>
+                                        <Box component="th" sx={{ px: 1.5, py: 2, textAlign: 'right', fontSize: '0.875rem', fontWeight: 500 }}>Actions</Box>
                                     </Box>
                                 </thead>
                                 <tbody>
@@ -140,25 +140,25 @@ export default function CouponsIndex({ coupons }: Props) {
                                             key={coupon.id}
                                             sx={{ borderBottom: 1, borderColor: 'divider', '&:last-child': { border: 0 }, '&:hover': { bgcolor: 'action.hover' } }}
                                         >
-                                            <Box component="td" sx={{ p: 1, fontSize: '0.875rem', fontWeight: 500, fontFamily: 'monospace' }}>
+                                            <Box component="td" sx={{ px: 1.5, py: 2, fontSize: '0.875rem', fontWeight: 500, fontFamily: 'monospace' }}>
                                                 {coupon.code}
                                             </Box>
-                                            <Box component="td" sx={{ p: 1, fontSize: '0.875rem', color: coupon.title ? 'text.primary' : 'text.disabled' }}>
+                                            <Box component="td" sx={{ px: 1.5, py: 2, fontSize: '0.875rem', color: coupon.title ? 'text.primary' : 'text.disabled' }}>
                                                 {coupon.title || '—'}
                                             </Box>
-                                            <Box component="td" sx={{ p: 1 }}>
+                                            <Box component="td" sx={{ px: 1.5, py: 2 }}>
                                                 <Chip label={coupon.type} color={typeChipColor(coupon.type)} size="small" variant="outlined" />
                                             </Box>
-                                            <Box component="td" sx={{ p: 1, fontSize: '0.875rem' }}>
+                                            <Box component="td" sx={{ px: 1.5, py: 2, fontSize: '0.875rem' }}>
                                                 {formatValue(coupon)}
                                             </Box>
-                                            <Box component="td" sx={{ p: 1, fontSize: '0.875rem' }}>
+                                            <Box component="td" sx={{ px: 1.5, py: 2, fontSize: '0.875rem' }}>
                                                 {coupon.used_count} / {coupon.usage_limit ?? '∞'}
                                             </Box>
-                                            <Box component="td" sx={{ p: 1, fontSize: '0.875rem', color: 'text.secondary' }}>
+                                            <Box component="td" sx={{ px: 1.5, py: 2, fontSize: '0.875rem', color: 'text.secondary' }}>
                                                 {formatDate(coupon.valid_from)} — {formatDate(coupon.valid_until)}
                                             </Box>
-                                            <Box component="td" sx={{ p: 1 }}>
+                                            <Box component="td" sx={{ px: 1.5, py: 2 }}>
                                                 <Chip
                                                     label={coupon.is_active ? 'Active' : 'Inactive'}
                                                     color={coupon.is_active ? 'success' : 'default'}
@@ -166,7 +166,7 @@ export default function CouponsIndex({ coupons }: Props) {
                                                     variant="outlined"
                                                 />
                                             </Box>
-                                            <Box component="td" sx={{ p: 1 }}>
+                                            <Box component="td" sx={{ px: 1.5, py: 2 }}>
                                                 <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
                                                     <Button variant="ghost" size="sm" asChild>
                                                         <Link href={couponEdit.url(coupon.id)}>
