@@ -64,7 +64,7 @@ export default function CouponCreate() {
                                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                         <Label htmlFor="code">Code</Label>
                                         <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>The unique code customers enter at checkout to apply the discount</Typography>
-                                        <Input id="code" name="code" placeholder="e.g. SUMMER20" required />
+                                        <Input id="code" name="code" placeholder="e.g. SUMMER20" required onInput={(e) => { (e.target as HTMLInputElement).value = (e.target as HTMLInputElement).value.toUpperCase(); }} />
                                         {errors.code && (
                                             <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>{errors.code}</Typography>
                                         )}
