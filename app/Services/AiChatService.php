@@ -84,8 +84,8 @@ class AiChatService
                 ];
             }
 
-            if ($parsed['type'] === 'product_card') {
-                $parsed = $this->resolveProductCard($parsed, $conversation);
+            if ($parsed['type'] === 'offer_card') {
+                $parsed = $this->resolveOfferCard($parsed, $conversation);
             }
         } catch (\Throwable $e) {
             Log::error('AI agent error', [
@@ -159,10 +159,10 @@ class AiChatService
                 ];
                 break;
 
-            case 'product_card':
-                $content = $json['message'] ?? 'Here\'s the product you selected:';
+            case 'offer_card':
+                $content = $json['message'] ?? 'Here\'s the offer you selected:';
                 $metadata = [
-                    'selected_product_id' => $json['selected_product_id'] ?? null,
+                    'selected_offer_id' => $json['selected_offer_id'] ?? null,
                     'personalization_reason' => $json['personalization_reason'] ?? '',
                 ];
                 break;
@@ -281,14 +281,14 @@ class AiChatService
     }
 
     /**
-     * Resolve a product_card AI response into a full suggestions response with ProductResource data.
+     * Resolve an offer_card AI response into a full suggestions response with ProductResource data.
      *
      * @param  array{type: string, content: string, metadata: ?array<string, mixed>}  $parsed
      * @return array{type: string, content: string, metadata: ?array<string, mixed>}
      */
-    private function resolveProductCard(array $parsed, AiConversation $conversation): array
+    private function resolveOfferCard(array $parsed, AiConversation $conversation): array
     {
-        $productId = $parsed['metadata']['selected_product_id'] ?? null;
+        $productId = $parsed['metadata']['selected_offer_id'] ?? null;
 
         if (! $productId) {
             return [
@@ -303,14 +303,14 @@ class AiChatService
             ->find($productId);
 
         if (! $product) {
-            Log::warning('AI referenced unavailable product', [
+            Log::warning('AI referenced unavailable offer', [
                 'conversation_id' => $conversation->id,
-                'product_id' => $productId,
+                'offer_id' => $productId,
             ]);
 
             return [
                 'type' => 'text',
-                'content' => "I'm sorry, that product is no longer available. Would you like me to suggest some alternatives?",
+                'content' => "I'm sorry, that offer is no longer available. Would you like me to suggest some alternatives?",
                 'metadata' => null,
             ];
         }
@@ -322,7 +322,7 @@ class AiChatService
             'type' => 'suggestions',
             'content' => $parsed['content'],
             'metadata' => [
-                'display_type' => 'product_card',
+                'display_type' => 'offer_card',
                 'suggestions' => [$data],
             ],
         ];

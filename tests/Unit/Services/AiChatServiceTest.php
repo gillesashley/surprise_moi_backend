@@ -44,8 +44,8 @@ class AiChatServiceTest extends TestCase
             'analysis' => 'Based on their calm personality...',
             'suggestions' => [
                 [
-                    'product_id' => 42,
-                    'product_name' => 'Bonsai Kit',
+                    'offer_id' => 42,
+                    'offer_name' => 'Bonsai Kit',
                     'vendor_name' => 'GreenThumb',
                     'price' => 150.00,
                     'thumbnail' => 'https://example.com/img.jpg',
@@ -59,7 +59,7 @@ class AiChatServiceTest extends TestCase
         $this->assertEquals('suggestions', $result['type']);
         $this->assertEquals('browse', $result['metadata']['display_type']);
         $this->assertNotEmpty($result['metadata']['suggestions']);
-        $this->assertEquals(42, $result['metadata']['suggestions'][0]['product_id']);
+        $this->assertEquals(42, $result['metadata']['suggestions'][0]['offer_id']);
     }
 
     public function test_parse_plain_text_response(): void
@@ -98,8 +98,8 @@ class AiChatServiceTest extends TestCase
             'type' => 'suggestions',
             'suggestions' => [
                 [
-                    'product_id' => 1,
-                    'product_name' => 'Test Gift',
+                    'offer_id' => 1,
+                    'offer_name' => 'Test Gift',
                     'vendor_name' => 'Vendor',
                     'price' => 50.00,
                     'thumbnail' => 'https://example.com/img.jpg',
@@ -123,8 +123,8 @@ class AiChatServiceTest extends TestCase
             'message' => 'I found these for you!',
             'suggestions' => [
                 [
-                    'product_id' => 1,
-                    'product_name' => 'Test Gift',
+                    'offer_id' => 1,
+                    'offer_name' => 'Test Gift',
                     'vendor_name' => 'Vendor',
                     'price' => 50.00,
                     'thumbnail' => 'https://example.com/img.jpg',
@@ -147,16 +147,16 @@ class AiChatServiceTest extends TestCase
             'analysis' => 'Based on their interests...',
             'suggestions' => [
                 [
-                    'product_id' => 1,
-                    'product_name' => 'Cooking Set',
+                    'offer_id' => 1,
+                    'offer_name' => 'Cooking Set',
                     'vendor_name' => 'Kitchen Pro',
                     'price' => 250.00,
                     'thumbnail' => 'https://example.com/img1.jpg',
                     'personalization_reason' => 'Loves cooking.',
                 ],
                 [
-                    'product_id' => 2,
-                    'product_name' => 'Art Supplies',
+                    'offer_id' => 2,
+                    'offer_name' => 'Art Supplies',
                     'vendor_name' => 'Creative Hub',
                     'price' => 180.00,
                     'thumbnail' => 'https://example.com/img2.jpg',
@@ -185,49 +185,49 @@ class AiChatServiceTest extends TestCase
         $this->assertNull($result['metadata']);
     }
 
-    public function test_parse_product_card_response(): void
+    public function test_parse_offer_card_response(): void
     {
         $json = json_encode([
-            'type' => 'product_card',
-            'selected_product_id' => 42,
+            'type' => 'offer_card',
+            'selected_offer_id' => 42,
             'personalization_reason' => 'Perfect for her love of gardening.',
             'message' => 'Great choice! Here are the full details.',
         ]);
 
         $result = $this->service->parseAiResponse($json);
 
-        $this->assertEquals('product_card', $result['type']);
+        $this->assertEquals('offer_card', $result['type']);
         $this->assertEquals('Great choice! Here are the full details.', $result['content']);
-        $this->assertEquals(42, $result['metadata']['selected_product_id']);
+        $this->assertEquals(42, $result['metadata']['selected_offer_id']);
         $this->assertEquals('Perfect for her love of gardening.', $result['metadata']['personalization_reason']);
     }
 
-    public function test_parse_product_card_without_message_uses_default(): void
+    public function test_parse_offer_card_without_message_uses_default(): void
     {
         $json = json_encode([
-            'type' => 'product_card',
-            'selected_product_id' => 10,
+            'type' => 'offer_card',
+            'selected_offer_id' => 10,
             'personalization_reason' => 'Great fit.',
         ]);
 
         $result = $this->service->parseAiResponse($json);
 
-        $this->assertEquals('product_card', $result['type']);
+        $this->assertEquals('offer_card', $result['type']);
         $this->assertNotEmpty($result['content']);
-        $this->assertEquals(10, $result['metadata']['selected_product_id']);
+        $this->assertEquals(10, $result['metadata']['selected_offer_id']);
     }
 
-    public function test_parse_product_card_without_selected_product_id(): void
+    public function test_parse_offer_card_without_selected_offer_id(): void
     {
         $json = json_encode([
-            'type' => 'product_card',
+            'type' => 'offer_card',
             'personalization_reason' => 'A thoughtful choice.',
             'message' => 'Here you go!',
         ]);
 
         $result = $this->service->parseAiResponse($json);
 
-        $this->assertEquals('product_card', $result['type']);
-        $this->assertNull($result['metadata']['selected_product_id']);
+        $this->assertEquals('offer_card', $result['type']);
+        $this->assertNull($result['metadata']['selected_offer_id']);
     }
 }

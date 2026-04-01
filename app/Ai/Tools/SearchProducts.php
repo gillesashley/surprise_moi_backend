@@ -12,7 +12,8 @@ class SearchProducts implements Tool
 {
     public function description(): Stringable|string
     {
-        return 'Search the Surprise moi product catalog for gifts matching keywords. '
+        return 'Search the Surprise moi offer catalog for offers matching keywords. '
+             .'An offer may be a product, service, experience, package, performance, or surprise. '
              .'Supports filtering by price range and excluding categories based on dislikes.';
     }
 

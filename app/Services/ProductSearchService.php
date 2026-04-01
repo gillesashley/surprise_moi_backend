@@ -87,8 +87,8 @@ class ProductSearchService
 
         return array_map(function ($row) {
             return [
-                'product_id' => $row->product_id,
-                'product_name' => $row->product_name,
+                'offer_id' => $row->product_id,
+                'offer_name' => $row->product_name,
                 'description' => $row->description,
                 'price' => (float) ($row->discount_price ?? $row->price),
                 'original_price' => (float) $row->price,
