@@ -104,7 +104,7 @@ export default function CouponsIndex({ coupons }: Props) {
             <Head title="Coupons" />
             <Box sx={{ display: 'flex', height: '100%', flex: 1, flexDirection: 'column', gap: 2, p: 2 }}>
                 <Card>
-                    <CardHeader sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <CardHeader sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', p: 3 }}>
                         <Box>
                             <CardTitle>Coupons</CardTitle>
                             <CardDescription>
