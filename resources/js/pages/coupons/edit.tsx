@@ -92,6 +92,7 @@ export default function CouponEdit({ coupon }: Props) {
                                     {/* Code */}
                                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                         <Label htmlFor="code">Code</Label>
+                                        <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>The unique code customers enter at checkout to apply the discount</Typography>
                                         <Input id="code" name="code" defaultValue={coupon.code} required />
                                         {errors.code && (
                                             <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>{errors.code}</Typography>
@@ -101,6 +102,7 @@ export default function CouponEdit({ coupon }: Props) {
                                     {/* Title */}
                                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                         <Label htmlFor="title">Title</Label>
+                                        <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>A friendly name shown to customers when the coupon is applied</Typography>
                                         <Input id="title" name="title" defaultValue={coupon.title || ''} />
                                         {errors.title && (
                                             <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>{errors.title}</Typography>
@@ -110,6 +112,7 @@ export default function CouponEdit({ coupon }: Props) {
                                     {/* Description */}
                                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                         <Label htmlFor="description">Description</Label>
+                                        <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>Internal notes about this coupon — not visible to customers</Typography>
                                         <Box
                                             component="textarea"
                                             id="description"
@@ -141,6 +144,7 @@ export default function CouponEdit({ coupon }: Props) {
                                     <Box sx={{ display: 'flex', gap: 2 }}>
                                         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, flex: 1 }}>
                                             <Label htmlFor="type">Type</Label>
+                                            <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>How the discount is calculated</Typography>
                                             <Select name="type" defaultValue={coupon.type} required>
                                                 <SelectTrigger>
                                                     <SelectValue />
@@ -157,6 +161,7 @@ export default function CouponEdit({ coupon }: Props) {
                                         </Box>
                                         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, flex: 1 }}>
                                             <Label htmlFor="value">Value</Label>
+                                            <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>Discount amount — percentage (e.g. 20) or fixed GHS amount</Typography>
                                             <Input id="value" name="value" type="number" step="0.01" min="0" defaultValue={coupon.value} required />
                                             {errors.value && (
                                                 <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>{errors.value}</Typography>
@@ -168,6 +173,7 @@ export default function CouponEdit({ coupon }: Props) {
                                     <Box sx={{ display: 'flex', gap: 2 }}>
                                         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, flex: 1 }}>
                                             <Label htmlFor="min_purchase_amount">Min Purchase Amount (GHS)</Label>
+                                            <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>Order must reach this total before the coupon can be applied</Typography>
                                             <Input id="min_purchase_amount" name="min_purchase_amount" type="number" step="0.01" min="0" defaultValue={coupon.min_purchase_amount || ''} />
                                             {errors.min_purchase_amount && (
                                                 <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>{errors.min_purchase_amount}</Typography>
@@ -175,6 +181,7 @@ export default function CouponEdit({ coupon }: Props) {
                                         </Box>
                                         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, flex: 1 }}>
                                             <Label htmlFor="max_discount_amount">Max Discount Amount (GHS)</Label>
+                                            <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>Caps the discount — useful for percentage coupons on large orders</Typography>
                                             <Input id="max_discount_amount" name="max_discount_amount" type="number" step="0.01" min="0" defaultValue={coupon.max_discount_amount || ''} />
                                             {errors.max_discount_amount && (
                                                 <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>{errors.max_discount_amount}</Typography>
@@ -185,7 +192,8 @@ export default function CouponEdit({ coupon }: Props) {
                                     {/* Usage Limits */}
                                     <Box sx={{ display: 'flex', gap: 2 }}>
                                         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, flex: 1 }}>
-                                            <Label htmlFor="usage_limit">Usage Limit (blank = unlimited)</Label>
+                                            <Label htmlFor="usage_limit">Usage Limit</Label>
+                                            <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>Total number of times this coupon can be used across all customers. Leave blank for unlimited.</Typography>
                                             <Input id="usage_limit" name="usage_limit" type="number" min="1" defaultValue={coupon.usage_limit ?? ''} />
                                             {errors.usage_limit && (
                                                 <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>{errors.usage_limit}</Typography>
@@ -193,6 +201,7 @@ export default function CouponEdit({ coupon }: Props) {
                                         </Box>
                                         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, flex: 1 }}>
                                             <Label htmlFor="user_limit_per_user">Per-User Limit</Label>
+                                            <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>How many times a single customer can use this coupon</Typography>
                                             <Input id="user_limit_per_user" name="user_limit_per_user" type="number" min="1" defaultValue={coupon.user_limit_per_user} required />
                                             {errors.user_limit_per_user && (
                                                 <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>{errors.user_limit_per_user}</Typography>
@@ -204,6 +213,7 @@ export default function CouponEdit({ coupon }: Props) {
                                     <Box sx={{ display: 'flex', gap: 2 }}>
                                         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, flex: 1 }}>
                                             <Label htmlFor="valid_from">Valid From</Label>
+                                            <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>Date when the coupon becomes active</Typography>
                                             <Input id="valid_from" name="valid_from" type="date" defaultValue={dateValue(coupon.valid_from)} required />
                                             {errors.valid_from && (
                                                 <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>{errors.valid_from}</Typography>
@@ -211,6 +221,7 @@ export default function CouponEdit({ coupon }: Props) {
                                         </Box>
                                         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, flex: 1 }}>
                                             <Label htmlFor="valid_until">Valid Until</Label>
+                                            <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>Date when the coupon expires</Typography>
                                             <Input id="valid_until" name="valid_until" type="date" defaultValue={dateValue(coupon.valid_until)} required />
                                             {errors.valid_until && (
                                                 <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>{errors.valid_until}</Typography>
@@ -221,6 +232,7 @@ export default function CouponEdit({ coupon }: Props) {
                                     {/* Applicable To */}
                                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                         <Label htmlFor="applicable_to">Applicable To</Label>
+                                        <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>Which types of items this coupon can be used on</Typography>
                                         <Select name="applicable_to" defaultValue={coupon.applicable_to} required>
                                             <SelectTrigger>
                                                 <SelectValue />
@@ -247,7 +259,7 @@ export default function CouponEdit({ coupon }: Props) {
                                             defaultChecked={coupon.is_active}
                                             sx={{ width: 16, height: 16 }}
                                         />
-                                        <Label htmlFor="is_active">Active</Label>
+                                        <Label htmlFor="is_active">Active — uncheck to save as a draft without making it available to customers</Label>
                                     </Box>
 
                                     {wasSuccessful && (
