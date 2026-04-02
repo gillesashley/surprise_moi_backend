@@ -12,6 +12,7 @@ use App\Http\Requests\Api\V1\Auth\SendOtpRequest;
 use App\Http\Requests\Api\V1\Auth\ResetPasswordRequest;
 use App\Http\Requests\Api\V1\Auth\SocialLoginRequest;
 use App\Http\Requests\Api\V1\Auth\VerifyEmailRequest;
+use App\Http\Requests\Api\V1\Auth\VerifyOtpRequest;
 use App\Http\Requests\Api\V1\Auth\VerifyPhoneRequest;
 use App\Jobs\SendPasswordResetToken;
 use App\Jobs\SendVerificationEmail;
@@ -144,6 +145,33 @@ class AuthController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Verification code sent successfully',
+        ]);
+    }
+
+    /**
+     * Verify OTP code for any phone (pre-registration, no account required).
+     */
+    public function verifyOtp(VerifyOtpRequest $request): JsonResponse
+    {
+        $validationResult = $this->smsService->validateOtp($request->code, $request->phone);
+
+        if (! $validationResult['success']) {
+            return response()->json([
+                'success' => false,
+                'message' => $validationResult['message'],
+            ], 400);
+        }
+
+        // If user already exists (post-registration), mark phone as verified
+        $user = User::where('phone', $request->phone)->first();
+        if ($user && $user->phone_verified_at === null) {
+            $user->phone_verified_at = now();
+            $user->save();
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Phone number verified successfully',
         ]);
     }
 

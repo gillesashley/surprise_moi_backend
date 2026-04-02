@@ -61,6 +61,7 @@ Route::prefix('v1')->group(function () {
 
         // Phone OTP verification routes
         Route::post('send-otp', [AuthController::class, 'sendOtp']);
+        Route::post('verify-otp', [AuthController::class, 'verifyOtp']);
         Route::post('verify-phone', [AuthController::class, 'verifyPhone']);
         Route::post('resend-otp', [AuthController::class, 'resendOtp']);
 
