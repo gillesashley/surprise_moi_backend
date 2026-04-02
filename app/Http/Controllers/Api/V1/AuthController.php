@@ -8,6 +8,7 @@ use App\Http\Requests\Api\V1\Auth\LoginRequest;
 use App\Http\Requests\Api\V1\Auth\RegisterRequest;
 use App\Http\Requests\Api\V1\Auth\ResendOtpRequest;
 use App\Http\Requests\Api\V1\Auth\ResendVerificationRequest;
+use App\Http\Requests\Api\V1\Auth\SendOtpRequest;
 use App\Http\Requests\Api\V1\Auth\ResetPasswordRequest;
 use App\Http\Requests\Api\V1\Auth\SocialLoginRequest;
 use App\Http\Requests\Api\V1\Auth\VerifyEmailRequest;
@@ -123,6 +124,26 @@ class AuthController extends Controller
                     'phone_verified_at' => $user->phone_verified_at,
                 ],
             ],
+        ]);
+    }
+
+    /**
+     * Send OTP to any phone number (for signup wizard pre-registration verification).
+     */
+    public function sendOtp(SendOtpRequest $request): JsonResponse
+    {
+        $otpResult = $this->smsService->sendOtp($request->phone);
+
+        if (! $otpResult['success']) {
+            return response()->json([
+                'success' => false,
+                'message' => $otpResult['message'],
+            ], 500);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Verification code sent successfully',
         ]);
     }
 

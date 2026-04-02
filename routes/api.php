@@ -60,6 +60,7 @@ Route::prefix('v1')->group(function () {
         Route::post('reset-password', [AuthController::class, 'resetPassword']);
 
         // Phone OTP verification routes
+        Route::post('send-otp', [AuthController::class, 'sendOtp']);
         Route::post('verify-phone', [AuthController::class, 'verifyPhone']);
         Route::post('resend-otp', [AuthController::class, 'resendOtp']);
 
