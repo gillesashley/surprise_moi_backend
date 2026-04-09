@@ -74,7 +74,7 @@ class UserController extends Controller
         return Inertia::render('users/index', [
             'users' => $users,
             'roles' => self::ROLES,
-            'canDelete' => Auth::user()->isSuperAdmin(),
+            'canDelete' => Auth::user()->isAdmin(),
             'activeRole' => $filters['role_filter'],
             'filters' => [
                 'search' => $request->input('search'),
@@ -226,7 +226,7 @@ class UserController extends Controller
                 'vendor_application' => $vendorApplication,
             ],
             'roles' => self::ROLES,
-            'canDelete' => Auth::user()->isSuperAdmin(),
+            'canDelete' => Auth::user()->isAdmin(),
         ]);
     }
 
@@ -305,9 +305,14 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
-        // Only super_admin can delete users
-        if (! Auth::user()->isSuperAdmin()) {
-            return back()->with('error', 'Only super admins can delete users.');
+        // Admins and super_admins can delete users
+        if (! Auth::user()->isAdmin()) {
+            return back()->with('error', 'Only admins can delete users.');
+        }
+
+        // Prevent admins from deleting super_admin users
+        if ($user->isSuperAdmin() && ! Auth::user()->isSuperAdmin()) {
+            return back()->with('error', 'Only super admins can delete other super admins.');
         }
 
         // Prevent deleting your own account
