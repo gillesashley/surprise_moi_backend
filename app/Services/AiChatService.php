@@ -183,46 +183,67 @@ class AiChatService
     }
 
     /**
-     * Invoke the AI agent with a single retry only on empty responses.
+     * Preferred model (tried first). Falls back to the agent's default attribute model.
+     */
+    private const PREFERRED_MODEL = 'gemini-2.5-flash';
+
+    /**
+     * Invoke the AI agent with model failover.
      *
-     * Rate limit errors (exceptions) are NOT retried to conserve API quota.
-     * Only empty responses get a second attempt since those are cheap model hiccups.
+     * Tries the preferred (stronger) model first. If it throws (e.g. 503 overload),
+     * falls back to the agent's default attribute model (lite). This way when Google
+     * fixes overload we automatically use the better model, and when it's down
+     * users still get responses from the fallback.
      *
      * @return array{type: string, content: string, metadata: ?array<string, mixed>}
      *
-     * @throws \Throwable If the agent throws an exception.
+     * @throws \Throwable If all model attempts fail.
      */
     private function invokeAgentWithRetry(GiftAssistant $agent, string $message, AiConversation $conversation): array
     {
-        $maxAttempts = 2;
+        // Try preferred model first, then fall back to the agent's default (lite)
+        $models = [self::PREFERRED_MODEL, null];
 
-        for ($attempt = 1; $attempt <= $maxAttempts; $attempt++) {
-            $response = $agent->prompt($message);
+        foreach ($models as $model) {
+            try {
+                $response = $agent->prompt($message, model: $model);
 
-            if (app()->hasDebugModeEnabled()) {
-                Log::debug('AI agent raw response', [
+                if (app()->hasDebugModeEnabled()) {
+                    Log::debug('AI agent raw response', [
+                        'conversation_id' => $conversation->id,
+                        'model' => $model ?? 'default',
+                        'response_text' => mb_substr($response->text, 0, 500),
+                    ]);
+                }
+
+                $parsed = $this->parseAiResponse($response->text);
+
+                $hasContent = ! empty(trim($parsed['content'])) || $parsed['type'] !== 'text';
+
+                if ($hasContent) {
+                    return $parsed;
+                }
+
+                Log::warning('AI agent returned empty response', [
                     'conversation_id' => $conversation->id,
-                    'attempt' => $attempt,
-                    'response_text' => mb_substr($response->text, 0, 500),
+                    'model' => $model ?? 'default',
+                    'raw_text' => $response->text,
                 ]);
+            } catch (\Throwable $e) {
+                Log::warning('AI model unavailable, trying fallback', [
+                    'conversation_id' => $conversation->id,
+                    'model' => $model ?? 'default',
+                    'error' => $e->getMessage(),
+                ]);
+
+                // If this was the last model, re-throw
+                if ($model === end($models)) {
+                    throw $e;
+                }
             }
-
-            $parsed = $this->parseAiResponse($response->text);
-
-            $hasContent = ! empty(trim($parsed['content'])) || $parsed['type'] !== 'text';
-
-            if ($hasContent) {
-                return $parsed;
-            }
-
-            Log::warning('AI agent returned empty response', [
-                'conversation_id' => $conversation->id,
-                'attempt' => $attempt,
-                'raw_text' => $response->text,
-            ]);
         }
 
-        // All attempts returned empty — return fallback
+        // All models returned empty — return fallback
         return [
             'type' => 'text',
             'content' => "I'm sorry, I couldn't process that right now. Could you try rephrasing your message?",
