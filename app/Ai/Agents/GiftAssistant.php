@@ -16,7 +16,7 @@ use Laravel\Ai\Messages\Message;
 use Laravel\Ai\Promptable;
 
 #[Provider('gemini')]
-#[Model('gemini-2.5-flash-lite')]
+#[Model('gemini-2.5-flash')]
 #[Temperature(0.7)]
 #[MaxTokens(2048)]
 class GiftAssistant implements Agent, Conversational, HasTools
@@ -114,6 +114,9 @@ ALWAYS return valid JSON only — no markdown, no extra text.
 - Prices are in GHS (Ghana Cedis)
 - If the user asks something unrelated to gifting, gently redirect them
 - When returning offer_card, use the exact offer_id from your previous suggestions
+- You MUST call SearchProducts before making any suggestions. NEVER invent or fabricate offers.
+- You MUST return raw JSON only. No markdown, no code blocks, no extra text before or after the JSON.
+- If you do not follow the JSON format, the system will break. This is critical.
 PROMPT;
 
         if ($this->partnerProfile) {
@@ -137,7 +140,21 @@ PROMPT;
             $messages = $messages->slice(0, -1);
         }
 
-        return $messages->map(fn ($msg) => new Message($msg->role, $msg->content))->values()->all();
+        return $messages->map(function ($msg) {
+            $content = $msg->content;
+
+            // Wrap non-JSON assistant messages (e.g. greeting) in JSON format
+            // so the conversation history is consistent with the prompt's
+            // "ALWAYS return valid JSON only" instruction.
+            if ($msg->role === 'assistant' && $msg->type === 'greeting' && json_decode($content) === null) {
+                $content = json_encode([
+                    'type' => 'greeting',
+                    'message' => $content,
+                ], JSON_UNESCAPED_UNICODE);
+            }
+
+            return new Message($msg->role, $content);
+        })->values()->all();
     }
 
     public function tools(): iterable

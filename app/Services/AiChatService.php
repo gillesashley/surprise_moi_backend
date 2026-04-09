@@ -59,30 +59,7 @@ class AiChatService
         $agent = new GiftAssistant($conversation, $partnerProfile);
 
         try {
-            $response = $agent->prompt($message);
-
-            if (app()->hasDebugModeEnabled()) {
-                Log::debug('AI agent raw response', [
-                    'conversation_id' => $conversation->id,
-                    'response_text' => mb_substr($response->text, 0, 500),
-                ]);
-            }
-
-            $parsed = $this->parseAiResponse($response->text);
-
-            // Handle empty AI response
-            if (empty(trim($parsed['content'])) && $parsed['type'] === 'text') {
-                Log::warning('AI agent returned empty response', [
-                    'conversation_id' => $conversation->id,
-                    'raw_text' => $response->text,
-                ]);
-
-                $parsed = [
-                    'type' => 'text',
-                    'content' => "I'm sorry, I couldn't process that right now. Could you try rephrasing your message?",
-                    'metadata' => ['error' => true],
-                ];
-            }
+            $parsed = $this->invokeAgentWithRetry($agent, $message, $conversation);
 
             if ($parsed['type'] === 'offer_card') {
                 $parsed = $this->resolveOfferCard($parsed, $conversation);
@@ -91,6 +68,7 @@ class AiChatService
             Log::error('AI agent error', [
                 'conversation_id' => $conversation->id,
                 'error' => $e->getMessage(),
+                'trace' => mb_substr($e->getTraceAsString(), 0, 500),
             ]);
 
             $parsed = [
@@ -202,6 +180,49 @@ class AiChatService
         return $conversation->load(['messages' => function ($query) {
             $query->orderBy('created_at');
         }, 'partnerProfile']);
+    }
+
+    /**
+     * Invoke the AI agent with a single retry on empty responses.
+     *
+     * @return array{type: string, content: string, metadata: ?array<string, mixed>}
+     */
+    private function invokeAgentWithRetry(GiftAssistant $agent, string $message, AiConversation $conversation): array
+    {
+        $maxAttempts = 2;
+
+        for ($attempt = 1; $attempt <= $maxAttempts; $attempt++) {
+            $response = $agent->prompt($message);
+
+            if (app()->hasDebugModeEnabled()) {
+                Log::debug('AI agent raw response', [
+                    'conversation_id' => $conversation->id,
+                    'attempt' => $attempt,
+                    'response_text' => mb_substr($response->text, 0, 500),
+                ]);
+            }
+
+            $parsed = $this->parseAiResponse($response->text);
+
+            $hasContent = ! empty(trim($parsed['content'])) || $parsed['type'] !== 'text';
+
+            if ($hasContent) {
+                return $parsed;
+            }
+
+            Log::warning('AI agent returned empty response', [
+                'conversation_id' => $conversation->id,
+                'attempt' => $attempt,
+                'raw_text' => $response->text,
+            ]);
+        }
+
+        // All attempts returned empty — return fallback
+        return [
+            'type' => 'text',
+            'content' => "I'm sorry, I couldn't process that right now. Could you try rephrasing your message?",
+            'metadata' => ['error' => true],
+        ];
     }
 
     private function storeMessage(
