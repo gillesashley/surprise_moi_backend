@@ -248,6 +248,8 @@ class VendorRegistrationTest extends TestCase
 
         $response = $this->actingAs($user)->postJson('/api/v1/vendor-registration/step-2/business-registration', [
             'has_business_certificate' => true,
+            'reg_number' => 'REG-12345',
+            'tin_number' => 'TIN-67890',
         ]);
 
         $response->assertStatus(200)
@@ -262,6 +264,8 @@ class VendorRegistrationTest extends TestCase
         $this->assertDatabaseHas('vendor_applications', [
             'user_id' => $user->id,
             'has_business_certificate' => true,
+            'reg_number' => 'REG-12345',
+            'tin_number' => 'TIN-67890',
             'completed_step' => 2,
         ]);
     }

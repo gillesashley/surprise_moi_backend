@@ -31,6 +31,8 @@ class VendorApplicationResource extends JsonResource
 
             // Step 2: Business Registration Flags
             'has_business_certificate' => $this->has_business_certificate,
+            'reg_number' => $this->reg_number,
+            'tin_number' => $this->tin_number,
             'step_2_completed' => $this->completed_step >= 2,
 
             // Step 3: Documents (conditionally included based on registration type)

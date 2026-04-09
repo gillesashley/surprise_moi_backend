@@ -50,6 +50,8 @@ class VendorApplication extends Model
         'ghana_card_back',
         // Step 2: Business Registration Flags
         'has_business_certificate',
+        'reg_number',
+        'tin_number',
         // Step 3A: Registered Vendor Documents
         'business_certificate_document',
         // Step 3B: Unregistered Vendor Verification

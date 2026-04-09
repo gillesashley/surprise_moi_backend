@@ -202,6 +202,8 @@ class VendorRegistrationController extends Controller
 
             $data = [
                 'has_business_certificate' => $request->has_business_certificate,
+                'reg_number' => $request->reg_number,
+                'tin_number' => $request->tin_number,
                 'current_step' => 3,
                 'completed_step' => max($application->completed_step, 2),
             ];

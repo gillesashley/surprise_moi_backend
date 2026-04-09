@@ -23,6 +23,8 @@ class StoreBusinessRegistrationRequest extends FormRequest
     {
         return [
             'has_business_certificate' => ['required', 'boolean'],
+            'reg_number' => ['nullable', 'string', 'max:255'],
+            'tin_number' => ['nullable', 'string', 'max:255'],
         ];
     }
 
