@@ -183,62 +183,43 @@ class AiChatService
     }
 
     /**
-     * Invoke the AI agent with a retry on empty responses or transient errors.
+     * Invoke the AI agent with a single retry only on empty responses.
+     *
+     * Rate limit errors (exceptions) are NOT retried to conserve API quota.
+     * Only empty responses get a second attempt since those are cheap model hiccups.
      *
      * @return array{type: string, content: string, metadata: ?array<string, mixed>}
      *
-     * @throws \Throwable If the final attempt also throws.
+     * @throws \Throwable If the agent throws an exception.
      */
     private function invokeAgentWithRetry(GiftAssistant $agent, string $message, AiConversation $conversation): array
     {
         $maxAttempts = 2;
-        $lastException = null;
 
         for ($attempt = 1; $attempt <= $maxAttempts; $attempt++) {
-            try {
-                $response = $agent->prompt($message);
+            $response = $agent->prompt($message);
 
-                if (app()->hasDebugModeEnabled()) {
-                    Log::debug('AI agent raw response', [
-                        'conversation_id' => $conversation->id,
-                        'attempt' => $attempt,
-                        'response_text' => mb_substr($response->text, 0, 500),
-                    ]);
-                }
-
-                $parsed = $this->parseAiResponse($response->text);
-
-                $hasContent = ! empty(trim($parsed['content'])) || $parsed['type'] !== 'text';
-
-                if ($hasContent) {
-                    return $parsed;
-                }
-
-                Log::warning('AI agent returned empty response', [
+            if (app()->hasDebugModeEnabled()) {
+                Log::debug('AI agent raw response', [
                     'conversation_id' => $conversation->id,
                     'attempt' => $attempt,
-                    'raw_text' => $response->text,
-                ]);
-            } catch (\Throwable $e) {
-                $lastException = $e;
-
-                Log::warning('AI agent attempt failed', [
-                    'conversation_id' => $conversation->id,
-                    'attempt' => $attempt,
-                    'error' => $e->getMessage(),
+                    'response_text' => mb_substr($response->text, 0, 500),
                 ]);
             }
 
-            // Brief pause before retry to help with transient API errors
-            if ($attempt < $maxAttempts) {
-                usleep(1_500_000); // 1.5 seconds
-            }
-        }
+            $parsed = $this->parseAiResponse($response->text);
 
-        // If the last failure was an exception, re-throw so the outer
-        // catch block handles it with its own error message.
-        if ($lastException) {
-            throw $lastException;
+            $hasContent = ! empty(trim($parsed['content'])) || $parsed['type'] !== 'text';
+
+            if ($hasContent) {
+                return $parsed;
+            }
+
+            Log::warning('AI agent returned empty response', [
+                'conversation_id' => $conversation->id,
+                'attempt' => $attempt,
+                'raw_text' => $response->text,
+            ]);
         }
 
         // All attempts returned empty — return fallback
