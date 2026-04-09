@@ -200,7 +200,7 @@ class ProductSearchService
             'description' => $row->description,
             'price' => (float) ($row->discount_price ?? $row->price),
             'original_price' => (float) $row->price,
-            'thumbnail' => $row->thumbnail,
+            'thumbnail' => $row->thumbnail ? storage_url($row->thumbnail) : null,
             'currency' => $row->currency ?? 'GHS',
             'category' => $row->category_name,
             'vendor_name' => $row->vendor_name,
