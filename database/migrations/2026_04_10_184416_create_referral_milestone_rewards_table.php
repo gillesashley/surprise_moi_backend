@@ -17,7 +17,10 @@ return new class extends Migration
             $table->unsignedInteger('threshold');            // 1000, 5000, 10000, ...
             $table->unsignedInteger('points_at_milestone');  // actual points when threshold crossed
             $table->enum('status', ['pending', 'fulfilled', 'cancelled'])->default('pending');
-            $table->string('reward_type')->nullable();       // 'cash' | 'gift' | 'power_bank' | 'other'
+            // Intentionally a varchar (not enum) so admins can introduce new reward
+            // types without a schema change. Application-layer validation keeps it
+            // sensible. Common values: 'cash', 'gift', 'power_bank', 'other'.
+            $table->string('reward_type')->nullable();
             $table->text('reward_description')->nullable();
             $table->decimal('reward_value', 10, 2)->nullable();
             $table->foreignId('fulfilled_by')->nullable()->constrained('users')->nullOnDelete();
@@ -25,7 +28,11 @@ return new class extends Migration
             $table->text('admin_notes')->nullable();
             $table->timestamps();
 
-            $table->unique(['user_id', 'threshold']);        // idempotency — same threshold can't be crossed twice
+            // One reward row per (user, threshold). A cancelled reward is
+            // permanent — re-earning the same threshold after cancellation is
+            // not supported. This unique index also enforces idempotency if
+            // milestone detection fires twice (firstOrCreate returns the row).
+            $table->unique(['user_id', 'threshold']);
             $table->index(['status', 'created_at']);
         });
     }
