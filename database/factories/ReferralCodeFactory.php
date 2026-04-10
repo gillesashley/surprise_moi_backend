@@ -19,7 +19,7 @@ class ReferralCodeFactory extends Factory
     public function definition(): array
     {
         return [
-            'influencer_id' => User::factory()->state(['role' => 'influencer']),
+            'influencer_id' => User::factory()->influencer(),
             'code' => strtoupper(Str::random(8)),
             'description' => $this->faker->optional()->sentence(),
             'is_active' => true,
