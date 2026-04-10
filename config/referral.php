@@ -1,6 +1,7 @@
 <?php
 
 return [
+
     /*
     |--------------------------------------------------------------------------
     | Points Per Vendor Onboarding
@@ -12,7 +13,7 @@ return [
     | Those roles earn GHS via the existing Earning flow instead.
     |
     */
-    'points_per_vendor_onboarding' => 100,
+    'points_per_vendor_onboarding' => (int) env('REFERRAL_POINTS_PER_VENDOR_ONBOARDING', 100),
 
     /*
     |--------------------------------------------------------------------------
@@ -23,7 +24,7 @@ return [
     | creates a pending ReferralMilestoneReward row for admin fulfillment.
     |
     */
-    'milestone_first' => 1000,
+    'milestone_first' => (int) env('REFERRAL_MILESTONE_FIRST', 1000),
 
     /*
     |--------------------------------------------------------------------------
@@ -35,5 +36,5 @@ return [
     | milestone_increment=5000 is: [1000, 5000, 10000, 15000, 20000, ...].
     |
     */
-    'milestone_increment' => 5000,
+    'milestone_increment' => (int) env('REFERRAL_MILESTONE_INCREMENT', 5000),
 ];
