@@ -5,6 +5,8 @@ namespace App\Services;
 use App\Models\Earning;
 use App\Models\Referral;
 use App\Models\ReferralCode;
+use App\Models\ReferralMilestoneReward;
+use App\Models\ReferralPointTransaction;
 use App\Models\User;
 use App\Models\VendorApplication;
 use Illuminate\Support\Facades\DB;
@@ -257,5 +259,93 @@ class ReferralService
         }
 
         return $expired->count();
+    }
+
+    /**
+     * Award referral points to a user and log the transaction.
+     *
+     * Atomically increments the user's points total, creates an audit row,
+     * and triggers milestone detection as a side effect. If the award crosses
+     * one or more configured milestones, a ReferralMilestoneReward row with
+     * status='pending' is created for each crossed threshold. The unique
+     * index on (user_id, threshold) makes the operation idempotent.
+     */
+    public function awardPoints(
+        Referral $referral,
+        int $points,
+        string $reason = 'vendor_onboarding',
+        ?string $description = null
+    ): ReferralPointTransaction {
+        return DB::transaction(function () use ($referral, $points, $reason, $description) {
+            $user = $referral->influencer; // sharer — column name is historical
+
+            $oldPoints = (int) $user->referral_points;
+            $user->increment('referral_points', $points);
+            $newPoints = $oldPoints + $points;
+
+            $transaction = ReferralPointTransaction::create([
+                'user_id' => $user->id,
+                'referral_id' => $referral->id,
+                'points' => $points,
+                'reason' => $reason,
+                'description' => $description
+                    ?? "Points for vendor onboarding: {$referral->vendor->name}",
+            ]);
+
+            $this->checkMilestones($user, $oldPoints, $newPoints);
+
+            return $transaction;
+        });
+    }
+
+    /**
+     * Detect crossed milestones after a points award and create reward rows.
+     *
+     * For each configured milestone threshold, if the user's points just
+     * crossed it (old < threshold <= new), create a pending
+     * ReferralMilestoneReward row. The unique index on (user_id, threshold)
+     * guarantees idempotency — firstOrCreate returns the existing row on
+     * any subsequent call.
+     */
+    protected function checkMilestones(User $user, int $oldPoints, int $newPoints): void
+    {
+        foreach ($this->getMilestoneThresholds($newPoints) as $threshold) {
+            if ($oldPoints < $threshold && $newPoints >= $threshold) {
+                ReferralMilestoneReward::firstOrCreate(
+                    [
+                        'user_id' => $user->id,
+                        'threshold' => $threshold,
+                    ],
+                    [
+                        'points_at_milestone' => $newPoints,
+                        'status' => ReferralMilestoneReward::STATUS_PENDING,
+                    ]
+                );
+            }
+        }
+    }
+
+    /**
+     * Get the list of milestone thresholds relevant to a given points total.
+     *
+     * Sequence with defaults (first=1000, increment=5000):
+     * [1000, 5000, 10000, 15000, 20000, 25000, ...] up to just past uptoPoints.
+     *
+     * @return array<int, int>
+     */
+    protected function getMilestoneThresholds(int $uptoPoints): array
+    {
+        $first = (int) config('referral.milestone_first', 1000);
+        $increment = (int) config('referral.milestone_increment', 5000);
+
+        $thresholds = [$first];
+
+        for ($t = $increment; $t <= $uptoPoints + $increment; $t += $increment) {
+            if ($t !== $first) {
+                $thresholds[] = $t;
+            }
+        }
+
+        return $thresholds;
     }
 }

@@ -5,6 +5,8 @@ namespace Tests\Unit\Services;
 use App\Models\Earning;
 use App\Models\Referral;
 use App\Models\ReferralCode;
+use App\Models\ReferralMilestoneReward;
+use App\Models\ReferralPointTransaction;
 use App\Models\User;
 use App\Models\VendorApplication;
 use App\Services\ReferralService;
@@ -110,5 +112,122 @@ class ReferralServiceTest extends TestCase
 
         $this->assertInstanceOf(Earning::class, $earning);
         $this->assertEquals(50.00, $earning->amount);
+    }
+
+    public function test_award_points_creates_transaction_and_increments_total(): void
+    {
+        $customer = User::factory()->create(['role' => 'customer', 'referral_points' => 0]);
+        $referralCode = ReferralCode::factory()->create(['influencer_id' => $customer->id]);
+        $referral = Referral::factory()->create([
+            'referral_code_id' => $referralCode->id,
+            'influencer_id' => $customer->id,
+        ]);
+
+        $transaction = $this->service->awardPoints($referral, 100);
+
+        $this->assertInstanceOf(ReferralPointTransaction::class, $transaction);
+        $this->assertEquals(100, $transaction->points);
+        $this->assertEquals('vendor_onboarding', $transaction->reason);
+        $this->assertEquals(100, $customer->fresh()->referral_points);
+    }
+
+    public function test_award_points_triggers_milestone_at_1000(): void
+    {
+        $customer = User::factory()->create(['role' => 'customer', 'referral_points' => 900]);
+        $referralCode = ReferralCode::factory()->create(['influencer_id' => $customer->id]);
+        $referral = Referral::factory()->create([
+            'referral_code_id' => $referralCode->id,
+            'influencer_id' => $customer->id,
+        ]);
+
+        $this->service->awardPoints($referral, 100);
+
+        $milestone = ReferralMilestoneReward::where('user_id', $customer->id)
+            ->where('threshold', 1000)
+            ->first();
+
+        $this->assertNotNull($milestone);
+        $this->assertEquals(ReferralMilestoneReward::STATUS_PENDING, $milestone->status);
+        $this->assertEquals(1000, $milestone->points_at_milestone);
+    }
+
+    public function test_award_points_triggers_milestone_at_5000(): void
+    {
+        $customer = User::factory()->create(['role' => 'customer', 'referral_points' => 4900]);
+        $referralCode = ReferralCode::factory()->create(['influencer_id' => $customer->id]);
+        $referral = Referral::factory()->create([
+            'referral_code_id' => $referralCode->id,
+            'influencer_id' => $customer->id,
+        ]);
+
+        $this->service->awardPoints($referral, 100);
+
+        $milestone = ReferralMilestoneReward::where('user_id', $customer->id)
+            ->where('threshold', 5000)
+            ->first();
+
+        $this->assertNotNull($milestone);
+    }
+
+    public function test_award_points_triggers_milestone_at_10000_after_5000(): void
+    {
+        $customer = User::factory()->create(['role' => 'customer', 'referral_points' => 9900]);
+        $referralCode = ReferralCode::factory()->create(['influencer_id' => $customer->id]);
+        $referral = Referral::factory()->create([
+            'referral_code_id' => $referralCode->id,
+            'influencer_id' => $customer->id,
+        ]);
+
+        $this->service->awardPoints($referral, 100);
+
+        $this->assertDatabaseHas('referral_milestone_rewards', [
+            'user_id' => $customer->id,
+            'threshold' => 10000,
+        ]);
+    }
+
+    public function test_crossing_multiple_milestones_in_one_award_creates_all_rows(): void
+    {
+        $customer = User::factory()->create(['role' => 'customer', 'referral_points' => 900]);
+        $referralCode = ReferralCode::factory()->create(['influencer_id' => $customer->id]);
+        $referral = Referral::factory()->create([
+            'referral_code_id' => $referralCode->id,
+            'influencer_id' => $customer->id,
+        ]);
+
+        // Jump from 900 to 5100 in a single award
+        $this->service->awardPoints($referral, 4200);
+
+        $this->assertDatabaseHas('referral_milestone_rewards', [
+            'user_id' => $customer->id,
+            'threshold' => 1000,
+        ]);
+        $this->assertDatabaseHas('referral_milestone_rewards', [
+            'user_id' => $customer->id,
+            'threshold' => 5000,
+        ]);
+        $this->assertEquals(2, ReferralMilestoneReward::where('user_id', $customer->id)->count());
+    }
+
+    public function test_award_points_is_idempotent_for_same_threshold(): void
+    {
+        $customer = User::factory()->create(['role' => 'customer', 'referral_points' => 900]);
+        $referralCode = ReferralCode::factory()->create(['influencer_id' => $customer->id]);
+        $referral = Referral::factory()->create([
+            'referral_code_id' => $referralCode->id,
+            'influencer_id' => $customer->id,
+        ]);
+
+        // First award crosses 1000
+        $this->service->awardPoints($referral, 100);
+        // Second award stays above 1000 but does NOT re-cross
+        $this->service->awardPoints($referral, 100);
+
+        $this->assertEquals(
+            1,
+            ReferralMilestoneReward::where('user_id', $customer->id)
+                ->where('threshold', 1000)
+                ->count()
+        );
     }
 }
