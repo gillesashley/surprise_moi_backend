@@ -73,6 +73,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'date_of_birth' => 'date',
             'is_popular' => 'boolean',
             'vendor_tier' => 'integer',
+            'referral_points' => 'integer',
         ];
     }
 
@@ -397,6 +398,19 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Whether this user's role is one that earns GHS referral rewards
+     * (as opposed to points rewards).
+     *
+     * Earning-capable roles are paid platform workers who keep receiving
+     * GHS registration_bonus via the existing Earning flow when their
+     * referral code is used. All other roles earn points instead.
+     */
+    public function isEarningCapable(): bool
+    {
+        return in_array($this->role, ['influencer', 'field_agent', 'marketer'], true);
+    }
+
+    /**
      * Check if user can access the dashboard.
      */
     public function canAccessDashboard(): bool
@@ -420,6 +434,14 @@ class User extends Authenticatable implements MustVerifyEmail
     public function referrals()
     {
         return $this->hasMany(Referral::class, 'influencer_id');
+    }
+
+    /**
+     * Get all referral point transactions (audit trail) for this user.
+     */
+    public function pointTransactions(): HasMany
+    {
+        return $this->hasMany(ReferralPointTransaction::class);
     }
 
     /**
