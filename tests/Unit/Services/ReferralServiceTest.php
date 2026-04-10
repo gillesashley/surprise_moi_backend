@@ -40,6 +40,34 @@ class ReferralServiceTest extends TestCase
         $this->assertTrue($code->is_active);
     }
 
+    public function test_creates_referral_code_for_customer(): void
+    {
+        $customer = User::factory()->create(['role' => 'customer']);
+
+        $code = $this->service->createReferralCode(
+            influencer: $customer,
+            code: 'CUST2026',
+            registrationBonus: 50.00,
+        );
+
+        $this->assertInstanceOf(ReferralCode::class, $code);
+        $this->assertEquals('CUST2026', $code->code);
+        $this->assertEquals($customer->id, $code->influencer_id);
+    }
+
+    public function test_creates_referral_code_for_admin(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+
+        $code = $this->service->createReferralCode(
+            influencer: $admin,
+            code: 'ADM2026',
+        );
+
+        $this->assertInstanceOf(ReferralCode::class, $code);
+        $this->assertEquals($admin->id, $code->influencer_id);
+    }
+
     public function test_applies_referral_code_to_vendor_application(): void
     {
         $influencer = User::factory()->create(['role' => 'influencer']);
