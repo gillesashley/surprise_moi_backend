@@ -277,7 +277,10 @@ class ReferralService
         ?string $description = null
     ): ReferralPointTransaction {
         return DB::transaction(function () use ($referral, $points, $reason, $description) {
-            $user = $referral->influencer; // sharer — column name is historical
+            // Pessimistic lock prevents races when multiple referrals activate
+            // concurrently for the same sharer — ensures the pre-increment
+            // points snapshot is consistent with the actual row state.
+            $user = User::lockForUpdate()->findOrFail($referral->influencer_id);
 
             $oldPoints = (int) $user->referral_points;
             $user->increment('referral_points', $points);
@@ -337,6 +340,11 @@ class ReferralService
     {
         $first = (int) config('referral.milestone_first', 1000);
         $increment = (int) config('referral.milestone_increment', 5000);
+
+        // Misconfiguration safety — a zero or negative increment would loop forever.
+        if ($increment <= 0) {
+            return [$first];
+        }
 
         $thresholds = [$first];
 
