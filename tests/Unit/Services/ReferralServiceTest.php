@@ -351,4 +351,39 @@ class ReferralServiceTest extends TestCase
         $this->assertEquals(100, $admin->fresh()->referral_points);
         $this->assertDatabaseMissing('earnings', ['user_id' => $admin->id]);
     }
+
+    public function test_activate_referral_skips_earning_when_influencer_bonus_is_zero(): void
+    {
+        $influencer = User::factory()->create(['role' => 'influencer', 'referral_points' => 0]);
+        $vendor = User::factory()->create(['role' => 'customer']);
+        $referralCode = ReferralCode::factory()->create([
+            'influencer_id' => $influencer->id,
+            'registration_bonus' => 0,
+        ]);
+        $application = \App\Models\VendorApplication::factory()->create([
+            'user_id' => $vendor->id,
+            'referral_code_id' => $referralCode->id,
+        ]);
+        $referral = Referral::factory()->create([
+            'referral_code_id' => $referralCode->id,
+            'influencer_id' => $influencer->id,
+            'vendor_id' => $vendor->id,
+            'vendor_application_id' => $application->id,
+            'status' => Referral::STATUS_PENDING,
+        ]);
+
+        $this->service->activateReferral($application);
+
+        // Referral still activated
+        $this->assertEquals(Referral::STATUS_ACTIVE, $referral->fresh()->status);
+
+        // But no earning row created (bonus was zero)
+        $this->assertDatabaseMissing('earnings', [
+            'user_id' => $influencer->id,
+        ]);
+
+        // And no points awarded (influencer is earning-capable, so it went down the
+        // earning branch — just silently skipped because bonus was zero)
+        $this->assertEquals(0, $influencer->fresh()->referral_points);
+    }
 }

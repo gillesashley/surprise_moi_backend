@@ -149,7 +149,10 @@ class ReferralService
             // Activate referral and set commission period
             $referral->activate();
 
-            $sharer = $referral->influencer; // sharer — column name is historical
+            // Pessimistic lock on the sharer row prevents races with concurrent
+            // role changes (e.g. admin promotes a customer to field_agent) between
+            // the branch decision and the reward write. Same pattern as awardPoints().
+            $sharer = User::lockForUpdate()->findOrFail($referral->influencer_id);
 
             if ($sharer->isEarningCapable()) {
                 // EXISTING FLOW — money lane for influencer / field_agent / marketer
