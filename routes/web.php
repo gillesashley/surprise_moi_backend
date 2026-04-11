@@ -125,6 +125,12 @@ Route::middleware(['auth', 'dashboard'])->prefix('dashboard')->group(function ()
     ]);
     Route::post('referral-codes/{referralCode}/toggle', [ReferralCodeController::class, 'toggle'])->name('referral-codes.toggle');
 
+    // Referral Milestone Rewards (admin fulfillment dashboard)
+    Route::get('referral-milestones', [\App\Http\Controllers\ReferralMilestoneRewardController::class, 'index'])
+        ->name('referral-milestones.index');
+    Route::patch('referral-milestones/{reward}/fulfill', [\App\Http\Controllers\ReferralMilestoneRewardController::class, 'fulfill'])
+        ->name('referral-milestones.fulfill');
+
     // Vendor Application Management
     Route::prefix('vendor-applications')->name('vendor-applications.')->group(function () {
         Route::get('/', [VendorApplicationController::class, 'index'])->name('index');
