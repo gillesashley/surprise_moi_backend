@@ -21,15 +21,25 @@ import { type BreadcrumbItem } from '@/types';
 import { Form, Head, Link } from '@inertiajs/react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Search } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
-interface Props {
-    influencers: Array<{
-        id: number;
-        name: string;
-        email: string;
-    }>;
+interface UserOption {
+    id: number;
+    name: string;
+    email: string;
+    role: string | null;
 }
+
+const USER_CATEGORIES: Array<{ label: string; value: string }> = [
+    { label: 'Customer', value: 'customer' },
+    { label: 'Vendor', value: 'vendor' },
+    { label: 'Influencer', value: 'influencer' },
+    { label: 'Field Agent', value: 'field_agent' },
+    { label: 'Marketer', value: 'marketer' },
+    { label: 'Admin', value: 'admin' },
+    { label: 'Super Admin', value: 'super_admin' },
+];
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -42,7 +52,56 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function ReferralCodeCreate({ influencers }: Props) {
+export default function ReferralCodeCreate() {
+    const [selectedCategory, setSelectedCategory] = useState<string>('');
+    const [selectedUserId, setSelectedUserId] = useState<string>('');
+    const [users, setUsers] = useState<UserOption[]>([]);
+    const [searchTerm, setSearchTerm] = useState<string>('');
+    const [loadingUsers, setLoadingUsers] = useState(false);
+
+    // Fetch users whenever the category changes or the search term changes (debounced)
+    useEffect(() => {
+        if (!selectedCategory) {
+            setUsers([]);
+            return;
+        }
+
+        const controller = new AbortController();
+        const timer = setTimeout(() => {
+            setLoadingUsers(true);
+            const params = new URLSearchParams({ role: selectedCategory });
+            if (searchTerm.trim()) {
+                params.set('q', searchTerm.trim());
+            }
+
+            fetch(`/dashboard/referral-codes/users-by-role?${params.toString()}`, {
+                signal: controller.signal,
+                headers: { Accept: 'application/json' },
+            })
+                .then((res) => res.json())
+                .then((json) => {
+                    setUsers(json.data || []);
+                    setLoadingUsers(false);
+                })
+                .catch((err) => {
+                    if (err.name !== 'AbortError') {
+                        setLoadingUsers(false);
+                    }
+                });
+        }, 300);
+
+        return () => {
+            clearTimeout(timer);
+            controller.abort();
+        };
+    }, [selectedCategory, searchTerm]);
+
+    const handleCategoryChange = (value: string) => {
+        setSelectedCategory(value);
+        setSelectedUserId('');
+        setSearchTerm('');
+    };
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Create Referral Code" />
@@ -61,41 +120,101 @@ export default function ReferralCodeCreate({ influencers }: Props) {
                 <CardHeader>
                     <CardTitle>Referral Code Details</CardTitle>
                     <CardDescription>
-                        Create a new referral code for an influencer
+                        Create a new referral code for any user on the platform
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
                     <Form
-                        action="/referral-codes"
+                        action="/dashboard/referral-codes"
                         method="post"
                     >
                         {({ errors, processing }) => (
                             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                                    <Label htmlFor="influencer_id">
-                                        Influencer *
-                                    </Label>
-                                    <Select name="influencer_id" required>
-                                        <SelectTrigger id="influencer_id">
-                                            <SelectValue placeholder="Select influencer" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {influencers.map((influencer) => (
-                                                <SelectItem
-                                                    key={influencer.id}
-                                                    value={influencer.id.toString()}
-                                                >
-                                                    {influencer.name} (
-                                                    {influencer.email})
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                    {errors.influencer_id && (
-                                        <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
-                                            {errors.influencer_id}
-                                        </Typography>
-                                    )}
+                                <Box sx={{ display: 'grid', gap: 3, gridTemplateColumns: { md: 'repeat(2, 1fr)' } }}>
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                        <Label htmlFor="user_category">
+                                            User Category *
+                                        </Label>
+                                        <Select
+                                            value={selectedCategory}
+                                            onValueChange={handleCategoryChange}
+                                        >
+                                            <SelectTrigger id="user_category">
+                                                <SelectValue placeholder="Select category" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {USER_CATEGORIES.map((cat) => (
+                                                    <SelectItem key={cat.value} value={cat.value}>
+                                                        {cat.label}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </Box>
+
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                        <Label htmlFor="influencer_id">
+                                            User *
+                                        </Label>
+                                        <Select
+                                            name="influencer_id"
+                                            value={selectedUserId}
+                                            onValueChange={setSelectedUserId}
+                                            disabled={!selectedCategory}
+                                            required
+                                        >
+                                            <SelectTrigger id="influencer_id">
+                                                <SelectValue
+                                                    placeholder={
+                                                        !selectedCategory
+                                                            ? 'Pick a category first'
+                                                            : loadingUsers
+                                                              ? 'Loading...'
+                                                              : 'Select user'
+                                                    }
+                                                />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <Box sx={{ p: 1 }}>
+                                                    <Box sx={{ position: 'relative' }}>
+                                                        <Search
+                                                            style={{
+                                                                position: 'absolute',
+                                                                left: 8,
+                                                                top: '50%',
+                                                                transform: 'translateY(-50%)',
+                                                                width: 16,
+                                                                height: 16,
+                                                                color: '#9ca3af',
+                                                            }}
+                                                        />
+                                                        <Input
+                                                            placeholder="Search name or email..."
+                                                            value={searchTerm}
+                                                            onChange={(e) => setSearchTerm(e.target.value)}
+                                                            onKeyDown={(e) => e.stopPropagation()}
+                                                            style={{ paddingLeft: 32 }}
+                                                        />
+                                                    </Box>
+                                                </Box>
+                                                {users.length === 0 && !loadingUsers && (
+                                                    <Box sx={{ px: 2, py: 1.5, fontSize: '0.875rem', color: 'text.secondary' }}>
+                                                        No users found
+                                                    </Box>
+                                                )}
+                                                {users.map((user) => (
+                                                    <SelectItem key={user.id} value={user.id.toString()}>
+                                                        {user.name} ({user.email})
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                        {errors.influencer_id && (
+                                            <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
+                                                {errors.influencer_id}
+                                            </Typography>
+                                        )}
+                                    </Box>
                                 </Box>
 
                                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
@@ -115,95 +234,22 @@ export default function ReferralCodeCreate({ influencers }: Props) {
                                     )}
                                 </Box>
 
-                                <Box sx={{ display: 'grid', gap: 3, gridTemplateColumns: { md: 'repeat(2, 1fr)' } }}>
-                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                                        <Label htmlFor="registration_bonus">
-                                            Registration Bonus (GHS) *
-                                        </Label>
-                                        <Input
-                                            id="registration_bonus"
-                                            name="registration_bonus"
-                                            type="number"
-                                            step="0.01"
-                                            min="0"
-                                            placeholder="0.00"
-                                            required
-                                        />
-                                        {errors.registration_bonus && (
-                                            <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
-                                                {errors.registration_bonus}
-                                            </Typography>
-                                        )}
-                                    </Box>
-
-                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                                        <Label htmlFor="commission_rate">
-                                            Commission Rate (%) *
-                                        </Label>
-                                        <Input
-                                            id="commission_rate"
-                                            name="commission_rate"
-                                            type="number"
-                                            step="0.1"
-                                            min="0"
-                                            max="100"
-                                            placeholder="0.0"
-                                            required
-                                        />
-                                        {errors.commission_rate && (
-                                            <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
-                                                {errors.commission_rate}
-                                            </Typography>
-                                        )}
-                                    </Box>
-                                </Box>
-
                                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                                    <Label htmlFor="discount_percentage">
-                                        Discount Percentage (%) *
+                                    <Label htmlFor="registration_bonus">
+                                        Registration Bonus (GHS) *
                                     </Label>
                                     <Input
-                                        id="discount_percentage"
-                                        name="discount_percentage"
+                                        id="registration_bonus"
+                                        name="registration_bonus"
                                         type="number"
-                                        step="0.1"
+                                        step="0.01"
                                         min="0"
-                                        max="100"
-                                        placeholder="0.0"
+                                        placeholder="0.00"
                                         required
                                     />
-                                    <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
-                                        Discount applied to vendors using this
-                                        referral code
-                                    </Typography>
-                                    {errors.discount_percentage && (
+                                    {errors.registration_bonus && (
                                         <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
-                                            {errors.discount_percentage}
-                                        </Typography>
-                                    )}
-                                </Box>
-
-                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                                    <Label htmlFor="commission_duration_months">
-                                        Commission Duration (Months) *
-                                    </Label>
-                                    <Input
-                                        id="commission_duration_months"
-                                        name="commission_duration_months"
-                                        type="number"
-                                        min="1"
-                                        max="120"
-                                        defaultValue="12"
-                                        required
-                                    />
-                                    <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
-                                        How long the influencer will receive
-                                        commissions from referred vendors (1-120
-                                        months)
-                                    </Typography>
-                                    {errors.commission_duration_months && (
-                                        <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
-                                            {errors.commission_duration_months}
+                                            {errors.registration_bonus}
                                         </Typography>
                                     )}
                                 </Box>
