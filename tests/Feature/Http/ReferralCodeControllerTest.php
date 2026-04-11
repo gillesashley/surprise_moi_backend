@@ -3,6 +3,7 @@
 namespace Tests\Feature\Http;
 
 use App\Models\User;
+use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
@@ -16,6 +17,7 @@ class ReferralCodeControllerTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        $this->withoutMiddleware(ValidateCsrfToken::class);
         $this->admin = User::factory()->create(['role' => 'admin']);
     }
 
@@ -127,6 +129,52 @@ class ReferralCodeControllerTest extends TestCase
         $this->assertTrue(
             $response->status() === 403 || $response->status() === 302,
             "Expected 403 or 302, got {$response->status()}"
+        );
+    }
+
+    public function test_admin_can_create_code_for_customer(): void
+    {
+        $customer = User::factory()->create(['role' => 'customer']);
+
+        $response = $this->actingAs($this->admin)
+            ->post('/dashboard/referral-codes', [
+                'influencer_id' => $customer->id,
+                'description' => 'My customer code',
+                'registration_bonus' => 50,
+            ]);
+
+        $response->assertRedirect();
+        $this->assertDatabaseHas('referral_codes', [
+            'influencer_id' => $customer->id,
+            'description' => 'My customer code',
+        ]);
+    }
+
+    public function test_store_accepts_payload_without_commission_fields(): void
+    {
+        $customer = User::factory()->create(['role' => 'customer']);
+
+        $response = $this->actingAs($this->admin)
+            ->post('/dashboard/referral-codes', [
+                'influencer_id' => $customer->id,
+                'registration_bonus' => 25,
+            ]);
+
+        $response->assertRedirect();
+        $this->assertDatabaseHas('referral_codes', [
+            'influencer_id' => $customer->id,
+            'registration_bonus' => 25,
+        ]);
+    }
+
+    public function test_create_page_does_not_pass_influencers_prop(): void
+    {
+        $response = $this->actingAs($this->admin)->get('/dashboard/referral-codes/create');
+
+        $response->assertOk();
+        $response->assertInertia(fn ($page) => $page
+            ->component('referral-codes/create')
+            ->missing('influencers')
         );
     }
 }

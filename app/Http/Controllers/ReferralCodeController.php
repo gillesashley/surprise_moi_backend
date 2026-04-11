@@ -30,11 +30,7 @@ class ReferralCodeController extends Controller
     {
         $this->authorize('create', ReferralCode::class);
 
-        $influencers = User::where('role', 'influencer')->get();
-
-        return Inertia::render('referral-codes/create', [
-            'influencers' => $influencers,
-        ]);
+        return Inertia::render('referral-codes/create');
     }
 
     public function store(Request $request)
@@ -45,9 +41,6 @@ class ReferralCodeController extends Controller
             'influencer_id' => 'required|exists:users,id',
             'description' => 'nullable|string|max:255',
             'registration_bonus' => 'required|numeric|min:0',
-            'commission_rate' => 'required|numeric|min:0|max:100',
-            'commission_duration_months' => 'required|integer|min:1|max:120',
-            'discount_percentage' => 'required|numeric|min:0|max:100',
             'max_usages' => 'nullable|integer|min:1',
             'expires_at' => 'nullable|date|after:today',
         ]);
@@ -77,11 +70,8 @@ class ReferralCodeController extends Controller
     {
         $this->authorize('update', $referralCode);
 
-        $influencers = User::where('role', 'influencer')->get();
-
         return Inertia::render('referral-codes/edit', [
             'code' => $referralCode->load('influencer'),
-            'influencers' => $influencers,
         ]);
     }
 
@@ -92,9 +82,6 @@ class ReferralCodeController extends Controller
         $validated = $request->validate([
             'description' => 'nullable|string|max:255',
             'registration_bonus' => 'required|numeric|min:0',
-            'commission_rate' => 'required|numeric|min:0|max:100',
-            'commission_duration_months' => 'required|integer|min:1|max:120',
-            'discount_percentage' => 'required|numeric|min:0|max:100',
             'max_usages' => 'nullable|integer|min:1',
             'expires_at' => 'nullable|date',
             'is_active' => 'required|boolean',
@@ -114,6 +101,15 @@ class ReferralCodeController extends Controller
 
         return redirect()->back()
             ->with('success', 'Referral code deleted successfully.');
+    }
+
+    public function toggle(ReferralCode $referralCode)
+    {
+        $this->authorize('update', $referralCode);
+
+        $referralCode->update(['is_active' => ! $referralCode->is_active]);
+
+        return back()->with('success', 'Referral code status updated.');
     }
 
     /**
@@ -164,14 +160,5 @@ class ReferralCodeController extends Controller
             ->get(['id', 'name', 'email', 'role']);
 
         return response()->json(['data' => $users]);
-    }
-
-    public function toggle(ReferralCode $referralCode)
-    {
-        $this->authorize('update', $referralCode);
-
-        $referralCode->update(['is_active' => ! $referralCode->is_active]);
-
-        return back()->with('success', 'Referral code status updated.');
     }
 }
