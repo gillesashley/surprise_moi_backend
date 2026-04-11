@@ -34,8 +34,6 @@ class ReferralCodeController extends Controller
             code: $request->input('code'),
             description: $request->input('description'),
             registrationBonus: $request->input('registration_bonus', 50.00),
-            commissionRate: $request->input('commission_rate', 5.00),
-            commissionDurationMonths: $request->input('commission_duration_months', 3),
             maxUsages: $request->input('max_usages'),
             expiresAt: $request->input('expires_at') ? new \DateTime($request->input('expires_at')) : null
         );
