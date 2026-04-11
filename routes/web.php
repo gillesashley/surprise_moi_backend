@@ -109,6 +109,11 @@ Route::middleware(['auth', 'dashboard'])->prefix('dashboard')->group(function ()
     ]);
 
     // Referral Codes Management
+    // Cascading user-picker endpoint for referral code create form.
+    // MUST be registered before Route::resource so Laravel doesn't
+    // treat 'users-by-role' as a {referralCode} parameter.
+    Route::get('referral-codes/users-by-role', [ReferralCodeController::class, 'usersByRole'])
+        ->name('referral-codes.users-by-role');
     Route::resource('referral-codes', ReferralCodeController::class)->names([
         'index' => 'referral-codes.index',
         'create' => 'referral-codes.create',

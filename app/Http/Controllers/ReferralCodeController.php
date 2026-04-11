@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\ReferralCode;
 use App\Models\User;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -113,6 +114,48 @@ class ReferralCodeController extends Controller
 
         return redirect()->back()
             ->with('success', 'Referral code deleted successfully.');
+    }
+
+    /**
+     * Return a paginated list of users matching a given role for the
+     * cascading user-picker dropdown on the referral code create form.
+     *
+     * Accepts an optional `q` query parameter for name/email typeahead search.
+     * Customer role query also matches users with null role (legacy users).
+     */
+    public function usersByRole(Request $request): JsonResponse
+    {
+        $this->authorize('create', ReferralCode::class);
+
+        $validated = $request->validate([
+            'role' => 'required|in:customer,vendor,influencer,field_agent,marketer,admin,super_admin',
+            'q' => 'nullable|string|max:100',
+        ]);
+
+        $query = User::query();
+
+        if ($validated['role'] === 'customer') {
+            // Legacy customers may have role = null
+            $query->where(function ($q) {
+                $q->where('role', 'customer')->orWhereNull('role');
+            });
+        } else {
+            $query->where('role', $validated['role']);
+        }
+
+        if (! empty($validated['q'])) {
+            $search = $validated['q'];
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'ilike', "%{$search}%")
+                    ->orWhere('email', 'ilike', "%{$search}%");
+            });
+        }
+
+        $users = $query->orderBy('name')
+            ->limit(20)
+            ->get(['id', 'name', 'email', 'role']);
+
+        return response()->json(['data' => $users]);
     }
 
     public function toggle(ReferralCode $referralCode)
