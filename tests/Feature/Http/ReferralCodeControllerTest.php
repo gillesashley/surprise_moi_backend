@@ -112,4 +112,21 @@ class ReferralCodeControllerTest extends TestCase
         $response->assertOk();
         $response->assertJsonCount(20, 'data');
     }
+
+    public function test_users_by_role_forbidden_for_influencer(): void
+    {
+        $influencer = User::factory()->create(['role' => 'influencer']);
+
+        $response = $this->actingAs($influencer)
+            ->getJson('/dashboard/referral-codes/users-by-role?role=admin');
+
+        // Influencers pass the referral-code create policy (for the self-service
+        // API) but must not be able to enumerate admin accounts via this endpoint.
+        // Because EnsureDashboardAccess may redirect them before the explicit
+        // abort_if fires, accept either 302 redirect or 403 forbidden.
+        $this->assertTrue(
+            $response->status() === 403 || $response->status() === 302,
+            "Expected 403 or 302, got {$response->status()}"
+        );
+    }
 }

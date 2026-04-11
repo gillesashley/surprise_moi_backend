@@ -127,6 +127,14 @@ class ReferralCodeController extends Controller
     {
         $this->authorize('create', ReferralCode::class);
 
+        // Beyond the create policy, this enumeration endpoint is admin-only —
+        // influencers can create codes but must not be able to enumerate admin
+        // or other user lists.
+        abort_if(
+            ! $request->user()->isAdmin() && ! $request->user()->isSuperAdmin(),
+            403
+        );
+
         $validated = $request->validate([
             'role' => 'required|in:customer,vendor,influencer,field_agent,marketer,admin,super_admin',
             'q' => 'nullable|string|max:100',
