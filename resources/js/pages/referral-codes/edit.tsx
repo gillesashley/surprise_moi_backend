@@ -33,9 +33,6 @@ interface ReferralCode {
     };
     description?: string;
     registration_bonus: number;
-    commission_rate: number;
-    commission_duration_months: number;
-    discount_percentage: number;
     is_active: boolean;
     usage_count: number;
     max_usages?: number;
@@ -44,14 +41,9 @@ interface ReferralCode {
 
 interface Props {
     code: ReferralCode;
-    influencers: Array<{
-        id: number;
-        name: string;
-        email: string;
-    }>;
 }
 
-export default function ReferralCodeEdit({ code, influencers }: Props) {
+export default function ReferralCodeEdit({ code }: Props) {
     const breadcrumbs: BreadcrumbItem[] = [
         {
             title: 'Referral Codes',
@@ -86,7 +78,7 @@ export default function ReferralCodeEdit({ code, influencers }: Props) {
                     <CardHeader>
                         <CardTitle>Referral Code Details</CardTitle>
                         <CardDescription>
-                            Update the referral code. Note: Code and influencer
+                            Update the referral code. Note: Code and user
                             cannot be changed.
                         </CardDescription>
                     </CardHeader>
@@ -110,13 +102,13 @@ export default function ReferralCodeEdit({ code, influencers }: Props) {
                                     </Box>
 
                                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                                        <Label>Influencer</Label>
+                                        <Label>User</Label>
                                         <Input
                                             value={`${code.influencer.name} (${code.influencer.email})`}
                                             disabled
                                         />
                                         <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
-                                            Influencer assignment cannot be
+                                            User assignment cannot be
                                             changed after creation
                                         </Typography>
                                     </Box>
@@ -141,105 +133,22 @@ export default function ReferralCodeEdit({ code, influencers }: Props) {
                                         )}
                                     </Box>
 
-                                    <Box sx={{ display: 'grid', gap: 3, gridTemplateColumns: { md: 'repeat(2, 1fr)' } }}>
-                                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                                            <Label htmlFor="registration_bonus">
-                                                Registration Bonus (GHS) *
-                                            </Label>
-                                            <Input
-                                                id="registration_bonus"
-                                                name="registration_bonus"
-                                                type="number"
-                                                step="0.01"
-                                                min="0"
-                                                defaultValue={
-                                                    code.registration_bonus
-                                                }
-                                                required
-                                            />
-                                            {errors.registration_bonus && (
-                                                <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
-                                                    {errors.registration_bonus}
-                                                </Typography>
-                                            )}
-                                        </Box>
-
-                                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                                            <Label htmlFor="commission_rate">
-                                                Commission Rate (%) *
-                                            </Label>
-                                            <Input
-                                                id="commission_rate"
-                                                name="commission_rate"
-                                                type="number"
-                                                step="0.1"
-                                                min="0"
-                                                max="100"
-                                                defaultValue={
-                                                    code.commission_rate
-                                                }
-                                                required
-                                            />
-                                            {errors.commission_rate && (
-                                                <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
-                                                    {errors.commission_rate}
-                                                </Typography>
-                                            )}
-                                        </Box>
-                                    </Box>
-
                                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                                        <Label htmlFor="discount_percentage">
-                                            Discount Percentage (%) *
+                                        <Label htmlFor="registration_bonus">
+                                            Registration Bonus (GHS) *
                                         </Label>
                                         <Input
-                                            id="discount_percentage"
-                                            name="discount_percentage"
+                                            id="registration_bonus"
+                                            name="registration_bonus"
                                             type="number"
-                                            step="0.1"
+                                            step="0.01"
                                             min="0"
-                                            max="100"
-                                            defaultValue={
-                                                code.discount_percentage
-                                            }
+                                            defaultValue={code.registration_bonus}
                                             required
                                         />
-                                        <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
-                                            Discount applied to vendors using
-                                            this referral code
-                                        </Typography>
-                                        {errors.discount_percentage && (
+                                        {errors.registration_bonus && (
                                             <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
-                                                {errors.discount_percentage}
-                                            </Typography>
-                                        )}
-                                    </Box>
-
-                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                                        <Label htmlFor="commission_duration_months">
-                                            Commission Duration (Months) *
-                                        </Label>
-                                        <Input
-                                            id="commission_duration_months"
-                                            name="commission_duration_months"
-                                            type="number"
-                                            min="1"
-                                            max="120"
-                                            defaultValue={
-                                                code.commission_duration_months
-                                            }
-                                            required
-                                        />
-                                        <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
-                                            How long the influencer will receive
-                                            commissions from referred vendors
-                                            (1-120 months)
-                                        </Typography>
-                                        {errors.commission_duration_months && (
-                                            <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
-                                                {
-                                                    errors.commission_duration_months
-                                                }
+                                                {errors.registration_bonus}
                                             </Typography>
                                         )}
                                     </Box>
@@ -279,9 +188,7 @@ export default function ReferralCodeEdit({ code, influencers }: Props) {
                                                 type="date"
                                                 defaultValue={
                                                     code.expires_at
-                                                        ? code.expires_at.split(
-                                                              'T',
-                                                          )[0]
+                                                        ? code.expires_at.split('T')[0]
                                                         : ''
                                                 }
                                             />
