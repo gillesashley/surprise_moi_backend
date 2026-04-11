@@ -183,6 +183,12 @@ Route::prefix('v1')->group(function () {
 
     // Vendor-only routes for products and services
     Route::middleware('auth:sanctum')->group(function () {
+        // Personal referral summary — available to ANY authenticated user
+        // (customer, vendor, influencer, etc). Returns the caller's referral
+        // code, points total, and milestone progress. Creates a referral
+        // code on first access so the user always has something to share.
+        Route::get('/me/referral-summary', [\App\Http\Controllers\Api\V1\MyReferralController::class, 'show']);
+
         // Shop management (vendors only)
         Route::get('/my-shops', [\App\Http\Controllers\Api\V1\ShopController::class, 'myShops']);
         Route::post('/shops', [\App\Http\Controllers\Api\V1\ShopController::class, 'store']);
