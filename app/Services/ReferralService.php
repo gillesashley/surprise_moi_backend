@@ -149,20 +149,30 @@ class ReferralService
             // Activate referral and set commission period
             $referral->activate();
 
-            // Create registration bonus earning if configured
-            if ($referral->referralCode->registration_bonus > 0) {
-                Earning::create([
-                    'user_id' => $referral->influencer_id,
-                    'user_role' => 'influencer',
-                    'earning_type' => Earning::TYPE_REFERRAL_BONUS,
-                    'earnable_id' => $referral->id,
-                    'earnable_type' => Referral::class,
-                    'amount' => $referral->referralCode->registration_bonus,
-                    'currency' => 'GHS',
-                    'status' => Earning::STATUS_PENDING,
-                    'description' => "Registration bonus for referring vendor: {$referral->vendor->name}",
-                    'earned_at' => now(),
-                ]);
+            $sharer = $referral->influencer; // sharer — column name is historical
+
+            if ($sharer->isEarningCapable()) {
+                // EXISTING FLOW — money lane for influencer / field_agent / marketer
+                if ($referral->referralCode->registration_bonus > 0) {
+                    Earning::create([
+                        'user_id' => $referral->influencer_id,
+                        'user_role' => $sharer->role, // was hardcoded 'influencer'; now reads from user
+                        'earning_type' => Earning::TYPE_REFERRAL_BONUS,
+                        'earnable_id' => $referral->id,
+                        'earnable_type' => Referral::class,
+                        'amount' => $referral->referralCode->registration_bonus,
+                        'currency' => 'GHS',
+                        'status' => Earning::STATUS_PENDING,
+                        'description' => "Registration bonus for referring vendor: {$referral->vendor->name}",
+                        'earned_at' => now(),
+                    ]);
+                }
+            } else {
+                // NEW FLOW — points lane for customer / vendor / admin / super_admin
+                $this->awardPoints(
+                    $referral,
+                    (int) config('referral.points_per_vendor_onboarding', 100)
+                );
             }
 
             return $referral->fresh();
