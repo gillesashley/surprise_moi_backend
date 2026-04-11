@@ -45,6 +45,13 @@ class ReferralCodeController extends Controller
             'expires_at' => 'nullable|date|after:today',
         ]);
 
+        // Note: commission_rate, commission_duration_months, and discount_percentage
+        // are intentionally not in $validated — the Phase 1 plan deprecates those
+        // fields from the admin form in favor of the new points/milestone system.
+        // Newly created codes fall back to the DB column defaults (0 / 3 / 0),
+        // which means no commission is accrued on vendor orders. Existing codes
+        // with non-zero commission values keep working via the commission flow
+        // in ReferralService::calculateCommission.
         ReferralCode::create([
             ...$validated,
             'is_active' => true,
