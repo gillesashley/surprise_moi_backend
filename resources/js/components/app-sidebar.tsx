@@ -23,6 +23,7 @@ import {
     CreditCard,
     DollarSign,
     Footprints,
+    Gift,
     LayoutGrid,
     Landmark,
     List,
@@ -147,6 +148,11 @@ const getNavItemsForRole = (role: string): NavItem[] => {
                         title: 'Referral Codes',
                         href: '/dashboard/referral-codes',
                         icon: Code,
+                    },
+                    {
+                        title: 'Milestone Rewards',
+                        href: '/dashboard/referral-milestones',
+                        icon: Gift,
                     },
                     {
                         title: 'Coupons',
