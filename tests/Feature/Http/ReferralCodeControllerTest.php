@@ -185,7 +185,6 @@ class ReferralCodeControllerTest extends TestCase
             'influencer_id' => $customer->id,
             'commission_rate' => 7.5,
             'commission_duration_months' => 6,
-            'discount_percentage' => 10,
         ]);
 
         $response = $this->actingAs($this->admin)
@@ -196,7 +195,6 @@ class ReferralCodeControllerTest extends TestCase
                 // Try to sneak commission fields in — they should be ignored
                 'commission_rate' => 99,
                 'commission_duration_months' => 999,
-                'discount_percentage' => 55,
             ]);
 
         $response->assertRedirect();
@@ -208,6 +206,5 @@ class ReferralCodeControllerTest extends TestCase
         // Commission fields unchanged from their original values
         $this->assertEquals(7.5, (float) $fresh->commission_rate);
         $this->assertEquals(6, $fresh->commission_duration_months);
-        $this->assertEquals(10, (float) $fresh->discount_percentage);
     }
 }

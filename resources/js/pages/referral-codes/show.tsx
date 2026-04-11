@@ -34,7 +34,6 @@ interface ReferralCode {
     registration_bonus: number;
     commission_rate: number;
     commission_duration_months: number;
-    discount_percentage: number;
     is_active: boolean;
     usage_count: number;
     max_usages?: number;
@@ -240,14 +239,6 @@ export default function ReferralCodeShow({ code }: Props) {
                                     </Typography>
                                     <Typography sx={{ mt: 0.5, fontSize: '1.5rem', fontWeight: 700 }}>
                                         {formatCurrency(code.registration_bonus)}
-                                    </Typography>
-                                </Box>
-                                <Box>
-                                    <Typography component="label" sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'text.secondary' }}>
-                                        Vendor Discount
-                                    </Typography>
-                                    <Typography sx={{ mt: 0.5, fontSize: '1.5rem', fontWeight: 700, color: 'success.main' }}>
-                                        {code.discount_percentage}%
                                     </Typography>
                                 </Box>
                                 <Box>

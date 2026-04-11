@@ -24,7 +24,6 @@ class ReferralCode extends Model
         'registration_bonus',
         'commission_rate',
         'commission_duration_months',
-        'discount_percentage',
         'expires_at',
     ];
 
@@ -37,7 +36,6 @@ class ReferralCode extends Model
             'registration_bonus' => 'decimal:2',
             'commission_rate' => 'decimal:2',
             'commission_duration_months' => 'integer',
-            'discount_percentage' => 'decimal:2',
             'expires_at' => 'datetime',
         ];
     }

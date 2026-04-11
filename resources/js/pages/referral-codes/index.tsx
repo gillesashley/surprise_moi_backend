@@ -25,9 +25,7 @@ interface ReferralCode {
     is_active: boolean;
     usage_count: number;
     max_usages: number | null;
-    commission_rate: number;
     registration_bonus: number;
-    discount_percentage: number;
     expires_at: string | null;
 }
 
@@ -129,13 +127,7 @@ export default function ReferralCodesIndex({ codes }: Props) {
                                             Influencer
                                         </Box>
                                         <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
-                                            Discount
-                                        </Box>
-                                        <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
                                             Usage
-                                        </Box>
-                                        <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
-                                            Commission
                                         </Box>
                                         <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
                                             Bonus
@@ -188,16 +180,8 @@ export default function ReferralCodesIndex({ codes }: Props) {
                                                 </Box>
                                             </Box>
                                             <Box component="td" sx={{ p: 1 }}>
-                                                <Box component="span" sx={{ fontWeight: 600, color: 'success.main' }}>
-                                                    {code.discount_percentage}%
-                                                </Box>
-                                            </Box>
-                                            <Box component="td" sx={{ p: 1 }}>
                                                 {code.usage_count} /{' '}
                                                 {code.max_usages || '\u221E'}
-                                            </Box>
-                                            <Box component="td" sx={{ p: 1 }}>
-                                                {code.commission_rate}%
                                             </Box>
                                             <Box component="td" sx={{ p: 1 }}>
                                                 GH₵{code.registration_bonus}

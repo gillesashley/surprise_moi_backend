@@ -28,7 +28,6 @@ class ReferralCodeFactory extends Factory
             'registration_bonus' => 50.00,
             'commission_rate' => 0,
             'commission_duration_months' => 3,
-            'discount_percentage' => 0,
             'expires_at' => null,
         ];
     }
