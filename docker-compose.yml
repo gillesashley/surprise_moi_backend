@@ -2,7 +2,7 @@
 # SurpriseMoi Backend - Docker Compose Configuration
 # Domain: dashboard.surprisemoi.com
 # Port: 8082 (avoiding 8080 and 8081 which are already in use)
-# Note: Scheduler runs via VPS cron, not Docker container
+# Note: Scheduler runs via Supervisor inside the Docker container
 # =============================================================================
 
 services:
