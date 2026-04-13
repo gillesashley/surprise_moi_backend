@@ -89,7 +89,6 @@ class ReferralCodeController extends Controller
 
         $validated = $request->validate([
             'description' => 'nullable|string|max:255',
-            'registration_bonus' => 'required|numeric|min:0',
             'max_usages' => 'nullable|integer|min:1',
             'expires_at' => 'nullable|date',
             'is_active' => 'required|boolean',

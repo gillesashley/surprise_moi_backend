@@ -133,24 +133,15 @@ export default function ReferralCodeEdit({ code }: Props) {
                                         )}
                                     </Box>
 
-                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                                        <Label htmlFor="registration_bonus">
-                                            Registration Bonus (GHS) *
-                                        </Label>
-                                        <Input
-                                            id="registration_bonus"
-                                            name="registration_bonus"
-                                            type="number"
-                                            step="0.01"
-                                            min="0"
-                                            defaultValue={code.registration_bonus}
-                                            required
-                                        />
-                                        {errors.registration_bonus && (
-                                            <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
-                                                {errors.registration_bonus}
-                                            </Typography>
-                                        )}
+                                    <Box sx={{ p: 2, borderRadius: 1, bgcolor: 'action.hover' }}>
+                                        <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                                            Registration Bonus
+                                        </Typography>
+                                        <Typography variant="body2" color="text.secondary">
+                                            {Number(code.registration_bonus) > 0
+                                                ? `GH₵${code.registration_bonus} (legacy fixed amount)`
+                                                : 'Dynamically calculated from category percentage'}
+                                        </Typography>
                                     </Box>
 
                                     <Box sx={{ display: 'grid', gap: 3, gridTemplateColumns: { md: 'repeat(2, 1fr)' } }}>
