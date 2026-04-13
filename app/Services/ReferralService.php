@@ -77,6 +77,47 @@ class ReferralService
     }
 
     /**
+     * Bulk-generate referral codes for all users of a given role who
+     * do not already have an active referral code.
+     *
+     * @return int Number of codes created
+     */
+    public function bulkGenerateCodes(string $role): int
+    {
+        $prefix = ReferralCode::getPrefixForRole($role);
+
+        $query = User::query();
+        if ($role === 'customer') {
+            $query->where(function ($q) {
+                $q->where('role', 'customer')->orWhereNull('role');
+            });
+        } else {
+            $query->where('role', $role);
+        }
+
+        // Exclude users who already have an active referral code
+        $query->whereDoesntHave('referralCodes', function ($q) {
+            $q->where('is_active', true);
+        });
+
+        $users = $query->get();
+
+        return DB::transaction(function () use ($users, $prefix) {
+            $count = 0;
+            foreach ($users as $user) {
+                $this->createReferralCode(
+                    influencer: $user,
+                    description: 'Bulk-generated referral code',
+                    prefix: $prefix,
+                );
+                $count++;
+            }
+
+            return $count;
+        });
+    }
+
+    /**
      * Calculate the registration bonus for a referrer based on their role
      * and the referred person's vendor tier.
      *

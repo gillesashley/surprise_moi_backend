@@ -114,6 +114,10 @@ Route::middleware(['auth', 'dashboard'])->prefix('dashboard')->group(function ()
     // treat 'users-by-role' as a {referralCode} parameter.
     Route::get('referral-codes/users-by-role', [ReferralCodeController::class, 'usersByRole'])
         ->name('referral-codes.users-by-role');
+    Route::post('referral-codes/bulk-generate/preview', [ReferralCodeController::class, 'bulkGeneratePreview'])
+        ->name('referral-codes.bulk-generate.preview');
+    Route::post('referral-codes/bulk-generate', [ReferralCodeController::class, 'bulkGenerate'])
+        ->name('referral-codes.bulk-generate');
     Route::resource('referral-codes', ReferralCodeController::class)->names([
         'index' => 'referral-codes.index',
         'create' => 'referral-codes.create',

@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\BulkGenerateReferralCodeRequest;
 use App\Models\ReferralCode;
 use App\Models\User;
+use App\Services\ReferralService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -12,6 +14,8 @@ use Inertia\Inertia;
 class ReferralCodeController extends Controller
 {
     use AuthorizesRequests;
+
+    public function __construct(protected ReferralService $referralService) {}
 
     public function index()
     {
@@ -171,5 +175,42 @@ class ReferralCodeController extends Controller
             ->get(['id', 'name', 'email', 'role']);
 
         return response()->json(['data' => $users]);
+    }
+
+    public function bulkGeneratePreview(BulkGenerateReferralCodeRequest $request): JsonResponse
+    {
+        $role = $request->validated('role');
+
+        $query = User::query();
+        if ($role === 'customer') {
+            $query->where(function ($q) {
+                $q->where('role', 'customer')->orWhereNull('role');
+            });
+        } else {
+            $query->where('role', $role);
+        }
+
+        $total = $query->count();
+
+        $withCode = (clone $query)->whereHas('referralCodes', function ($q) {
+            $q->where('is_active', true);
+        })->count();
+
+        return response()->json([
+            'total' => $total,
+            'with_code' => $withCode,
+            'without_code' => $total - $withCode,
+            'prefix' => ReferralCode::getPrefixForRole($role),
+        ]);
+    }
+
+    public function bulkGenerate(BulkGenerateReferralCodeRequest $request): JsonResponse
+    {
+        $role = $request->validated('role');
+        $count = $this->referralService->bulkGenerateCodes($role);
+
+        return response()->json([
+            'generated' => $count,
+        ]);
     }
 }
