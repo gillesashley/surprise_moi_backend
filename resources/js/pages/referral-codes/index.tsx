@@ -91,16 +91,22 @@ function BulkGenerateModal({
     const [generating, setGenerating] = useState(false);
     const [result, setResult] = useState<number | null>(null);
 
+    const getCsrfToken = (): string => {
+        const match = document.cookie.match(/XSRF-TOKEN=([^;]+)/);
+        return match ? decodeURIComponent(match[1]) : document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content || '';
+    };
+
     const fetchPreview = async (selectedRole: string) => {
         setLoading(true);
         setPreview(null);
         try {
             const res = await fetch('/dashboard/referral-codes/bulk-generate/preview', {
                 method: 'POST',
+                credentials: 'same-origin',
                 headers: {
                     'Content-Type': 'application/json',
                     Accept: 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content || '',
+                    'X-XSRF-TOKEN': getCsrfToken(),
                 },
                 body: JSON.stringify({ role: selectedRole }),
             });
@@ -124,10 +130,11 @@ function BulkGenerateModal({
         try {
             const res = await fetch('/dashboard/referral-codes/bulk-generate', {
                 method: 'POST',
+                credentials: 'same-origin',
                 headers: {
                     'Content-Type': 'application/json',
                     Accept: 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content || '',
+                    'X-XSRF-TOKEN': getCsrfToken(),
                 },
                 body: JSON.stringify({ role }),
             });
