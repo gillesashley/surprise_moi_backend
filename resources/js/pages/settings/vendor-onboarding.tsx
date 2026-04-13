@@ -17,6 +17,7 @@ import { type BreadcrumbItem } from '@/types';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { Form, Head } from '@inertiajs/react';
+import { useState } from 'react';
 
 interface Settings {
     vendor_tier1_onboarding_fee?: {
@@ -39,10 +40,79 @@ interface Settings {
         type: string;
         description: string;
     };
+    referral_bonus_customer_pct?: { value: string; type: string; description: string };
+    referral_bonus_vendor_pct?: { value: string; type: string; description: string };
+    referral_bonus_influencer_pct?: { value: string; type: string; description: string };
+    referral_bonus_field_agent_pct?: { value: string; type: string; description: string };
+    referral_bonus_marketer_pct?: { value: string; type: string; description: string };
 }
 
 interface Props {
     settings: Settings;
+}
+
+const BONUS_CATEGORIES = [
+    { key: 'referral_bonus_customer_pct', label: 'Customer', defaultValue: '15.00' },
+    { key: 'referral_bonus_vendor_pct', label: 'Vendor', defaultValue: '20.00' },
+    { key: 'referral_bonus_influencer_pct', label: 'Influencer', defaultValue: '25.00' },
+    { key: 'referral_bonus_field_agent_pct', label: 'Field Agent', defaultValue: '30.00' },
+    { key: 'referral_bonus_marketer_pct', label: 'Marketer', defaultValue: '20.00' },
+] as const;
+
+function ReferralBonusFields({
+    settings,
+    errors,
+}: {
+    settings: Settings;
+    errors: Record<string, string>;
+}) {
+    const tier1Fee = parseFloat(settings.vendor_tier1_onboarding_fee?.value || '150');
+    const tier2Fee = parseFloat(settings.vendor_tier2_onboarding_fee?.value || '100');
+
+    const [percentages, setPercentages] = useState<Record<string, string>>(() => {
+        const initial: Record<string, string> = {};
+        for (const cat of BONUS_CATEGORIES) {
+            initial[cat.key] = settings[cat.key as keyof Settings]?.value || cat.defaultValue;
+        }
+        return initial;
+    });
+
+    const computeBonus = (pctStr: string, fee: number) => {
+        const pct = parseFloat(pctStr);
+        if (isNaN(pct) || isNaN(fee)) return '0.00';
+        return ((pct / 100) * fee).toFixed(2);
+    };
+
+    return (
+        <Box sx={{ display: 'grid', gap: 2, gridTemplateColumns: { md: 'repeat(3, 1fr)' } }}>
+            {BONUS_CATEGORIES.map((cat) => (
+                <Box key={cat.key} sx={{ display: 'grid', gap: 1 }}>
+                    <Label htmlFor={cat.key}>{cat.label} (%)</Label>
+                    <Input
+                        id={cat.key}
+                        name={cat.key}
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        max="100"
+                        value={percentages[cat.key]}
+                        onChange={(e) =>
+                            setPercentages((prev) => ({
+                                ...prev,
+                                [cat.key]: e.target.value,
+                            }))
+                        }
+                        required
+                    />
+                    <Typography variant="body2" color="text.secondary">
+                        Tier 1: GH₵{computeBonus(percentages[cat.key], tier1Fee)} | Tier 2: GH₵
+                        {computeBonus(percentages[cat.key], tier2Fee)}
+                    </Typography>
+                    <InputError message={errors[cat.key]} />
+                </Box>
+            ))}
+        </Box>
+    );
 }
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -239,6 +309,20 @@ export default function VendorOnboarding({ settings }: Props) {
                                                 />
                                             </Box>
                                         </Box>
+                                    </CardContent>
+                                </Card>
+
+                                {/* Referral Bonus Percentages */}
+                                <Card>
+                                    <CardHeader>
+                                        <CardTitle>Referral Bonus Percentages</CardTitle>
+                                        <CardDescription>
+                                            Set the registration bonus percentage for each user category. The bonus is
+                                            calculated as a percentage of the referred person's tier onboarding fee.
+                                        </CardDescription>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <ReferralBonusFields settings={settings} errors={errors} />
                                     </CardContent>
                                 </Card>
 
