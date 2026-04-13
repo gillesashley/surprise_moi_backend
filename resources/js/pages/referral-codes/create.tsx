@@ -52,28 +52,21 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function ReferralCodeCreate() {
+interface Props {
+    bonusPercentages: Record<string, number>;
+    tierFees: { tier1: number; tier2: number };
+}
+
+export default function ReferralCodeCreate({ bonusPercentages, tierFees }: Props) {
     const [selectedCategory, setSelectedCategory] = useState<string>('');
     const [selectedUserId, setSelectedUserId] = useState<string>('');
     const [users, setUsers] = useState<UserOption[]>([]);
     const [searchTerm, setSearchTerm] = useState<string>('');
     const [loadingUsers, setLoadingUsers] = useState(false);
 
-    const ROLE_BONUS_DEFAULTS: Record<string, number> = {
-        customer: 15,
-        vendor: 20,
-        influencer: 25,
-        field_agent: 30,
-        marketer: 20,
-        admin: 0,
-        super_admin: 0,
-    };
-
-    const tier1Fee = 150;
-    const tier2Fee = 100;
-    const selectedPct = ROLE_BONUS_DEFAULTS[selectedCategory] ?? 0;
-    const tier1Bonus = ((selectedPct / 100) * tier1Fee).toFixed(2);
-    const tier2Bonus = ((selectedPct / 100) * tier2Fee).toFixed(2);
+    const selectedPct = bonusPercentages[selectedCategory] ?? 0;
+    const tier1Bonus = ((selectedPct / 100) * tierFees.tier1).toFixed(2);
+    const tier2Bonus = ((selectedPct / 100) * tierFees.tier2).toFixed(2);
 
     // Fetch users whenever the category changes or the search term changes (debounced)
     useEffect(() => {

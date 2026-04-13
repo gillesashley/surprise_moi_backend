@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\BulkGenerateReferralCodeRequest;
 use App\Models\ReferralCode;
+use App\Models\Setting;
 use App\Models\User;
 use App\Services\ReferralService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -34,7 +35,19 @@ class ReferralCodeController extends Controller
     {
         $this->authorize('create', ReferralCode::class);
 
-        return Inertia::render('referral-codes/create');
+        return Inertia::render('referral-codes/create', [
+            'bonusPercentages' => [
+                'customer' => (float) Setting::get('referral_bonus_customer_pct', 15),
+                'vendor' => (float) Setting::get('referral_bonus_vendor_pct', 20),
+                'influencer' => (float) Setting::get('referral_bonus_influencer_pct', 25),
+                'field_agent' => (float) Setting::get('referral_bonus_field_agent_pct', 30),
+                'marketer' => (float) Setting::get('referral_bonus_marketer_pct', 20),
+            ],
+            'tierFees' => [
+                'tier1' => (float) Setting::get('vendor_tier1_onboarding_fee', 150),
+                'tier2' => (float) Setting::get('vendor_tier2_onboarding_fee', 100),
+            ],
+        ]);
     }
 
     public function store(Request $request)
