@@ -46,18 +46,20 @@ class ReferralService
      * @param  int  $commissionDurationMonths  How long to earn commission
      * @param  int|null  $maxUsages  Limit how many times code can be used
      * @param  \DateTime|null  $expiresAt  When code becomes invalid
+     * @param  string|null  $prefix  Transient prefix for code generation
      */
     public function createReferralCode(
         User $influencer,
         ?string $code = null,
         ?string $description = null,
-        float $registrationBonus = 50.00,
+        float $registrationBonus = 0.00,
         float $commissionRate = 5.00,
         int $commissionDurationMonths = 3,
         ?int $maxUsages = null,
-        ?\DateTime $expiresAt = null
+        ?\DateTime $expiresAt = null,
+        ?string $prefix = null
     ): ReferralCode {
-        return ReferralCode::create([
+        $referralCode = new ReferralCode([
             'influencer_id' => $influencer->id,
             'code' => $code,
             'description' => $description,
@@ -68,6 +70,10 @@ class ReferralService
             'expires_at' => $expiresAt,
             'is_active' => true,
         ]);
+        $referralCode->prefix = $prefix;
+        $referralCode->save();
+
+        return $referralCode;
     }
 
     /**
