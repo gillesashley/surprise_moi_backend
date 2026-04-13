@@ -7,6 +7,7 @@ use App\Models\Referral;
 use App\Models\ReferralCode;
 use App\Models\ReferralMilestoneReward;
 use App\Models\ReferralPointTransaction;
+use App\Models\Setting;
 use App\Models\User;
 use App\Models\VendorApplication;
 use App\Services\ReferralService;
@@ -354,6 +355,9 @@ class ReferralServiceTest extends TestCase
 
     public function test_activate_referral_skips_earning_when_influencer_bonus_is_zero(): void
     {
+        // Ensure the dynamic fallback calculation also yields zero so no earning is created.
+        Setting::set('referral_bonus_influencer_pct', 0, 'number');
+
         $influencer = User::factory()->create(['role' => 'influencer', 'referral_points' => 0]);
         $vendor = User::factory()->create(['role' => 'customer']);
         $referralCode = ReferralCode::factory()->create([

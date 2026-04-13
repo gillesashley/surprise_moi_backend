@@ -189,7 +189,6 @@ class ReferralCodeControllerTest extends TestCase
         $response = $this->actingAs($this->admin)
             ->put("/dashboard/referral-codes/{$code->id}", [
                 'description' => 'updated',
-                'registration_bonus' => 60,
                 'is_active' => true,
                 // Try to sneak commission fields in — they should be ignored
                 'commission_rate' => 99,
@@ -201,7 +200,8 @@ class ReferralCodeControllerTest extends TestCase
         $fresh = $code->fresh();
         // Allowed fields updated
         $this->assertEquals('updated', $fresh->description);
-        $this->assertEquals(60.00, $fresh->registration_bonus);
+        // registration_bonus is no longer accepted on update — original value preserved
+        $this->assertEquals(50.00, (float) $fresh->registration_bonus);
         // Commission fields unchanged from their original values
         $this->assertEquals(7.5, (float) $fresh->commission_rate);
         $this->assertEquals(6, $fresh->commission_duration_months);
