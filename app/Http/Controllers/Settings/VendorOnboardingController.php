@@ -38,6 +38,11 @@ class VendorOnboardingController extends Controller
             'vendor_tier2_onboarding_fee' => 'required|numeric|min:0',
             'vendor_tier1_commission_rate' => 'required|numeric|min:0|max:100',
             'vendor_tier2_commission_rate' => 'required|numeric|min:0|max:100',
+            'referral_bonus_customer_pct' => 'required|numeric|min:0|max:100',
+            'referral_bonus_vendor_pct' => 'required|numeric|min:0|max:100',
+            'referral_bonus_influencer_pct' => 'required|numeric|min:0|max:100',
+            'referral_bonus_field_agent_pct' => 'required|numeric|min:0|max:100',
+            'referral_bonus_marketer_pct' => 'required|numeric|min:0|max:100',
         ]);
 
         foreach ($validated as $key => $value) {
