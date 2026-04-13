@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
     Card,
@@ -6,13 +7,27 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
 import Typography from '@mui/material/Typography';
-import { Copy, Eye, Pencil, Plus, Power, PowerOff, Trash2 } from 'lucide-react';
+import { Copy, Eye, Pencil, Plus, Power, PowerOff, Trash2, Users } from 'lucide-react';
 
 interface ReferralCode {
     id: number;
@@ -48,7 +63,205 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
+const BULK_CATEGORIES: Array<{ label: string; value: string }> = [
+    { label: 'Customer', value: 'customer' },
+    { label: 'Vendor', value: 'vendor' },
+    { label: 'Influencer', value: 'influencer' },
+    { label: 'Field Agent', value: 'field_agent' },
+    { label: 'Marketer', value: 'marketer' },
+];
+
+interface PreviewData {
+    total: number;
+    with_code: number;
+    without_code: number;
+    prefix: string;
+}
+
+function BulkGenerateModal({
+    open,
+    onClose,
+}: {
+    open: boolean;
+    onClose: () => void;
+}) {
+    const [role, setRole] = useState('');
+    const [preview, setPreview] = useState<PreviewData | null>(null);
+    const [loading, setLoading] = useState(false);
+    const [generating, setGenerating] = useState(false);
+    const [result, setResult] = useState<number | null>(null);
+
+    const fetchPreview = async (selectedRole: string) => {
+        setLoading(true);
+        setPreview(null);
+        try {
+            const res = await fetch('/dashboard/referral-codes/bulk-generate/preview', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Accept: 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content || '',
+                },
+                body: JSON.stringify({ role: selectedRole }),
+            });
+            const data = await res.json();
+            setPreview(data);
+        } catch {
+            // silently fail
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleRoleChange = (value: string) => {
+        setRole(value);
+        setResult(null);
+        fetchPreview(value);
+    };
+
+    const handleGenerate = async () => {
+        setGenerating(true);
+        try {
+            const res = await fetch('/dashboard/referral-codes/bulk-generate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Accept: 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content || '',
+                },
+                body: JSON.stringify({ role }),
+            });
+            const data = await res.json();
+            setResult(data.generated);
+        } catch {
+            // silently fail
+        } finally {
+            setGenerating(false);
+        }
+    };
+
+    const handleClose = () => {
+        if (result !== null) {
+            router.reload();
+        }
+        setRole('');
+        setPreview(null);
+        setResult(null);
+        onClose();
+    };
+
+    return (
+        <Dialog open={open} onOpenChange={handleClose}>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Bulk Generate Referral Codes</DialogTitle>
+                    <DialogDescription>
+                        Generate codes for all users in a category who don't have an active code.
+                    </DialogDescription>
+                </DialogHeader>
+
+                {result !== null ? (
+                    <Box sx={{ textAlign: 'center', py: 3 }}>
+                        <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
+                            {result} Codes Generated
+                        </Typography>
+                        <Typography color="text.secondary" sx={{ mb: 3 }}>
+                            All {BULK_CATEGORIES.find((c) => c.value === role)?.label} users without an active code now have a referral code.
+                        </Typography>
+                        <Button onClick={handleClose}>Done</Button>
+                    </Box>
+                ) : (
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                        <Box sx={{ display: 'grid', gap: 1 }}>
+                            <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                                User Category
+                            </Typography>
+                            <Select value={role} onValueChange={handleRoleChange}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select a category..." />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {BULK_CATEGORIES.map((cat) => (
+                                        <SelectItem key={cat.value} value={cat.value}>
+                                            {cat.label}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </Box>
+
+                        {loading && (
+                            <Typography variant="body2" color="text.secondary">
+                                Loading preview...
+                            </Typography>
+                        )}
+
+                        {preview && !loading && (
+                            <Box
+                                sx={{
+                                    p: 2,
+                                    borderRadius: 1,
+                                    bgcolor: 'action.hover',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    gap: 1,
+                                }}
+                            >
+                                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                                    <Typography variant="body2" color="text.secondary">
+                                        Total users
+                                    </Typography>
+                                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                                        {preview.total}
+                                    </Typography>
+                                </Box>
+                                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                                    <Typography variant="body2" color="text.secondary">
+                                        Already have active code
+                                    </Typography>
+                                    <Typography variant="body2" sx={{ fontWeight: 600, color: 'warning.main' }}>
+                                        {preview.with_code}
+                                    </Typography>
+                                </Box>
+                                <Box sx={{ borderTop: 1, borderColor: 'divider', pt: 1, display: 'flex', justifyContent: 'space-between' }}>
+                                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                                        Codes to generate
+                                    </Typography>
+                                    <Typography variant="body2" sx={{ fontWeight: 700, color: 'success.main' }}>
+                                        {preview.without_code}
+                                    </Typography>
+                                </Box>
+                                <Typography variant="caption" color="text.secondary">
+                                    Code format: {preview.prefix}XXXXXXXX
+                                </Typography>
+                            </Box>
+                        )}
+
+                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
+                            <Button variant="outline" onClick={handleClose}>
+                                Cancel
+                            </Button>
+                            <Button
+                                onClick={handleGenerate}
+                                disabled={!preview || preview.without_code === 0 || generating}
+                            >
+                                {generating
+                                    ? 'Generating...'
+                                    : preview
+                                      ? `Generate ${preview.without_code} Codes`
+                                      : 'Generate'}
+                            </Button>
+                        </Box>
+                    </Box>
+                )}
+            </DialogContent>
+        </Dialog>
+    );
+}
+
 export default function ReferralCodesIndex({ codes }: Props) {
+    const [bulkModalOpen, setBulkModalOpen] = useState(false);
+
     const handleDelete = (codeId: number, code: string) => {
         if (
             confirm(
@@ -100,12 +313,18 @@ export default function ReferralCodesIndex({ codes }: Props) {
                             Manage referral codes for influencers
                         </Typography>
                     </Box>
-                    <Button asChild>
-                        <Link href="/dashboard/referral-codes/create">
-                            <Plus style={{ marginRight: 8, width: 16, height: 16 }} />
-                            Create Code
-                        </Link>
-                    </Button>
+                    <Box sx={{ display: 'flex', gap: 1 }}>
+                        <Button variant="outline" onClick={() => setBulkModalOpen(true)}>
+                            <Users style={{ marginRight: 8, width: 16, height: 16 }} />
+                            Bulk Generate
+                        </Button>
+                        <Button asChild>
+                            <Link href="/dashboard/referral-codes/create">
+                                <Plus style={{ marginRight: 8, width: 16, height: 16 }} />
+                                Create Code
+                            </Link>
+                        </Button>
+                    </Box>
                 </Box>
 
                 <Card>
@@ -310,6 +529,10 @@ export default function ReferralCodesIndex({ codes }: Props) {
                     </CardContent>
                 </Card>
             </Box>
+            <BulkGenerateModal
+                open={bulkModalOpen}
+                onClose={() => setBulkModalOpen(false)}
+            />
         </AppLayout>
     );
 }
