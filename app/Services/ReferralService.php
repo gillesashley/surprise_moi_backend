@@ -7,6 +7,7 @@ use App\Models\Referral;
 use App\Models\ReferralCode;
 use App\Models\ReferralMilestoneReward;
 use App\Models\ReferralPointTransaction;
+use App\Models\Setting;
 use App\Models\User;
 use App\Models\VendorApplication;
 use Illuminate\Support\Facades\DB;
@@ -67,6 +68,27 @@ class ReferralService
             'expires_at' => $expiresAt,
             'is_active' => true,
         ]);
+    }
+
+    /**
+     * Calculate the registration bonus for a referrer based on their role
+     * and the referred person's vendor tier.
+     *
+     * Returns: (role percentage / 100) × tier onboarding fee.
+     * Returns 0 if no percentage setting exists for the role.
+     */
+    public function calculateRegistrationBonus(string $referrerRole, int $vendorTier): float
+    {
+        $percentage = (float) Setting::get("referral_bonus_{$referrerRole}_pct", 0);
+
+        if ($percentage <= 0) {
+            return 0.0;
+        }
+
+        $feeKey = "vendor_tier{$vendorTier}_onboarding_fee";
+        $onboardingFee = (float) Setting::get($feeKey, 0);
+
+        return round(($percentage / 100) * $onboardingFee, 2);
     }
 
     /**
@@ -145,7 +167,7 @@ class ReferralService
             return null;
         }
 
-        return DB::transaction(function () use ($referral) {
+        return DB::transaction(function () use ($referral, $vendorApplication) {
             // Activate referral and set commission period
             $referral->activate();
 
@@ -155,15 +177,25 @@ class ReferralService
             $sharer = User::lockForUpdate()->findOrFail($referral->influencer_id);
 
             if ($sharer->isEarningCapable()) {
-                // EXISTING FLOW — money lane for influencer / field_agent / marketer
-                if ($referral->referralCode->registration_bonus > 0) {
+                // Determine bonus: dynamic calculation for new codes,
+                // fallback to stored registration_bonus for legacy codes.
+                $storedBonus = (float) $referral->referralCode->registration_bonus;
+
+                if ($storedBonus > 0) {
+                    $bonusAmount = $storedBonus;
+                } else {
+                    $vendorTier = $vendorApplication->getVendorTier();
+                    $bonusAmount = $this->calculateRegistrationBonus($sharer->role, $vendorTier);
+                }
+
+                if ($bonusAmount > 0) {
                     Earning::create([
                         'user_id' => $referral->influencer_id,
-                        'user_role' => $sharer->role, // was hardcoded 'influencer'; now reads from user
+                        'user_role' => $sharer->role,
                         'earning_type' => Earning::TYPE_REFERRAL_BONUS,
                         'earnable_id' => $referral->id,
                         'earnable_type' => Referral::class,
-                        'amount' => $referral->referralCode->registration_bonus,
+                        'amount' => $bonusAmount,
                         'currency' => 'GHS',
                         'status' => Earning::STATUS_PENDING,
                         'description' => "Registration bonus for referring vendor: {$referral->vendor->name}",
