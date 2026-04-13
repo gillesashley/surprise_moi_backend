@@ -14,6 +14,24 @@ class ReferralCode extends Model
     /** @use HasFactory<\Database\Factories\ReferralCodeFactory> */
     use HasFactory, SoftDeletes;
 
+    /**
+     * Maps user roles to their 2-letter code prefixes.
+     *
+     * @var array<string, string>
+     */
+    public const ROLE_PREFIXES = [
+        'customer' => 'CU-',
+        'vendor' => 'VD-',
+        'influencer' => 'IN-',
+        'field_agent' => 'FA-',
+        'marketer' => 'MK-',
+    ];
+
+    /**
+     * Transient prefix used during code generation. Not persisted to the database.
+     */
+    public ?string $prefix = null;
+
     protected $fillable = [
         'influencer_id',
         'code',
@@ -46,21 +64,29 @@ class ReferralCode extends Model
 
         static::creating(function (ReferralCode $code) {
             if (empty($code->code)) {
-                $code->code = static::generateUniqueCode();
+                $code->code = static::generateUniqueCode($code->prefix ?? '');
             }
         });
     }
 
     /**
-     * Generate a unique referral code.
+     * Generate a unique referral code, optionally prefixed.
      */
-    public static function generateUniqueCode(): string
+    public static function generateUniqueCode(string $prefix = ''): string
     {
         do {
-            $code = strtoupper(Str::random(8));
+            $code = $prefix.strtoupper(Str::random(8));
         } while (static::where('code', $code)->exists());
 
         return $code;
+    }
+
+    /**
+     * Return the role prefix for a given role, or empty string if unmapped.
+     */
+    public static function getPrefixForRole(string $role): string
+    {
+        return static::ROLE_PREFIXES[$role] ?? '';
     }
 
     /**
