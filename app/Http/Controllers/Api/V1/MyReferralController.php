@@ -37,9 +37,11 @@ class MyReferralController extends Controller
             ->first();
 
         if (! $referralCode) {
+            $prefix = ReferralCode::getPrefixForRole($user->role ?? 'customer');
             $referralCode = $this->referralService->createReferralCode(
                 influencer: $user,
                 description: 'Personal referral code',
+                prefix: $prefix,
             );
         }
 
@@ -153,6 +155,8 @@ class MyReferralController extends Controller
                 'pending_rewards' => $pendingRewards,
                 'milestone_first' => $first,
                 'milestone_increment' => $increment,
+                'registration_bonus_tier1' => $this->referralService->calculateRegistrationBonus($user->role ?? 'customer', 1),
+                'registration_bonus_tier2' => $this->referralService->calculateRegistrationBonus($user->role ?? 'customer', 2),
             ],
         ]);
     }

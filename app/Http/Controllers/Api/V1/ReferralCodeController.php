@@ -29,13 +29,16 @@ class ReferralCodeController extends Controller
 
     public function store(StoreReferralCodeRequest $request): JsonResponse
     {
+        $user = $request->user();
+        $prefix = ReferralCode::getPrefixForRole($user->role ?? 'customer');
+
         $code = $this->referralService->createReferralCode(
-            influencer: $request->user(),
+            influencer: $user,
             code: $request->input('code'),
             description: $request->input('description'),
-            registrationBonus: $request->input('registration_bonus', 50.00),
             maxUsages: $request->input('max_usages'),
-            expiresAt: $request->input('expires_at') ? new \DateTime($request->input('expires_at')) : null
+            expiresAt: $request->input('expires_at') ? new \DateTime($request->input('expires_at')) : null,
+            prefix: $prefix,
         );
 
         return response()->json([
