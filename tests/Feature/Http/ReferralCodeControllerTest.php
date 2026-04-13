@@ -157,13 +157,12 @@ class ReferralCodeControllerTest extends TestCase
         $response = $this->actingAs($this->admin)
             ->post('/dashboard/referral-codes', [
                 'influencer_id' => $customer->id,
-                'registration_bonus' => 25,
+                // registration_bonus is no longer accepted — bonuses are now dynamic
             ]);
 
         $response->assertRedirect();
         $this->assertDatabaseHas('referral_codes', [
             'influencer_id' => $customer->id,
-            'registration_bonus' => 25,
         ]);
     }
 

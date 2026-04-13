@@ -44,27 +44,20 @@ class ReferralCodeController extends Controller
         $validated = $request->validate([
             'influencer_id' => 'required|exists:users,id',
             'description' => 'nullable|string|max:255',
-            'registration_bonus' => 'required|numeric|min:0',
             'max_usages' => 'nullable|integer|min:1',
             'expires_at' => 'nullable|date|after:today',
         ]);
 
-        // Note: commission_rate and commission_duration_months are intentionally
-        // not in $validated — the Phase 1 plan deprecates those fields from the
-        // admin form in favor of the new points/milestone system. Newly created
-        // codes fall back to the DB column defaults (0 / 3), which means no
-        // commission is accrued on vendor orders. Existing codes with non-zero
-        // commission values keep working via the commission flow in
-        // ReferralService::calculateCommission.
-        //
-        // The discount_percentage column was dropped entirely on 2026-04-11
-        // (see drop_discount_percentage_from_referral_codes_table migration)
-        // because it was never read by any production code path.
-        ReferralCode::create([
-            ...$validated,
-            'is_active' => true,
-            'usage_count' => 0,
-        ]);
+        $user = User::findOrFail($validated['influencer_id']);
+        $prefix = ReferralCode::getPrefixForRole($user->role ?? 'customer');
+
+        $this->referralService->createReferralCode(
+            influencer: $user,
+            description: $validated['description'] ?? null,
+            maxUsages: $validated['max_usages'] ?? null,
+            expiresAt: isset($validated['expires_at']) ? new \DateTime($validated['expires_at']) : null,
+            prefix: $prefix,
+        );
 
         return redirect()->route('referral-codes.index')
             ->with('success', 'Referral code created successfully.');

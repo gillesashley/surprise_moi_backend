@@ -59,6 +59,22 @@ export default function ReferralCodeCreate() {
     const [searchTerm, setSearchTerm] = useState<string>('');
     const [loadingUsers, setLoadingUsers] = useState(false);
 
+    const ROLE_BONUS_DEFAULTS: Record<string, number> = {
+        customer: 15,
+        vendor: 20,
+        influencer: 25,
+        field_agent: 30,
+        marketer: 20,
+        admin: 0,
+        super_admin: 0,
+    };
+
+    const tier1Fee = 150;
+    const tier2Fee = 100;
+    const selectedPct = ROLE_BONUS_DEFAULTS[selectedCategory] ?? 0;
+    const tier1Bonus = ((selectedPct / 100) * tier1Fee).toFixed(2);
+    const tier2Bonus = ((selectedPct / 100) * tier2Fee).toFixed(2);
+
     // Fetch users whenever the category changes or the search term changes (debounced)
     useEffect(() => {
         if (!selectedCategory) {
@@ -234,25 +250,29 @@ export default function ReferralCodeCreate() {
                                     )}
                                 </Box>
 
-                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                                    <Label htmlFor="registration_bonus">
-                                        Registration Bonus (GHS) *
-                                    </Label>
-                                    <Input
-                                        id="registration_bonus"
-                                        name="registration_bonus"
-                                        type="number"
-                                        step="0.01"
-                                        min="0"
-                                        placeholder="0.00"
-                                        required
-                                    />
-                                    {errors.registration_bonus && (
-                                        <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
-                                            {errors.registration_bonus}
+                                {selectedCategory && (
+                                    <Box
+                                        sx={{
+                                            p: 2,
+                                            borderRadius: 1,
+                                            bgcolor: 'action.hover',
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            gap: 0.5,
+                                        }}
+                                    >
+                                        <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                                            Registration Bonus (auto-calculated)
                                         </Typography>
-                                    )}
-                                </Box>
+                                        <Typography variant="body2" color="text.secondary">
+                                            Tier 1: GH₵{tier1Bonus} | Tier 2: GH₵{tier2Bonus}
+                                        </Typography>
+                                        <Typography variant="caption" color="text.secondary">
+                                            Based on {selectedPct}% of onboarding fee for{' '}
+                                            {USER_CATEGORIES.find((c) => c.value === selectedCategory)?.label}
+                                        </Typography>
+                                    </Box>
+                                )}
 
                                 <Box sx={{ display: 'grid', gap: 3, gridTemplateColumns: { md: 'repeat(2, 1fr)' } }}>
                                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
