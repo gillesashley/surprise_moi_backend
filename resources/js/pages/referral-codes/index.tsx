@@ -403,7 +403,13 @@ export default function ReferralCodesIndex({ codes }: Props) {
                                                 {code.max_usages || '\u221E'}
                                             </Box>
                                             <Box component="td" sx={{ p: 1 }}>
-                                                GH₵{code.registration_bonus}
+                                                {Number(code.registration_bonus) > 0 ? (
+                                                    <>GH₵{code.registration_bonus}</>
+                                                ) : (
+                                                    <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.8rem' }}>
+                                                        Dynamic
+                                                    </Typography>
+                                                )}
                                             </Box>
                                             <Box component="td" sx={{ p: 1 }}>
                                                 {code.is_active ? (
