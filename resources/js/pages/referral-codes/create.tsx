@@ -202,6 +202,8 @@ export default function ReferralCodeCreate({ bonusPercentages, tierFees }: Props
                                                             value={searchTerm}
                                                             onChange={(e) => setSearchTerm(e.target.value)}
                                                             onKeyDown={(e) => e.stopPropagation()}
+                                                            onMouseDown={(e) => e.stopPropagation()}
+                                                            onClick={(e) => e.stopPropagation()}
                                                             style={{ paddingLeft: 32 }}
                                                         />
                                                     </Box>
