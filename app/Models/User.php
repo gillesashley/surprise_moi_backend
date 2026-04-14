@@ -660,8 +660,8 @@ class User extends Authenticatable implements MustVerifyEmail
         if ($paidEquivalentPoints < $first) {
             return $first;
         }
-        $stepsAfterFirst = (int) floor(($paidEquivalentPoints - $first) / $increment) + 1;
-        return $first + ($stepsAfterFirst * $increment);
+        $steps = (int) floor($paidEquivalentPoints / $increment) + 1;
+        return $steps * $increment;
     }
 
     public function canRequestReferralPayout(): bool
