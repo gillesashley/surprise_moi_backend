@@ -604,4 +604,78 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return 'user.'.$this->id;
     }
+
+    public function userPayoutDetails(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(UserPayoutDetail::class);
+    }
+
+    public function defaultUserPayoutDetail(): ?UserPayoutDetail
+    {
+        return $this->userPayoutDetails()
+            ->where('is_default', true)
+            ->where('is_verified', true)
+            ->first();
+    }
+
+    public const POINTS_PER_CEDI = 10;
+
+    public function referralPointsAsCedis(): float
+    {
+        return (int) $this->referral_points / self::POINTS_PER_CEDI;
+    }
+
+    public function totalReferralPayoutPaid(): float
+    {
+        return (float) PayoutRequest::query()
+            ->where('user_id', $this->id)
+            ->where('source', 'referral_milestone')
+            ->where('status', 'paid')
+            ->sum('amount');
+    }
+
+    public function totalReferralPayoutPending(): float
+    {
+        return (float) PayoutRequest::query()
+            ->where('user_id', $this->id)
+            ->where('source', 'referral_milestone')
+            ->whereIn('status', ['pending', 'processing'])
+            ->sum('amount');
+    }
+
+    public function availableReferralPayoutAmount(): float
+    {
+        $available = $this->referralPointsAsCedis()
+            - $this->totalReferralPayoutPaid()
+            - $this->totalReferralPayoutPending();
+        return max(0.0, round($available, 2));
+    }
+
+    public function nextReferralUnlockThreshold(): int
+    {
+        $first = (int) config('referral.milestone_first', 1000);
+        $increment = (int) config('referral.milestone_increment', 5000);
+        $paidEquivalentPoints = (int) round($this->totalReferralPayoutPaid() * self::POINTS_PER_CEDI);
+
+        if ($paidEquivalentPoints < $first) {
+            return $first;
+        }
+        $stepsAfterFirst = (int) floor(($paidEquivalentPoints - $first) / $increment) + 1;
+        return $first + ($stepsAfterFirst * $increment);
+    }
+
+    public function canRequestReferralPayout(): bool
+    {
+        if ($this->availableReferralPayoutAmount() <= 0) {
+            return false;
+        }
+        if ((int) $this->referral_points < $this->nextReferralUnlockThreshold()) {
+            return false;
+        }
+        return !PayoutRequest::query()
+            ->where('user_id', $this->id)
+            ->where('source', 'referral_milestone')
+            ->whereIn('status', ['pending', 'processing'])
+            ->exists();
+    }
 }
