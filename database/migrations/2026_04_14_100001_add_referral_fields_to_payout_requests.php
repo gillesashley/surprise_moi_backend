@@ -27,6 +27,11 @@ return new class extends Migration {
 
     public function down(): void
     {
+        // NOTE: If any payout_requests rows have user_role='customer' (created after
+        // this feature shipped), the ADD CONSTRAINT below will fail because Postgres
+        // validates existing rows against the new stricter constraint. Before rolling
+        // back in an environment that may contain such rows, delete or re-role those
+        // rows first. Safe to run as-is in envs that never created customer payouts.
         Schema::table('payout_requests', function (Blueprint $table) {
             $table->dropForeign(['user_payout_detail_id']);
             $table->dropIndex(['source', 'status']);

@@ -66,7 +66,7 @@ class ReferralMilestoneReward extends Model
         return $query->where('status', self::STATUS_PENDING);
     }
 
-    public function payoutRequest(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function payoutRequest(): BelongsTo
     {
         return $this->belongsTo(PayoutRequest::class);
     }

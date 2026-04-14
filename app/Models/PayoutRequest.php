@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
@@ -32,6 +33,10 @@ class PayoutRequest extends Model
     public const METHOD_BANK_TRANSFER = 'bank_transfer';
 
     public const METHOD_QUARTERLY_SALARY = 'quarterly_salary';
+
+    public const SOURCE_VENDOR_EARNINGS = 'vendor_earnings';
+
+    public const SOURCE_REFERRAL_MILESTONE = 'referral_milestone';
 
     protected $fillable = [
         'user_id',
@@ -156,18 +161,18 @@ class PayoutRequest extends Model
         return $query->where('user_id', $userId);
     }
 
-    public function userPayoutDetail(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function userPayoutDetail(): BelongsTo
     {
         return $this->belongsTo(UserPayoutDetail::class);
     }
 
-    public function referralMilestoneReward(): \Illuminate\Database\Eloquent\Relations\HasOne
+    public function referralMilestoneReward(): HasOne
     {
         return $this->hasOne(ReferralMilestoneReward::class);
     }
 
     public function isReferralPayout(): bool
     {
-        return $this->source === 'referral_milestone';
+        return $this->source === self::SOURCE_REFERRAL_MILESTONE;
     }
 }

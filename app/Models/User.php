@@ -605,7 +605,14 @@ class User extends Authenticatable implements MustVerifyEmail
         return 'user.'.$this->id;
     }
 
-    public function userPayoutDetails(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public const POINTS_PER_CEDI = 10;
+
+    /**
+     * Mobile-money details saved by a customer for referral payouts.
+     * Distinct from the vendor-side {@see self::payoutDetails()} which
+     * returns VendorPayoutDetail records.
+     */
+    public function userPayoutDetails(): HasMany
     {
         return $this->hasMany(UserPayoutDetail::class);
     }
@@ -618,8 +625,6 @@ class User extends Authenticatable implements MustVerifyEmail
             ->first();
     }
 
-    public const POINTS_PER_CEDI = 10;
-
     public function referralPointsAsCedis(): float
     {
         return (int) $this->referral_points / self::POINTS_PER_CEDI;
@@ -629,8 +634,8 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return (float) PayoutRequest::query()
             ->where('user_id', $this->id)
-            ->where('source', 'referral_milestone')
-            ->where('status', 'paid')
+            ->where('source', PayoutRequest::SOURCE_REFERRAL_MILESTONE)
+            ->where('status', PayoutRequest::STATUS_PAID)
             ->sum('amount');
     }
 
@@ -638,8 +643,8 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return (float) PayoutRequest::query()
             ->where('user_id', $this->id)
-            ->where('source', 'referral_milestone')
-            ->whereIn('status', ['pending', 'processing'])
+            ->where('source', PayoutRequest::SOURCE_REFERRAL_MILESTONE)
+            ->whereIn('status', [PayoutRequest::STATUS_PENDING, PayoutRequest::STATUS_PROCESSING])
             ->sum('amount');
     }
 
@@ -651,6 +656,12 @@ class User extends Authenticatable implements MustVerifyEmail
         return max(0.0, round($available, 2));
     }
 
+    /**
+     * The lowest milestone threshold strictly above the points the user has
+     * already cashed out. Sequence from config/referral.php is
+     * [milestone_first, increment, 2*increment, 3*increment, ...].
+     * For defaults first=1000, increment=5000 → [1000, 5000, 10000, 15000, ...].
+     */
     public function nextReferralUnlockThreshold(): int
     {
         $first = (int) config('referral.milestone_first', 1000);
@@ -674,8 +685,8 @@ class User extends Authenticatable implements MustVerifyEmail
         }
         return !PayoutRequest::query()
             ->where('user_id', $this->id)
-            ->where('source', 'referral_milestone')
-            ->whereIn('status', ['pending', 'processing'])
+            ->where('source', PayoutRequest::SOURCE_REFERRAL_MILESTONE)
+            ->whereIn('status', [PayoutRequest::STATUS_PENDING, PayoutRequest::STATUS_PROCESSING])
             ->exists();
     }
 }
