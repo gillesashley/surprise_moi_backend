@@ -56,6 +56,10 @@ class PayoutRequest extends Model
         'paystack_transfer_id',
         'payout_detail_id',
         'rejected_at',
+        'source',
+        'referral_milestone_threshold',
+        'points_deducted',
+        'user_payout_detail_id',
     ];
 
     protected function casts(): array
@@ -65,6 +69,8 @@ class PayoutRequest extends Model
             'processed_at' => 'datetime',
             'paid_at' => 'datetime',
             'rejected_at' => 'datetime',
+            'referral_milestone_threshold' => 'integer',
+            'points_deducted' => 'integer',
         ];
     }
 
@@ -148,5 +154,20 @@ class PayoutRequest extends Model
     public function scopeForUser($query, int $userId)
     {
         return $query->where('user_id', $userId);
+    }
+
+    public function userPayoutDetail(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(UserPayoutDetail::class);
+    }
+
+    public function referralMilestoneReward(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(ReferralMilestoneReward::class);
+    }
+
+    public function isReferralPayout(): bool
+    {
+        return $this->source === 'referral_milestone';
     }
 }
