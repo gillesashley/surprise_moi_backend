@@ -74,4 +74,17 @@ class UserReferralPayoutTest extends TestCase
 
         $this->assertFalse($user->canRequestReferralPayout());
     }
+
+    public function test_cannot_request_payout_while_processing_request_exists(): void
+    {
+        $user = User::factory()->create(['referral_points' => 5000]);
+        PayoutRequest::factory()->create([
+            'user_id' => $user->id,
+            'source' => 'referral_milestone',
+            'status' => 'processing',
+            'amount' => 100,
+        ]);
+
+        $this->assertFalse($user->canRequestReferralPayout());
+    }
 }
