@@ -202,8 +202,7 @@ RUN mkdir -p storage/framework/{sessions,views,cache} \
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 775 storage bootstrap/cache \
-    && chmod +x /var/www/html/scripts/manage.sh
+    && chmod -R 775 storage bootstrap/cache
 
 # Create entrypoint script
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
@@ -269,5 +268,4 @@ RUN mkdir -p storage/framework/{sessions,views,cache} \
     && mkdir -p storage/app/public
 
 RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 775 storage bootstrap/cache \
-    && chmod +x /var/www/html/scripts/manage.sh
+    && chmod -R 775 storage bootstrap/cache
