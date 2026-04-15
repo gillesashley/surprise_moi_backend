@@ -171,4 +171,35 @@ class ReferralPayoutTest extends TestCase
             ->assertStatus(200)
             ->assertJsonCount(3, 'data.data');
     }
+
+    public function test_cannot_request_payout_with_unverified_details(): void
+    {
+        $user = User::factory()->create(['referral_points' => 1000]);
+        $unverified = UserPayoutDetail::factory()->unverified()->create([
+            'user_id' => $user->id,
+        ]);
+
+        $this->actingAs($user)
+            ->postJson('/api/v1/me/referral-payout-requests', [
+                'payout_detail_id' => $unverified->id,
+            ])
+            ->assertStatus(422)
+            ->assertJsonPath('message', 'Payout details are not verified with Paystack.');
+    }
+
+    public function test_cannot_use_another_users_payout_detail(): void
+    {
+        $user = User::factory()->create(['referral_points' => 1000]);
+        $this->verifiedDetail($user);
+
+        $otherUser = User::factory()->create();
+        $otherDetail = UserPayoutDetail::factory()->create(['user_id' => $otherUser->id]);
+
+        $this->actingAs($user)
+            ->postJson('/api/v1/me/referral-payout-requests', [
+                'payout_detail_id' => $otherDetail->id,
+            ])
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['payout_detail_id']);
+    }
 }

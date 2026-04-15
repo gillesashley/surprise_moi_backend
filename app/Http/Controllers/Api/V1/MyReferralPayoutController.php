@@ -52,7 +52,7 @@ class MyReferralPayoutController extends Controller
         $detailId = $request->validated('payout_detail_id');
 
         $detail = $detailId
-            ? UserPayoutDetail::where('user_id', $user->id)->findOrFail($detailId)
+            ? UserPayoutDetail::where('user_id', $user->id)->where('id', $detailId)->first()
             : $user->defaultUserPayoutDetail();
 
         if (!$detail) {
