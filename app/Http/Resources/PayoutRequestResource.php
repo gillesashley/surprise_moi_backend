@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Http\Resources\UserPayoutDetailResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -21,6 +22,10 @@ class PayoutRequestResource extends JsonResource
             'bank_name' => $this->when($this->payout_method === 'bank_transfer', $this->bank_name),
             'account_number' => $this->when($this->payout_method === 'bank_transfer', $this->account_number),
             'account_name' => $this->when($this->payout_method === 'bank_transfer', $this->account_name),
+            'source' => $this->source,
+            'referral_milestone_threshold' => $this->referral_milestone_threshold,
+            'points_deducted' => $this->points_deducted,
+            'user_payout_detail' => new UserPayoutDetailResource($this->whenLoaded('userPayoutDetail')),
             'status' => $this->status,
             'rejection_reason' => $this->rejection_reason,
             'processed_at' => $this->processed_at?->toISOString(),

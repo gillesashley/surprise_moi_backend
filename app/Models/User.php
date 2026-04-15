@@ -604,4 +604,89 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return 'user.'.$this->id;
     }
+
+    public const POINTS_PER_CEDI = 10;
+
+    /**
+     * Mobile-money details saved by a customer for referral payouts.
+     * Distinct from the vendor-side {@see self::payoutDetails()} which
+     * returns VendorPayoutDetail records.
+     */
+    public function userPayoutDetails(): HasMany
+    {
+        return $this->hasMany(UserPayoutDetail::class);
+    }
+
+    public function defaultUserPayoutDetail(): ?UserPayoutDetail
+    {
+        return $this->userPayoutDetails()
+            ->where('is_default', true)
+            ->where('is_verified', true)
+            ->first();
+    }
+
+    public function referralPointsAsCedis(): float
+    {
+        return (int) $this->referral_points / self::POINTS_PER_CEDI;
+    }
+
+    public function totalReferralPayoutPaid(): float
+    {
+        return (float) PayoutRequest::query()
+            ->where('user_id', $this->id)
+            ->where('source', PayoutRequest::SOURCE_REFERRAL_MILESTONE)
+            ->where('status', PayoutRequest::STATUS_PAID)
+            ->sum('amount');
+    }
+
+    public function totalReferralPayoutPending(): float
+    {
+        return (float) PayoutRequest::query()
+            ->where('user_id', $this->id)
+            ->where('source', PayoutRequest::SOURCE_REFERRAL_MILESTONE)
+            ->whereIn('status', [PayoutRequest::STATUS_PENDING, PayoutRequest::STATUS_PROCESSING])
+            ->sum('amount');
+    }
+
+    public function availableReferralPayoutAmount(): float
+    {
+        $available = $this->referralPointsAsCedis()
+            - $this->totalReferralPayoutPaid()
+            - $this->totalReferralPayoutPending();
+        return max(0.0, round($available, 2));
+    }
+
+    /**
+     * The lowest milestone threshold strictly above the points the user has
+     * already cashed out. Sequence from config/referral.php is
+     * [milestone_first, increment, 2*increment, 3*increment, ...].
+     * For defaults first=1000, increment=5000 → [1000, 5000, 10000, 15000, ...].
+     */
+    public function nextReferralUnlockThreshold(): int
+    {
+        $first = (int) config('referral.milestone_first', 1000);
+        $increment = (int) config('referral.milestone_increment', 5000);
+        $paidEquivalentPoints = (int) round($this->totalReferralPayoutPaid() * self::POINTS_PER_CEDI);
+
+        if ($paidEquivalentPoints < $first) {
+            return $first;
+        }
+        $steps = (int) floor($paidEquivalentPoints / $increment) + 1;
+        return $steps * $increment;
+    }
+
+    public function canRequestReferralPayout(): bool
+    {
+        if ($this->availableReferralPayoutAmount() <= 0) {
+            return false;
+        }
+        if ((int) $this->referral_points < $this->nextReferralUnlockThreshold()) {
+            return false;
+        }
+        return !PayoutRequest::query()
+            ->where('user_id', $this->id)
+            ->where('source', PayoutRequest::SOURCE_REFERRAL_MILESTONE)
+            ->whereIn('status', [PayoutRequest::STATUS_PENDING, PayoutRequest::STATUS_PROCESSING])
+            ->exists();
+    }
 }

@@ -189,6 +189,15 @@ Route::prefix('v1')->group(function () {
         // code on first access so the user always has something to share.
         Route::get('/me/referral-summary', [\App\Http\Controllers\Api\V1\MyReferralController::class, 'show']);
 
+        Route::get('/me/payout-details', [\App\Http\Controllers\Api\V1\UserPayoutDetailsController::class, 'show']);
+        Route::post('/me/payout-details', [\App\Http\Controllers\Api\V1\UserPayoutDetailsController::class, 'store']);
+        Route::post('/me/payout-details/verify', [\App\Http\Controllers\Api\V1\UserPayoutDetailsController::class, 'verify']);
+
+        Route::get('/me/referral-payout-requests', [\App\Http\Controllers\Api\V1\MyReferralPayoutController::class, 'index']);
+        Route::post('/me/referral-payout-requests', [\App\Http\Controllers\Api\V1\MyReferralPayoutController::class, 'store']);
+        Route::get('/me/referral-payout-requests/{payoutRequest}', [\App\Http\Controllers\Api\V1\MyReferralPayoutController::class, 'show']);
+        Route::post('/me/referral-payout-requests/{payoutRequest}/cancel', [\App\Http\Controllers\Api\V1\MyReferralPayoutController::class, 'cancel']);
+
         // Shop management (vendors only)
         Route::get('/my-shops', [\App\Http\Controllers\Api\V1\ShopController::class, 'myShops']);
         Route::post('/shops', [\App\Http\Controllers\Api\V1\ShopController::class, 'store']);

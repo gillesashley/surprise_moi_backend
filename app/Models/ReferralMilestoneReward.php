@@ -29,6 +29,7 @@ class ReferralMilestoneReward extends Model
         'fulfilled_by',
         'fulfilled_at',
         'admin_notes',
+        'payout_request_id',
     ];
 
     protected function casts(): array
@@ -63,5 +64,10 @@ class ReferralMilestoneReward extends Model
     public function scopePending(Builder $query): Builder
     {
         return $query->where('status', self::STATUS_PENDING);
+    }
+
+    public function payoutRequest(): BelongsTo
+    {
+        return $this->belongsTo(PayoutRequest::class);
     }
 }

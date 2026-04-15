@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Models\PayoutRequest;
 use App\Models\Referral;
 use App\Models\ReferralCode;
 use App\Models\ReferralMilestoneReward;
@@ -142,6 +143,14 @@ class MyReferralController extends Controller
             ->where('status', ReferralMilestoneReward::STATUS_PENDING)
             ->count();
 
+        $pendingPayout = PayoutRequest::query()
+            ->where('user_id', $user->id)
+            ->where('source', PayoutRequest::SOURCE_REFERRAL_MILESTONE)
+            ->whereIn('status', [PayoutRequest::STATUS_PENDING, PayoutRequest::STATUS_PROCESSING])
+            ->with('userPayoutDetail')
+            ->latest()
+            ->first();
+
         return response()->json([
             'success' => true,
             'data' => [
@@ -157,6 +166,12 @@ class MyReferralController extends Controller
                 'milestone_increment' => $increment,
                 'registration_bonus_tier1' => $this->referralService->calculateRegistrationBonus($user->role ?? 'customer', 1),
                 'registration_bonus_tier2' => $this->referralService->calculateRegistrationBonus($user->role ?? 'customer', 2),
+                'available_payout_amount' => $user->availableReferralPayoutAmount(),
+                'next_unlock_threshold' => $user->nextReferralUnlockThreshold(),
+                'can_request_payout' => $user->canRequestReferralPayout(),
+                'pending_payout' => $pendingPayout
+                    ? (new \App\Http\Resources\PayoutRequestResource($pendingPayout->loadMissing('userPayoutDetail')))->resolve(request())
+                    : null,
             ],
         ]);
     }
