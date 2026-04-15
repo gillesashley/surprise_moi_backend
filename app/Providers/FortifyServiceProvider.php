@@ -4,12 +4,17 @@ namespace App\Providers;
 
 use App\Actions\Fortify\CreateNewUser;
 use App\Actions\Fortify\ResetUserPassword;
+use App\Models\FieldAgentApplication;
+use App\Models\User;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
+use Laravel\Fortify\Contracts\LoginResponse;
 use Laravel\Fortify\Features;
 use Laravel\Fortify\Fortify;
 
@@ -20,7 +25,20 @@ class FortifyServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->singleton(LoginResponse::class, function () {
+            return new class implements LoginResponse
+            {
+                public function toResponse($request)
+                {
+                    $target = match ($request->user()?->role) {
+                        'field_agent' => route('field-agent.dashboard'),
+                        default => null,
+                    };
+
+                    return $target ? redirect()->intended($target) : redirect()->intended(config('fortify.home'));
+                }
+            };
+        });
     }
 
     /**
@@ -40,6 +58,30 @@ class FortifyServiceProvider extends ServiceProvider
     {
         Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
         Fortify::createUsersUsing(CreateNewUser::class);
+
+        Fortify::authenticateUsing(function (Request $request) {
+            $user = User::where('email', $request->input('email'))->first();
+
+            if ($user && Hash::check((string) $request->input('password'), $user->password)) {
+                return $user;
+            }
+
+            $application = FieldAgentApplication::where('email', strtolower((string) $request->input('email')))
+                ->whereNotNull('password')
+                ->first();
+
+            if ($application && Hash::check((string) $request->input('password'), $application->password)) {
+                $message = match ($application->status->value) {
+                    'pending', 'under_review' => 'Your field agent application is under review. We will notify you once approved.',
+                    'rejected' => 'Your field agent application was not approved.'.($application->rejection_reason ? ' Reason: '.$application->rejection_reason : ''),
+                    default => 'Invalid credentials.',
+                };
+
+                throw ValidationException::withMessages(['email' => $message]);
+            }
+
+            return null;
+        });
     }
 
     /**
