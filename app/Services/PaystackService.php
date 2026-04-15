@@ -949,6 +949,74 @@ class PaystackService
     }
 
     /**
+     * Create a Paystack transfer recipient for a mobile-money account.
+     *
+     * Returns ['recipient_code' => string, 'account_name' => ?string, 'raw' => array].
+     * Throws \RuntimeException if Paystack rejects the details.
+     */
+    public function createMobileMoneyRecipient(
+        string $mobileNumber,
+        string $provider,
+        string $name = 'Referral User',
+        string $currency = 'GHS'
+    ): array {
+        $bankCode = \App\Models\UserPayoutDetail::providerToPaystackBankCode($provider);
+
+        $response = Http::withToken($this->secretKey)
+            ->timeout(30)
+            ->withOptions(['verify' => false])
+            ->post("{$this->baseUrl}/transferrecipient", [
+                'type' => 'mobile_money',
+                'name' => $name,
+                'account_number' => $mobileNumber,
+                'bank_code' => $bankCode,
+                'currency' => $currency,
+            ]);
+
+        $json = $response->json();
+        if (! $response->successful() || ! ($json['status'] ?? false)) {
+            throw new \RuntimeException($json['message'] ?? 'Paystack rejected the mobile money details.');
+        }
+
+        return [
+            'recipient_code' => $json['data']['recipient_code'] ?? null,
+            'account_name' => $json['data']['details']['account_name'] ?? null,
+            'raw' => $json['data'] ?? [],
+        ];
+    }
+
+    /**
+     * Resolve a mobile-money account name without persisting a recipient.
+     * Reliable for MTN Ghana; other providers may return ['valid'=>false] even for valid numbers.
+     */
+    public function resolveMobileMoneyAccount(string $mobileNumber, string $provider): array
+    {
+        $bankCode = \App\Models\UserPayoutDetail::providerToPaystackBankCode($provider);
+
+        try {
+            $response = Http::withToken($this->secretKey)
+                ->timeout(30)
+                ->withOptions(['verify' => false])
+                ->get("{$this->baseUrl}/bank/resolve", [
+                    'account_number' => $mobileNumber,
+                    'bank_code' => $bankCode,
+                ]);
+            $json = $response->json();
+
+            if ($response->successful() && ($json['status'] ?? false)) {
+                return [
+                    'valid' => true,
+                    'account_name' => $json['data']['account_name'] ?? null,
+                ];
+            }
+
+            return ['valid' => false, 'account_name' => null];
+        } catch (\Throwable $e) {
+            return ['valid' => false, 'account_name' => null];
+        }
+    }
+
+    /**
      * Delete (deactivate) a transfer recipient.
      *
      * @return array{success: bool, message: string}
