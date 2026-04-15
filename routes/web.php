@@ -16,6 +16,7 @@ use App\Http\Controllers\PaymentManagementController;
 use App\Http\Controllers\PersonalityTraitController;
 use App\Http\Controllers\ProductShareController;
 use App\Http\Controllers\ReferralCodeController;
+use App\Http\Controllers\RegionLookupController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\TargetController;
 use App\Http\Controllers\TreasuryController;
@@ -32,6 +33,10 @@ Route::get('/', function () {
         'canRegister' => Features::enabled(Features::registration()),
     ]);
 })->name('home');
+
+Route::get('field-agents/regions', [RegionLookupController::class, 'index'])
+    ->middleware('throttle:30,1')
+    ->name('field-agents.regions');
 
 $deepLinkRoutes = function () {
     Route::prefix('.well-known')->group(function () {
