@@ -34,9 +34,16 @@ Route::get('/', function () {
     ]);
 })->name('home');
 
-Route::get('field-agents/regions', [RegionLookupController::class, 'index'])
-    ->middleware('throttle:30,1')
-    ->name('field-agents.regions');
+Route::prefix('field-agents')->name('field-agents.')->group(function () {
+    Route::get('regions', [RegionLookupController::class, 'index'])
+        ->middleware('throttle:30,1')
+        ->name('regions');
+    Route::get('register', [\App\Http\Controllers\FieldAgentRegistrationController::class, 'create'])->name('register');
+    Route::post('register', [\App\Http\Controllers\FieldAgentRegistrationController::class, 'store'])
+        ->middleware('throttle:5,60')
+        ->name('register.store');
+    Route::get('register/submitted', [\App\Http\Controllers\FieldAgentRegistrationController::class, 'submitted'])->name('register.submitted');
+});
 
 $deepLinkRoutes = function () {
     Route::prefix('.well-known')->group(function () {

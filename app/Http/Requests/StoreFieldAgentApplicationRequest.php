@@ -29,7 +29,7 @@ class StoreFieldAgentApplicationRequest extends FormRequest
             'first_name' => ['required', 'string', 'max:80'],
             'last_name' => ['required', 'string', 'max:80'],
             'email' => [
-                'required', 'email:rfc,dns', 'max:120',
+                'required', 'email:rfc', 'max:120',
                 Rule::unique('users', 'email'),
                 Rule::unique('field_agent_applications', 'email')
                     ->whereIn('status', FieldAgentApplicationStatus::nonRejectedStatuses()),
