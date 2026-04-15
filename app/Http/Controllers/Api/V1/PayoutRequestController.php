@@ -31,6 +31,7 @@ class PayoutRequestController extends Controller
         $payouts = $query
             ->when($request->input('status'), fn ($q, $status) => $q->where('status', $status))
             ->when($request->input('user_id'), fn ($q, $userId) => $q->where('user_id', $userId))
+            ->when($request->input('source'), fn ($q, $source) => $q->where('source', $source))
             ->latest()
             ->paginate(15);
 
