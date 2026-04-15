@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\FieldAgentApplication;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
@@ -52,6 +53,11 @@ class HandleInertiaRequests extends Middleware
             'flash' => [
                 'success' => $request->session()->get('success'),
                 'error' => $request->session()->get('error'),
+            ],
+            'badges' => [
+                'pending_field_agent_applications' => in_array($user?->role, ['admin', 'super_admin'], true)
+                    ? FieldAgentApplication::whereIn('status', ['pending', 'under_review'])->count()
+                    : 0,
             ],
         ];
     }
