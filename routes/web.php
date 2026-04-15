@@ -157,6 +157,14 @@ Route::middleware(['auth', 'dashboard'])->prefix('dashboard')->group(function ()
         Route::delete('/{vendorApplication}', [VendorApplicationController::class, 'destroy'])->name('destroy');
     });
 
+    // Field Agent Application Management (admin review)
+    Route::prefix('field-agent-applications')->name('admin.field-agent-applications.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\FieldAgentApplicationController::class, 'index'])->name('index');
+        Route::get('/{fieldAgentApplication}', [\App\Http\Controllers\Admin\FieldAgentApplicationController::class, 'show'])->name('show');
+        Route::post('/{fieldAgentApplication}/approve', [\App\Http\Controllers\Admin\FieldAgentApplicationController::class, 'approve'])->name('approve');
+        Route::post('/{fieldAgentApplication}/reject', [\App\Http\Controllers\Admin\FieldAgentApplicationController::class, 'reject'])->name('reject');
+    });
+
     // Reports & Conflicts Management
     Route::prefix('reports')->name('reports.')->group(function () {
         Route::get('/', [ReportController::class, 'index'])->name('index');
