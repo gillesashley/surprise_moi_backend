@@ -92,6 +92,11 @@ const getNavItemsForRole = (role: string): NavItem[] => {
                         href: vendorApplicationsIndex(),
                         icon: CheckCircle,
                     },
+                    {
+                        title: 'Field Agent Applications',
+                        href: '/dashboard/field-agent-applications',
+                        icon: UserCheck,
+                    },
                 ],
             },
             {
@@ -250,6 +255,11 @@ const getNavItemsForRole = (role: string): NavItem[] => {
                         icon: CheckCircle,
                     },
                 ],
+            },
+            {
+                title: 'My Verification',
+                href: '/field-agent/verification',
+                icon: ShieldCheck,
             },
         ];
     }
