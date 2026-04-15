@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
 
         // Seed initial categories
         $this->call([
+            RegionCitySeeder::class,
             CategorySeeder::class,
             AdminUserSeeder::class,
             TestUsersSeeder::class,
