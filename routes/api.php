@@ -189,6 +189,10 @@ Route::prefix('v1')->group(function () {
         // code on first access so the user always has something to share.
         Route::get('/me/referral-summary', [\App\Http\Controllers\Api\V1\MyReferralController::class, 'show']);
 
+        Route::get('/me/payout-details', [\App\Http\Controllers\Api\V1\UserPayoutDetailsController::class, 'show']);
+        Route::post('/me/payout-details', [\App\Http\Controllers\Api\V1\UserPayoutDetailsController::class, 'store']);
+        Route::post('/me/payout-details/verify', [\App\Http\Controllers\Api\V1\UserPayoutDetailsController::class, 'verify']);
+
         // Shop management (vendors only)
         Route::get('/my-shops', [\App\Http\Controllers\Api\V1\ShopController::class, 'myShops']);
         Route::post('/shops', [\App\Http\Controllers\Api\V1\ShopController::class, 'store']);
