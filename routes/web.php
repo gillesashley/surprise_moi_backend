@@ -248,6 +248,7 @@ Route::middleware(['auth', 'dashboard'])->prefix('field-agent')->name('field-age
     Route::get('targets', [FieldAgentDashboardController::class, 'targets'])->name('targets');
     Route::get('earnings', [FieldAgentDashboardController::class, 'earnings'])->name('earnings');
     Route::get('payouts', [FieldAgentDashboardController::class, 'payouts'])->name('payouts');
+    Route::get('verification', [\App\Http\Controllers\FieldAgentVerificationController::class, 'show'])->name('verification');
 
     // SPA catch-all - must be LAST in the group
     Route::get('/{any?}', [FieldAgentDashboardController::class, 'index'])
