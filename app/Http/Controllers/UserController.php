@@ -305,17 +305,10 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
-        // Admins and super_admins can delete users
-        if (! Auth::user()->isAdmin()) {
-            return back()->with('error', 'Only admins can delete users.');
+        if (! Auth::user()->isSuperAdmin()) {
+            return back()->with('error', 'Only super admins can delete users.');
         }
 
-        // Prevent admins from deleting super_admin users
-        if ($user->isSuperAdmin() && ! Auth::user()->isSuperAdmin()) {
-            return back()->with('error', 'Only super admins can delete other super admins.');
-        }
-
-        // Prevent deleting your own account
         if ($user->id === Auth::id()) {
             return back()->with('error', 'You cannot delete your own account.');
         }

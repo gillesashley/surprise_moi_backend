@@ -16,6 +16,7 @@ use App\Http\Controllers\PaymentManagementController;
 use App\Http\Controllers\PersonalityTraitController;
 use App\Http\Controllers\ProductShareController;
 use App\Http\Controllers\ReferralCodeController;
+use App\Http\Controllers\RegionLookupController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\TargetController;
 use App\Http\Controllers\TreasuryController;
@@ -32,6 +33,17 @@ Route::get('/', function () {
         'canRegister' => Features::enabled(Features::registration()),
     ]);
 })->name('home');
+
+Route::prefix('field-agents')->name('field-agents.')->group(function () {
+    Route::get('regions', [RegionLookupController::class, 'index'])
+        ->middleware('throttle:30,1')
+        ->name('regions');
+    Route::get('register', [\App\Http\Controllers\FieldAgentRegistrationController::class, 'create'])->name('register');
+    Route::post('register', [\App\Http\Controllers\FieldAgentRegistrationController::class, 'store'])
+        ->middleware('throttle:5,60')
+        ->name('register.store');
+    Route::get('register/submitted', [\App\Http\Controllers\FieldAgentRegistrationController::class, 'submitted'])->name('register.submitted');
+});
 
 $deepLinkRoutes = function () {
     Route::prefix('.well-known')->group(function () {
@@ -145,6 +157,14 @@ Route::middleware(['auth', 'dashboard'])->prefix('dashboard')->group(function ()
         Route::delete('/{vendorApplication}', [VendorApplicationController::class, 'destroy'])->name('destroy');
     });
 
+    // Field Agent Application Management (admin review)
+    Route::prefix('field-agent-applications')->name('admin.field-agent-applications.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\FieldAgentApplicationController::class, 'index'])->name('index');
+        Route::get('/{fieldAgentApplication}', [\App\Http\Controllers\Admin\FieldAgentApplicationController::class, 'show'])->name('show');
+        Route::post('/{fieldAgentApplication}/approve', [\App\Http\Controllers\Admin\FieldAgentApplicationController::class, 'approve'])->name('approve');
+        Route::post('/{fieldAgentApplication}/reject', [\App\Http\Controllers\Admin\FieldAgentApplicationController::class, 'reject'])->name('reject');
+    });
+
     // Reports & Conflicts Management
     Route::prefix('reports')->name('reports.')->group(function () {
         Route::get('/', [ReportController::class, 'index'])->name('index');
@@ -228,6 +248,7 @@ Route::middleware(['auth', 'dashboard'])->prefix('field-agent')->name('field-age
     Route::get('targets', [FieldAgentDashboardController::class, 'targets'])->name('targets');
     Route::get('earnings', [FieldAgentDashboardController::class, 'earnings'])->name('earnings');
     Route::get('payouts', [FieldAgentDashboardController::class, 'payouts'])->name('payouts');
+    Route::get('verification', [\App\Http\Controllers\FieldAgentVerificationController::class, 'show'])->name('verification');
 
     // SPA catch-all - must be LAST in the group
     Route::get('/{any?}', [FieldAgentDashboardController::class, 'index'])
