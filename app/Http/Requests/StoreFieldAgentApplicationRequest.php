@@ -47,6 +47,7 @@ class StoreFieldAgentApplicationRequest extends FormRequest
                     ->whereIn('status', FieldAgentApplicationStatus::nonRejectedStatuses()),
             ],
             'ghana_card_image' => ['required', 'image', 'mimes:jpeg,jpg,png,webp', 'max:5120'],
+            'ghana_card_back_image' => ['required', 'image', 'mimes:jpeg,jpg,png,webp', 'max:5120'],
             'selfie' => ['required', 'image', 'mimes:jpeg,jpg,png,webp', 'max:5120'],
             'password' => ['required', 'confirmed', Password::defaults()],
             'website' => ['nullable', 'max:0'],

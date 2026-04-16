@@ -13,6 +13,7 @@ type Props = {
         region?: { name: string };
         city?: { name: string };
         ghana_card_image_url: string;
+        ghana_card_back_image_url: string | null;
         selfie_url: string;
     } | null;
 };
@@ -60,9 +61,15 @@ export default function Verification({ application }: Props) {
                 </div>
                 <div className="grid gap-4 md:grid-cols-2">
                     <div className="rounded border p-4">
-                        <h2 className="mb-2 font-medium">Ghana card</h2>
-                        <img src={application.ghana_card_image_url} className="max-h-96 rounded" alt="Ghana card" />
+                        <h2 className="mb-2 font-medium">Ghana card — front</h2>
+                        <img src={application.ghana_card_image_url} className="max-h-96 rounded" alt="Ghana card front" />
                     </div>
+                    {application.ghana_card_back_image_url && (
+                        <div className="rounded border p-4">
+                            <h2 className="mb-2 font-medium">Ghana card — back</h2>
+                            <img src={application.ghana_card_back_image_url} className="max-h-96 rounded" alt="Ghana card back" />
+                        </div>
+                    )}
                     <div className="rounded border p-4">
                         <h2 className="mb-2 font-medium">Selfie</h2>
                         <img src={application.selfie_url} className="max-h-96 rounded" alt="Selfie" />

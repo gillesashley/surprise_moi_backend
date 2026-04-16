@@ -23,6 +23,7 @@ class FieldAgentApplication extends Model
         'location',
         'ghana_card_number',
         'ghana_card_image_path',
+        'ghana_card_back_image_path',
         'selfie_path',
         'password',
         'status',

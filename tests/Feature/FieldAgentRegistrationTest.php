@@ -58,6 +58,7 @@ class FieldAgentRegistrationTest extends TestCase
         $this->assertSame('pending', $app->status->value);
         $this->assertTrue(Hash::check('SuperSecret123', $app->password));
         Storage::disk('public')->assertExists($app->ghana_card_image_path);
+        Storage::disk('public')->assertExists($app->ghana_card_back_image_path);
         Storage::disk('public')->assertExists($app->selfie_path);
 
         Notification::assertSentTo($app, FieldAgentApplicationReceivedNotification::class);
@@ -81,13 +82,19 @@ class FieldAgentRegistrationTest extends TestCase
         $this->assertSame(0, FieldAgentApplication::count());
     }
 
-    public function test_rate_limit_blocks_after_5_submissions(): void
+    public function test_rate_limit_blocks_after_20_submissions(): void
     {
-        for ($i = 0; $i < 5; $i++) {
-            $this->post('/field-agents/register', $this->validPayload(['email' => "user{$i}@ex.com", 'ghana_card_number' => 'GHA-00000000'.$i.'-1']));
+        for ($i = 0; $i < 20; $i++) {
+            $this->post('/field-agents/register', $this->validPayload([
+                'email' => "user{$i}@ex.com",
+                'ghana_card_number' => 'GHA-'.str_pad((string) $i, 9, '0', STR_PAD_LEFT).'-1',
+            ]));
         }
 
-        $response = $this->post('/field-agents/register', $this->validPayload(['email' => 'overflow@ex.com', 'ghana_card_number' => 'GHA-999999999-9']));
+        $response = $this->post('/field-agents/register', $this->validPayload([
+            'email' => 'overflow@ex.com',
+            'ghana_card_number' => 'GHA-999999999-9',
+        ]));
 
         $response->assertStatus(429);
     }
@@ -96,7 +103,7 @@ class FieldAgentRegistrationTest extends TestCase
     {
         $this->withoutMiddleware(\Illuminate\Routing\Middleware\ThrottleRequests::class);
 
-        foreach (['first_name', 'last_name', 'email', 'contact_number', 'region_id', 'city_id', 'location', 'ghana_card_number', 'ghana_card_image', 'selfie', 'password'] as $field) {
+        foreach (['first_name', 'last_name', 'email', 'contact_number', 'region_id', 'city_id', 'location', 'ghana_card_number', 'ghana_card_image', 'ghana_card_back_image', 'selfie', 'password'] as $field) {
             $payload = $this->validPayload();
             unset($payload[$field]);
 
@@ -197,7 +204,8 @@ class FieldAgentRegistrationTest extends TestCase
             'city_id' => $this->city->id,
             'location' => 'Osu, near Koala',
             'ghana_card_number' => 'GHA-987654321-2',
-            'ghana_card_image' => $this->fakeJpeg('ghana_card.jpg'),
+            'ghana_card_image' => $this->fakeJpeg('ghana_card_front.jpg'),
+            'ghana_card_back_image' => $this->fakeJpeg('ghana_card_back.jpg'),
             'selfie' => $this->fakeJpeg('selfie.jpg'),
             'password' => 'SuperSecret123',
             'password_confirmation' => 'SuperSecret123',

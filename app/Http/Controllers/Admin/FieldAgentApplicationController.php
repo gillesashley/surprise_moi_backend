@@ -48,6 +48,9 @@ class FieldAgentApplicationController extends Controller
         return Inertia::render('admin/field-agent-applications/show', [
             'application' => array_merge($fieldAgentApplication->toArray(), [
                 'ghana_card_image_url' => Storage::disk('public')->url($fieldAgentApplication->ghana_card_image_path),
+                'ghana_card_back_image_url' => $fieldAgentApplication->ghana_card_back_image_path
+                    ? Storage::disk('public')->url($fieldAgentApplication->ghana_card_back_image_path)
+                    : null,
                 'selfie_url' => Storage::disk('public')->url($fieldAgentApplication->selfie_path),
             ]),
         ]);

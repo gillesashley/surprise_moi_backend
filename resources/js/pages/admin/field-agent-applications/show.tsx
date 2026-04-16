@@ -33,6 +33,7 @@ type Application = {
     reviewed_at?: string | null;
     rejection_reason?: string | null;
     ghana_card_image_url: string;
+    ghana_card_back_image_url: string | null;
     selfie_url: string;
 };
 
@@ -190,7 +191,10 @@ export default function FieldAgentApplicationShow({ application }: { application
                             gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
                         }}
                     >
-                        <Figure title="Ghana card" url={application.ghana_card_image_url} />
+                        <Figure title="Ghana card — front" url={application.ghana_card_image_url} />
+                        {application.ghana_card_back_image_url && (
+                            <Figure title="Ghana card — back" url={application.ghana_card_back_image_url} />
+                        )}
                         <Figure title="Selfie" url={application.selfie_url} />
                     </Box>
                 </Stack>

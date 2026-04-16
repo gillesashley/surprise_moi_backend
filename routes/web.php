@@ -40,7 +40,7 @@ Route::prefix('field-agents')->name('field-agents.')->group(function () {
         ->name('regions');
     Route::get('register', [\App\Http\Controllers\FieldAgentRegistrationController::class, 'create'])->name('register');
     Route::post('register', [\App\Http\Controllers\FieldAgentRegistrationController::class, 'store'])
-        ->middleware('throttle:5,60')
+        ->middleware('throttle:20,60')
         ->name('register.store');
     Route::get('register/submitted', [\App\Http\Controllers\FieldAgentRegistrationController::class, 'submitted'])->name('register.submitted');
 });

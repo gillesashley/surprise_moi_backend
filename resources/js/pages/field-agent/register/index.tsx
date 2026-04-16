@@ -31,6 +31,7 @@ type WizardData = {
     location: string;
     ghana_card_number: string;
     ghana_card_image: File | null;
+    ghana_card_back_image: File | null;
     selfie: File | null;
     website: string;
 };
@@ -52,6 +53,7 @@ export default function FieldAgentRegister({ regions }: Props) {
         location: '',
         ghana_card_number: '',
         ghana_card_image: null,
+        ghana_card_back_image: null,
         selfie: null,
         website: '',
     });
@@ -76,7 +78,7 @@ export default function FieldAgentRegister({ regions }: Props) {
             return Boolean(data.region_id && data.city_id && data.location);
         }
         if (step === 2) {
-            return Boolean(data.ghana_card_number && data.ghana_card_image && data.selfie);
+            return Boolean(data.ghana_card_number && data.ghana_card_image && data.ghana_card_back_image && data.selfie);
         }
         return true;
     };
@@ -307,7 +309,7 @@ export default function FieldAgentRegister({ regions }: Props) {
                                         <InputError message={errors.ghana_card_number} />
                                     </Stack>
                                     <Stack spacing={1}>
-                                        <Label htmlFor="ghana_card_image">Ghana card photo (max 5MB)</Label>
+                                        <Label htmlFor="ghana_card_image">Ghana card — front (max 5MB)</Label>
                                         <Input
                                             id="ghana_card_image"
                                             type="file"
@@ -317,6 +319,18 @@ export default function FieldAgentRegister({ regions }: Props) {
                                             }
                                         />
                                         <InputError message={errors.ghana_card_image} />
+                                    </Stack>
+                                    <Stack spacing={1}>
+                                        <Label htmlFor="ghana_card_back_image">Ghana card — back (max 5MB)</Label>
+                                        <Input
+                                            id="ghana_card_back_image"
+                                            type="file"
+                                            accept="image/jpeg,image/png,image/webp"
+                                            onChange={(e) =>
+                                                setData('ghana_card_back_image', e.target.files?.[0] ?? null)
+                                            }
+                                        />
+                                        <InputError message={errors.ghana_card_back_image} />
                                     </Stack>
                                     <Stack spacing={1}>
                                         <Label htmlFor="selfie">Selfie (max 5MB)</Label>
@@ -359,7 +373,8 @@ export default function FieldAgentRegister({ regions }: Props) {
                                         />
                                         <ReviewRow label="Location" value={data.location} />
                                         <ReviewRow label="Ghana card" value={data.ghana_card_number} />
-                                        <ReviewRow label="Ghana card photo" value={data.ghana_card_image?.name ?? '—'} />
+                                        <ReviewRow label="Ghana card — front" value={data.ghana_card_image?.name ?? '—'} />
+                                        <ReviewRow label="Ghana card — back" value={data.ghana_card_back_image?.name ?? '—'} />
                                         <ReviewRow label="Selfie" value={data.selfie?.name ?? '—'} />
                                     </Box>
                                 </Stack>

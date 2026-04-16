@@ -20,6 +20,9 @@ class FieldAgentVerificationController extends Controller
         return Inertia::render('field-agent/verification', [
             'application' => $application ? array_merge($application->toArray(), [
                 'ghana_card_image_url' => Storage::disk('public')->url($application->ghana_card_image_path),
+                'ghana_card_back_image_url' => $application->ghana_card_back_image_path
+                    ? Storage::disk('public')->url($application->ghana_card_back_image_path)
+                    : null,
                 'selfie_url' => Storage::disk('public')->url($application->selfie_path),
             ]) : null,
         ]);
