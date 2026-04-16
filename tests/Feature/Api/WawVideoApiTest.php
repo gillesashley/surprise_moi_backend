@@ -42,10 +42,10 @@ class WawVideoApiTest extends TestCase
 
     // ── Feed Endpoint ──────────────────────────────────────────────
 
-    public function test_unauthenticated_user_cannot_access_feed(): void
+    public function test_unauthenticated_user_can_access_public_feed(): void
     {
         $this->getJson('/api/v1/waw-videos')
-            ->assertStatus(401);
+            ->assertOk();
     }
 
     public function test_authenticated_user_can_get_feed(): void

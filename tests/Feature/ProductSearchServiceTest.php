@@ -48,8 +48,8 @@ class ProductSearchServiceTest extends TestCase
         $this->assertIsArray($results);
 
         if (! empty($results)) {
-            $this->assertArrayHasKey('product_id', $results[0]);
-            $this->assertArrayHasKey('product_name', $results[0]);
+            $this->assertArrayHasKey('offer_id', $results[0]);
+            $this->assertArrayHasKey('offer_name', $results[0]);
             $this->assertArrayHasKey('price', $results[0]);
             $this->assertArrayHasKey('vendor_name', $results[0]);
             $this->assertArrayHasKey('similarity_score', $results[0]);

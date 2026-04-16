@@ -61,7 +61,7 @@ class AiChatService
         try {
             $parsed = $this->invokeAgentWithRetry($agent, $message, $conversation);
 
-            if ($parsed['type'] === 'offer_card') {
+            if (in_array($parsed['type'], ['offer_card', 'product_card'], true)) {
                 $parsed = $this->resolveOfferCard($parsed, $conversation);
             }
         } catch (\Throwable $e) {
@@ -138,9 +138,10 @@ class AiChatService
                 break;
 
             case 'offer_card':
+            case 'product_card':
                 $content = $json['message'] ?? 'Here\'s the offer you selected:';
                 $metadata = [
-                    'selected_offer_id' => $json['selected_offer_id'] ?? null,
+                    'selected_offer_id' => $json['selected_offer_id'] ?? $json['selected_product_id'] ?? null,
                     'personalization_reason' => $json['personalization_reason'] ?? '',
                 ];
                 break;
@@ -369,7 +370,7 @@ class AiChatService
             'type' => 'suggestions',
             'content' => $parsed['content'],
             'metadata' => [
-                'display_type' => 'offer_card',
+                'display_type' => 'product_card',
                 'suggestions' => [$data],
             ],
         ];

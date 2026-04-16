@@ -96,7 +96,7 @@ class TreasuryTransferTest extends TestCase
         ]);
 
         Http::fake([
-            '*/transfer/finalize' => Http::response([
+            '*/transfer/finalize_transfer' => Http::response([
                 'status' => true,
                 'data' => ['status' => 'processing'],
                 'message' => 'Transfer is being processed',
