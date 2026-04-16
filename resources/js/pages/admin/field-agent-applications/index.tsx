@@ -121,8 +121,9 @@ export default function FieldAgentApplicationsIndex({ applications, filters, sta
                             size="sm"
                             disabled={!l.url}
                             onClick={() => l.url && router.get(l.url)}
-                            dangerouslySetInnerHTML={{ __html: l.label }}
-                        />
+                        >
+                            <span dangerouslySetInnerHTML={{ __html: l.label }} />
+                        </Button>
                     ))}
                 </div>
             </div>
