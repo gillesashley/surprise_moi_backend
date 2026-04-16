@@ -42,8 +42,6 @@ class ReferralService
      * @param  string|null  $code  Custom code (auto-generated if null)
      * @param  string|null  $description  Campaign description
      * @param  float  $registrationBonus  One-time bonus when vendor approved (GHS)
-     * @param  float  $commissionRate  Percentage of vendor's order total (0-100)
-     * @param  int  $commissionDurationMonths  How long to earn commission
      * @param  int|null  $maxUsages  Limit how many times code can be used
      * @param  \DateTime|null  $expiresAt  When code becomes invalid
      * @param  string|null  $prefix  Transient prefix for code generation
@@ -53,8 +51,6 @@ class ReferralService
         ?string $code = null,
         ?string $description = null,
         float $registrationBonus = 0.00,
-        float $commissionRate = 5.00,
-        int $commissionDurationMonths = 3,
         ?int $maxUsages = null,
         ?\DateTime $expiresAt = null,
         ?string $prefix = null
@@ -64,8 +60,6 @@ class ReferralService
             'code' => $code,
             'description' => $description,
             'registration_bonus' => $registrationBonus,
-            'commission_rate' => $commissionRate,
-            'commission_duration_months' => $commissionDurationMonths,
             'max_usages' => $maxUsages,
             'expires_at' => $expiresAt,
             'is_active' => true,
@@ -190,8 +184,7 @@ class ReferralService
      *
      * This method:
      * 1. Changes referral status from 'pending' to 'active'
-     * 2. Sets commission_starts_at and commission_expires_at dates
-     * 3. Creates registration bonus earning for influencer (if configured)
+     * 2. Creates registration bonus earning for influencer (if configured)
      *
      * Called by admin when approving vendor application.
      *
@@ -262,56 +255,6 @@ class ReferralService
     }
 
     /**
-     * Calculate and create commission earnings from vendor orders.
-     *
-     * Called automatically by PaystackService after successful payment verification.
-     * Only creates commission if referral is still within commission period.
-     *
-     * Example: If commission rate is 5% and order is GHS 1000, influencer earns GHS 50.
-     *
-     * @param  Referral  $referral  The active referral
-     * @param  float  $orderAmount  Total order amount in GHS
-     * @return Earning|null Null if commission period expired or amount is zero
-     */
-    public function calculateCommission(
-        Referral $referral,
-        float $orderAmount
-    ): ?Earning {
-        // Check if still within commission period
-        if (! $referral->isCommissionActive()) {
-            return null;
-        }
-
-        // Calculate commission amount
-        $commissionAmount = ($orderAmount * $referral->referralCode->commission_rate) / 100;
-
-        if ($commissionAmount <= 0) {
-            return null;
-        }
-
-        return DB::transaction(function () use ($referral, $commissionAmount, $orderAmount) {
-            // Create earning record
-            $earning = Earning::create([
-                'user_id' => $referral->influencer_id,
-                'user_role' => 'influencer',
-                'earning_type' => Earning::TYPE_COMMISSION,
-                'earnable_id' => $referral->id,
-                'earnable_type' => Referral::class,
-                'amount' => $commissionAmount,
-                'currency' => 'GHS',
-                'status' => Earning::STATUS_PENDING,
-                'description' => "Commission from order (GHS {$orderAmount}) by vendor: {$referral->vendor->name}",
-                'earned_at' => now(),
-            ]);
-
-            // Track total earned from this referral
-            $referral->increment('earned_amount', $commissionAmount);
-
-            return $earning;
-        });
-    }
-
-    /**
      * Get referral statistics for an influencer.
      * Used in influencer dashboard to display performance metrics.
      *
@@ -330,27 +273,6 @@ class ReferralService
             'unpaid_earnings' => $influencer->getTotalUnpaidEarnings(),
             'paid_earnings' => $influencer->getTotalPaidEarnings(),
         ];
-    }
-
-    /**
-     * Expire referrals with expired commissions.
-     *
-     * Should be run daily via scheduled command.
-     * Changes status from 'active' to 'expired' for referrals past commission period.
-     *
-     * @return int Number of referrals expired
-     */
-    public function expireCommissions(): int
-    {
-        $expired = Referral::where('status', Referral::STATUS_ACTIVE)
-            ->where('commission_expires_at', '<', now())
-            ->get();
-
-        foreach ($expired as $referral) {
-            $referral->expire();
-        }
-
-        return $expired->count();
     }
 
     /**

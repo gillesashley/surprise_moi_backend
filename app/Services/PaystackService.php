@@ -22,7 +22,6 @@ use Illuminate\Support\Facades\Log;
  * - Webhook event handling
  * - Refund processing
  * - Bank account listing
- * - Referral commission calculation on successful payments
  */
 class PaystackService
 {
@@ -197,7 +196,6 @@ class PaystackService
      * 2. Calls Paystack verification endpoint
      * 3. Validates amount matches expected total
      * 4. Updates payment and order status
-     * 5. Calculates referral commissions if applicable
      *
      * @param  string  $reference  Unique payment reference to verify
      * @return array{success: bool, data?: array<string, mixed>, message?: string, payment?: Payment}
@@ -375,24 +373,6 @@ class PaystackService
                 $this->vendorBalanceService->creditPendingBalance($payment->order);
             } catch (\Exception $e) {
                 Log::warning('Failed to credit vendor balance for order', [
-                    'order_id' => $payment->order->id,
-                    'error' => $e->getMessage(),
-                ]);
-            }
-
-            // Calculate and record commission for influencer referrals
-            try {
-                // Find active referral for this vendor
-                $referral = \App\Models\Referral::where('vendor_id', $payment->order->vendor_id)
-                    ->withActiveCommission()
-                    ->first();
-
-                if ($referral) {
-                    $this->referralService->calculateCommission($referral, $payment->order->total);
-                }
-            } catch (\Exception $e) {
-                // Log but don't fail payment if commission calculation fails
-                Log::warning('Failed to calculate referral commission for order', [
                     'order_id' => $payment->order->id,
                     'error' => $e->getMessage(),
                 ]);

@@ -28,7 +28,6 @@ class ReferralFactory extends Factory
             'status' => Referral::STATUS_PENDING,
             'earned_amount' => 0,
             'activated_at' => null,
-            'commission_expires_at' => null,
         ];
     }
 
@@ -37,7 +36,6 @@ class ReferralFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'status' => Referral::STATUS_ACTIVE,
             'activated_at' => now(),
-            'commission_expires_at' => now()->addMonths(6),
         ]);
     }
 
@@ -53,7 +51,6 @@ class ReferralFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'status' => Referral::STATUS_EXPIRED,
             'activated_at' => now()->subYear(),
-            'commission_expires_at' => now()->subDay(),
         ]);
     }
 }

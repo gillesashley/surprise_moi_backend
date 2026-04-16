@@ -26,8 +26,6 @@ class ReferralCodeFactory extends Factory
             'usage_count' => 0,
             'max_usages' => null,
             'registration_bonus' => 50.00,
-            'commission_rate' => 0,
-            'commission_duration_months' => 3,
             'expires_at' => null,
         ];
     }

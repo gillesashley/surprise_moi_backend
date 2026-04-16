@@ -29,7 +29,6 @@ class Referral extends Model
         'status',
         'earned_amount',
         'activated_at',
-        'commission_expires_at',
     ];
 
     protected function casts(): array
@@ -37,7 +36,6 @@ class Referral extends Model
         return [
             'earned_amount' => 'decimal:2',
             'activated_at' => 'datetime',
-            'commission_expires_at' => 'datetime',
         ];
     }
 
@@ -71,17 +69,7 @@ class Referral extends Model
         $this->update([
             'status' => self::STATUS_ACTIVE,
             'activated_at' => now(),
-            'commission_expires_at' => now()->addMonths(
-                $this->referralCode->commission_duration_months
-            ),
         ]);
-    }
-
-    public function isCommissionActive(): bool
-    {
-        return $this->status === self::STATUS_ACTIVE
-            && $this->commission_expires_at
-            && $this->commission_expires_at->isFuture();
     }
 
     public function expire(): void
@@ -92,11 +80,5 @@ class Referral extends Model
     public function scopeActive($query)
     {
         return $query->where('status', self::STATUS_ACTIVE);
-    }
-
-    public function scopeWithActiveCommission($query)
-    {
-        return $query->where('status', self::STATUS_ACTIVE)
-            ->where('commission_expires_at', '>', now());
     }
 }

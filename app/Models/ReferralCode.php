@@ -40,8 +40,6 @@ class ReferralCode extends Model
         'usage_count',
         'max_usages',
         'registration_bonus',
-        'commission_rate',
-        'commission_duration_months',
         'expires_at',
     ];
 
@@ -52,8 +50,6 @@ class ReferralCode extends Model
             'usage_count' => 'integer',
             'max_usages' => 'integer',
             'registration_bonus' => 'decimal:2',
-            'commission_rate' => 'decimal:2',
-            'commission_duration_months' => 'integer',
             'expires_at' => 'datetime',
         ];
     }

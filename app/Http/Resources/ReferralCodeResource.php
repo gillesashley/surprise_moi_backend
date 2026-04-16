@@ -17,8 +17,6 @@ class ReferralCodeResource extends JsonResource
             'usage_count' => $this->usage_count,
             'max_usages' => $this->max_usages,
             'registration_bonus' => (float) $this->registration_bonus,
-            'commission_rate' => (float) $this->commission_rate,
-            'commission_duration_months' => $this->commission_duration_months,
             'expires_at' => $this->expires_at?->toISOString(),
             'is_valid' => $this->isValid(),
             'has_reached_max_usages' => $this->hasReachedMaxUsages(),

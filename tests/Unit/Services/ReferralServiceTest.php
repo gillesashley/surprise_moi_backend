@@ -93,28 +93,6 @@ class ReferralServiceTest extends TestCase
         $this->assertEquals($vendor->id, $referral->vendor_id);
     }
 
-    public function test_calculates_commission_from_order(): void
-    {
-        $influencer = User::factory()->create(['role' => 'influencer']);
-
-        $referralCode = ReferralCode::factory()->create([
-            'influencer_id' => $influencer->id,
-            'commission_rate' => 5.00,
-        ]);
-
-        $referral = Referral::factory()->create([
-            'referral_code_id' => $referralCode->id,
-            'influencer_id' => $influencer->id,
-            'status' => Referral::STATUS_ACTIVE,
-            'commission_expires_at' => now()->addMonths(2),
-        ]);
-
-        $earning = $this->service->calculateCommission($referral, 1000.00);
-
-        $this->assertInstanceOf(Earning::class, $earning);
-        $this->assertEquals(50.00, $earning->amount);
-    }
-
     public function test_award_points_creates_transaction_and_increments_total(): void
     {
         $customer = User::factory()->create(['role' => 'customer', 'referral_points' => 0]);

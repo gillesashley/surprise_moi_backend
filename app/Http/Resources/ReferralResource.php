@@ -13,9 +13,7 @@ class ReferralResource extends JsonResource
             'id' => $this->id,
             'status' => $this->status,
             'earned_amount' => (float) $this->earned_amount,
-            'is_commission_active' => $this->isCommissionActive(),
             'activated_at' => $this->activated_at?->toISOString(),
-            'commission_expires_at' => $this->commission_expires_at?->toISOString(),
             'referral_code' => $this->whenLoaded('referralCode', fn () => new ReferralCodeResource($this->referralCode)),
             'influencer' => $this->whenLoaded('influencer', fn () => [
                 'id' => $this->influencer->id,
