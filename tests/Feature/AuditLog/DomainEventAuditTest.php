@@ -93,4 +93,23 @@ class DomainEventAuditTest extends TestCase
         $this->assertSame('Documents unclear, please resubmit', $row->properties['extra']['reason']);
         $this->assertSame('critical', $row->properties['retention_class']);
     }
+
+    public function test_admin_payout_approve_logs_domain_event(): void
+    {
+        $admin = User::factory()->create(['role' => 'super_admin']);
+        $payout = \App\Models\PayoutRequest::factory()->pending()->create();
+
+        $this->actingAs($admin)
+            ->postJson("/api/v1/admin/payouts/{$payout->id}/approve");
+
+        $this->assertDatabaseHas('activity_log', [
+            'event' => 'payout.approved',
+            'subject_type' => \App\Models\PayoutRequest::class,
+            'subject_id' => $payout->id,
+            'causer_id' => $admin->id,
+        ]);
+
+        $row = ActivityLog::where('event', 'payout.approved')->first();
+        $this->assertSame('critical', $row->properties['retention_class']);
+    }
 }

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StorePayoutRequestRequest;
 use App\Http\Resources\PayoutRequestResource;
 use App\Models\PayoutRequest;
+use App\Services\AuditService;
 use App\Services\PayoutService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
@@ -100,6 +101,13 @@ class PayoutRequestController extends Controller
                 $request->user()
             );
 
+            app(AuditService::class)->record(
+                'payout.approved',
+                $payoutRequest,
+                $request->user(),
+                retentionClass: 'critical'
+            );
+
             return response()->json([
                 'success' => true,
                 'message' => 'Payout request approved successfully.',
@@ -126,6 +134,14 @@ class PayoutRequestController extends Controller
                 $payoutRequest,
                 $request->user(),
                 $request->input('rejection_reason')
+            );
+
+            app(AuditService::class)->record(
+                'payout.rejected',
+                $payoutRequest,
+                $request->user(),
+                extra: ['reason' => $request->input('rejection_reason') ?? $request->input('reason')],
+                retentionClass: 'critical'
             );
 
             return response()->json([

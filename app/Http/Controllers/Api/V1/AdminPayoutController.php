@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Models\PayoutRequest;
+use App\Services\AuditService;
 use App\Services\PaystackService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -119,6 +120,13 @@ class AdminPayoutController extends Controller
 
             DB::commit();
 
+            app(AuditService::class)->record(
+                'payout.approved',
+                $payoutRequest,
+                $request->user(),
+                retentionClass: 'critical'
+            );
+
             return response()->json([
                 'success' => true,
                 'message' => 'Payout request approved successfully.',
@@ -187,6 +195,14 @@ class AdminPayoutController extends Controller
 
             DB::commit();
 
+            app(AuditService::class)->record(
+                'payout.rejected',
+                $payoutRequest,
+                $request->user(),
+                extra: ['reason' => $request->input('rejection_reason') ?? $request->input('reason')],
+                retentionClass: 'critical'
+            );
+
             return response()->json([
                 'success' => true,
                 'message' => 'Payout request rejected successfully.',
@@ -254,6 +270,13 @@ class AdminPayoutController extends Controller
             ]);
 
             DB::commit();
+
+            app(AuditService::class)->record(
+                'payout.paid',
+                $payoutRequest,
+                $request->user(),
+                retentionClass: 'critical'
+            );
 
             return response()->json([
                 'success' => true,
@@ -334,6 +357,13 @@ class AdminPayoutController extends Controller
 
         $requiresOtp = ($transferData['status'] ?? '') === 'otp';
 
+        app(AuditService::class)->record(
+            'payout.processed',
+            $payoutRequest,
+            $request->user(),
+            retentionClass: 'critical'
+        );
+
         return response()->json([
             'success' => true,
             'message' => $requiresOtp
@@ -378,6 +408,13 @@ class AdminPayoutController extends Controller
                 'message' => $result['message'],
             ], 400);
         }
+
+        app(AuditService::class)->record(
+            'payout.finalized',
+            $payoutRequest,
+            $request->user(),
+            retentionClass: 'critical'
+        );
 
         return response()->json([
             'success' => true,
