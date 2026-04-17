@@ -249,6 +249,13 @@ class VendorApplicationController extends Controller
 
         $vendorApplication->approve(Auth::id());
 
+        app(\App\Services\AuditService::class)->record(
+            'vendor_application.approved',
+            $vendorApplication,
+            Auth::user(),
+            retentionClass: 'critical'
+        );
+
         // Activate referral if one exists
         if ($vendorApplication->referral_code) {
             try {
@@ -286,6 +293,14 @@ class VendorApplicationController extends Controller
         }
 
         $vendorApplication->reject(Auth::id(), $request->rejection_reason);
+
+        app(\App\Services\AuditService::class)->record(
+            'vendor_application.rejected',
+            $vendorApplication,
+            Auth::user(),
+            extra: ['reason' => $request->input('rejection_reason')],
+            retentionClass: 'critical'
+        );
 
         return redirect()->route('vendor-applications.show', $vendorApplication)
             ->with('success', 'Vendor application rejected.');
