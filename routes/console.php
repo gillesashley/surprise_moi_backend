@@ -1,6 +1,5 @@
 <?php
 
-use App\Services\ReferralService;
 use App\Services\TargetService;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
@@ -11,11 +10,6 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 // Schedule tasks
-Schedule::call(function (ReferralService $referralService) {
-    $expired = $referralService->expireCommissions();
-    logger()->info("Expired {$expired} referral commissions");
-})->daily()->at('00:00');
-
 Schedule::call(function (TargetService $targetService) {
     $expired = $targetService->expireTargets();
     logger()->info("Expired {$expired} targets");
@@ -29,3 +23,6 @@ Schedule::command('tier-upgrade:expire-stale')->hourly();
 
 // Email database backup daily at midnight
 Schedule::command('backup:email')->daily()->at('00:00');
+
+// Audit log retention: prune standard-retention rows older than 90 days.
+Schedule::command('audit:prune')->dailyAt('03:30')->withoutOverlapping()->onOneServer();
