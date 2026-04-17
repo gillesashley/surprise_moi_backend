@@ -56,4 +56,42 @@ class ModelAuditTest extends TestCase
         $this->assertArrayNotHasKey('password', $props['attributes'] ?? []);
         $this->assertArrayNotHasKey('password', $props['old'] ?? []);
     }
+
+    public function test_vendor_application_update_logs_with_critical_retention(): void
+    {
+        $app = \App\Models\VendorApplication::factory()->create();
+        ActivityLog::query()->delete();
+
+        $app->update(['rejection_reason' => 'test reason']);
+
+        $row = ActivityLog::where('subject_type', \App\Models\VendorApplication::class)
+            ->where('subject_id', $app->id)
+            ->latest('id')->first();
+        $this->assertNotNull($row);
+        $this->assertSame('critical', $row->properties['retention_class']);
+    }
+
+    public function test_setting_create_is_not_logged(): void
+    {
+        \App\Models\Setting::create(['key' => 'test_key_no_log', 'value' => 'v', 'type' => 'string']);
+
+        $this->assertDatabaseMissing('activity_log', [
+            'subject_type' => \App\Models\Setting::class,
+            'event' => 'created',
+        ]);
+    }
+
+    public function test_setting_update_is_logged(): void
+    {
+        $s = \App\Models\Setting::create(['key' => 'test_key_logged', 'value' => 'v1', 'type' => 'string']);
+        ActivityLog::query()->delete();
+
+        $s->update(['value' => 'v2']);
+
+        $this->assertDatabaseHas('activity_log', [
+            'subject_type' => \App\Models\Setting::class,
+            'subject_id' => $s->id,
+            'event' => 'updated',
+        ]);
+    }
 }

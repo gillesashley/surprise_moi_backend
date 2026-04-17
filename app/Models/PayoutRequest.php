@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -12,7 +13,7 @@ use Illuminate\Support\Str;
 class PayoutRequest extends Model
 {
     /** @use HasFactory<\Database\Factories\PayoutRequestFactory> */
-    use HasFactory, SoftDeletes;
+    use Auditable, HasFactory, SoftDeletes;
 
     public const STATUS_PENDING = 'pending';
 
@@ -37,6 +38,11 @@ class PayoutRequest extends Model
     public const SOURCE_VENDOR_EARNINGS = 'vendor_earnings';
 
     public const SOURCE_REFERRAL_MILESTONE = 'referral_milestone';
+
+    public function retentionClass(string $eventName): string
+    {
+        return 'critical';
+    }
 
     protected $fillable = [
         'user_id',
