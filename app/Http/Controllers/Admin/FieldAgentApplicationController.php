@@ -70,6 +70,13 @@ class FieldAgentApplicationController extends Controller
             throw ValidationException::withMessages(['status' => $e->getMessage()]);
         }
 
+        app(\App\Services\AuditService::class)->record(
+            'field_agent_application.approved',
+            $fieldAgentApplication,
+            $request->user(),
+            retentionClass: 'critical'
+        );
+
         return redirect()->route('admin.field-agent-applications.show', $fieldAgentApplication)
             ->with('success', 'Field agent approved.');
     }
@@ -87,6 +94,14 @@ class FieldAgentApplicationController extends Controller
         } catch (Throwable $e) {
             throw ValidationException::withMessages(['status' => $e->getMessage()]);
         }
+
+        app(\App\Services\AuditService::class)->record(
+            'field_agent_application.rejected',
+            $fieldAgentApplication,
+            $request->user(),
+            extra: ['reason' => $request->string('rejection_reason')->toString()],
+            retentionClass: 'critical'
+        );
 
         return redirect()->route('admin.field-agent-applications.show', $fieldAgentApplication)
             ->with('success', 'Application rejected.');
