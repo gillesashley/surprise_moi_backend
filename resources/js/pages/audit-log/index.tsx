@@ -1,6 +1,6 @@
 import AppLayout from '@/layouts/app-layout';
 import { Head, router } from '@inertiajs/react';
-import { KeyboardArrowDown, KeyboardArrowUp } from '@mui/icons-material';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 import {
     Box,
     Chip,
@@ -160,7 +160,7 @@ function AuditRow({ row }: { row: Props['logs']['data'][number] }) {
             <TableRow hover>
                 <TableCell sx={{ width: 40, pr: 0 }}>
                     <IconButton size="small" onClick={() => setOpen((v) => !v)}>
-                        {open ? <KeyboardArrowUp fontSize="small" /> : <KeyboardArrowDown fontSize="small" />}
+                        {open ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
                     </IconButton>
                 </TableCell>
                 <TableCell>
