@@ -40,8 +40,8 @@ This is **CSR-initiated logging**, complementary to (and distinct from) the exis
 - Controllers under `App\Http\Controllers\Admin\` for tickets, interactions, messages, contact search, and birthdays.
 - Form Requests for store/update/close/interaction/SMS validation.
 - One queued job: `SendSupportSmsJob`.
-- Inertia pages under `resources/js/Pages/customer-support/` (`index`, `create`, `show`).
-- Reusable React components under `resources/js/components/customer-support/`.
+- Inertia pages under `resources/js/Pages/admin/customer-support/` (`index`, `create`, `show`).
+- Reusable React components under `resources/js/components/admin/customer-support/`.
 - Sidebar entry "Customer Support" with an open-tickets-assigned-to-me badge.
 - Config file `config/support_templates.php` with four seeded SMS templates.
 - PHPUnit feature tests for every controller method and the SMS job.
@@ -158,7 +158,7 @@ Substitution: `{{name}}` resolves to `User::name` if `to_user_id` is set, else `
 
 #### Routes (`routes/web.php`, inside the existing admin-guarded group)
 
-All under prefix `/admin/customer-support`, name prefix `admin.customer-support.`:
+Mounted inside the existing `Route::middleware(['auth', 'dashboard'])->prefix('dashboard')->group(...)` block in `routes/web.php`. URL prefix `/dashboard/customer-support`, name prefix `dashboard.customer-support.`:
 
 ```
 GET    /                              → SupportTicketController@index
@@ -184,7 +184,7 @@ Run `php artisan wayfinder:generate` after route changes so the React side gets 
 
 #### Controllers (`app/Http/Controllers/Admin/`)
 
-- **`SupportTicketController`** — `index` (filters: status, priority, category, assigned-to-me, free-text search; eager-loads `user:id,name,email`, `assignee:id,name`, `latestInteraction`), `create`, `store`, `show` (eager-loads interactions, messages, user, order, report), `update`, `close`, `reopen`. `index` returns Inertia render of `customer-support/index` with paginated tickets + follow-ups widget data + open-tickets-for-me count.
+- **`SupportTicketController`** — `index` (filters: status, priority, category, assigned-to-me, free-text search; eager-loads `user:id,name,email`, `assignee:id,name`, `latestInteraction`), `create`, `store`, `show` (eager-loads interactions, messages, user, order, report), `update`, `close`, `reopen`. `index` returns Inertia render of `admin/customer-support/index` with paginated tickets + follow-ups widget data + open-tickets-for-me count.
 - **`SupportInteractionController`** — `store` (creates an interaction row only). When a CSR manually picks `channel=sms` here, treat it as a *post-hoc log entry* of an SMS that was sent outside the platform — no actual SMS is dispatched. Real SMS sends always go through `SupportMessageController` (which creates its own interaction row automatically).
 - **`SupportMessageController`** — `sendForTicket`, `page` (Inertia render of messaging tab with composer + log), `storeStandalone`, `log` (paginated, filterable by recipient/body/status).
 - **`SupportContactController`** — `search` (`?q=…`, returns `[{id, name, email, phone, role}]` across all roles, case-insensitive match on name/email/phone, limit 20), `birthdays` (returns users with `date_of_birth` whose month/day falls today or in the next 7 days; includes name, role, phone, age-turning).
@@ -224,7 +224,7 @@ The actual `SmsProviderInterface` method name should be confirmed at implementat
 ### 4.3 SMS pipeline
 
 ```
-HTTP POST /admin/customer-support/{ticket}/sms     (or /messaging/sms)
+HTTP POST /dashboard/customer-support/{ticket}/sms     (or /messaging/sms)
   ↓
 SendSupportSmsRequest validates:
   - to_user_id        nullable|exists:users,id
@@ -259,7 +259,7 @@ Phone snapshot rule: at send-time, derive the phone (from current `users.phone` 
 
 ### 4.4 Frontend
 
-#### Pages (`resources/js/Pages/customer-support/`)
+#### Pages (`resources/js/Pages/admin/customer-support/`)
 
 - **`index.tsx`** — three-tab layout (Tickets / Messaging / Birthdays):
   - *Tickets* (default): table with filters (status, priority, category, assigned-to-me, search), columns (ticket #, subject, contact, category, priority, status, assignee, last activity), "New Ticket" CTA, right-rail "Follow-ups due / overdue" widget.
@@ -272,7 +272,7 @@ Phone snapshot rule: at send-time, derive the phone (from current `users.phone` 
   - Interactions timeline (newest first): channel icon, direction arrow, summary, follow-up date if set, who logged it, when
   - Side panel: closure note (if closed), audit footer (created_by, created_at)
 
-#### Components (`resources/js/components/customer-support/`)
+#### Components (`resources/js/components/admin/customer-support/`)
 
 `ContactPicker`, `InteractionForm`, `InteractionTimeline`, `SmsComposer` (with character counter + segment estimate at 160/320/480), `BirthdayCard`, `FollowUpList`, `TicketStatusBadge`, `PriorityBadge`. Build on existing shadcn primitives.
 
