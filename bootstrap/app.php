@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\AuditLogMiddleware;
 use App\Http\Middleware\EnsureDashboardAccess;
 use App\Http\Middleware\EnsureRiderApproved;
 use App\Http\Middleware\EnsureUserIsAdmin;
@@ -47,6 +48,7 @@ return Application::configure(basePath: dirname(__DIR__))
             HandleAppearance::class,
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
+            AuditLogMiddleware::class,
         ]);
 
         $middleware->validateCsrfTokens(except: [
