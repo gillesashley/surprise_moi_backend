@@ -165,6 +165,11 @@ Route::middleware(['auth', 'dashboard'])->prefix('dashboard')->group(function ()
         Route::post('/{fieldAgentApplication}/reject', [\App\Http\Controllers\Admin\FieldAgentApplicationController::class, 'reject'])->name('reject');
     });
 
+    // Audit Log (super_admin only)
+    Route::get('audit-log', [\App\Http\Controllers\AuditLogController::class, 'index'])
+        ->middleware('role:super_admin')
+        ->name('audit-log.index');
+
     // Reports & Conflicts Management
     Route::prefix('reports')->name('reports.')->group(function () {
         Route::get('/', [ReportController::class, 'index'])->name('index');
