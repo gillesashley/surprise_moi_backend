@@ -112,4 +112,46 @@ class DomainEventAuditTest extends TestCase
         $row = ActivityLog::where('event', 'payout.approved')->first();
         $this->assertSame('critical', $row->properties['retention_class']);
     }
+
+    public function test_user_role_change_logs_domain_event(): void
+    {
+        $superAdmin = User::factory()->create(['role' => 'super_admin']);
+        $target = User::factory()->create(['role' => 'customer']);
+
+        $this->actingAs($superAdmin)
+            ->withSession(['user_management.verified_at' => time()])
+            ->put("/dashboard/users/{$target->id}", [
+                'name' => $target->name,
+                'email' => $target->email,
+                'role' => 'admin',
+            ]);
+
+        $row = ActivityLog::where('event', 'user.role_changed')->first();
+        $this->assertNotNull($row);
+        $this->assertSame('customer', $row->properties['extra']['old_role']);
+        $this->assertSame('admin', $row->properties['extra']['new_role']);
+    }
+
+    public function test_settings_update_logs_domain_event(): void
+    {
+        $admin = User::factory()->create(['role' => 'super_admin']);
+
+        $this->actingAs($admin)
+            ->post('/settings/vendor-onboarding', [
+                'vendor_tier1_onboarding_fee' => 50.00,
+                'vendor_tier2_onboarding_fee' => 30.00,
+                'vendor_tier1_commission_rate' => 12.50,
+                'vendor_tier2_commission_rate' => 8.00,
+                'referral_bonus_customer_pct' => 5.00,
+                'referral_bonus_vendor_pct' => 7.00,
+                'referral_bonus_influencer_pct' => 10.00,
+                'referral_bonus_field_agent_pct' => 6.00,
+                'referral_bonus_marketer_pct' => 4.00,
+            ]);
+
+        $this->assertDatabaseHas('activity_log', [
+            'event' => 'settings.updated',
+            'causer_id' => $admin->id,
+        ]);
+    }
 }

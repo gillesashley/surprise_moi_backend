@@ -49,6 +49,14 @@ class VendorOnboardingController extends Controller
             Setting::set($key, $value, 'number');
         }
 
+        app(\App\Services\AuditService::class)->record(
+            'settings.updated',
+            null,
+            $request->user(),
+            extra: ['section' => 'vendor_onboarding', 'keys' => array_keys($validated)],
+            retentionClass: 'critical'
+        );
+
         return back()->with('success', 'Settings updated successfully.');
     }
 }
