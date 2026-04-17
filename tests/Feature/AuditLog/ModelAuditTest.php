@@ -94,4 +94,29 @@ class ModelAuditTest extends TestCase
             'event' => 'updated',
         ]);
     }
+
+    public function test_order_create_is_not_logged(): void
+    {
+        $customer = User::factory()->create(['role' => 'customer']);
+        $order = \App\Models\Order::factory()->create(['user_id' => $customer->id]);
+
+        $this->assertDatabaseMissing('activity_log', [
+            'subject_type' => \App\Models\Order::class,
+            'subject_id' => $order->id,
+            'event' => 'created',
+        ]);
+    }
+
+    public function test_order_update_is_logged_with_standard_retention(): void
+    {
+        $customer = User::factory()->create(['role' => 'customer']);
+        $order = \App\Models\Order::factory()->create(['user_id' => $customer->id, 'status' => 'pending']);
+        ActivityLog::query()->delete();
+
+        $order->update(['status' => 'confirmed']);
+
+        $row = ActivityLog::where('subject_id', $order->id)->latest('id')->first();
+        $this->assertSame('updated', $row->event);
+        $this->assertSame('standard', $row->properties['retention_class']);
+    }
 }
