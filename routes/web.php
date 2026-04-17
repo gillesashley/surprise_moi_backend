@@ -165,6 +165,12 @@ Route::middleware(['auth', 'dashboard'])->prefix('dashboard')->group(function ()
         Route::post('/{fieldAgentApplication}/reject', [\App\Http\Controllers\Admin\FieldAgentApplicationController::class, 'reject'])->name('reject');
     });
 
+    // Customer Support Tickets
+    Route::prefix('customer-support')->name('dashboard.customer-support.')->group(function () {
+        Route::post('/', [\App\Http\Controllers\Admin\SupportTicketController::class, 'store'])->name('store');
+        Route::get('/{ticket}', fn () => '')->name('show'); // placeholder until Task 5
+    });
+
     // Reports & Conflicts Management
     Route::prefix('reports')->name('reports.')->group(function () {
         Route::get('/', [ReportController::class, 'index'])->name('index');
