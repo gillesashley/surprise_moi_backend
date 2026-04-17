@@ -5,6 +5,7 @@ namespace Tests\Feature\AuditLog;
 use App\Models\ActivityLog;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class ModelAuditTest extends TestCase
@@ -25,7 +26,7 @@ class ModelAuditTest extends TestCase
     public function test_updating_user_writes_audit_row_with_old_and_new(): void
     {
         $user = User::factory()->create(['name' => 'Alice']);
-        ActivityLog::query()->delete(); // prune create row; query builder bypasses model's PreventModification
+        DB::statement('TRUNCATE TABLE activity_log RESTART IDENTITY CASCADE');
 
         $user->update(['name' => 'Alicia']);
 
@@ -60,7 +61,7 @@ class ModelAuditTest extends TestCase
     public function test_vendor_application_update_logs_with_critical_retention(): void
     {
         $app = \App\Models\VendorApplication::factory()->create();
-        ActivityLog::query()->delete();
+        DB::statement('TRUNCATE TABLE activity_log RESTART IDENTITY CASCADE');
 
         $app->update(['rejection_reason' => 'test reason']);
 
@@ -84,7 +85,7 @@ class ModelAuditTest extends TestCase
     public function test_setting_update_is_logged(): void
     {
         $s = \App\Models\Setting::create(['key' => 'test_key_logged', 'value' => 'v1', 'type' => 'string']);
-        ActivityLog::query()->delete();
+        DB::statement('TRUNCATE TABLE activity_log RESTART IDENTITY CASCADE');
 
         $s->update(['value' => 'v2']);
 
@@ -111,7 +112,7 @@ class ModelAuditTest extends TestCase
     {
         $customer = User::factory()->create(['role' => 'customer']);
         $order = \App\Models\Order::factory()->create(['user_id' => $customer->id, 'status' => 'pending']);
-        ActivityLog::query()->delete();
+        DB::statement('TRUNCATE TABLE activity_log RESTART IDENTITY CASCADE');
 
         $order->update(['status' => 'confirmed']);
 
