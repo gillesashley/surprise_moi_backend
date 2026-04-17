@@ -23,7 +23,7 @@ class InitiateOnboardingPaymentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'coupon_code' => ['nullable', 'string', 'max:50'],
+            'referral_code' => ['nullable', 'string', 'max:50'],
             'callback_url' => ['nullable', 'url', 'max:500'],
         ];
     }
@@ -36,8 +36,8 @@ class InitiateOnboardingPaymentRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'coupon_code.string' => 'The coupon code must be a valid text.',
-            'coupon_code.max' => 'The coupon code cannot exceed 50 characters.',
+            'referral_code.string' => 'The referral code must be a valid text.',
+            'referral_code.max' => 'The referral code cannot exceed 50 characters.',
             'callback_url.url' => 'The callback URL must be a valid URL.',
         ];
     }

@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\VendorOnboardingPayment\InitiateOnboardingPaymentRequest;
-use App\Http\Requests\Api\V1\VendorOnboardingPayment\ValidateCouponRequest;
+use App\Http\Requests\Api\V1\VendorOnboardingPayment\ValidateReferralCodeRequest;
 use App\Models\VendorOnboardingPayment;
 use App\Services\VendorOnboardingPaymentService;
 use Illuminate\Http\JsonResponse;
@@ -66,17 +66,19 @@ class VendorOnboardingPaymentController extends Controller
                 'currency' => 'GHS',
                 'payment_required' => $application->payment_required,
                 'payment_completed' => $application->payment_completed,
-                'can_apply_coupon' => true,
+                'can_apply_referral_code' => true,
             ],
         ]);
     }
 
     /**
-     * Validate a coupon code.
+     * Validate a referral code.
      *
-     * Check if a coupon code is valid and calculate the discount amount.
+     * Check if a referral code is valid for this vendor application.
+     * Referral codes do not discount the onboarding fee — they track the
+     * referrer for reward on approval.
      */
-    public function validateCoupon(ValidateCouponRequest $request): JsonResponse
+    public function validateReferralCode(ValidateReferralCodeRequest $request): JsonResponse
     {
         $application = $request->user()->vendorApplications()->latest()->first();
 
@@ -87,8 +89,8 @@ class VendorOnboardingPaymentController extends Controller
             ], 404);
         }
 
-        $result = $this->paymentService->validateCoupon(
-            $request->validated('coupon_code'),
+        $result = $this->paymentService->validateReferralCode(
+            $request->validated('referral_code'),
             $application
         );
 
@@ -103,7 +105,7 @@ class VendorOnboardingPaymentController extends Controller
             'success' => true,
             'message' => $result['message'],
             'data' => [
-                'coupon_code' => $result['coupon']->code,
+                'referral_code' => $result['referral_code']->code,
                 'onboarding_fee' => $result['onboarding_fee'],
                 'discount_amount' => $result['discount_amount'],
                 'final_amount' => $result['final_amount'],
@@ -158,7 +160,7 @@ class VendorOnboardingPaymentController extends Controller
 
         $result = $this->paymentService->initializePayment(
             $application,
-            $request->validated('coupon_code'),
+            $request->validated('referral_code'),
             $request->validated('callback_url')
         );
 

@@ -360,7 +360,7 @@ Route::prefix('v1')->group(function () {
             Route::prefix('payment')->group(function () {
                 Route::get('/summary', [VendorOnboardingPaymentController::class, 'getPaymentSummary']);
                 Route::get('/status', [VendorOnboardingPaymentController::class, 'status']);
-                Route::post('/validate-coupon', [VendorOnboardingPaymentController::class, 'validateCoupon']);
+                Route::post('/validate-referral-code', [VendorOnboardingPaymentController::class, 'validateReferralCode']);
                 Route::post('/initiate', [VendorOnboardingPaymentController::class, 'initiate']);
                 Route::post('/verify', [VendorOnboardingPaymentController::class, 'verify']);
             });
