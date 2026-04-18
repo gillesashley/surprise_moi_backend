@@ -33,7 +33,7 @@ class StoreSupportTicketRequest extends FormRequest
             'contact_email' => ['nullable', 'email', 'max:255'],
             'order_id' => ['nullable', 'integer', 'exists:orders,id'],
             'report_id' => ['nullable', 'integer', 'exists:reports,id'],
-            'assigned_to' => ['required', 'integer', 'exists:users,id'],
+            'assigned_to' => ['nullable', 'integer', 'exists:users,id'],
         ];
     }
 }
