@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Models\Coupon;
+use App\Models\ReferralCode;
 use App\Models\User;
 use App\Models\VendorApplication;
 use App\Models\VendorOnboardingPayment;
@@ -23,7 +23,7 @@ class VendorOnboardingPaymentService
 
     protected string $currency;
 
-    public function __construct()
+    public function __construct(protected ReferralService $referralService)
     {
         $this->baseUrl = config('services.paystack.base_url', 'https://api.paystack.co');
         $this->secretKey = config('services.paystack.secret_key') ?? '';
@@ -36,47 +36,53 @@ class VendorOnboardingPaymentService
     }
 
     /**
-     * Validate a coupon code for vendor onboarding.
+     * Validate a referral code for vendor onboarding.
+     *
+     * Referral codes do not discount the onboarding fee — they track who
+     * referred the vendor so the referrer can be rewarded on approval.
+     * The response preserves the discount_amount/final_amount shape for
+     * backward compatibility with the payment UI.
      */
-    public function validateCoupon(string $code, VendorApplication $application): array
+    public function validateReferralCode(string $code, VendorApplication $application): array
     {
-        $coupon = Coupon::where('code', $code)
-            ->where('is_active', true)
-            ->first();
+        $referralCode = ReferralCode::where('code', $code)->first();
 
-        if (! $coupon) {
+        if (! $referralCode || ! $referralCode->isValid()) {
             return [
                 'valid' => false,
-                'message' => 'Invalid or inactive coupon code.',
+                'message' => 'Invalid, expired, or inactive referral code.',
             ];
         }
 
-        if (! $coupon->isValid()) {
+        // A vendor cannot use their own referral code.
+        if ((int) $referralCode->influencer_id === (int) $application->user_id) {
             return [
                 'valid' => false,
-                'message' => 'This coupon has expired or reached its usage limit.',
+                'message' => 'You cannot use your own referral code.',
             ];
         }
 
-        // Check if user can use this coupon
-        if (! $coupon->canBeUsedBy($application->user)) {
+        // If this application already has a different referral code attached,
+        // block the swap to keep the influencer-vendor relationship stable.
+        if (
+            $application->referral_code_id
+            && (int) $application->referral_code_id !== (int) $referralCode->id
+        ) {
             return [
                 'valid' => false,
-                'message' => 'You have already used this coupon the maximum number of times.',
+                'message' => 'A different referral code has already been applied to this application.',
             ];
         }
 
-        // Calculate discount
         $onboardingFee = $application->getOnboardingFee();
-        $discountAmount = $coupon->calculateDiscount($onboardingFee);
 
         return [
             'valid' => true,
-            'coupon' => $coupon,
+            'referral_code' => $referralCode,
             'onboarding_fee' => $onboardingFee,
-            'discount_amount' => $discountAmount,
-            'final_amount' => max(0, $onboardingFee - $discountAmount),
-            'message' => 'Coupon applied successfully.',
+            'discount_amount' => 0.0,
+            'final_amount' => $onboardingFee,
+            'message' => 'Referral code applied successfully.',
         ];
     }
 
@@ -85,7 +91,7 @@ class VendorOnboardingPaymentService
      */
     public function initializePayment(
         VendorApplication $application,
-        ?string $couponCode = null,
+        ?string $referralCode = null,
         ?string $callbackUrl = null
     ): array {
         // Check if there's already a pending payment
@@ -106,23 +112,22 @@ class VendorOnboardingPaymentService
             ];
         }
 
-        // Validate coupon if provided
-        $coupon = null;
-        $discountAmount = 0;
-        if ($couponCode) {
-            $couponValidation = $this->validateCoupon($couponCode, $application);
-            if (! $couponValidation['valid']) {
+        // Validate referral code if provided. Referral codes do not discount
+        // the fee — they track the referrer for reward on approval.
+        $referralCodeModel = null;
+        if ($referralCode) {
+            $validation = $this->validateReferralCode($referralCode, $application);
+            if (! $validation['valid']) {
                 return [
                     'success' => false,
-                    'message' => $couponValidation['message'],
+                    'message' => $validation['message'],
                 ];
             }
-            $coupon = $couponValidation['coupon'];
-            $discountAmount = $couponValidation['discount_amount'];
+            $referralCodeModel = $validation['referral_code'];
         }
 
-        // Calculate amounts
-        $amounts = $application->calculateFinalAmount($coupon);
+        // Calculate amounts. Coupon path removed — vendor pays full fee.
+        $amounts = $application->calculateFinalAmount(null);
         $onboardingFee = (float) $amounts['onboarding_fee'];
         $finalAmount = (float) $amounts['final_amount'];
         $discountAmount = (float) $amounts['discount_amount'];
@@ -156,9 +161,9 @@ class VendorOnboardingPaymentService
             ],
         ];
 
-        if ($coupon) {
-            $metadata['coupon_code'] = $coupon->code;
-            $metadata['coupon_id'] = $coupon->id;
+        if ($referralCodeModel) {
+            $metadata['referral_code'] = $referralCodeModel->code;
+            $metadata['referral_code_id'] = $referralCodeModel->id;
         }
 
         // Prepare Paystack request
@@ -184,11 +189,10 @@ class VendorOnboardingPaymentService
                 $data = $response->json('data');
 
                 // Create payment record
-                $payment = DB::transaction(function () use ($application, $coupon, $reference, $data, $onboardingFee, $discountAmount, $finalAmount, $amountInKobo, $metadata) {
+                $payment = DB::transaction(function () use ($application, $referralCodeModel, $reference, $data, $onboardingFee, $discountAmount, $finalAmount, $amountInKobo, $metadata) {
                     $payment = VendorOnboardingPayment::create([
                         'user_id' => $application->user_id,
                         'vendor_application_id' => $application->id,
-                        'coupon_id' => $coupon?->id,
                         'reference' => $reference,
                         'authorization_url' => $data['authorization_url'],
                         'access_code' => $data['access_code'],
@@ -203,11 +207,21 @@ class VendorOnboardingPaymentService
 
                     // Update application with payment details
                     $application->update([
-                        'coupon_id' => $coupon?->id,
                         'onboarding_fee' => $onboardingFee,
                         'discount_amount' => $discountAmount,
                         'final_amount' => $finalAmount,
                     ]);
+
+                    // Attach the referral code to the application so the referrer
+                    // gets rewarded when the application is approved. Guarded so
+                    // re-initialization on an already-referred application is a
+                    // no-op (applyReferralCode throws otherwise).
+                    if ($referralCodeModel && ! $application->referral_code_id) {
+                        $this->referralService->applyReferralCode(
+                            $application->refresh(),
+                            $referralCodeModel->code
+                        );
+                    }
 
                     return $payment;
                 });
@@ -397,16 +411,6 @@ class VendorOnboardingPaymentService
                 $application->refresh();
                 $autoSubmitted = $application->canSubmit() ? $application->submit() : false;
 
-                // Update coupon usage if applicable
-                if ($payment->coupon_id) {
-                    $payment->coupon->increment('used_count');
-                    $payment->coupon->usages()->create([
-                        'user_id' => $payment->user_id,
-                        'order_id' => null,
-                        'discount_amount' => $payment->discount_amount,
-                        'used_at' => now(),
-                    ]);
-                }
 
                 return [
                     'application' => $application,
