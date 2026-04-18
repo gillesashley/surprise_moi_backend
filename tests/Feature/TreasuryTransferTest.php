@@ -160,6 +160,26 @@ class TreasuryTransferTest extends TestCase
         ]);
     }
 
+    public function test_save_bank_account_flashes_error_when_paystack_recipient_fails(): void
+    {
+        Http::fake([
+            '*/transferrecipient' => Http::response([
+                'status' => false,
+                'message' => 'Invalid account number',
+            ], 400),
+        ]);
+
+        $response = $this->actingAs($this->superAdmin)
+            ->post(route('treasury.bank-account.save'), [
+                'account_number' => '0000000000',
+                'bank_code' => 'GH010',
+                'bank_name' => 'GCB Bank',
+                'account_name' => 'Company Ltd',
+            ]);
+
+        $response->assertSessionHasErrors('account_number');
+    }
+
     public function test_admin_cannot_initiate_transfer(): void
     {
         $admin = User::factory()->create(['role' => 'admin']);
