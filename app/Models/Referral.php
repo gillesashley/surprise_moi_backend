@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -11,7 +12,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Referral extends Model
 {
     /** @use HasFactory<\Database\Factories\ReferralFactory> */
-    use HasFactory, SoftDeletes;
+    use Auditable, HasFactory, SoftDeletes;
 
     public const STATUS_PENDING = 'pending';
 
@@ -20,6 +21,11 @@ class Referral extends Model
     public const STATUS_INACTIVE = 'inactive';
 
     public const STATUS_EXPIRED = 'expired';
+
+    public function retentionClass(string $eventName): string
+    {
+        return 'critical';
+    }
 
     protected $fillable = [
         'referral_code_id',

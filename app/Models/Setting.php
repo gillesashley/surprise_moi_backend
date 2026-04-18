@@ -2,11 +2,33 @@
 
 namespace App\Models;
 
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
 
 class Setting extends Model
 {
+    use Auditable;
+
+    public function retentionClass(string $eventName): string
+    {
+        return 'critical';
+    }
+
+    protected static function booted(): void
+    {
+        parent::booted();
+        static::creating(function (self $s) {
+            $s->disableLogging();
+        });
+        static::deleting(function (self $s) {
+            $s->disableLogging();
+        });
+        static::saved(function (self $s) {
+            $s->enableLogging();
+        });
+    }
+
     protected $fillable = [
         'key',
         'value',

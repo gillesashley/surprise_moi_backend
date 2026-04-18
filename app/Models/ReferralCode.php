@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -12,7 +13,7 @@ use Illuminate\Support\Str;
 class ReferralCode extends Model
 {
     /** @use HasFactory<\Database\Factories\ReferralCodeFactory> */
-    use HasFactory, SoftDeletes;
+    use Auditable, HasFactory, SoftDeletes;
 
     /**
      * Maps user roles to their 2-letter code prefixes.
@@ -31,6 +32,11 @@ class ReferralCode extends Model
      * Transient prefix used during code generation. Not persisted to the database.
      */
     public ?string $prefix = null;
+
+    public function retentionClass(string $eventName): string
+    {
+        return 'critical';
+    }
 
     protected $fillable = [
         'influencer_id',

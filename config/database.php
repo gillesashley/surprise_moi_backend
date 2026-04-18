@@ -98,6 +98,21 @@ return [
             'sslmode' => 'prefer',
         ],
 
+        'audit_pruner' => [
+            'driver' => 'pgsql',
+            'url' => env('AUDIT_PRUNER_DB_URL'),
+            'host' => env('AUDIT_PRUNER_DB_HOST', env('DB_HOST', '127.0.0.1')),
+            'port' => env('AUDIT_PRUNER_DB_PORT', env('DB_PORT', '5432')),
+            'database' => env('AUDIT_PRUNER_DB_DATABASE', env('DB_DATABASE', 'laravel')),
+            'username' => env('AUDIT_PRUNER_DB_USERNAME'),
+            'password' => env('AUDIT_PRUNER_DB_PASSWORD', ''),
+            'charset' => env('DB_CHARSET', 'utf8'),
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'search_path' => 'public',
+            'sslmode' => 'prefer',
+        ],
+
         'sqlsrv' => [
             'driver' => 'sqlsrv',
             'url' => env('DB_URL'),

@@ -46,6 +46,13 @@ class ReferralMilestoneRewardController extends Controller
             'fulfilled_at' => now(),
         ]);
 
+        app(\App\Services\AuditService::class)->record(
+            'referral_milestone.fulfilled',
+            $reward,
+            $request->user(),
+            retentionClass: 'critical'
+        );
+
         return back()->with('success', 'Milestone reward marked as fulfilled.');
     }
 }

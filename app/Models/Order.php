@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Services\OrderNumberService;
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -13,7 +14,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Order extends Model
 {
     /** @use HasFactory<\Database\Factories\OrderFactory> */
-    use HasFactory, SoftDeletes;
+    use Auditable, HasFactory, SoftDeletes;
 
     // Payment status constants
     public const PAYMENT_STATUS_UNPAID = 'unpaid';      // Order created, payment not initiated
@@ -89,7 +90,7 @@ class Order extends Model
     }
 
     /**
-     * Bootstrap the model.and delivery PIN on creation.
+     * Bootstrap the model and delivery PIN on creation.
      */
     protected static function boot(): void
     {
@@ -107,6 +108,30 @@ class Order extends Model
                 $order->delivery_pin = static::generateDeliveryPin();
             }
         });
+    }
+
+    /**
+     * Register audit-specific lifecycle hooks.
+     * Suppresses the `created` event (checkout creates orders automatically —
+     * logging every creation would be too noisy).
+     */
+    protected static function booted(): void
+    {
+        parent::booted();
+        static::creating(function (self $o) {
+            $o->disableLogging();
+        });
+        static::saved(function (self $o) {
+            $o->enableLogging();
+        });
+    }
+
+    /**
+     * Orders deleted are critical; all other events use standard retention.
+     */
+    public function retentionClass(string $eventName): string
+    {
+        return $eventName === 'deleted' ? 'critical' : 'standard';
     }
 
     /**

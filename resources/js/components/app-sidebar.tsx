@@ -190,6 +190,11 @@ const getNavItemsForRole = (role: string): NavItem[] => {
                 href: '/dashboard/treasury',
                 icon: Landmark,
             });
+            items.push({
+                title: 'Audit Log',
+                href: '/dashboard/audit-log',
+                icon: ShieldCheck,
+            });
         }
 
         return items;

@@ -38,6 +38,7 @@ yarn-error.log
 /flutter-frontend-docs
 /docs/*
 !/docs/superpowers/
+!/docs/setup/
 .worktrees/
 
 docker-compose.override.yml

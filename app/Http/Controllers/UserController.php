@@ -295,7 +295,19 @@ class UserController extends Controller
             return back()->with('error', 'You cannot demote yourself from super admin.');
         }
 
+        $oldRole = $user->role;
+
         $user->update($validated);
+
+        if (array_key_exists('role', $validated) && $oldRole !== $user->role) {
+            app(\App\Services\AuditService::class)->record(
+                'user.role_changed',
+                $user,
+                $request->user(),
+                extra: ['old_role' => $oldRole, 'new_role' => $user->role],
+                retentionClass: 'critical'
+            );
+        }
 
         return redirect()->route('users.show', $user)->with('success', 'User updated successfully.');
     }

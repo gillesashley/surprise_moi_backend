@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -10,13 +11,29 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class ReferralMilestoneReward extends Model
 {
     /** @use HasFactory<\Database\Factories\ReferralMilestoneRewardFactory> */
-    use HasFactory;
+    use Auditable, HasFactory;
 
     public const STATUS_PENDING = 'pending';
 
     public const STATUS_FULFILLED = 'fulfilled';
 
     public const STATUS_CANCELLED = 'cancelled';
+
+    public function retentionClass(string $eventName): string
+    {
+        return 'critical';
+    }
+
+    protected static function booted(): void
+    {
+        parent::booted();
+        static::deleting(function (self $r) {
+            $r->disableLogging();
+        });
+        static::saved(function (self $r) {
+            $r->enableLogging();
+        });
+    }
 
     protected $fillable = [
         'user_id',

@@ -7,6 +7,7 @@ use App\Events\VendorApproved;
 use App\Events\VendorRejected;
 use App\Notifications\VendorApplicationSubmittedNotification;
 use App\Notifications\VendorApprovalNotification;
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -18,7 +19,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class VendorApplication extends Model
 {
     /** @use HasFactory<\Database\Factories\VendorApplicationFactory> */
-    use HasFactory, SoftDeletes;
+    use Auditable, HasFactory, SoftDeletes;
 
     /**
      * Application status constants.
@@ -39,6 +40,11 @@ class VendorApplication extends Model
     public const PROVIDER_VODAFONE = 'vodafone';
 
     public const PROVIDER_AIRTELTIGO = 'airteltigo';
+
+    public function retentionClass(string $eventName): string
+    {
+        return 'critical';
+    }
 
     protected $fillable = [
         'user_id',

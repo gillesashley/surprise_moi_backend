@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -9,7 +10,7 @@ use Illuminate\Support\Str;
 
 class TreasuryTransfer extends Model
 {
-    use HasFactory;
+    use Auditable, HasFactory;
 
     public const STATUS_PENDING = 'pending';
 
@@ -22,6 +23,11 @@ class TreasuryTransfer extends Model
     public const STATUS_FAILED = 'failed';
 
     public const STATUS_REVERSED = 'reversed';
+
+    public function retentionClass(string $eventName): string
+    {
+        return 'critical';
+    }
 
     protected $fillable = [
         'company_bank_account_id',

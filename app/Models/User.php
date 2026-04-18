@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\Auditable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -16,7 +17,7 @@ use Laravel\Sanctum\HasApiTokens;
 class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasApiTokens, HasFactory, Notifiable, TwoFactorAuthenticatable;
+    use Auditable, HasApiTokens, HasFactory, Notifiable, TwoFactorAuthenticatable;
 
     private const ONLINE_WINDOW_MINUTES = 5;
 
@@ -84,6 +85,11 @@ class User extends Authenticatable implements MustVerifyEmail
                 $application->forceDelete();
             });
         });
+    }
+
+    public function retentionClass(string $eventName): string
+    {
+        return in_array($eventName, ['deleted', 'created'], true) ? 'critical' : 'standard';
     }
 
     /**
@@ -653,6 +659,7 @@ class User extends Authenticatable implements MustVerifyEmail
         $available = $this->referralPointsAsCedis()
             - $this->totalReferralPayoutPaid()
             - $this->totalReferralPayoutPending();
+
         return max(0.0, round($available, 2));
     }
 
@@ -672,6 +679,7 @@ class User extends Authenticatable implements MustVerifyEmail
             return $first;
         }
         $steps = (int) floor($paidEquivalentPoints / $increment) + 1;
+
         return $steps * $increment;
     }
 
@@ -683,7 +691,8 @@ class User extends Authenticatable implements MustVerifyEmail
         if ((int) $this->referral_points < $this->nextReferralUnlockThreshold()) {
             return false;
         }
-        return !PayoutRequest::query()
+
+        return ! PayoutRequest::query()
             ->where('user_id', $this->id)
             ->where('source', PayoutRequest::SOURCE_REFERRAL_MILESTONE)
             ->whereIn('status', [PayoutRequest::STATUS_PENDING, PayoutRequest::STATUS_PROCESSING])
