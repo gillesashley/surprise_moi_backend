@@ -88,6 +88,11 @@ Route::middleware(['auth', 'dashboard'])->prefix('dashboard')->group(function ()
 
     // Vendor Payouts Management
     Route::get('vendor-payouts', [AdminDashboardController::class, 'vendorPayouts'])->name('vendor-payouts');
+    Route::prefix('vendor-payouts')->name('vendor-payouts.')->group(function () {
+        Route::post('{payoutRequest}/approve', [\App\Http\Controllers\Admin\VendorPayoutActionController::class, 'approve'])->name('approve');
+        Route::post('{payoutRequest}/reject', [\App\Http\Controllers\Admin\VendorPayoutActionController::class, 'reject'])->name('reject');
+        Route::post('{payoutRequest}/mark-paid', [\App\Http\Controllers\Admin\VendorPayoutActionController::class, 'markAsPaid'])->name('mark-paid');
+    });
 
     // All Transactions
     Route::get('transactions', [AdminDashboardController::class, 'allTransactions'])->name('transactions');
