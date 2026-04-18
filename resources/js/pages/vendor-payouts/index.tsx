@@ -200,48 +200,26 @@ export default function VendorPayouts({
         );
     };
 
-    const handleApprovePayout = async () => {
+    const handleApprovePayout = () => {
         if (!selectedPayout) return;
 
         setLoading(true);
-        try {
-            const response = await fetch(
-                `/api/v1/admin/payouts/${selectedPayout.id}/approve`,
-                {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Accept: 'application/json',
-                    },
-                    body: JSON.stringify({
-                        admin_notes: approvalNotes,
-                    }),
+        router.post(
+            `/dashboard/vendor-payouts/${selectedPayout.id}/approve`,
+            { admin_notes: approvalNotes },
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    setShowApproveDialog(false);
+                    setApprovalNotes('');
+                    setSelectedPayout(null);
                 },
-            );
-
-            const result = await response.json();
-
-            if (result.success) {
-                setShowApproveDialog(false);
-                setApprovalNotes('');
-                setSelectedPayout(null);
-                // Refresh data
-                router.get('/dashboard/vendor-payouts', {
-                    status: statusFilter,
-                });
-            } else {
-                alert(
-                    'Error: ' + (result.message || 'Failed to approve payout'),
-                );
-            }
-        } catch (error) {
-            alert('Error: ' + String(error));
-        } finally {
-            setLoading(false);
-        }
+                onFinish: () => setLoading(false),
+            },
+        );
     };
 
-    const handleMarkAsPaid = async () => {
+    const handleMarkAsPaid = () => {
         if (!selectedPayout) return;
 
         if (!paymentReference.trim()) {
@@ -250,42 +228,22 @@ export default function VendorPayouts({
         }
 
         setLoading(true);
-        try {
-            const response = await fetch(
-                `/api/v1/admin/payouts/${selectedPayout.id}/mark-paid`,
-                {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Accept: 'application/json',
-                    },
-                    body: JSON.stringify({
-                        payment_reference: paymentReference,
-                    }),
+        router.post(
+            `/dashboard/vendor-payouts/${selectedPayout.id}/mark-paid`,
+            { payment_reference: paymentReference },
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    setShowMarkPaidDialog(false);
+                    setPaymentReference('');
+                    setSelectedPayout(null);
                 },
-            );
-
-            const result = await response.json();
-
-            if (result.success) {
-                setShowMarkPaidDialog(false);
-                setPaymentReference('');
-                setSelectedPayout(null);
-                // Refresh data
-                router.get('/dashboard/vendor-payouts', {
-                    status: statusFilter,
-                });
-            } else {
-                alert('Error: ' + (result.message || 'Failed to mark as paid'));
-            }
-        } catch (error) {
-            alert('Error: ' + String(error));
-        } finally {
-            setLoading(false);
-        }
+                onFinish: () => setLoading(false),
+            },
+        );
     };
 
-    const handleRejectPayout = async () => {
+    const handleRejectPayout = () => {
         if (!selectedPayout) return;
 
         if (!rejectionReason.trim()) {
@@ -294,41 +252,19 @@ export default function VendorPayouts({
         }
 
         setLoading(true);
-        try {
-            const response = await fetch(
-                `/api/v1/admin/payouts/${selectedPayout.id}/reject`,
-                {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Accept: 'application/json',
-                    },
-                    body: JSON.stringify({
-                        rejection_reason: rejectionReason,
-                    }),
+        router.post(
+            `/dashboard/vendor-payouts/${selectedPayout.id}/reject`,
+            { rejection_reason: rejectionReason },
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    setShowRejectDialog(false);
+                    setRejectionReason('');
+                    setSelectedPayout(null);
                 },
-            );
-
-            const result = await response.json();
-
-            if (result.success) {
-                setShowRejectDialog(false);
-                setRejectionReason('');
-                setSelectedPayout(null);
-                // Refresh data
-                router.get('/dashboard/vendor-payouts', {
-                    status: statusFilter,
-                });
-            } else {
-                alert(
-                    'Error: ' + (result.message || 'Failed to reject payout'),
-                );
-            }
-        } catch (error) {
-            alert('Error: ' + String(error));
-        } finally {
-            setLoading(false);
-        }
+                onFinish: () => setLoading(false),
+            },
+        );
     };
 
     return (
