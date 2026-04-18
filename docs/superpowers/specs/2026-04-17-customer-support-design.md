@@ -1,14 +1,39 @@
 # Customer Support Console — Design Spec
 
 **Date:** 2026-04-17
-**Branch:** `feat/customer-support` (to be created)
-**Status:** Approved, pending implementation plan
+**Branch:** `feat/customer-support` (+ `feat/customer-support-ui` for v1 finishing work)
+**Status:** v1 scope-locked 2026-04-18 — **Tickets flow only**; Messaging + Birthdays deferred to v1.1. See §1.5.
 
 ## 1. Goal
 
 Build a unified Customer Support console for admins. The page lets a customer-care representative (CSR) record every conversation and follow-up they have with customers and vendors — calls, chats, in-person visits — and send outbound SMS to those contacts without leaving the page. The same console surfaces follow-up reminders and an upcoming-birthdays list so CSRs can proactively reach out.
 
 This is **CSR-initiated logging**, complementary to (and distinct from) the existing customer-initiated `Report` system.
+
+## 1.5 v1 Scope Lock (amended 2026-04-18)
+
+After starting implementation, the original spec was narrowed to ship an MVP faster. v1 ships the **Tickets** flow only. The deferred items below will be picked up as v1.1.
+
+**v1 ships (Tickets flow):**
+- `SupportTicket` CRUD via a single-page `customer-support/index` (list, filters, search, pagination) + `customer-support/show` (ticket detail with merged timeline of interactions + messages).
+- Create new ticket from the index via a **dialog** (not a separate `create.tsx` page) — keeps the UI consistent with the modal pattern already used on `show.tsx` (Log Interaction / Send SMS / Close / Reassign).
+- Log-interaction, send-SMS, close-with-note, reopen, reassign flows — all inline from `show.tsx`.
+- SMS dispatch is **synchronous in-request** via `SmsProviderInterface::send()`. `SendSupportSmsJob` is deferred. The queue hop is not on the MVP critical path; Horizon will pick it up in v1.1.
+- Single `SupportTicketController` holds all actions (index, show, store, storeInteraction, sendMessage, updateStatus, assign). Controller splits (`SupportInteractionController`, `SupportMessageController`, `SupportContactController`) are deferred.
+- Phone normalization happens inside `KairosAfrikaSmsService::formatPhoneNumber()` at send-time (already implemented, transparent to callers). The `support_messages.to_phone` snapshot stores whatever the CSR typed / was on `users.phone` at send-time — audit trail is preserved even though the dialed number may be a normalized form.
+- Sidebar entry: **"Customer Support" placed below "Reports & Conflicts"** in the Support group (no badge in v1).
+
+**v1.1 deferred:**
+- Three-tab index layout (Tickets / Messaging / Birthdays). v1 renders the Tickets view at `/dashboard/customer-support` with no tab chrome.
+- **Messaging tab** — standalone SMS composer, outbound message log, filters. Requires `SupportMessageController` (with `page`, `sendStandalone`, `log`) + standalone-send route `POST /messaging/sms` + `GET /messaging` + `GET /messaging/log`.
+- **Birthdays tab** — today + this-week lists, one-click birthday SMS. Requires `SupportContactController::birthdays`.
+- **Contact search** endpoint (`GET /contacts/search`) — not needed until a true contact-picker appears in Messaging; v1 uses the existing ticket form with `user_id` or manual `contact_*` fields.
+- **Queued SMS dispatch** via `SendSupportSmsJob` (with retry/backoff). Horizon integration deferred.
+- **Sidebar badge** (open-tickets-assigned-to-me count).
+- **Reusable component extraction** to `resources/js/components/admin/customer-support/`. v1 keeps all JSX inline in `index.tsx` / `show.tsx` — fine while only two pages exist.
+- **Controller splits** (see above).
+
+The data model (§4.1), ticket state machine, category/priority enums, SMS template config, and Report linkage all remain as specified — v1 uses a subset of the surface, not a different shape.
 
 ## 2. Non-Goals (v1)
 
