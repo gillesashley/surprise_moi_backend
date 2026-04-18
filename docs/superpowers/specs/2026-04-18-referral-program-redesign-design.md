@@ -85,6 +85,27 @@ Added below the existing Tier 1 / Tier 2 / Referral Bonus cards:
 - Helper text updates: _"Percentage of the amount the vendor actually paid (after subsidy) that the referrer earns as points."_
 - Live preview per row recomputes against post-subsidy amounts, not full tier fee.
 
+### Field descriptions & helper text
+
+Descriptions below are used in two places:
+1. Seeded into `settings.description` (persisted for admin reference).
+2. Rendered as helper text under the input on `/settings/vendor-onboarding`.
+
+**`vendor_onboarding_subsidy_pct`**
+> _The discount applied to a vendor's onboarding fee when they onboard using a valid referral code. Applies identically to Tier 1 and Tier 2. Example: at 25%, a Tier 1 vendor with a 200 GHS fee pays 150 GHS._
+
+**`referral_points_per_ghs`**
+> _How many points a referrer sees in their wallet for every 1 GHS earned. A higher number makes the reward feel larger. Example: at 10, a 15 GHS reward displays as 150 points._
+
+**`referral_cashout_min_points`**
+> _The lowest points balance at which a referrer can request a cashout. Example: at 1000 points (= 100 GHS at the current conversion rate), a referrer must reach this balance before they can withdraw._
+
+**Per-role referral bonus percentages (helper text — applies to all 5 rows)**
+> _The share of the amount a vendor actually paid (after the subsidy) that this role earns as points when their referral code is used. Example: if Customer = 15% and the vendor paid 150 GHS, a Customer referrer earns 22.50 GHS, shown as 225 points at the current conversion rate._
+
+**Existing Tier 1 / Tier 2 onboarding fee fields** — descriptions unchanged, but the live preview on each row gains an additional line showing the post-subsidy amount:
+> _At 25% subsidy, a vendor using a referral code pays GH₵{fee × 0.75}._
+
 ### Form request validation
 
 The existing vendor-onboarding form request gains three new rules:
