@@ -36,8 +36,6 @@ class InfluencerMarketerFieldAgentSeeder extends Seeder
                 'description' => "Referral code for {$influencer->name}",
                 'is_active' => true,
                 'registration_bonus' => 50.00,
-                'commission_rate' => 5.00,
-                'commission_duration_months' => 12,
             ]);
         }
 
