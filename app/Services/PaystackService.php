@@ -676,7 +676,7 @@ class PaystackService
      *
      * @return array{success: bool, data?: array<int, mixed>, message?: string}
      */
-    public function getBanks(?string $country = 'ghana'): array
+    public function getBanks(?string $country = 'ghana', string $currency = 'GHS'): array
     {
         try {
             $response = Http::withToken($this->secretKey)
@@ -686,6 +686,9 @@ class PaystackService
                 ])
                 ->get("{$this->baseUrl}/bank", [
                     'country' => $country,
+                    // Without a currency filter, Paystack returns each bank once per
+                    // supported currency (GHS + USD), which surfaces as duplicates.
+                    'currency' => $currency,
                 ]);
 
             if ($response->successful() && $response->json('status') === true) {

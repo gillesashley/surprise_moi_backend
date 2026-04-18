@@ -507,6 +507,8 @@ function TransfersTab({
     });
     const [verifiedName, setVerifiedName] = useState('');
     const [verifying, setVerifying] = useState(false);
+    const [saving, setSaving] = useState(false);
+    const [saveError, setSaveError] = useState('');
 
     const balanceAmount = balance?.data?.[0]?.balance ?? 0;
     const balanceGhs = balanceAmount / 100;
@@ -628,12 +630,32 @@ function TransfersTab({
     };
 
     const handleSaveBankAccount = () => {
-        router.post('/dashboard/treasury/bank-account', {
-            account_number: bankFormData.account_number,
-            bank_code: bankFormData.bank_code,
-            bank_name: bankFormData.bank_name,
-            account_name: verifiedName,
-        });
+        setSaveError('');
+        router.post(
+            '/dashboard/treasury/bank-account',
+            {
+                account_number: bankFormData.account_number,
+                bank_code: bankFormData.bank_code,
+                bank_name: bankFormData.bank_name,
+                account_name: verifiedName,
+            },
+            {
+                onStart: () => setSaving(true),
+                onFinish: () => setSaving(false),
+                onSuccess: () => {
+                    setShowBankForm(false);
+                    setBankFormData({ account_number: '', bank_code: '', bank_name: '' });
+                    setVerifiedName('');
+                },
+                onError: (errors) => {
+                    const firstError = Object.values(errors)[0];
+                    setSaveError(
+                        (Array.isArray(firstError) ? firstError[0] : firstError) ||
+                            'Failed to save bank account. Please try again.',
+                    );
+                },
+            },
+        );
     };
 
     return (
@@ -822,7 +844,15 @@ function TransfersTab({
                 </DialogContent>
             </Dialog>
 
-            <Dialog open={showBankForm} onOpenChange={setShowBankForm}>
+            <Dialog
+                open={showBankForm}
+                onOpenChange={(open) => {
+                    setShowBankForm(open);
+                    if (!open) {
+                        setSaveError('');
+                    }
+                }}
+            >
                 <DialogContent>
                     <DialogHeader>
                         <DialogTitle>Configure Bank Account</DialogTitle>
@@ -914,10 +944,16 @@ function TransfersTab({
                                 <Button
                                     style={{ marginTop: 8 }}
                                     onClick={handleSaveBankAccount}
+                                    disabled={saving}
                                 >
-                                    Confirm & Save
+                                    {saving ? 'Saving...' : 'Confirm & Save'}
                                 </Button>
                             </Box>
+                        )}
+                        {saveError && (
+                            <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
+                                {saveError}
+                            </Typography>
                         )}
                     </Box>
                 </DialogContent>
