@@ -170,6 +170,17 @@ Route::middleware(['auth', 'dashboard'])->prefix('dashboard')->group(function ()
         ->middleware('role:super_admin')
         ->name('audit-log.index');
 
+    // Customer Support Tickets
+    Route::prefix('customer-support')->name('dashboard.customer-support.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\SupportTicketController::class, 'index'])->name('index');
+        Route::post('/', [\App\Http\Controllers\Admin\SupportTicketController::class, 'store'])->name('store');
+        Route::get('/{ticket}', [\App\Http\Controllers\Admin\SupportTicketController::class, 'show'])->name('show');
+        Route::post('/{ticket}/interactions', [\App\Http\Controllers\Admin\SupportTicketController::class, 'storeInteraction'])->name('interactions.store');
+        Route::post('/{ticket}/messages', [\App\Http\Controllers\Admin\SupportTicketController::class, 'sendMessage'])->name('messages.store');
+        Route::patch('/{ticket}/status', [\App\Http\Controllers\Admin\SupportTicketController::class, 'updateStatus'])->name('status');
+        Route::patch('/{ticket}/assign', [\App\Http\Controllers\Admin\SupportTicketController::class, 'assign'])->name('assign');
+    });
+
     // Reports & Conflicts Management
     Route::prefix('reports')->name('reports.')->group(function () {
         Route::get('/', [ReportController::class, 'index'])->name('index');
