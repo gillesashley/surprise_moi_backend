@@ -31,7 +31,7 @@ class DatabaseSeeder extends Seeder
             MusicGenreSeeder::class,
             VendorApplicationSeeder::class,
             VendorSeeder::class,
-            InfluencerMarketerFieldAgentSeeder::class,
+            InfluencerEmployeeFieldAgentSeeder::class,
         ]);
     }
 }

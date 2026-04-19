@@ -32,7 +32,7 @@ class ReferralCodePrefixTest extends TestCase
             'vendor' => ['vendor',      'VD-'],
             'influencer' => ['influencer',  'IN-'],
             'field_agent' => ['field_agent', 'FA-'],
-            'marketer' => ['marketer',    'MK-'],
+            'employee' => ['employee',    'EM-'],
         ];
     }
 

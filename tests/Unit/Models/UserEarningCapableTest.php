@@ -22,9 +22,9 @@ class UserEarningCapableTest extends TestCase
         $this->assertTrue($user->isEarningCapable());
     }
 
-    public function test_marketer_is_earning_capable(): void
+    public function test_employee_is_earning_capable(): void
     {
-        $user = User::factory()->create(['role' => 'marketer']);
+        $user = User::factory()->create(['role' => 'employee']);
         $this->assertTrue($user->isEarningCapable());
     }
 

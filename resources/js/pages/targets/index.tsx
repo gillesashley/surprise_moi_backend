@@ -111,7 +111,7 @@ export default function TargetsIndex({ targets }: Props) {
                         </Typography>
                         <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
                             Assign and manage targets for field agents and
-                            marketers
+                            employees
                         </Typography>
                     </Box>
                     <Button asChild>

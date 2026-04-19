@@ -11,7 +11,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
-class MarketerDashboardController extends Controller
+class EmployeeDashboardController extends Controller
 {
     public function __construct(
         protected TargetService $targetService,
@@ -45,7 +45,7 @@ class MarketerDashboardController extends Controller
             ->limit(5)
             ->get();
 
-        return Inertia::render('marketer/dashboard', [
+        return Inertia::render('employee/dashboard', [
             'stats' => array_merge($targetStats ?? [], $earningsSummary ?? [], [
                 'current_quarter' => $currentQuarter,
                 'current_year' => $currentYear,
@@ -64,7 +64,7 @@ class MarketerDashboardController extends Controller
             ->latest()
             ->paginate(15);
 
-        return Inertia::render('marketer/targets', [
+        return Inertia::render('employee/targets', [
             'targets' => $targets,
         ]);
     }
@@ -77,7 +77,7 @@ class MarketerDashboardController extends Controller
             ->latest('earned_at')
             ->paginate(15);
 
-        return Inertia::render('marketer/earnings', [
+        return Inertia::render('employee/earnings', [
             'earnings' => $earnings,
         ]);
     }
@@ -89,7 +89,7 @@ class MarketerDashboardController extends Controller
             ->latest()
             ->paginate(15);
 
-        return Inertia::render('marketer/payouts', [
+        return Inertia::render('employee/payouts', [
             'payoutRequests' => $payoutRequests,
         ]);
     }

@@ -61,7 +61,7 @@ export default function TargetCreate({
                     <CardHeader>
                         <CardTitle>Create New Target</CardTitle>
                         <CardDescription>
-                            Assign a new target to a field agent or marketer
+                            Assign a new target to a field agent or employee
                         </CardDescription>
                     </CardHeader>
                     <CardContent>

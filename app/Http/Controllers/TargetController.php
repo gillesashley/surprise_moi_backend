@@ -30,7 +30,7 @@ class TargetController extends Controller
     {
         $this->authorize('create', Target::class);
 
-        $eligibleUsers = User::whereIn('role', ['field_agent', 'marketer'])->get();
+        $eligibleUsers = User::whereIn('role', ['field_agent', 'employee'])->get();
 
         return Inertia::render('targets/create', [
             'users' => $eligibleUsers,
@@ -95,7 +95,7 @@ class TargetController extends Controller
     {
         $this->authorize('update', $target);
 
-        $eligibleUsers = User::whereIn('role', ['field_agent', 'marketer'])->get();
+        $eligibleUsers = User::whereIn('role', ['field_agent', 'employee'])->get();
 
         return Inertia::render('targets/edit', [
             'target' => $target->load('user'),

@@ -88,7 +88,7 @@
         .role-super_admin { background-color: #fce4ec; color: #c62828; }
         .role-influencer { background-color: #fff3e0; color: #e65100; }
         .role-field_agent { background-color: #e0f2f1; color: #00695c; }
-        .role-marketer { background-color: #fff8e1; color: #f57f17; }
+        .role-employee { background-color: #fff8e1; color: #f57f17; }
         .footer {
             margin-top: 20px;
             text-align: center;

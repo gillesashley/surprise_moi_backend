@@ -35,6 +35,25 @@ class PaystackServiceTransferTest extends TestCase
         $this->assertCount(2, $result['data']);
     }
 
+    public function test_get_banks_requests_single_currency_to_avoid_duplicates(): void
+    {
+        Http::fake([
+            'https://api.paystack.co/bank*' => Http::response([
+                'status' => true,
+                'message' => 'Banks retrieved',
+                'data' => [
+                    ['name' => 'GCB Bank', 'code' => 'GH010', 'currency' => 'GHS'],
+                ],
+            ], 200),
+        ]);
+
+        $result = $this->service->getBanks('ghana');
+
+        $this->assertTrue($result['success']);
+        Http::assertSent(fn ($request) => str_contains($request->url(), 'country=ghana')
+            && str_contains($request->url(), 'currency=GHS'));
+    }
+
     public function test_resolve_account_number_returns_account_details(): void
     {
         Http::fake([

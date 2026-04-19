@@ -87,11 +87,11 @@ class EarningService
     }
 
     /**
-     * Get quarterly earnings for marketers (for sign-on bonus calculation).
+     * Get quarterly earnings for employees (for sign-on bonus calculation).
      */
     public function getQuarterlyEarnings(User $user, int $year, int $quarter): float
     {
-        if (! $user->isMarketer()) {
+        if (! $user->isEmployee()) {
             return 0;
         }
 

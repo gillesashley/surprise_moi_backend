@@ -12,7 +12,7 @@ use App\Services\TargetService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-class MarketerDashboardController extends Controller
+class EmployeeDashboardController extends Controller
 {
     public function __construct(
         protected TargetService $targetService,

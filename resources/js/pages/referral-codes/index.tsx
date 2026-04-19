@@ -68,7 +68,7 @@ const BULK_CATEGORIES: Array<{ label: string; value: string }> = [
     { label: 'Vendor', value: 'vendor' },
     { label: 'Influencer', value: 'influencer' },
     { label: 'Field Agent', value: 'field_agent' },
-    { label: 'Marketer', value: 'marketer' },
+    { label: 'Employee', value: 'employee' },
 ];
 
 interface PreviewData {

@@ -58,10 +58,10 @@ class DynamicRegistrationBonusTest extends TestCase
 
     public function test_calculate_registration_bonus_returns_zero_when_percentage_is_zero(): void
     {
-        Setting::set('referral_bonus_marketer_pct', 0, 'number');
+        Setting::set('referral_bonus_employee_pct', 0, 'number');
         Setting::set('vendor_tier1_onboarding_fee', 200, 'number');
 
-        $bonus = $this->service->calculateRegistrationBonus('marketer', 1);
+        $bonus = $this->service->calculateRegistrationBonus('employee', 1);
 
         $this->assertSame(0.0, $bonus);
     }

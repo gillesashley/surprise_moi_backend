@@ -20,7 +20,7 @@ use Symfony\Component\HttpFoundation\Response;
  * - super_admin
  * - influencer
  * - field_agent
- * - marketer
+ * - employee
  * 
  * Returns 403 if user doesn't have required role.
  */

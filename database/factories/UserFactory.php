@@ -125,12 +125,12 @@ class UserFactory extends Factory
     }
 
     /**
-     * Indicate that the user is a marketer.
+     * Indicate that the user is an employee.
      */
-    public function marketer(): static
+    public function employee(): static
     {
         return $this->state(fn (array $attributes) => [
-            'role' => 'marketer',
+            'role' => 'employee',
         ]);
     }
 }

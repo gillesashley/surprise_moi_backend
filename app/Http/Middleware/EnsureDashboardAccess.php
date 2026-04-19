@@ -46,9 +46,9 @@ class EnsureDashboardAccess
             return redirect()->route('field-agent.dashboard');
         }
 
-        // Marketers should only access /marketer/* routes
-        if ($user->role === 'marketer' && ! str_starts_with($currentPath, 'marketer')) {
-            return redirect()->route('marketer.dashboard');
+        // Employees should only access /employee/* routes
+        if ($user->role === 'employee' && ! str_starts_with($currentPath, 'employee')) {
+            return redirect()->route('employee.dashboard');
         }
 
         // Admins and super admins can access /dashboard and all admin routes
@@ -57,7 +57,7 @@ class EnsureDashboardAccess
             if (
                 str_starts_with($currentPath, 'influencer') ||
                 str_starts_with($currentPath, 'field-agent') ||
-                str_starts_with($currentPath, 'marketer')
+                str_starts_with($currentPath, 'employee')
             ) {
                 return redirect()->route('dashboard');
             }
