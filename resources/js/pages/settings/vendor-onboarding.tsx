@@ -45,6 +45,9 @@ interface Settings {
     referral_bonus_influencer_pct?: { value: string; type: string; description: string };
     referral_bonus_field_agent_pct?: { value: string; type: string; description: string };
     referral_bonus_employee_pct?: { value: string; type: string; description: string };
+    vendor_onboarding_subsidy_pct?: { value: string; type: string; description: string };
+    referral_points_per_ghs?: { value: string; type: string; description: string };
+    referral_cashout_min_points?: { value: string; type: string; description: string };
 }
 
 interface Props {
@@ -68,6 +71,8 @@ function ReferralBonusFields({
 }) {
     const tier1Fee = parseFloat(settings.vendor_tier1_onboarding_fee?.value || '150');
     const tier2Fee = parseFloat(settings.vendor_tier2_onboarding_fee?.value || '100');
+    const subsidyPct = parseFloat(settings.vendor_onboarding_subsidy_pct?.value || '25');
+    const postSubsidy = (fee: number) => fee * (1 - subsidyPct / 100);
 
     const [percentages, setPercentages] = useState<Record<string, string>>(() => {
         const initial: Record<string, string> = {};
@@ -105,8 +110,10 @@ function ReferralBonusFields({
                         required
                     />
                     <Typography variant="body2" color="text.secondary">
-                        Tier 1: GH₵{computeBonus(percentages[cat.key], tier1Fee)} | Tier 2: GH₵
-                        {computeBonus(percentages[cat.key], tier2Fee)}
+                        Tier 1 post-subsidy: GH₵{postSubsidy(tier1Fee).toFixed(2)} → {cat.label} earns GH₵
+                        {computeBonus(percentages[cat.key], postSubsidy(tier1Fee))} | Tier 2 post-subsidy: GH₵
+                        {postSubsidy(tier2Fee).toFixed(2)} → earns GH₵
+                        {computeBonus(percentages[cat.key], postSubsidy(tier2Fee))}
                     </Typography>
                     <InputError message={errors[cat.key]} />
                 </Box>
@@ -312,17 +319,107 @@ export default function VendorOnboarding({ settings }: Props) {
                                     </CardContent>
                                 </Card>
 
+                                {/* Vendor Subsidy Card */}
+                                <Card>
+                                    <CardHeader>
+                                        <CardTitle>Vendor Subsidy</CardTitle>
+                                        <CardDescription>
+                                            The discount applied to a vendor's onboarding fee when they onboard using a
+                                            valid referral code. Applies identically to Tier 1 and Tier 2. Example: at
+                                            25%, a Tier 1 vendor with a 200 GHS fee pays 150 GHS.
+                                        </CardDescription>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <Box sx={{ display: 'grid', gap: 1 }}>
+                                            <Label htmlFor="vendor_onboarding_subsidy_pct">Subsidy (%)</Label>
+                                            <Input
+                                                id="vendor_onboarding_subsidy_pct"
+                                                name="vendor_onboarding_subsidy_pct"
+                                                type="number"
+                                                step="0.01"
+                                                min="0"
+                                                max="100"
+                                                defaultValue={
+                                                    settings.vendor_onboarding_subsidy_pct?.value || '25.00'
+                                                }
+                                                required
+                                            />
+                                            <InputError message={errors.vendor_onboarding_subsidy_pct} />
+                                        </Box>
+                                    </CardContent>
+                                </Card>
+
                                 {/* Referral Bonus Percentages */}
                                 <Card>
                                     <CardHeader>
                                         <CardTitle>Referral Bonus Percentages</CardTitle>
                                         <CardDescription>
-                                            Set the registration bonus percentage for each user category. The bonus is
-                                            calculated as a percentage of the referred person's tier onboarding fee.
+                                            The share of the amount a vendor actually paid (after the subsidy) that each
+                                            role earns as points when their referral code is used. Example: if Customer
+                                            = 15% and the vendor paid GH₵150, a Customer referrer earns GH₵22.50, shown
+                                            as 225 points at the current conversion rate.
                                         </CardDescription>
                                     </CardHeader>
                                     <CardContent>
                                         <ReferralBonusFields settings={settings} errors={errors} />
+                                    </CardContent>
+                                </Card>
+
+                                {/* Referral Points System Card */}
+                                <Card>
+                                    <CardHeader>
+                                        <CardTitle>Referral Points System</CardTitle>
+                                        <CardDescription>
+                                            Controls how referrer rewards display and when referrers can cash out. A
+                                            referrer earning GH₵15 sees 150 points at a 10-per-GHS rate, and can cash
+                                            out once they reach 1000 points (GH₵100).
+                                        </CardDescription>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <Box
+                                            sx={{
+                                                display: 'grid',
+                                                gap: 2,
+                                                gridTemplateColumns: { md: 'repeat(2, 1fr)' },
+                                            }}
+                                        >
+                                            <Box sx={{ display: 'grid', gap: 1 }}>
+                                                <Label htmlFor="referral_points_per_ghs">Points per GHS</Label>
+                                                <Input
+                                                    id="referral_points_per_ghs"
+                                                    name="referral_points_per_ghs"
+                                                    type="number"
+                                                    step="1"
+                                                    min="1"
+                                                    defaultValue={settings.referral_points_per_ghs?.value || '10'}
+                                                    required
+                                                />
+                                                <Typography variant="body2" color="text.secondary">
+                                                    How many points a referrer sees per 1 GHS earned.
+                                                </Typography>
+                                                <InputError message={errors.referral_points_per_ghs} />
+                                            </Box>
+                                            <Box sx={{ display: 'grid', gap: 1 }}>
+                                                <Label htmlFor="referral_cashout_min_points">
+                                                    Minimum points to cash out
+                                                </Label>
+                                                <Input
+                                                    id="referral_cashout_min_points"
+                                                    name="referral_cashout_min_points"
+                                                    type="number"
+                                                    step="1"
+                                                    min="1"
+                                                    defaultValue={
+                                                        settings.referral_cashout_min_points?.value || '1000'
+                                                    }
+                                                    required
+                                                />
+                                                <Typography variant="body2" color="text.secondary">
+                                                    The lowest balance at which a referrer can request a withdrawal.
+                                                </Typography>
+                                                <InputError message={errors.referral_cashout_min_points} />
+                                            </Box>
+                                        </Box>
                                     </CardContent>
                                 </Card>
 
