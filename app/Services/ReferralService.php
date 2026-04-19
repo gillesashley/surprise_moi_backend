@@ -151,6 +151,11 @@ class ReferralService
         // Validate code exists and is valid (not expired, not maxed out)
         $referralCode = ReferralCode::where('code', $code)->valid()->firstOrFail();
 
+        // Defence in depth — also enforced at the validateReferralCode step.
+        if ((int) $referralCode->influencer_id === (int) $vendorApplication->user_id) {
+            throw new \RuntimeException('You cannot use your own referral code.');
+        }
+
         // Prevent applying multiple codes to same application
         if ($vendorApplication->referral_code_id) {
             throw new \RuntimeException('This vendor application already has a referral code applied.');
