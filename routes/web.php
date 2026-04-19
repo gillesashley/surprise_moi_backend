@@ -9,7 +9,7 @@ use App\Http\Controllers\CouponManagementController;
 use App\Http\Controllers\FieldAgentDashboardController;
 use App\Http\Controllers\InfluencerDashboardController;
 use App\Http\Controllers\InterestController;
-use App\Http\Controllers\MarketerDashboardController;
+use App\Http\Controllers\EmployeeDashboardController;
 use App\Http\Controllers\MusicGenreController;
 use App\Http\Controllers\OrderManagementController;
 use App\Http\Controllers\PaymentManagementController;
@@ -277,17 +277,17 @@ Route::middleware(['auth', 'dashboard'])->prefix('field-agent')->name('field-age
         ->name('field-agent.spa');
 });
 
-// Marketer Dashboard routes
-Route::middleware(['auth', 'dashboard'])->prefix('marketer')->name('marketer.')->group(function () {
-    Route::get('dashboard', [MarketerDashboardController::class, 'index'])->name('dashboard');
-    Route::get('targets', [MarketerDashboardController::class, 'targets'])->name('targets');
-    Route::get('earnings', [MarketerDashboardController::class, 'earnings'])->name('earnings');
-    Route::get('payouts', [MarketerDashboardController::class, 'payouts'])->name('payouts');
+// Employee Dashboard routes
+Route::middleware(['auth', 'dashboard'])->prefix('employee')->name('employee.')->group(function () {
+    Route::get('dashboard', [EmployeeDashboardController::class, 'index'])->name('dashboard');
+    Route::get('targets', [EmployeeDashboardController::class, 'targets'])->name('targets');
+    Route::get('earnings', [EmployeeDashboardController::class, 'earnings'])->name('earnings');
+    Route::get('payouts', [EmployeeDashboardController::class, 'payouts'])->name('payouts');
 
     // SPA catch-all - must be LAST in the group
-    Route::get('/{any?}', [MarketerDashboardController::class, 'index'])
+    Route::get('/{any?}', [EmployeeDashboardController::class, 'index'])
         ->where('any', '.*')
-        ->name('marketer.spa');
+        ->name('employee.spa');
 });
 
 // Delivery Confirmation Page (Public - for delivery personnel)
