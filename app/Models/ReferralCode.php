@@ -25,7 +25,7 @@ class ReferralCode extends Model
         'vendor' => 'VD-',
         'influencer' => 'IN-',
         'field_agent' => 'FA-',
-        'marketer' => 'MK-',
+        'employee' => 'EM-',
     ];
 
     /**

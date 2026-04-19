@@ -34,7 +34,7 @@ class ReferralService
      *
      * Any user can create referral codes to share. When a referral code
      * is used to onboard a vendor, earning-capable roles (influencer,
-     * field_agent, marketer) receive GHS rewards via the existing Earning
+     * field_agent, employee) receive GHS rewards via the existing Earning
      * flow; all other roles receive points via ReferralPointTransaction.
      * The reward branching happens at referral activation time, not here.
      *
