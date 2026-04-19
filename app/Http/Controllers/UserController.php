@@ -16,7 +16,7 @@ class UserController extends Controller
     /**
      * Available roles for users.
      */
-    private const ROLES = ['customer', 'vendor', 'admin', 'super_admin', 'influencer', 'field_agent', 'marketer'];
+    private const ROLES = ['customer', 'vendor', 'admin', 'super_admin', 'influencer', 'field_agent', 'employee'];
 
     /**
      * Apply shared filtering and sorting to a user query.
