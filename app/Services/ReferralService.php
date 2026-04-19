@@ -263,15 +263,12 @@ class ReferralService
     ): ReferralPointTransaction {
         return DB::transaction(function () use ($referral, $points, $reason, $description) {
             // Pessimistic lock prevents races when multiple referrals activate
-            // concurrently for the same sharer — ensures the pre-increment
-            // points snapshot is consistent with the actual row state.
+            // concurrently for the same sharer.
             $user = User::lockForUpdate()->findOrFail($referral->influencer_id);
 
-            $oldPoints = (int) $user->referral_points;
             $user->increment('referral_points', $points);
-            $newPoints = $oldPoints + $points;
 
-            $transaction = ReferralPointTransaction::create([
+            return ReferralPointTransaction::create([
                 'user_id' => $user->id,
                 'referral_id' => $referral->id,
                 'points' => $points,
@@ -279,10 +276,6 @@ class ReferralService
                 'description' => $description
                     ?? "Points for vendor onboarding: {$referral->vendor->name}",
             ]);
-
-            $this->checkMilestones($user, $oldPoints, $newPoints);
-
-            return $transaction;
         });
     }
 
