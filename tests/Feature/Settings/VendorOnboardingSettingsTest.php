@@ -13,6 +13,7 @@ class VendorOnboardingSettingsTest extends TestCase
 
     protected function setUp(): void
     {
+        $this->mockConsoleOutput = false;
         parent::setUp();
         $this->withoutMiddleware(ValidateCsrfToken::class);
     }
@@ -76,5 +77,22 @@ class VendorOnboardingSettingsTest extends TestCase
             ]);
 
         $response->assertStatus(403);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function migration_seeds_the_three_new_referral_program_settings(): void
+    {
+        // Load and run the migration's up() directly via its absolute path so the seeded
+        // rows are guaranteed to exist within the test transaction regardless of how
+        // the app resolves database_path() (worktree vs. main repo symlink).
+        $migration = require __DIR__.'/../../../database/migrations/2026_04_18_120000_seed_referral_program_redesign_settings.php';
+        $migration->up();
+
+        // Flush the array-driver cache so Setting::get() re-reads fresh from DB.
+        \Illuminate\Support\Facades\Cache::flush();
+
+        $this->assertSame('25.00', \App\Models\Setting::get('vendor_onboarding_subsidy_pct'));
+        $this->assertSame('10', \App\Models\Setting::get('referral_points_per_ghs'));
+        $this->assertSame('1000', \App\Models\Setting::get('referral_cashout_min_points'));
     }
 }
