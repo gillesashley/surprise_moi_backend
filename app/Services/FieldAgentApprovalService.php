@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Enums\FieldAgentApplicationStatus;
 use App\Models\FieldAgentApplication;
+use App\Models\ReferralCode;
 use App\Models\User;
 use App\Notifications\FieldAgentApprovedNotification;
 use App\Notifications\FieldAgentRejectedNotification;
@@ -37,6 +38,13 @@ class FieldAgentApprovalService
                 'password' => null,
                 'rejection_reason' => null,
             ]);
+
+            $code = new ReferralCode([
+                'influencer_id' => $user->id,
+                'is_active' => true,
+            ]);
+            $code->prefix = ReferralCode::getPrefixForRole('field_agent');
+            $code->save();
 
             Notification::send($application->fresh(), new FieldAgentApprovedNotification($application->fresh()));
 
