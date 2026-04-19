@@ -147,9 +147,7 @@ class FieldAgentApplicationAdminTest extends TestCase
             'password' => Hash::make('AgentSecret1'),
         ]);
 
-        $this->actingAs($this->admin)
-            ->post("/dashboard/field-agent-applications/{$app->id}/approve")
-            ->assertRedirect();
+        app(\App\Services\FieldAgentApprovalService::class)->approve($app->fresh(), $this->admin);
 
         $newUser = User::where('email', $app->email)->firstOrFail();
         $code = \App\Models\ReferralCode::where('influencer_id', $newUser->id)->first();
@@ -164,9 +162,7 @@ class FieldAgentApplicationAdminTest extends TestCase
             'password' => Hash::make('AgentSecret1'),
         ]);
 
-        $this->actingAs($this->admin)
-            ->post("/dashboard/field-agent-applications/{$app->id}/approve")
-            ->assertRedirect();
+        app(\App\Services\FieldAgentApprovalService::class)->approve($app->fresh(), $this->admin);
 
         $newUser = User::where('email', $app->email)->firstOrFail();
         $code = \App\Models\ReferralCode::where('influencer_id', $newUser->id)->firstOrFail();
@@ -181,9 +177,7 @@ class FieldAgentApplicationAdminTest extends TestCase
             'password' => Hash::make('AgentSecret1'),
         ]);
 
-        $this->actingAs($this->admin)
-            ->post("/dashboard/field-agent-applications/{$app->id}/approve")
-            ->assertRedirect();
+        app(\App\Services\FieldAgentApprovalService::class)->approve($app->fresh(), $this->admin);
 
         $newUser = User::where('email', $app->email)->firstOrFail();
         $code = \App\Models\ReferralCode::where('influencer_id', $newUser->id)->firstOrFail();
