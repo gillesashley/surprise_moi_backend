@@ -12,6 +12,11 @@ use App\Services\ReferralService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
+/**
+ * After the 2026-04 referral redesign, activation awards points (not GHS
+ * Earnings) to every role. The reward base is what the vendor actually paid
+ * (post-subsidy), not the tier fee. This test verifies that shape.
+ */
 class DynamicRegistrationBonusTest extends TestCase
 {
     use RefreshDatabase;
@@ -24,131 +29,111 @@ class DynamicRegistrationBonusTest extends TestCase
         $this->service = app(ReferralService::class);
     }
 
-    // -------------------------------------------------------------------------
-    // calculateRegistrationBonus
-    // -------------------------------------------------------------------------
-
-    public function test_calculate_registration_bonus_for_influencer_tier_1(): void
+    private function seedPointsConversion(int $pointsPerGhs = 10): void
     {
-        Setting::set('referral_bonus_influencer_pct', 25, 'number');
-        Setting::set('vendor_tier1_onboarding_fee', 150, 'number');
-
-        $bonus = $this->service->calculateRegistrationBonus('influencer', 1);
-
-        $this->assertSame(37.50, $bonus);
+        Setting::set('referral_points_per_ghs', (string) $pointsPerGhs, 'number');
     }
 
-    public function test_calculate_registration_bonus_for_vendor_tier_2(): void
-    {
-        Setting::set('referral_bonus_vendor_pct', 20, 'number');
-        Setting::set('vendor_tier2_onboarding_fee', 100, 'number');
-
-        $bonus = $this->service->calculateRegistrationBonus('vendor', 2);
-
-        $this->assertSame(20.00, $bonus);
-    }
-
-    public function test_calculate_registration_bonus_returns_zero_for_unmapped_role(): void
-    {
-        // admin and super_admin are not mapped in the referral bonus settings
-        $bonus = $this->service->calculateRegistrationBonus('admin', 1);
-
-        $this->assertSame(0.0, $bonus);
-    }
-
-    public function test_calculate_registration_bonus_returns_zero_when_percentage_is_zero(): void
-    {
-        Setting::set('referral_bonus_employee_pct', 0, 'number');
-        Setting::set('vendor_tier1_onboarding_fee', 200, 'number');
-
-        $bonus = $this->service->calculateRegistrationBonus('employee', 1);
-
-        $this->assertSame(0.0, $bonus);
-    }
-
-    // -------------------------------------------------------------------------
-    // activateReferral — dynamic bonus path (registration_bonus = 0 on code)
-    // -------------------------------------------------------------------------
-
-    public function test_activate_referral_uses_dynamic_bonus_when_code_has_no_stored_bonus(): void
-    {
-        // Migration seeds 25% for influencer and 150 for tier1, giving 37.50
-        $influencer = User::factory()->influencer()->create();
-        $vendorUser = User::factory()->create(['role' => 'customer']);
-
-        $referralCode = ReferralCode::factory()->create([
-            'influencer_id' => $influencer->id,
-            'registration_bonus' => 0, // new code — no stored bonus
-        ]);
-
-        // Use forceFill to bypass $fillable guard for referral_code_id
-        $vendorApplication = VendorApplication::factory()
+    private function makeReferredApplication(
+        User $vendor,
+        ReferralCode $code,
+        float $finalAmount,
+        float $onboardingFee,
+    ): VendorApplication {
+        $application = VendorApplication::factory()
             ->make([
-                'user_id' => $vendorUser->id,
-                'has_business_certificate' => true, // tier 1
-            ]);
-        $vendorApplication->forceFill(['referral_code_id' => $referralCode->id])->save();
-
-        Referral::factory()->create([
-            'referral_code_id' => $referralCode->id,
-            'influencer_id' => $influencer->id,
-            'vendor_id' => $vendorUser->id,
-            'vendor_application_id' => $vendorApplication->id,
-            'status' => Referral::STATUS_PENDING,
-        ]);
-
-        $this->service->activateReferral($vendorApplication);
-
-        $earning = Earning::where('user_id', $influencer->id)
-            ->where('earning_type', Earning::TYPE_REFERRAL_BONUS)
-            ->first();
-
-        $this->assertNotNull($earning);
-        $this->assertEquals(37.50, $earning->amount);
-        $this->assertSame(Earning::STATUS_PENDING, $earning->status);
-    }
-
-    // -------------------------------------------------------------------------
-    // activateReferral — legacy fallback path (registration_bonus > 0 on code)
-    // -------------------------------------------------------------------------
-
-    public function test_activate_referral_uses_stored_bonus_for_legacy_codes(): void
-    {
-        // Even if a dynamic setting exists, the stored bonus takes precedence.
-        // Migration seeds 25% for influencer and 150 for tier1 (= 37.50 dynamic),
-        // but we assert 75.00 is used because registration_bonus > 0 on the code.
-        $influencer = User::factory()->influencer()->create();
-        $vendorUser = User::factory()->create(['role' => 'customer']);
-
-        $referralCode = ReferralCode::factory()->create([
-            'influencer_id' => $influencer->id,
-            'registration_bonus' => 75.00, // legacy stored bonus
-        ]);
-
-        // Use forceFill to bypass $fillable guard for referral_code_id
-        $vendorApplication = VendorApplication::factory()
-            ->make([
-                'user_id' => $vendorUser->id,
+                'user_id' => $vendor->id,
                 'has_business_certificate' => true,
             ]);
-        $vendorApplication->forceFill(['referral_code_id' => $referralCode->id])->save();
+        $application->forceFill([
+            'referral_code_id' => $code->id,
+            'onboarding_fee' => $onboardingFee,
+            'discount_amount' => $onboardingFee - $finalAmount,
+            'final_amount' => $finalAmount,
+        ])->save();
 
         Referral::factory()->create([
-            'referral_code_id' => $referralCode->id,
-            'influencer_id' => $influencer->id,
-            'vendor_id' => $vendorUser->id,
-            'vendor_application_id' => $vendorApplication->id,
+            'referral_code_id' => $code->id,
+            'influencer_id' => $code->influencer_id,
+            'vendor_id' => $vendor->id,
+            'vendor_application_id' => $application->id,
             'status' => Referral::STATUS_PENDING,
         ]);
 
-        $this->service->activateReferral($vendorApplication);
+        return $application;
+    }
 
-        $earning = Earning::where('user_id', $influencer->id)
-            ->where('earning_type', Earning::TYPE_REFERRAL_BONUS)
-            ->first();
+    public function test_activate_referral_awards_points_for_influencer(): void
+    {
+        $this->seedPointsConversion();
+        Setting::set('referral_bonus_influencer_pct', '25', 'number');
 
-        $this->assertNotNull($earning);
-        $this->assertEquals(75.00, $earning->amount);
-        $this->assertSame(Earning::STATUS_PENDING, $earning->status);
+        $influencer = User::factory()->influencer()->create(['referral_points' => 0]);
+        $vendor = User::factory()->create(['role' => 'customer']);
+        $code = ReferralCode::factory()->create(['influencer_id' => $influencer->id]);
+
+        // Vendor paid 150 after 25% subsidy on 200.
+        $application = $this->makeReferredApplication($vendor, $code, finalAmount: 150.0, onboardingFee: 200.0);
+
+        $this->service->activateReferral($application);
+
+        $this->assertSame(375, (int) $influencer->fresh()->referral_points); // 150 * 0.25 * 10
+        $this->assertDatabaseMissing('earnings', [
+            'user_id' => $influencer->id,
+            'earning_type' => Earning::TYPE_REFERRAL_BONUS,
+        ]);
+    }
+
+    public function test_activate_referral_awards_points_for_non_earning_role(): void
+    {
+        $this->seedPointsConversion();
+        Setting::set('referral_bonus_customer_pct', '10', 'number');
+
+        $customer = User::factory()->create(['role' => 'customer', 'referral_points' => 0]);
+        $vendor = User::factory()->create(['role' => 'customer']);
+        $code = ReferralCode::factory()->create(['influencer_id' => $customer->id]);
+
+        $application = $this->makeReferredApplication($vendor, $code, finalAmount: 150.0, onboardingFee: 200.0);
+
+        $this->service->activateReferral($application);
+
+        $this->assertSame(150, (int) $customer->fresh()->referral_points); // 150 * 0.10 * 10
+        $this->assertDatabaseMissing('earnings', [
+            'user_id' => $customer->id,
+            'earning_type' => Earning::TYPE_REFERRAL_BONUS,
+        ]);
+    }
+
+    public function test_activate_referral_awards_no_points_when_role_percentage_is_zero(): void
+    {
+        $this->seedPointsConversion();
+        Setting::set('referral_bonus_customer_pct', '0', 'number');
+
+        $customer = User::factory()->create(['role' => 'customer', 'referral_points' => 0]);
+        $vendor = User::factory()->create(['role' => 'customer']);
+        $code = ReferralCode::factory()->create(['influencer_id' => $customer->id]);
+
+        $application = $this->makeReferredApplication($vendor, $code, finalAmount: 150.0, onboardingFee: 200.0);
+
+        $this->service->activateReferral($application);
+
+        $this->assertSame(0, (int) $customer->fresh()->referral_points);
+    }
+
+    public function test_activate_referral_populates_earned_amount_on_referral_row(): void
+    {
+        $this->seedPointsConversion();
+        Setting::set('referral_bonus_influencer_pct', '25', 'number');
+
+        $influencer = User::factory()->influencer()->create();
+        $vendor = User::factory()->create(['role' => 'customer']);
+        $code = ReferralCode::factory()->create(['influencer_id' => $influencer->id]);
+
+        $application = $this->makeReferredApplication($vendor, $code, finalAmount: 150.0, onboardingFee: 200.0);
+
+        $this->service->activateReferral($application);
+
+        $referral = Referral::where('vendor_application_id', $application->id)->first();
+        $this->assertSame('37.50', (string) $referral->earned_amount);
     }
 }

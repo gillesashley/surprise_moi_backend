@@ -44,6 +44,9 @@ class ReferralBonusSettingsTest extends TestCase
             'referral_bonus_influencer_pct' => '28.00',
             'referral_bonus_field_agent_pct' => '35.00',
             'referral_bonus_employee_pct' => '25.00',
+            'vendor_onboarding_subsidy_pct' => '25.00',
+            'referral_points_per_ghs' => '10',
+            'referral_cashout_min_points' => '1000',
         ]);
 
         $response->assertRedirect();
@@ -68,6 +71,9 @@ class ReferralBonusSettingsTest extends TestCase
             'referral_bonus_influencer_pct' => '25.00',
             'referral_bonus_field_agent_pct' => '30.00',
             'referral_bonus_employee_pct' => '20.00',
+            'vendor_onboarding_subsidy_pct' => '25.00',
+            'referral_points_per_ghs' => '10',
+            'referral_cashout_min_points' => '1000',
         ]);
 
         $response->assertSessionHasErrors('referral_bonus_customer_pct');

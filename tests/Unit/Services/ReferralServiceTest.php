@@ -5,7 +5,6 @@ namespace Tests\Unit\Services;
 use App\Models\Earning;
 use App\Models\Referral;
 use App\Models\ReferralCode;
-use App\Models\ReferralMilestoneReward;
 use App\Models\ReferralPointTransaction;
 use App\Models\Setting;
 use App\Models\User;
@@ -23,23 +22,23 @@ class ReferralServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->service = new ReferralService;
+        $this->service = app(ReferralService::class);
     }
 
-    public function test_creates_referral_code_for_influencer(): void
+    // ---------- createReferralCode ----------
+
+    public function test_creates_referral_code_for_any_role(): void
     {
         $influencer = User::factory()->create(['role' => 'influencer']);
 
         $code = $this->service->createReferralCode(
             influencer: $influencer,
-            code: 'TEST2024',
+            code: 'TEST2026',
             registrationBonus: 100.00,
-            commissionRate: 10.00
         );
 
         $this->assertInstanceOf(ReferralCode::class, $code);
-        $this->assertEquals('TEST2024', $code->code);
-        $this->assertEquals(100.00, $code->registration_bonus);
+        $this->assertEquals('TEST2026', $code->code);
         $this->assertTrue($code->is_active);
     }
 
@@ -50,26 +49,12 @@ class ReferralServiceTest extends TestCase
         $code = $this->service->createReferralCode(
             influencer: $customer,
             code: 'CUST2026',
-            registrationBonus: 50.00,
         );
 
-        $this->assertInstanceOf(ReferralCode::class, $code);
-        $this->assertEquals('CUST2026', $code->code);
         $this->assertEquals($customer->id, $code->influencer_id);
     }
 
-    public function test_creates_referral_code_for_admin(): void
-    {
-        $admin = User::factory()->create(['role' => 'admin']);
-
-        $code = $this->service->createReferralCode(
-            influencer: $admin,
-            code: 'ADM2026',
-        );
-
-        $this->assertInstanceOf(ReferralCode::class, $code);
-        $this->assertEquals($admin->id, $code->influencer_id);
-    }
+    // ---------- applyReferralCode ----------
 
     public function test_applies_referral_code_to_vendor_application(): void
     {
@@ -78,7 +63,7 @@ class ReferralServiceTest extends TestCase
 
         $referralCode = ReferralCode::factory()->create([
             'influencer_id' => $influencer->id,
-            'code' => 'APPLY2024',
+            'code' => 'APPLY2026',
             'is_active' => true,
         ]);
 
@@ -86,12 +71,30 @@ class ReferralServiceTest extends TestCase
             'user_id' => $vendor->id,
         ]);
 
-        $referral = $this->service->applyReferralCode($application, 'APPLY2024');
+        $referral = $this->service->applyReferralCode($application, 'APPLY2026');
 
         $this->assertInstanceOf(Referral::class, $referral);
         $this->assertEquals($influencer->id, $referral->influencer_id);
         $this->assertEquals($vendor->id, $referral->vendor_id);
     }
+
+    public function test_apply_referral_code_rejects_self_referral(): void
+    {
+        $user = User::factory()->create();
+        $code = ReferralCode::factory()->create([
+            'influencer_id' => $user->id,
+            'code' => 'SELF2026',
+            'is_active' => true,
+        ]);
+        $application = VendorApplication::factory()->create(['user_id' => $user->id]);
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('You cannot use your own referral code.');
+
+        $this->service->applyReferralCode($application, 'SELF2026');
+    }
+
+    // ---------- awardPoints ----------
 
     public function test_award_points_creates_transaction_and_increments_total(): void
     {
@@ -110,7 +113,7 @@ class ReferralServiceTest extends TestCase
         $this->assertEquals(100, $customer->fresh()->referral_points);
     }
 
-    public function test_award_points_triggers_milestone_at_1000(): void
+    public function test_award_points_does_not_create_milestone_rewards_even_past_threshold(): void
     {
         $customer = User::factory()->create(['role' => 'customer', 'referral_points' => 900]);
         $referralCode = ReferralCode::factory()->create(['influencer_id' => $customer->id]);
@@ -119,253 +122,124 @@ class ReferralServiceTest extends TestCase
             'influencer_id' => $customer->id,
         ]);
 
-        $this->service->awardPoints($referral, 100);
+        // Cross the 1000 threshold; no milestone rows should be created.
+        $this->service->awardPoints($referral, 200);
 
-        $milestone = ReferralMilestoneReward::where('user_id', $customer->id)
-            ->where('threshold', 1000)
-            ->first();
-
-        $this->assertNotNull($milestone);
-        $this->assertEquals(ReferralMilestoneReward::STATUS_PENDING, $milestone->status);
-        $this->assertEquals(1000, $milestone->points_at_milestone);
+        $this->assertSame(1100, (int) $customer->fresh()->referral_points);
+        $this->assertDatabaseCount('referral_milestone_rewards', 0);
     }
 
-    public function test_award_points_triggers_milestone_at_5000(): void
+    // ---------- activateReferral ----------
+
+    private function createReferredApplication(User $vendor, ReferralCode $code, float $finalAmount): VendorApplication
     {
-        $customer = User::factory()->create(['role' => 'customer', 'referral_points' => 4900]);
-        $referralCode = ReferralCode::factory()->create(['influencer_id' => $customer->id]);
-        $referral = Referral::factory()->create([
-            'referral_code_id' => $referralCode->id,
-            'influencer_id' => $customer->id,
-        ]);
-
-        $this->service->awardPoints($referral, 100);
-
-        $milestone = ReferralMilestoneReward::where('user_id', $customer->id)
-            ->where('threshold', 5000)
-            ->first();
-
-        $this->assertNotNull($milestone);
-    }
-
-    public function test_award_points_triggers_milestone_at_10000_after_5000(): void
-    {
-        $customer = User::factory()->create(['role' => 'customer', 'referral_points' => 9900]);
-        $referralCode = ReferralCode::factory()->create(['influencer_id' => $customer->id]);
-        $referral = Referral::factory()->create([
-            'referral_code_id' => $referralCode->id,
-            'influencer_id' => $customer->id,
-        ]);
-
-        $this->service->awardPoints($referral, 100);
-
-        $this->assertDatabaseHas('referral_milestone_rewards', [
-            'user_id' => $customer->id,
-            'threshold' => 10000,
-        ]);
-    }
-
-    public function test_crossing_multiple_milestones_in_one_award_creates_all_rows(): void
-    {
-        $customer = User::factory()->create(['role' => 'customer', 'referral_points' => 900]);
-        $referralCode = ReferralCode::factory()->create(['influencer_id' => $customer->id]);
-        $referral = Referral::factory()->create([
-            'referral_code_id' => $referralCode->id,
-            'influencer_id' => $customer->id,
-        ]);
-
-        // Jump from 900 to 5100 in a single award
-        $this->service->awardPoints($referral, 4200);
-
-        $this->assertDatabaseHas('referral_milestone_rewards', [
-            'user_id' => $customer->id,
-            'threshold' => 1000,
-        ]);
-        $this->assertDatabaseHas('referral_milestone_rewards', [
-            'user_id' => $customer->id,
-            'threshold' => 5000,
-        ]);
-        $this->assertEquals(2, ReferralMilestoneReward::where('user_id', $customer->id)->count());
-    }
-
-    public function test_award_points_is_idempotent_for_same_threshold(): void
-    {
-        $customer = User::factory()->create(['role' => 'customer', 'referral_points' => 900]);
-        $referralCode = ReferralCode::factory()->create(['influencer_id' => $customer->id]);
-        $referral = Referral::factory()->create([
-            'referral_code_id' => $referralCode->id,
-            'influencer_id' => $customer->id,
-        ]);
-
-        // First award crosses 1000
-        $this->service->awardPoints($referral, 100);
-        // Second award stays above 1000 but does NOT re-cross
-        $this->service->awardPoints($referral, 100);
-
-        $this->assertEquals(
-            1,
-            ReferralMilestoneReward::where('user_id', $customer->id)
-                ->where('threshold', 1000)
-                ->count()
-        );
-    }
-
-    public function test_activate_referral_creates_earning_for_influencer(): void
-    {
-        $influencer = User::factory()->create(['role' => 'influencer', 'referral_points' => 0]);
-        $vendor = User::factory()->create(['role' => 'customer', 'name' => 'Jane Vendor']);
-        $referralCode = ReferralCode::factory()->create([
-            'influencer_id' => $influencer->id,
-            'registration_bonus' => 75.00,
-        ]);
-        $application = \App\Models\VendorApplication::factory()->create([
+        $application = VendorApplication::factory()->create([
             'user_id' => $vendor->id,
-            'referral_code_id' => $referralCode->id,
         ]);
-        $referral = Referral::factory()->create([
-            'referral_code_id' => $referralCode->id,
-            'influencer_id' => $influencer->id,
-            'vendor_id' => $vendor->id,
-            'vendor_application_id' => $application->id,
-            'status' => Referral::STATUS_PENDING,
-        ]);
+        $application->forceFill([
+            'referral_code_id' => $code->id,
+            'onboarding_fee' => $finalAmount / 0.75, // back-compute assuming 25% subsidy
+            'discount_amount' => ($finalAmount / 0.75) - $finalAmount,
+            'final_amount' => $finalAmount,
+        ])->save();
 
-        $this->service->activateReferral($application);
-
-        $this->assertDatabaseHas('earnings', [
-            'user_id' => $influencer->id,
-            'user_role' => 'influencer',
-            'earning_type' => Earning::TYPE_REFERRAL_BONUS,
-            'amount' => 75.00,
-        ]);
-        $this->assertEquals(0, $influencer->fresh()->referral_points);
-        $this->assertDatabaseMissing('referral_point_transactions', [
-            'user_id' => $influencer->id,
-        ]);
-    }
-
-    public function test_activate_referral_creates_earning_for_field_agent_with_correct_user_role(): void
-    {
-        $fieldAgent = User::factory()->create(['role' => 'field_agent']);
-        $vendor = User::factory()->create(['role' => 'customer']);
-        $referralCode = ReferralCode::factory()->create([
-            'influencer_id' => $fieldAgent->id,
-            'registration_bonus' => 50.00,
-        ]);
-        $application = \App\Models\VendorApplication::factory()->create([
-            'user_id' => $vendor->id,
-            'referral_code_id' => $referralCode->id,
-        ]);
         Referral::factory()->create([
-            'referral_code_id' => $referralCode->id,
-            'influencer_id' => $fieldAgent->id,
+            'referral_code_id' => $code->id,
+            'influencer_id' => $code->influencer_id,
             'vendor_id' => $vendor->id,
             'vendor_application_id' => $application->id,
             'status' => Referral::STATUS_PENDING,
         ]);
 
-        $this->service->activateReferral($application);
-
-        $this->assertDatabaseHas('earnings', [
-            'user_id' => $fieldAgent->id,
-            'user_role' => 'field_agent', // was hardcoded 'influencer' — latent bug now fixed
-        ]);
+        return $application;
     }
 
-    public function test_activate_referral_awards_points_for_customer(): void
+    public function test_activate_referral_awards_points_based_on_final_amount_for_every_role(): void
     {
+        Setting::set('referral_bonus_customer_pct', '10', 'number');
+        Setting::set('referral_bonus_vendor_pct', '10', 'number');
+        Setting::set('referral_bonus_influencer_pct', '10', 'number');
+        Setting::set('referral_bonus_field_agent_pct', '10', 'number');
+        Setting::set('referral_bonus_marketer_pct', '10', 'number');
+        Setting::set('referral_points_per_ghs', '10', 'number');
+
+        foreach (['customer', 'vendor', 'influencer', 'field_agent', 'marketer'] as $role) {
+            $referrer = User::factory()->create(['role' => $role, 'referral_points' => 0]);
+            $vendor = User::factory()->create(['role' => 'customer']);
+            $code = ReferralCode::factory()->create(['influencer_id' => $referrer->id]);
+
+            // Vendor paid 150 GHS → referrer earns 15 GHS → 150 points.
+            $application = $this->createReferredApplication($vendor, $code, finalAmount: 150.0);
+
+            $this->service->activateReferral($application);
+
+            $this->assertSame(150, (int) $referrer->fresh()->referral_points, "role={$role}");
+            $this->assertDatabaseMissing('earnings', [
+                'user_id' => $referrer->id,
+                'earning_type' => Earning::TYPE_REFERRAL_BONUS,
+            ]);
+        }
+    }
+
+    public function test_activate_referral_populates_earned_amount_on_referral(): void
+    {
+        Setting::set('referral_bonus_customer_pct', '10', 'number');
+        Setting::set('referral_points_per_ghs', '10', 'number');
+
+        $customer = User::factory()->create(['role' => 'customer']);
+        $vendor = User::factory()->create(['role' => 'customer']);
+        $code = ReferralCode::factory()->create(['influencer_id' => $customer->id]);
+
+        $application = $this->createReferredApplication($vendor, $code, finalAmount: 150.0);
+
+        $this->service->activateReferral($application);
+
+        $referral = Referral::where('vendor_application_id', $application->id)->first();
+        $this->assertSame('15.00', (string) $referral->earned_amount);
+        $this->assertSame(Referral::STATUS_ACTIVE, $referral->status);
+    }
+
+    public function test_activate_referral_does_not_create_milestone_rewards(): void
+    {
+        Setting::set('referral_bonus_customer_pct', '100', 'number'); // force a large reward
+        Setting::set('referral_points_per_ghs', '10', 'number');
+
         $customer = User::factory()->create(['role' => 'customer', 'referral_points' => 0]);
         $vendor = User::factory()->create(['role' => 'customer']);
-        $referralCode = ReferralCode::factory()->create([
-            'influencer_id' => $customer->id,
-            'registration_bonus' => 50.00,
-        ]);
-        $application = \App\Models\VendorApplication::factory()->create([
-            'user_id' => $vendor->id,
-            'referral_code_id' => $referralCode->id,
-        ]);
-        Referral::factory()->create([
-            'referral_code_id' => $referralCode->id,
-            'influencer_id' => $customer->id,
-            'vendor_id' => $vendor->id,
-            'vendor_application_id' => $application->id,
-            'status' => Referral::STATUS_PENDING,
-        ]);
+        $code = ReferralCode::factory()->create(['influencer_id' => $customer->id]);
+
+        // 100% of 200 GHS × 10 = 2000 points, past the 1000 threshold.
+        $application = $this->createReferredApplication($vendor, $code, finalAmount: 200.0);
 
         $this->service->activateReferral($application);
 
-        $this->assertEquals(100, $customer->fresh()->referral_points);
-        $this->assertDatabaseHas('referral_point_transactions', [
-            'user_id' => $customer->id,
-            'points' => 100,
-            'reason' => 'vendor_onboarding',
-        ]);
-        $this->assertDatabaseMissing('earnings', [
-            'user_id' => $customer->id,
-        ]);
+        $this->assertDatabaseCount('referral_milestone_rewards', 0);
     }
 
-    public function test_activate_referral_awards_points_for_admin_without_creating_earning(): void
+    public function test_activate_referral_awards_zero_points_when_role_pct_is_zero(): void
     {
-        $admin = User::factory()->create(['role' => 'admin']);
-        $vendor = User::factory()->create(['role' => 'customer']);
-        $referralCode = ReferralCode::factory()->create([
-            'influencer_id' => $admin->id,
-            'registration_bonus' => 50.00,
-        ]);
-        $application = \App\Models\VendorApplication::factory()->create([
-            'user_id' => $vendor->id,
-            'referral_code_id' => $referralCode->id,
-        ]);
-        Referral::factory()->create([
-            'referral_code_id' => $referralCode->id,
-            'influencer_id' => $admin->id,
-            'vendor_id' => $vendor->id,
-            'vendor_application_id' => $application->id,
-            'status' => Referral::STATUS_PENDING,
-        ]);
+        Setting::set('referral_bonus_customer_pct', '0', 'number');
+        Setting::set('referral_points_per_ghs', '10', 'number');
 
+        $customer = User::factory()->create(['role' => 'customer', 'referral_points' => 0]);
+        $vendor = User::factory()->create(['role' => 'customer']);
+        $code = ReferralCode::factory()->create(['influencer_id' => $customer->id]);
+
+        $application = $this->createReferredApplication($vendor, $code, finalAmount: 150.0);
+
+        $referral = Referral::where('vendor_application_id', $application->id)->first();
         $this->service->activateReferral($application);
 
-        $this->assertEquals(100, $admin->fresh()->referral_points);
-        $this->assertDatabaseMissing('earnings', ['user_id' => $admin->id]);
+        $this->assertSame(Referral::STATUS_ACTIVE, $referral->fresh()->status);
+        $this->assertSame(0, (int) $customer->fresh()->referral_points);
     }
 
-    public function test_activate_referral_skips_earning_when_influencer_bonus_is_zero(): void
+    public function test_activate_referral_returns_null_when_application_has_no_referral_code(): void
     {
-        // Ensure the dynamic fallback calculation also yields zero so no earning is created.
-        Setting::set('referral_bonus_influencer_pct', 0, 'number');
+        $application = VendorApplication::factory()->create();
 
-        $influencer = User::factory()->create(['role' => 'influencer', 'referral_points' => 0]);
-        $vendor = User::factory()->create(['role' => 'customer']);
-        $referralCode = ReferralCode::factory()->create([
-            'influencer_id' => $influencer->id,
-            'registration_bonus' => 0,
-        ]);
-        $application = \App\Models\VendorApplication::factory()->create([
-            'user_id' => $vendor->id,
-            'referral_code_id' => $referralCode->id,
-        ]);
-        $referral = Referral::factory()->create([
-            'referral_code_id' => $referralCode->id,
-            'influencer_id' => $influencer->id,
-            'vendor_id' => $vendor->id,
-            'vendor_application_id' => $application->id,
-            'status' => Referral::STATUS_PENDING,
-        ]);
+        $result = $this->service->activateReferral($application);
 
-        $this->service->activateReferral($application);
-
-        // Referral still activated
-        $this->assertEquals(Referral::STATUS_ACTIVE, $referral->fresh()->status);
-
-        // But no earning row created (bonus was zero)
-        $this->assertDatabaseMissing('earnings', [
-            'user_id' => $influencer->id,
-        ]);
-
-        // And no points awarded (influencer is earning-capable, so it went down the
-        // earning branch — just silently skipped because bonus was zero)
-        $this->assertEquals(0, $influencer->fresh()->referral_points);
+        $this->assertNull($result);
     }
 }
