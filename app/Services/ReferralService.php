@@ -182,23 +182,18 @@ class ReferralService
     /**
      * Activate a referral when vendor application is approved.
      *
-     * This method:
-     * 1. Changes referral status from 'pending' to 'active'
-     * 2. Creates registration bonus earning for influencer (if configured)
+     * All roles earn referral points — no GHS Earning rows are created. The
+     * reward is a percentage of what the vendor actually paid (post-subsidy),
+     * converted to points via the `referral_points_per_ghs` setting.
      *
-     * Called by admin when approving vendor application.
-     *
-     * @param  VendorApplication  $vendorApplication  The approved application
-     * @return Referral|null Null if application has no referral code
+     * @return Referral|null Null if application has no referral code.
      */
     public function activateReferral(VendorApplication $vendorApplication): ?Referral
     {
-        // Check if application has a referral code
         if (! $vendorApplication->referral_code_id) {
             return null;
         }
 
-        // Find pending referral for this application
         $referral = Referral::where('vendor_application_id', $vendorApplication->id)
             ->where('status', Referral::STATUS_PENDING)
             ->first();
@@ -208,46 +203,22 @@ class ReferralService
         }
 
         return DB::transaction(function () use ($referral, $vendorApplication) {
-            // Activate referral and set commission period
             $referral->activate();
 
-            // Pessimistic lock on the sharer row prevents races with concurrent
-            // role changes (e.g. admin promotes a customer to field_agent) between
-            // the branch decision and the reward write. Same pattern as awardPoints().
+            // Pessimistic lock prevents races with concurrent role changes.
             $sharer = User::lockForUpdate()->findOrFail($referral->influencer_id);
 
-            if ($sharer->isEarningCapable()) {
-                // Determine bonus: dynamic calculation for new codes,
-                // fallback to stored registration_bonus for legacy codes.
-                $storedBonus = (float) $referral->referralCode->registration_bonus;
+            $percentage = (float) Setting::get("referral_bonus_{$sharer->role}_pct", 0);
+            $finalAmount = (float) $vendorApplication->final_amount;
+            $ghsAmount = round(($percentage / 100) * $finalAmount, 2);
 
-                if ($storedBonus > 0) {
-                    $bonusAmount = $storedBonus;
-                } else {
-                    $vendorTier = $vendorApplication->getVendorTier();
-                    $bonusAmount = $this->calculateRegistrationBonus($sharer->role, $vendorTier);
-                }
+            $pointsPerGhs = (int) Setting::get('referral_points_per_ghs', 10);
+            $points = (int) round($ghsAmount * $pointsPerGhs);
 
-                if ($bonusAmount > 0) {
-                    Earning::create([
-                        'user_id' => $referral->influencer_id,
-                        'user_role' => $sharer->role,
-                        'earning_type' => Earning::TYPE_REFERRAL_BONUS,
-                        'earnable_id' => $referral->id,
-                        'earnable_type' => Referral::class,
-                        'amount' => $bonusAmount,
-                        'currency' => 'GHS',
-                        'status' => Earning::STATUS_PENDING,
-                        'description' => "Registration bonus for referring vendor: {$referral->vendor->name}",
-                        'earned_at' => now(),
-                    ]);
-                }
-            } else {
-                // NEW FLOW — points lane for customer / vendor / admin / super_admin
-                $this->awardPoints(
-                    $referral,
-                    (int) config('referral.points_per_vendor_onboarding', 100)
-                );
+            $referral->update(['earned_amount' => $ghsAmount]);
+
+            if ($points > 0) {
+                $this->awardPoints($referral, $points);
             }
 
             return $referral->fresh();
