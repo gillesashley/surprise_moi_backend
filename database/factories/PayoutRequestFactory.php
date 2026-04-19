@@ -18,7 +18,7 @@ class PayoutRequestFactory extends Factory
      */
     public function definition(): array
     {
-        $userRoles = ['influencer', 'field_agent', 'marketer'];
+        $userRoles = ['influencer', 'field_agent', 'employee'];
         $payoutMethod = fake()->randomElement([
             PayoutRequest::METHOD_MOBILE_MONEY,
             PayoutRequest::METHOD_BANK_TRANSFER,
