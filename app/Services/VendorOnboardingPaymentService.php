@@ -38,10 +38,10 @@ class VendorOnboardingPaymentService
     /**
      * Validate a referral code for vendor onboarding.
      *
-     * Referral codes do not discount the onboarding fee — they track who
-     * referred the vendor so the referrer can be rewarded on approval.
-     * The response preserves the discount_amount/final_amount shape for
-     * backward compatibility with the payment UI.
+     * When the code is valid, the returned amounts reflect the platform-wide
+     * subsidy applied to the vendor's onboarding fee. The code is also tracked
+     * on the application so the referrer can be rewarded with points on
+     * approval.
      */
     public function validateReferralCode(string $code, VendorApplication $application): array
     {
@@ -74,14 +74,14 @@ class VendorOnboardingPaymentService
             ];
         }
 
-        $onboardingFee = $application->getOnboardingFee();
+        $amounts = $application->calculateFinalAmount($referralCode);
 
         return [
             'valid' => true,
             'referral_code' => $referralCode,
-            'onboarding_fee' => $onboardingFee,
-            'discount_amount' => 0.0,
-            'final_amount' => $onboardingFee,
+            'onboarding_fee' => $amounts['onboarding_fee'],
+            'discount_amount' => $amounts['discount_amount'],
+            'final_amount' => $amounts['final_amount'],
             'message' => 'Referral code applied successfully.',
         ];
     }
@@ -126,8 +126,9 @@ class VendorOnboardingPaymentService
             $referralCodeModel = $validation['referral_code'];
         }
 
-        // Calculate amounts. Coupon path removed — vendor pays full fee.
-        $amounts = $application->calculateFinalAmount(null);
+        // Calculate amounts. When a valid referral code is supplied the
+        // subsidy is applied; otherwise the vendor pays the full tier fee.
+        $amounts = $application->calculateFinalAmount($referralCodeModel);
         $onboardingFee = (float) $amounts['onboarding_fee'];
         $finalAmount = (float) $amounts['final_amount'];
         $discountAmount = (float) $amounts['discount_amount'];
@@ -193,6 +194,7 @@ class VendorOnboardingPaymentService
                     $payment = VendorOnboardingPayment::create([
                         'user_id' => $application->user_id,
                         'vendor_application_id' => $application->id,
+                        'referral_code_id' => $referralCodeModel?->id,
                         'reference' => $reference,
                         'authorization_url' => $data['authorization_url'],
                         'access_code' => $data['access_code'],

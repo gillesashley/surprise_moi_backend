@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\ReferralCode;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -29,6 +30,7 @@ class VendorOnboardingPayment extends Model
     protected $fillable = [
         'user_id',
         'vendor_application_id',
+        'referral_code_id',
         'coupon_id',
         'reference',
         'paystack_reference',
@@ -95,6 +97,11 @@ class VendorOnboardingPayment extends Model
     public function coupon(): BelongsTo
     {
         return $this->belongsTo(Coupon::class);
+    }
+
+    public function referralCode(): BelongsTo
+    {
+        return $this->belongsTo(ReferralCode::class);
     }
 
     public function isSuccessful(): bool

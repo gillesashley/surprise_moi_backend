@@ -2,10 +2,8 @@
 
 namespace App\Services;
 
-use App\Models\Earning;
 use App\Models\Referral;
 use App\Models\ReferralCode;
-use App\Models\ReferralMilestoneReward;
 use App\Models\ReferralPointTransaction;
 use App\Models\Setting;
 use App\Models\User;
@@ -13,19 +11,17 @@ use App\Models\VendorApplication;
 use Illuminate\Support\Facades\DB;
 
 /**
- * ReferralService - Manages influencer referral system and commission tracking.
+ * ReferralService — manages the platform's referral program.
  *
  * Referral Lifecycle:
- * 1. Influencer creates referral code
- * 2. Vendor uses code during registration
- * 3. Referral created in 'pending' status
- * 4. When vendor application approved -> referral 'active' + registration bonus earned
- * 5. For X months, influencer earns commission % on vendor's orders
- * 6. After X months, commission expires
- *
- * Earnings Types:
- * - Registration Bonus: One-time payment when vendor approved
- * - Commission: Percentage of vendor's order total (during commission period)
+ * 1. Any user creates a referral code to share.
+ * 2. A vendor uses the code during onboarding; a Referral row is created
+ *    in 'pending' status and the vendor receives a subsidy on the
+ *    onboarding fee.
+ * 3. When the vendor application is approved, the referral activates and
+ *    the referrer is awarded points based on a percentage of what the
+ *    vendor actually paid. All roles earn points — no GHS Earning rows
+ *    are created.
  */
 class ReferralService
 {
@@ -112,27 +108,6 @@ class ReferralService
     }
 
     /**
-     * Calculate the registration bonus for a referrer based on their role
-     * and the referred person's vendor tier.
-     *
-     * Returns: (role percentage / 100) × tier onboarding fee.
-     * Returns 0 if no percentage setting exists for the role.
-     */
-    public function calculateRegistrationBonus(string $referrerRole, int $vendorTier): float
-    {
-        $percentage = (float) Setting::get("referral_bonus_{$referrerRole}_pct", 0);
-
-        if ($percentage <= 0) {
-            return 0.0;
-        }
-
-        $feeKey = "vendor_tier{$vendorTier}_onboarding_fee";
-        $onboardingFee = (float) Setting::get($feeKey, 0);
-
-        return round(($percentage / 100) * $onboardingFee, 2);
-    }
-
-    /**
      * Apply a referral code to a vendor application.
      *
      * Called during vendor registration when they provide a referral code.
@@ -150,6 +125,11 @@ class ReferralService
     ): Referral {
         // Validate code exists and is valid (not expired, not maxed out)
         $referralCode = ReferralCode::where('code', $code)->valid()->firstOrFail();
+
+        // Defence in depth — also enforced at the validateReferralCode step.
+        if ((int) $referralCode->influencer_id === (int) $vendorApplication->user_id) {
+            throw new \RuntimeException('You cannot use your own referral code.');
+        }
 
         // Prevent applying multiple codes to same application
         if ($vendorApplication->referral_code_id) {
@@ -182,23 +162,18 @@ class ReferralService
     /**
      * Activate a referral when vendor application is approved.
      *
-     * This method:
-     * 1. Changes referral status from 'pending' to 'active'
-     * 2. Creates registration bonus earning for influencer (if configured)
+     * All roles earn referral points — no GHS Earning rows are created. The
+     * reward is a percentage of what the vendor actually paid (post-subsidy),
+     * converted to points via the `referral_points_per_ghs` setting.
      *
-     * Called by admin when approving vendor application.
-     *
-     * @param  VendorApplication  $vendorApplication  The approved application
-     * @return Referral|null Null if application has no referral code
+     * @return Referral|null Null if application has no referral code.
      */
     public function activateReferral(VendorApplication $vendorApplication): ?Referral
     {
-        // Check if application has a referral code
         if (! $vendorApplication->referral_code_id) {
             return null;
         }
 
-        // Find pending referral for this application
         $referral = Referral::where('vendor_application_id', $vendorApplication->id)
             ->where('status', Referral::STATUS_PENDING)
             ->first();
@@ -208,46 +183,22 @@ class ReferralService
         }
 
         return DB::transaction(function () use ($referral, $vendorApplication) {
-            // Activate referral and set commission period
             $referral->activate();
 
-            // Pessimistic lock on the sharer row prevents races with concurrent
-            // role changes (e.g. admin promotes a customer to field_agent) between
-            // the branch decision and the reward write. Same pattern as awardPoints().
+            // Pessimistic lock prevents races with concurrent role changes.
             $sharer = User::lockForUpdate()->findOrFail($referral->influencer_id);
 
-            if ($sharer->isEarningCapable()) {
-                // Determine bonus: dynamic calculation for new codes,
-                // fallback to stored registration_bonus for legacy codes.
-                $storedBonus = (float) $referral->referralCode->registration_bonus;
+            $percentage = (float) Setting::get("referral_bonus_{$sharer->role}_pct", 0);
+            $finalAmount = (float) $vendorApplication->final_amount;
+            $ghsAmount = round(($percentage / 100) * $finalAmount, 2);
 
-                if ($storedBonus > 0) {
-                    $bonusAmount = $storedBonus;
-                } else {
-                    $vendorTier = $vendorApplication->getVendorTier();
-                    $bonusAmount = $this->calculateRegistrationBonus($sharer->role, $vendorTier);
-                }
+            $pointsPerGhs = (int) Setting::get('referral_points_per_ghs', 10);
+            $points = (int) round($ghsAmount * $pointsPerGhs);
 
-                if ($bonusAmount > 0) {
-                    Earning::create([
-                        'user_id' => $referral->influencer_id,
-                        'user_role' => $sharer->role,
-                        'earning_type' => Earning::TYPE_REFERRAL_BONUS,
-                        'earnable_id' => $referral->id,
-                        'earnable_type' => Referral::class,
-                        'amount' => $bonusAmount,
-                        'currency' => 'GHS',
-                        'status' => Earning::STATUS_PENDING,
-                        'description' => "Registration bonus for referring vendor: {$referral->vendor->name}",
-                        'earned_at' => now(),
-                    ]);
-                }
-            } else {
-                // NEW FLOW — points lane for customer / vendor / admin / super_admin
-                $this->awardPoints(
-                    $referral,
-                    (int) config('referral.points_per_vendor_onboarding', 100)
-                );
+            $referral->update(['earned_amount' => $ghsAmount]);
+
+            if ($points > 0) {
+                $this->awardPoints($referral, $points);
             }
 
             return $referral->fresh();
@@ -277,12 +228,6 @@ class ReferralService
 
     /**
      * Award referral points to a user and log the transaction.
-     *
-     * Atomically increments the user's points total, creates an audit row,
-     * and triggers milestone detection as a side effect. If the award crosses
-     * one or more configured milestones, a ReferralMilestoneReward row with
-     * status='pending' is created for each crossed threshold. The unique
-     * index on (user_id, threshold) makes the operation idempotent.
      */
     public function awardPoints(
         Referral $referral,
@@ -292,15 +237,12 @@ class ReferralService
     ): ReferralPointTransaction {
         return DB::transaction(function () use ($referral, $points, $reason, $description) {
             // Pessimistic lock prevents races when multiple referrals activate
-            // concurrently for the same sharer — ensures the pre-increment
-            // points snapshot is consistent with the actual row state.
+            // concurrently for the same sharer.
             $user = User::lockForUpdate()->findOrFail($referral->influencer_id);
 
-            $oldPoints = (int) $user->referral_points;
             $user->increment('referral_points', $points);
-            $newPoints = $oldPoints + $points;
 
-            $transaction = ReferralPointTransaction::create([
+            return ReferralPointTransaction::create([
                 'user_id' => $user->id,
                 'referral_id' => $referral->id,
                 'points' => $points,
@@ -308,66 +250,7 @@ class ReferralService
                 'description' => $description
                     ?? "Points for vendor onboarding: {$referral->vendor->name}",
             ]);
-
-            $this->checkMilestones($user, $oldPoints, $newPoints);
-
-            return $transaction;
         });
     }
 
-    /**
-     * Detect crossed milestones after a points award and create reward rows.
-     *
-     * For each configured milestone threshold, if the user's points just
-     * crossed it (old < threshold <= new), create a pending
-     * ReferralMilestoneReward row. The unique index on (user_id, threshold)
-     * guarantees idempotency — firstOrCreate returns the existing row on
-     * any subsequent call.
-     */
-    protected function checkMilestones(User $user, int $oldPoints, int $newPoints): void
-    {
-        foreach ($this->getMilestoneThresholds($newPoints) as $threshold) {
-            if ($oldPoints < $threshold && $newPoints >= $threshold) {
-                ReferralMilestoneReward::firstOrCreate(
-                    [
-                        'user_id' => $user->id,
-                        'threshold' => $threshold,
-                    ],
-                    [
-                        'points_at_milestone' => $newPoints,
-                        'status' => ReferralMilestoneReward::STATUS_PENDING,
-                    ]
-                );
-            }
-        }
-    }
-
-    /**
-     * Get the list of milestone thresholds relevant to a given points total.
-     *
-     * Sequence with defaults (first=1000, increment=5000):
-     * [1000, 5000, 10000, 15000, 20000, 25000, ...] up to just past uptoPoints.
-     *
-     * @return array<int, int>
-     */
-    protected function getMilestoneThresholds(int $uptoPoints): array
-    {
-        $first = (int) config('referral.milestone_first', 1000);
-        $increment = (int) config('referral.milestone_increment', 5000);
-
-        // Misconfiguration safety — a zero or negative increment would loop forever.
-        if ($increment <= 0) {
-            return [$first];
-        }
-
-        $thresholds = [$first];
-
-        for ($t = $increment; $t <= $uptoPoints + $increment; $t += $increment) {
-            if ($t !== $first) {
-                $thresholds[] = $t;
-            }
-        }
-
-        return $thresholds;
-    }
 }

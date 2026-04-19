@@ -170,23 +170,31 @@ class VendorApplication extends Model
     }
 
     /**
-     * Calculate final amount after applying coupon.
+     * Calculate final amount after applying any referral-code subsidy.
+     *
+     * When a valid referral code is supplied, the vendor's onboarding fee is
+     * reduced by the platform-wide subsidy percentage from settings. This is
+     * the sole discount mechanism for vendor onboarding — coupons apply only
+     * to cart/product purchases.
+     *
+     * @return array{onboarding_fee: float, discount_amount: float, final_amount: float}
      */
-    public function calculateFinalAmount(?Coupon $coupon = null): array
+    public function calculateFinalAmount(?ReferralCode $referralCode = null): array
     {
         $onboardingFee = $this->getOnboardingFee();
-        $discountAmount = 0;
+        $discountAmount = 0.0;
 
-        if ($coupon && $coupon->isValid()) {
-            $discountAmount = $coupon->calculateDiscount($onboardingFee);
+        if ($referralCode && $referralCode->isValid()) {
+            $subsidyPct = (float) Setting::get('vendor_onboarding_subsidy_pct', 0);
+            $discountAmount = round(($subsidyPct / 100) * $onboardingFee, 2);
         }
 
-        $finalAmount = max(0, $onboardingFee - $discountAmount);
+        $finalAmount = max(0.0, $onboardingFee - $discountAmount);
 
         return [
-            'onboarding_fee' => $onboardingFee,
-            'discount_amount' => $discountAmount,
-            'final_amount' => $finalAmount,
+            'onboarding_fee' => (float) $onboardingFee,
+            'discount_amount' => (float) $discountAmount,
+            'final_amount' => (float) $finalAmount,
         ];
     }
 
