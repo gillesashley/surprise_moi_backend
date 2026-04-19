@@ -2,10 +2,8 @@
 
 namespace App\Services;
 
-use App\Models\Earning;
 use App\Models\Referral;
 use App\Models\ReferralCode;
-use App\Models\ReferralMilestoneReward;
 use App\Models\ReferralPointTransaction;
 use App\Models\Setting;
 use App\Models\User;
@@ -13,19 +11,17 @@ use App\Models\VendorApplication;
 use Illuminate\Support\Facades\DB;
 
 /**
- * ReferralService - Manages influencer referral system and commission tracking.
+ * ReferralService — manages the platform's referral program.
  *
  * Referral Lifecycle:
- * 1. Influencer creates referral code
- * 2. Vendor uses code during registration
- * 3. Referral created in 'pending' status
- * 4. When vendor application approved -> referral 'active' + registration bonus earned
- * 5. For X months, influencer earns commission % on vendor's orders
- * 6. After X months, commission expires
- *
- * Earnings Types:
- * - Registration Bonus: One-time payment when vendor approved
- * - Commission: Percentage of vendor's order total (during commission period)
+ * 1. Any user creates a referral code to share.
+ * 2. A vendor uses the code during onboarding; a Referral row is created
+ *    in 'pending' status and the vendor receives a subsidy on the
+ *    onboarding fee.
+ * 3. When the vendor application is approved, the referral activates and
+ *    the referrer is awarded points based on a percentage of what the
+ *    vendor actually paid. All roles earn points — no GHS Earning rows
+ *    are created.
  */
 class ReferralService
 {
@@ -109,27 +105,6 @@ class ReferralService
 
             return $count;
         });
-    }
-
-    /**
-     * Calculate the registration bonus for a referrer based on their role
-     * and the referred person's vendor tier.
-     *
-     * Returns: (role percentage / 100) × tier onboarding fee.
-     * Returns 0 if no percentage setting exists for the role.
-     */
-    public function calculateRegistrationBonus(string $referrerRole, int $vendorTier): float
-    {
-        $percentage = (float) Setting::get("referral_bonus_{$referrerRole}_pct", 0);
-
-        if ($percentage <= 0) {
-            return 0.0;
-        }
-
-        $feeKey = "vendor_tier{$vendorTier}_onboarding_fee";
-        $onboardingFee = (float) Setting::get($feeKey, 0);
-
-        return round(($percentage / 100) * $onboardingFee, 2);
     }
 
     /**
@@ -253,12 +228,6 @@ class ReferralService
 
     /**
      * Award referral points to a user and log the transaction.
-     *
-     * Atomically increments the user's points total, creates an audit row,
-     * and triggers milestone detection as a side effect. If the award crosses
-     * one or more configured milestones, a ReferralMilestoneReward row with
-     * status='pending' is created for each crossed threshold. The unique
-     * index on (user_id, threshold) makes the operation idempotent.
      */
     public function awardPoints(
         Referral $referral,
@@ -284,59 +253,4 @@ class ReferralService
         });
     }
 
-    /**
-     * Detect crossed milestones after a points award and create reward rows.
-     *
-     * For each configured milestone threshold, if the user's points just
-     * crossed it (old < threshold <= new), create a pending
-     * ReferralMilestoneReward row. The unique index on (user_id, threshold)
-     * guarantees idempotency — firstOrCreate returns the existing row on
-     * any subsequent call.
-     */
-    protected function checkMilestones(User $user, int $oldPoints, int $newPoints): void
-    {
-        foreach ($this->getMilestoneThresholds($newPoints) as $threshold) {
-            if ($oldPoints < $threshold && $newPoints >= $threshold) {
-                ReferralMilestoneReward::firstOrCreate(
-                    [
-                        'user_id' => $user->id,
-                        'threshold' => $threshold,
-                    ],
-                    [
-                        'points_at_milestone' => $newPoints,
-                        'status' => ReferralMilestoneReward::STATUS_PENDING,
-                    ]
-                );
-            }
-        }
-    }
-
-    /**
-     * Get the list of milestone thresholds relevant to a given points total.
-     *
-     * Sequence with defaults (first=1000, increment=5000):
-     * [1000, 5000, 10000, 15000, 20000, 25000, ...] up to just past uptoPoints.
-     *
-     * @return array<int, int>
-     */
-    protected function getMilestoneThresholds(int $uptoPoints): array
-    {
-        $first = (int) config('referral.milestone_first', 1000);
-        $increment = (int) config('referral.milestone_increment', 5000);
-
-        // Misconfiguration safety — a zero or negative increment would loop forever.
-        if ($increment <= 0) {
-            return [$first];
-        }
-
-        $thresholds = [$first];
-
-        for ($t = $increment; $t <= $uptoPoints + $increment; $t += $increment) {
-            if ($t !== $first) {
-                $thresholds[] = $t;
-            }
-        }
-
-        return $thresholds;
-    }
 }
