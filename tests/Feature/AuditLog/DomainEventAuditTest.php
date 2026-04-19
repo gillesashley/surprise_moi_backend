@@ -146,7 +146,7 @@ class DomainEventAuditTest extends TestCase
                 'referral_bonus_vendor_pct' => 7.00,
                 'referral_bonus_influencer_pct' => 10.00,
                 'referral_bonus_field_agent_pct' => 6.00,
-                'referral_bonus_marketer_pct' => 4.00,
+                'referral_bonus_employee_pct' => 4.00,
             ]);
 
         $this->assertDatabaseHas('activity_log', [

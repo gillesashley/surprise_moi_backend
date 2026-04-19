@@ -47,13 +47,13 @@ class TargetServiceTest extends TestCase
         $this->assertEquals(Target::STATUS_ACTIVE, $target->status);
     }
 
-    public function test_creates_target_for_marketer(): void
+    public function test_creates_target_for_employee(): void
     {
-        $marketer = User::factory()->create(['role' => 'marketer']);
+        $employee = User::factory()->create(['role' => 'employee']);
         $admin = User::factory()->create(['role' => 'admin']);
 
         $target = $this->targetService->createTarget(
-            user: $marketer,
+            user: $employee,
             targetType: 'revenue_generated',
             targetValue: 10000.0,
             baseBonus: 1000.0,
@@ -64,7 +64,7 @@ class TargetServiceTest extends TestCase
         );
 
         $this->assertInstanceOf(Target::class, $target);
-        $this->assertEquals('marketer', $target->user_role);
+        $this->assertEquals('employee', $target->user_role);
     }
 
     public function test_throws_exception_for_invalid_user_role(): void
@@ -72,7 +72,7 @@ class TargetServiceTest extends TestCase
         $customer = User::factory()->create(['role' => 'customer']);
 
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Targets can only be assigned to field agents or marketers.');
+        $this->expectExceptionMessage('Targets can only be assigned to field agents or employees.');
 
         $this->targetService->createTarget(
             user: $customer,
@@ -141,19 +141,19 @@ class TargetServiceTest extends TestCase
         $this->assertEquals(Earning::TYPE_TARGET_BONUS, $earnings->first()->earning_type);
     }
 
-    public function test_creates_earnings_for_marketer_on_completion(): void
+    public function test_creates_earnings_for_employee_on_completion(): void
     {
-        $marketer = User::factory()->create(['role' => 'marketer']);
+        $employee = User::factory()->create(['role' => 'employee']);
         $target = Target::factory()->create([
-            'user_id' => $marketer->id,
-            'user_role' => 'marketer',
+            'user_id' => $employee->id,
+            'user_role' => 'employee',
             'target_value' => 10000.0,
             'bonus_amount' => 1000.0,
         ]);
 
         $this->targetService->updateProgress($target, 10000.0);
 
-        $earnings = Earning::where('user_id', $marketer->id)
+        $earnings = Earning::where('user_id', $employee->id)
             ->where('earning_type', Earning::TYPE_SIGN_ON_BONUS)
             ->get();
 

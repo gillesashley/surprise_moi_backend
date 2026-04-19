@@ -43,7 +43,7 @@ class ReferralBonusSettingsTest extends TestCase
             'referral_bonus_vendor_pct' => '22.00',
             'referral_bonus_influencer_pct' => '28.00',
             'referral_bonus_field_agent_pct' => '35.00',
-            'referral_bonus_marketer_pct' => '25.00',
+            'referral_bonus_employee_pct' => '25.00',
         ]);
 
         $response->assertRedirect();
@@ -51,7 +51,7 @@ class ReferralBonusSettingsTest extends TestCase
         $this->assertEquals(22.00, Setting::get('referral_bonus_vendor_pct'));
         $this->assertEquals(28.00, Setting::get('referral_bonus_influencer_pct'));
         $this->assertEquals(35.00, Setting::get('referral_bonus_field_agent_pct'));
-        $this->assertEquals(25.00, Setting::get('referral_bonus_marketer_pct'));
+        $this->assertEquals(25.00, Setting::get('referral_bonus_employee_pct'));
     }
 
     public function test_update_rejects_percentage_over100(): void
@@ -67,7 +67,7 @@ class ReferralBonusSettingsTest extends TestCase
             'referral_bonus_vendor_pct' => '20.00',
             'referral_bonus_influencer_pct' => '25.00',
             'referral_bonus_field_agent_pct' => '30.00',
-            'referral_bonus_marketer_pct' => '20.00',
+            'referral_bonus_employee_pct' => '20.00',
         ]);
 
         $response->assertSessionHasErrors('referral_bonus_customer_pct');
