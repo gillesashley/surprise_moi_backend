@@ -17,7 +17,7 @@ import { Calendar, CheckCircle, DollarSign, Target } from 'lucide-react';
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Dashboard',
-        href: '/marketer/dashboard',
+        href: '/employee/dashboard',
     },
 ];
 
