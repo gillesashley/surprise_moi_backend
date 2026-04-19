@@ -126,8 +126,9 @@ class VendorOnboardingPaymentService
             $referralCodeModel = $validation['referral_code'];
         }
 
-        // Calculate amounts. Coupon path removed — vendor pays full fee.
-        $amounts = $application->calculateFinalAmount(null);
+        // Calculate amounts. When a valid referral code is supplied the
+        // subsidy is applied; otherwise the vendor pays the full tier fee.
+        $amounts = $application->calculateFinalAmount($referralCodeModel);
         $onboardingFee = (float) $amounts['onboarding_fee'];
         $finalAmount = (float) $amounts['final_amount'];
         $discountAmount = (float) $amounts['discount_amount'];
@@ -193,6 +194,7 @@ class VendorOnboardingPaymentService
                     $payment = VendorOnboardingPayment::create([
                         'user_id' => $application->user_id,
                         'vendor_application_id' => $application->id,
+                        'referral_code_id' => $referralCodeModel?->id,
                         'reference' => $reference,
                         'authorization_url' => $data['authorization_url'],
                         'access_code' => $data['access_code'],
