@@ -6,327 +6,305 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
-
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type SharedData } from '@/types';
-import { Head, usePage } from '@inertiajs/react';
+import { Head, router, usePage } from '@inertiajs/react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import { CheckCircle, DollarSign, Target, TrendingUp } from 'lucide-react';
+import { CheckCircle, Clock, DollarSign, Users, XCircle } from 'lucide-react';
+import ReferralCodeCard from './components/ReferralCodeCard';
 
 const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Dashboard',
-        href: '/field-agent/dashboard',
-    },
+    { title: 'Dashboard', href: '/field-agent/dashboard' },
 ];
 
-interface Stats {
-    total_targets: number;
-    active_targets: number;
-    completed_targets: number;
-    total_bonus_earned: number;
+type Period = 'today' | 'week' | 'month';
+
+interface VendorStats {
+    total: number;
+    pending: number;
+    approved: number;
+    rejected: number;
+}
+
+interface EarningsSummary {
     total_earnings: number;
     pending_earnings: number;
     approved_earnings: number;
     paid_earnings: number;
 }
 
-interface Target {
+interface ActiveTarget {
     id: number;
-    target_type: string;
-    target_value: number;
-    current_value: number;
-    base_bonus: number;
-    status: string;
-    start_date: string;
-    end_date: string;
+    current: number;
+    goal: number;
     completion_percentage: number;
+    ends_at: string | null;
 }
 
-interface Earning {
+interface RecentVendor {
     id: number;
-    amount: number;
-    currency: string;
-    earning_type: string;
+    business_name: string;
     status: string;
-    earned_at: string;
+    created_at: string;
 }
 
 interface DashboardProps {
-    stats: Stats;
-    active_targets: Target[];
-    recent_earnings: Earning[];
+    agent: { id: number; first_name: string };
+    period: Period;
+    referralCode: { code: string };
+    vendorStats: VendorStats;
+    earningsSummary: EarningsSummary;
+    activeTarget: ActiveTarget | null;
+    recentVendors: RecentVendor[];
 }
 
-function StatCard({
+function greeting(): string {
+    const h = new Date().getHours();
+    if (h < 12) return 'Good morning';
+    if (h < 18) return 'Good afternoon';
+    return 'Good evening';
+}
+
+function StatTile({
     title,
     value,
     icon: Icon,
-    bgColor,
-    iconBgColor,
+    iconBg,
 }: {
     title: string;
-    value: string | number;
+    value: number | string;
     icon: React.ElementType;
-    bgColor: string;
-    iconBgColor: string;
+    iconBg: string;
 }) {
     return (
         <Box
             sx={{
-                position: 'relative',
-                overflow: 'hidden',
                 borderRadius: 3,
                 p: 3,
                 boxShadow: 1,
-                transition: 'all 0.2s',
-                '&:hover': { boxShadow: 3 },
                 bgcolor: 'background.paper',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
             }}
         >
-            <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                    <Typography variant="body2" fontWeight={500} color="text.secondary">
-                        {title}
-                    </Typography>
-                    <Typography variant="h4" fontWeight={700} sx={{ letterSpacing: '-0.02em' }}>
-                        {value}
-                    </Typography>
-                </Box>
-                <Box
-                    sx={{
-                        borderRadius: 2,
-                        p: 1.5,
-                        bgcolor: iconBgColor,
-                    }}
-                >
-                    <Icon style={{ width: 24, height: 24, color: 'white' }} />
-                </Box>
+            <Box>
+                <Typography variant="body2" fontWeight={500} color="text.secondary">
+                    {title}
+                </Typography>
+                <Typography variant="h4" fontWeight={700} sx={{ letterSpacing: '-0.02em' }}>
+                    {value}
+                </Typography>
+            </Box>
+            <Box sx={{ borderRadius: 2, p: 1.5, bgcolor: iconBg }}>
+                <Icon style={{ width: 22, height: 22, color: 'white' }} />
             </Box>
         </Box>
     );
 }
 
+function statusVariant(status: string): 'default' | 'secondary' | 'destructive' {
+    if (status === 'approved') return 'default';
+    if (status === 'rejected') return 'destructive';
+    return 'secondary';
+}
+
 export default function FieldAgentDashboard({
-    stats = {
-        total_targets: 0,
-        active_targets: 0,
-        completed_targets: 0,
-        total_bonus_earned: 0,
-        total_earnings: 0,
-        pending_earnings: 0,
-        approved_earnings: 0,
-        paid_earnings: 0,
-    },
-    active_targets = [],
-    recent_earnings = [],
+    agent,
+    period,
+    referralCode,
+    vendorStats,
+    earningsSummary,
+    activeTarget,
+    recentVendors,
 }: DashboardProps) {
     const { auth } = usePage<SharedData>().props;
+    const displayName = agent?.first_name || auth.user?.name;
+
+    const changePeriod = (next: Period) => {
+        router.visit('/field-agent/dashboard', {
+            data: { period: next },
+            only: ['period', 'vendorStats', 'recentVendors'],
+            preserveScroll: true,
+        });
+    };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Field Agent Dashboard" />
 
-            <Box sx={{ display: 'flex', height: '100%', flex: 1, flexDirection: 'column', gap: 3, overflowX: 'auto', p: 3 }}>
-                {/* Welcome Section */}
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, p: 3 }}>
+                {/* Header */}
                 <Box
                     sx={{
-                        position: 'relative',
-                        overflow: 'hidden',
-                        borderRadius: 3,
-                        background: (theme) =>
-                            `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
-                        p: 3,
-                        color: 'white',
-                        boxShadow: 3,
+                        display: 'flex',
+                        flexDirection: { xs: 'column', md: 'row' },
+                        alignItems: { md: 'center' },
+                        justifyContent: 'space-between',
+                        gap: 2,
                     }}
                 >
-                    <Box sx={{ position: 'relative', zIndex: 1 }}>
+                    <Box>
                         <Typography variant="h5" fontWeight={700}>
-                            Welcome back, {auth.user?.name}!
+                            {greeting()}, {displayName}
                         </Typography>
-                        <Typography sx={{ mt: 1, color: 'rgba(255,255,255,0.8)' }}>
-                            Track your targets, earnings, and achieve your
-                            goals.
+                        <Typography variant="body2" color="text.secondary">
+                            Here's how your onboarding is tracking.
                         </Typography>
+                    </Box>
+                    <Box sx={{ display: 'flex', gap: 1 }}>
+                        {(['today', 'week', 'month'] as Period[]).map((p) => (
+                            <button
+                                key={p}
+                                type="button"
+                                onClick={() => changePeriod(p)}
+                                className={`rounded-md border px-3 py-1.5 text-sm capitalize ${
+                                    period === p ? 'bg-primary text-primary-foreground' : 'hover:bg-accent'
+                                }`}
+                            >
+                                {p === 'today' ? 'Today' : p === 'week' ? 'This Week' : 'This Month'}
+                            </button>
+                        ))}
                     </Box>
                 </Box>
 
-                {/* Stats Grid */}
+                {/* Referral code */}
+                <ReferralCodeCard code={referralCode.code} />
+
+                {/* Row 1: Vendor pipeline */}
                 <Box
                     sx={{
                         display: 'grid',
                         gap: 2,
-                        gridTemplateColumns: {
-                            xs: '1fr',
-                            sm: 'repeat(2, 1fr)',
-                            lg: 'repeat(4, 1fr)',
-                        },
+                        gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', lg: 'repeat(4, 1fr)' },
                     }}
                 >
-                    <StatCard
-                        title="Active Targets"
-                        value={stats.active_targets}
-                        icon={Target}
-                        bgColor="bg-card"
-                        iconBgColor="#3b82f6"
-                    />
-                    <StatCard
-                        title="Completed"
-                        value={stats.completed_targets}
-                        icon={CheckCircle}
-                        bgColor="bg-card"
-                        iconBgColor="#22c55e"
-                    />
-                    <StatCard
-                        title="Total Earnings"
-                        value={`GHS ${stats.total_earnings.toFixed(2)}`}
-                        icon={DollarSign}
-                        bgColor="bg-card"
-                        iconBgColor="#a855f7"
-                    />
-                    <StatCard
-                        title="Bonus Earned"
-                        value={`GHS ${stats.total_bonus_earned.toFixed(2)}`}
-                        icon={TrendingUp}
-                        bgColor="bg-card"
-                        iconBgColor="#f97316"
-                    />
+                    <StatTile title="Total Vendors" value={vendorStats.total} icon={Users} iconBg="#3b82f6" />
+                    <StatTile title="Pending" value={vendorStats.pending} icon={Clock} iconBg="#f59e0b" />
+                    <StatTile title="Approved" value={vendorStats.approved} icon={CheckCircle} iconBg="#22c55e" />
+                    <StatTile title="Rejected" value={vendorStats.rejected} icon={XCircle} iconBg="#ef4444" />
                 </Box>
 
-                {/* Active Targets */}
+                {/* Row 2: Earnings + Target */}
+                <Box
+                    sx={{
+                        display: 'grid',
+                        gap: 2,
+                        gridTemplateColumns: { xs: '1fr', md: activeTarget ? 'repeat(2, 1fr)' : '1fr' },
+                    }}
+                >
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Earnings</CardTitle>
+                            <CardDescription>Your commission balance</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap', mb: 2 }}>
+                                <Box>
+                                    <Typography variant="body2" color="text.secondary">Total</Typography>
+                                    <Typography variant="h6" fontWeight={700}>
+                                        GHS {earningsSummary.total_earnings.toFixed(2)}
+                                    </Typography>
+                                </Box>
+                                <Box>
+                                    <Typography variant="body2" color="text.secondary">Pending</Typography>
+                                    <Typography variant="h6" fontWeight={700}>
+                                        GHS {earningsSummary.pending_earnings.toFixed(2)}
+                                    </Typography>
+                                </Box>
+                                <Box>
+                                    <Typography variant="body2" color="text.secondary">Available</Typography>
+                                    <Typography variant="h6" fontWeight={700}>
+                                        GHS {earningsSummary.approved_earnings.toFixed(2)}
+                                    </Typography>
+                                </Box>
+                            </Box>
+                            <a
+                                href="/field-agent/payouts"
+                                className="inline-flex items-center gap-1 rounded-md bg-primary px-3 py-1.5 text-sm text-primary-foreground hover:bg-primary/90"
+                            >
+                                <DollarSign size={16} />
+                                Request payout
+                            </a>
+                        </CardContent>
+                    </Card>
+
+                    {activeTarget && (
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Target Progress</CardTitle>
+                                <CardDescription>
+                                    {activeTarget.current} / {activeTarget.goal}
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <Box sx={{ height: 10, width: '100%', borderRadius: 5, bgcolor: 'action.hover', mb: 1 }}>
+                                    <Box
+                                        sx={{
+                                            height: 10,
+                                            borderRadius: 5,
+                                            bgcolor: 'primary.main',
+                                            width: `${Math.min(100, activeTarget.completion_percentage)}%`,
+                                        }}
+                                    />
+                                </Box>
+                                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                                    <Typography variant="body2" color="text.secondary">
+                                        {activeTarget.completion_percentage}% complete
+                                    </Typography>
+                                    {activeTarget.ends_at && (
+                                        <Typography variant="body2" color="text.secondary">
+                                            Ends {new Date(activeTarget.ends_at).toLocaleDateString()}
+                                        </Typography>
+                                    )}
+                                </Box>
+                            </CardContent>
+                        </Card>
+                    )}
+                </Box>
+
+                {/* Row 3: Recent vendors */}
                 <Card>
                     <CardHeader>
-                        <CardTitle>Active Targets</CardTitle>
-                        <CardDescription>
-                            Your current performance targets
-                        </CardDescription>
+                        <CardTitle>Recent vendors</CardTitle>
+                        <CardDescription>Last 5 vendors attributed to you</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-                            {active_targets.length === 0 ? (
-                                <Typography variant="body2" color="text.secondary">
-                                    No active targets assigned yet
-                                </Typography>
-                            ) : (
-                                active_targets.map((target) => (
+                        {recentVendors.length === 0 ? (
+                            <Typography variant="body2" color="text.secondary">
+                                No vendors yet. Share your referral code with one to get started.
+                            </Typography>
+                        ) : (
+                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                                {recentVendors.map((v) => (
                                     <Box
-                                        key={target.id}
+                                        key={v.id}
                                         sx={{
                                             display: 'flex',
-                                            flexDirection: 'column',
-                                            gap: 1,
+                                            alignItems: 'center',
+                                            justifyContent: 'space-between',
                                             borderRadius: 2,
                                             border: 1,
                                             borderColor: 'divider',
                                             p: 2,
                                         }}
                                     >
-                                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                            <Box>
-                                                <Typography fontWeight={500}>
-                                                    {target.target_type
-                                                        .replace('_', ' ')
-                                                        .toUpperCase()}
-                                                </Typography>
-                                                <Typography variant="body2" color="text.secondary">
-                                                    Target:{' '}
-                                                    {target.target_value} |
-                                                    Current:{' '}
-                                                    {target.current_value}
-                                                </Typography>
-                                            </Box>
-                                            <Badge variant="default">
-                                                {target.completion_percentage.toFixed(
-                                                    0,
-                                                )}
-                                                %
-                                            </Badge>
-                                        </Box>
-                                        <Box
-                                            sx={{
-                                                height: 8,
-                                                width: '100%',
-                                                borderRadius: 4,
-                                                bgcolor: 'action.hover',
-                                            }}
-                                        >
-                                            <Box
-                                                sx={{
-                                                    height: 8,
-                                                    borderRadius: 4,
-                                                    bgcolor: 'primary.main',
-                                                    transition: 'all 0.2s',
-                                                }}
-                                                style={{
-                                                    width: `${target.completion_percentage}%`,
-                                                }}
-                                            />
-                                        </Box>
-                                        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                                            <Typography variant="body2" color="text.secondary">
-                                                Ends:{' '}
-                                                {new Date(
-                                                    target.end_date,
-                                                ).toLocaleDateString()}
-                                            </Typography>
-                                            <Typography variant="body2" color="text.secondary">
-                                                Bonus: GHS {target.base_bonus}
-                                            </Typography>
-                                        </Box>
-                                    </Box>
-                                ))
-                            )}
-                        </Box>
-                    </CardContent>
-                </Card>
-
-                {/* Recent Earnings */}
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Recent Earnings</CardTitle>
-                        <CardDescription>
-                            Your latest bonuses and payments
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                            {recent_earnings.length === 0 ? (
-                                <Typography variant="body2" color="text.secondary">
-                                    No earnings yet
-                                </Typography>
-                            ) : (
-                                recent_earnings.map((earning) => (
-                                    <Box
-                                        key={earning.id}
-                                        sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
-                                    >
                                         <Box>
                                             <Typography fontWeight={500}>
-                                                {earning.currency}{' '}
-                                                {earning.amount.toFixed(2)}
+                                                {v.business_name || 'Unnamed vendor'}
                                             </Typography>
                                             <Typography variant="body2" color="text.secondary">
-                                                {earning.earning_type.replace(
-                                                    '_',
-                                                    ' ',
-                                                )}
+                                                {new Date(v.created_at).toLocaleDateString()}
                                             </Typography>
                                         </Box>
-                                        <Badge
-                                            variant={
-                                                earning.status === 'paid'
-                                                    ? 'default'
-                                                    : 'secondary'
-                                            }
-                                        >
-                                            {earning.status}
+                                        <Badge variant={statusVariant(v.status)}>
+                                            {v.status.replace('_', ' ')}
                                         </Badge>
                                     </Box>
-                                ))
-                            )}
-                        </Box>
+                                ))}
+                            </Box>
+                        )}
                     </CardContent>
                 </Card>
             </Box>
