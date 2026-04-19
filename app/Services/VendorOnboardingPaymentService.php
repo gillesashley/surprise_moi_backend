@@ -38,10 +38,10 @@ class VendorOnboardingPaymentService
     /**
      * Validate a referral code for vendor onboarding.
      *
-     * Referral codes do not discount the onboarding fee — they track who
-     * referred the vendor so the referrer can be rewarded on approval.
-     * The response preserves the discount_amount/final_amount shape for
-     * backward compatibility with the payment UI.
+     * When the code is valid, the returned amounts reflect the platform-wide
+     * subsidy applied to the vendor's onboarding fee. The code is also tracked
+     * on the application so the referrer can be rewarded with points on
+     * approval.
      */
     public function validateReferralCode(string $code, VendorApplication $application): array
     {
@@ -74,14 +74,14 @@ class VendorOnboardingPaymentService
             ];
         }
 
-        $onboardingFee = $application->getOnboardingFee();
+        $amounts = $application->calculateFinalAmount($referralCode);
 
         return [
             'valid' => true,
             'referral_code' => $referralCode,
-            'onboarding_fee' => $onboardingFee,
-            'discount_amount' => 0.0,
-            'final_amount' => $onboardingFee,
+            'onboarding_fee' => $amounts['onboarding_fee'],
+            'discount_amount' => $amounts['discount_amount'],
+            'final_amount' => $amounts['final_amount'],
             'message' => 'Referral code applied successfully.',
         ];
     }
