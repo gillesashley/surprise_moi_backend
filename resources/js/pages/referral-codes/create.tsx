@@ -36,7 +36,7 @@ const USER_CATEGORIES: Array<{ label: string; value: string }> = [
     { label: 'Vendor', value: 'vendor' },
     { label: 'Influencer', value: 'influencer' },
     { label: 'Field Agent', value: 'field_agent' },
-    { label: 'Marketer', value: 'marketer' },
+    { label: 'Employee', value: 'employee' },
     { label: 'Admin', value: 'admin' },
     { label: 'Super Admin', value: 'super_admin' },
 ];

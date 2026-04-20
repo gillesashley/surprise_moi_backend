@@ -7,7 +7,7 @@ use App\Models\Target;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 
-class InfluencerMarketerFieldAgentSeeder extends Seeder
+class InfluencerEmployeeFieldAgentSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -64,18 +64,18 @@ class InfluencerMarketerFieldAgentSeeder extends Seeder
             ]);
         }
 
-        // Create Marketers
-        $marketers = User::factory()
-            ->marketer()
+        // Create Employees
+        $employees = User::factory()
+            ->employee()
             ->count(10)
             ->create();
 
-        foreach ($marketers as $marketer) {
-            // Assign targets to marketers
+        foreach ($employees as $employee) {
+            // Assign targets to employees
             Target::create([
-                'user_id' => $marketer->id,
+                'user_id' => $employee->id,
                 'assigned_by' => $superAdmin->id,
-                'user_role' => 'marketer',
+                'user_role' => 'employee',
                 'target_type' => Target::TYPE_REVENUE_GENERATED,
                 'target_value' => 10000.00,
                 'current_value' => 0,
@@ -91,7 +91,7 @@ class InfluencerMarketerFieldAgentSeeder extends Seeder
 
         $this->command->info('Created 5 Influencers with referral codes');
         $this->command->info('Created 3 Field Agents with vendor signup targets');
-        $this->command->info('Created 3 Marketers with revenue targets');
+        $this->command->info('Created 3 Employees with revenue targets');
 
         $this->command->newLine();
         $this->command->info('==== LOGIN CREDENTIALS ====');
@@ -110,9 +110,9 @@ class InfluencerMarketerFieldAgentSeeder extends Seeder
         }
         $this->command->newLine();
 
-        $this->command->info('--- MARKETERS ---');
-        foreach ($marketers as $marketer) {
-            $this->command->info("Email: {$marketer->email}");
+        $this->command->info('--- EMPLOYEES ---');
+        foreach ($employees as $employee) {
+            $this->command->info("Email: {$employee->email}");
         }
     }
 }

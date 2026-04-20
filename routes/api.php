@@ -15,7 +15,7 @@ use App\Http\Controllers\Api\V1\FilterController;
 use App\Http\Controllers\Api\V1\HealthController;
 use App\Http\Controllers\Api\V1\InfluencerDashboardController;
 use App\Http\Controllers\Api\V1\LocationController;
-use App\Http\Controllers\Api\V1\MarketerDashboardController;
+use App\Http\Controllers\Api\V1\EmployeeDashboardController;
 use App\Http\Controllers\Api\V1\NotificationController;
 use App\Http\Controllers\Api\V1\OrderController;
 use App\Http\Controllers\Api\V1\PartnerProfileController;
@@ -485,15 +485,15 @@ Route::prefix('v1')->group(function () {
             Route::get('field-agent/earnings', [FieldAgentDashboardController::class, 'earnings']);
         });
 
-        // Marketer dashboard routes
-        Route::middleware('role:marketer')->group(function () {
-            Route::get('marketer/dashboard', [MarketerDashboardController::class, 'index']);
-            Route::get('marketer/targets', [MarketerDashboardController::class, 'targets']);
-            Route::get('marketer/quarterly-earnings', [MarketerDashboardController::class, 'quarterlyEarnings']);
+        // Employee dashboard routes
+        Route::middleware('role:employee')->group(function () {
+            Route::get('employee/dashboard', [EmployeeDashboardController::class, 'index']);
+            Route::get('employee/targets', [EmployeeDashboardController::class, 'targets']);
+            Route::get('employee/quarterly-earnings', [EmployeeDashboardController::class, 'quarterlyEarnings']);
         });
 
-        // Payout request routes (for influencers, field agents, and marketers)
-        Route::middleware('role:influencer,field_agent,marketer')->group(function () {
+        // Payout request routes (for influencers, field agents, and employees)
+        Route::middleware('role:influencer,field_agent,employee')->group(function () {
             Route::get('payout-requests', [PayoutRequestController::class, 'index']);
             Route::post('payout-requests', [PayoutRequestController::class, 'store']);
             Route::get('payout-requests/{payoutRequest}', [PayoutRequestController::class, 'show']);

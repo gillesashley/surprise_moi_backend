@@ -48,7 +48,7 @@ const roleLabelMap: Record<string, { title: string; description: string }> = {
     vendor: { title: 'Vendors', description: 'Manage vendor accounts' },
     influencer: { title: 'Influencers', description: 'Manage influencer accounts' },
     field_agent: { title: 'Field Agents', description: 'Manage field agent accounts' },
-    marketer: { title: 'Marketers', description: 'Manage marketer accounts' },
+    employee: { title: 'Employees', description: 'Manage employee accounts' },
     'admin,super_admin': { title: 'Administrators', description: 'Manage admin and super admin accounts' },
 };
 

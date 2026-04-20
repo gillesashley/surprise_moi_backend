@@ -18,7 +18,7 @@ class EarningFactory extends Factory
      */
     public function definition(): array
     {
-        $userRoles = ['influencer', 'field_agent', 'marketer'];
+        $userRoles = ['influencer', 'field_agent', 'employee'];
         $earningTypes = [
             Earning::TYPE_REFERRAL_BONUS,
             Earning::TYPE_COMMISSION,

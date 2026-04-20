@@ -79,8 +79,8 @@ const getNavItemsForRole = (role: string): NavItem[] => {
                         icon: Footprints,
                     },
                     {
-                        title: 'Marketers',
-                        href: usersIndex().url + '?role=marketer',
+                        title: 'Employees',
+                        href: usersIndex().url + '?role=employee',
                         icon: Megaphone,
                     },
                     {
@@ -275,12 +275,12 @@ const getNavItemsForRole = (role: string): NavItem[] => {
         ];
     }
 
-    // Marketer - targets, earnings, payouts
-    if (role === 'marketer') {
+    // Employee - targets, earnings, payouts
+    if (role === 'employee') {
         return [
             {
                 title: 'Dashboard',
-                href: '/marketer/dashboard',
+                href: '/employee/dashboard',
                 icon: LayoutGrid,
             },
             {
@@ -289,17 +289,17 @@ const getNavItemsForRole = (role: string): NavItem[] => {
                 items: [
                     {
                         title: 'My Targets',
-                        href: '/marketer/targets',
+                        href: '/employee/targets',
                         icon: Target,
                     },
                     {
                         title: 'My Earnings',
-                        href: '/marketer/earnings',
+                        href: '/employee/earnings',
                         icon: Wallet,
                     },
                     {
                         title: 'Payouts',
-                        href: '/marketer/payouts',
+                        href: '/employee/payouts',
                         icon: CheckCircle,
                     },
                 ],

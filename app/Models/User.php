@@ -396,11 +396,11 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     * Check if user is a marketer.
+     * Check if user is an employee.
      */
-    public function isMarketer(): bool
+    public function isEmployee(): bool
     {
-        return $this->role === 'marketer';
+        return $this->role === 'employee';
     }
 
     /**
@@ -413,7 +413,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function isEarningCapable(): bool
     {
-        return in_array($this->role, ['influencer', 'field_agent', 'marketer'], true);
+        return in_array($this->role, ['influencer', 'field_agent', 'employee'], true);
     }
 
     /**
@@ -421,7 +421,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function canAccessDashboard(): bool
     {
-        return in_array($this->role, ['admin', 'super_admin', 'influencer', 'field_agent', 'marketer']);
+        return in_array($this->role, ['admin', 'super_admin', 'influencer', 'field_agent', 'employee']);
     }
 
     /**
@@ -461,7 +461,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Get all targets assigned to this user.
-     * Targets are assigned to field agents and marketers by admins.
+     * Targets are assigned to field agents and employees by admins.
      */
     public function targets()
     {

@@ -24,7 +24,7 @@ class TargetFactory extends Factory
         return [
             'user_id' => User::factory(),
             'assigned_by' => User::factory(),
-            'user_role' => $this->faker->randomElement(['field_agent', 'marketer']),
+            'user_role' => $this->faker->randomElement(['field_agent', 'employee']),
             'target_type' => $this->faker->randomElement([Target::TYPE_VENDOR_SIGNUPS, Target::TYPE_REVENUE_GENERATED]),
             'target_value' => $this->faker->randomFloat(2, 1000, 100000),
             'current_value' => 0,

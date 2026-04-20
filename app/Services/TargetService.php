@@ -23,8 +23,8 @@ class TargetService
         string|\DateTime $endDate,
         ?User $assignedBy = null
     ): Target {
-        if (! in_array($user->role, ['field_agent', 'marketer'])) {
-            throw new \InvalidArgumentException('Targets can only be assigned to field agents or marketers.');
+        if (! in_array($user->role, ['field_agent', 'employee'])) {
+            throw new \InvalidArgumentException('Targets can only be assigned to field agents or employees.');
         }
 
         if (is_string($startDate)) {
@@ -88,11 +88,11 @@ class TargetService
                 'achieved_at' => now(),
             ]);
 
-            // For marketers, create sign-on bonus earnings
-            if ($target->user_role === 'marketer') {
+            // For employees, create sign-on bonus earnings
+            if ($target->user_role === 'employee') {
                 Earning::create([
                     'user_id' => $target->user_id,
-                    'user_role' => 'marketer',
+                    'user_role' => 'employee',
                     'earning_type' => Earning::TYPE_SIGN_ON_BONUS,
                     'earnable_id' => $achievement->id,
                     'earnable_type' => TargetAchievement::class,

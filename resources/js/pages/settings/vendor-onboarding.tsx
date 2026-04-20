@@ -44,7 +44,7 @@ interface Settings {
     referral_bonus_vendor_pct?: { value: string; type: string; description: string };
     referral_bonus_influencer_pct?: { value: string; type: string; description: string };
     referral_bonus_field_agent_pct?: { value: string; type: string; description: string };
-    referral_bonus_marketer_pct?: { value: string; type: string; description: string };
+    referral_bonus_employee_pct?: { value: string; type: string; description: string };
 }
 
 interface Props {
@@ -56,7 +56,7 @@ const BONUS_CATEGORIES = [
     { key: 'referral_bonus_vendor_pct', label: 'Vendor', defaultValue: '20.00' },
     { key: 'referral_bonus_influencer_pct', label: 'Influencer', defaultValue: '25.00' },
     { key: 'referral_bonus_field_agent_pct', label: 'Field Agent', defaultValue: '30.00' },
-    { key: 'referral_bonus_marketer_pct', label: 'Marketer', defaultValue: '20.00' },
+    { key: 'referral_bonus_employee_pct', label: 'Employee', defaultValue: '20.00' },
 ] as const;
 
 function ReferralBonusFields({

@@ -41,7 +41,7 @@ class ReferralCodeController extends Controller
                 'vendor' => (float) Setting::get('referral_bonus_vendor_pct', 20),
                 'influencer' => (float) Setting::get('referral_bonus_influencer_pct', 25),
                 'field_agent' => (float) Setting::get('referral_bonus_field_agent_pct', 30),
-                'marketer' => (float) Setting::get('referral_bonus_marketer_pct', 20),
+                'employee' => (float) Setting::get('referral_bonus_employee_pct', 20),
             ],
             'tierFees' => [
                 'tier1' => (float) Setting::get('vendor_tier1_onboarding_fee', 150),
@@ -152,7 +152,7 @@ class ReferralCodeController extends Controller
         );
 
         $validated = $request->validate([
-            'role' => 'required|in:customer,vendor,influencer,field_agent,marketer,admin,super_admin',
+            'role' => 'required|in:customer,vendor,influencer,field_agent,employee,admin,super_admin',
             'q' => 'nullable|string|max:100',
         ]);
 

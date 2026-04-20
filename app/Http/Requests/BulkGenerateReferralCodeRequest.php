@@ -17,7 +17,7 @@ class BulkGenerateReferralCodeRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'role' => ['required', 'string', 'in:customer,vendor,influencer,field_agent,marketer'],
+            'role' => ['required', 'string', 'in:customer,vendor,influencer,field_agent,employee'],
         ];
     }
 }

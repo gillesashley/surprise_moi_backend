@@ -42,7 +42,7 @@ interface Props {
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'My Earnings',
-        href: '/marketer/earnings',
+        href: '/employee/earnings',
     },
 ];
 
