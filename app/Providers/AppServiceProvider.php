@@ -71,6 +71,7 @@ class AppServiceProvider extends ServiceProvider
         \App\Models\Order::observe(\App\Observers\OrderObserver::class);
         \App\Models\Message::observe(\App\Observers\MessageObserver::class);
         \App\Models\VendorApplication::observe(\App\Observers\VendorApplicationObserver::class);
+        \App\Models\VendorVisit::observe(\App\Observers\VendorVisitObserver::class);
         \App\Models\Category::observe(\App\Observers\CategoryObserver::class);
         \App\Models\Shop::observe(\App\Observers\ShopObserver::class);
         \App\Models\Advertisement::observe(\App\Observers\AdvertisementObserver::class);
