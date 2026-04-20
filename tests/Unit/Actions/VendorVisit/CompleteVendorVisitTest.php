@@ -39,8 +39,9 @@ class CompleteVendorVisitTest extends TestCase
 
     public function test_all_critical_pass_plus_photos_yields_passed_with_12_month_expiry(): void
     {
+        $this->freezeTime();
         $visit = $this->makeFilledVisit();
-        $before = now();
+        $expected = now()->addMonths(12);
 
         $result = app(CompleteVendorVisit::class)->execute($visit);
 
@@ -48,8 +49,9 @@ class CompleteVendorVisitTest extends TestCase
         $this->assertSame(VendorVisitStatus::Passed, $result->computed_result);
         $this->assertNotNull($result->submitted_at);
         $this->assertNotNull($result->badge_issued_at);
-        $this->assertTrue(
-            $result->badge_expires_at->greaterThanOrEqualTo($before->copy()->addMonths(12))
+        $this->assertSame(
+            $expected->format('Y-m-d H:i:s'),
+            $result->badge_expires_at->format('Y-m-d H:i:s')
         );
     }
 
