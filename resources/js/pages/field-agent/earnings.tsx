@@ -101,7 +101,7 @@ export default function FieldAgentEarnings({ earnings }: Props) {
 
                 <Box sx={{ display: 'grid', gap: 2, gridTemplateColumns: { md: 'repeat(3, 1fr)' } }}>
                     <Card>
-                        <CardHeader sx={{ pb: 1.5 }}>
+                        <CardHeader sx={{ px: 3, pb: 1.5 }}>
                             <CardTitle sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
                                 Total Earnings
                             </CardTitle>
@@ -116,7 +116,7 @@ export default function FieldAgentEarnings({ earnings }: Props) {
                         </CardContent>
                     </Card>
                     <Card>
-                        <CardHeader sx={{ pb: 1.5 }}>
+                        <CardHeader sx={{ px: 3, pb: 1.5 }}>
                             <CardTitle sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
                                 Approved
                             </CardTitle>
@@ -132,7 +132,7 @@ export default function FieldAgentEarnings({ earnings }: Props) {
                         </CardContent>
                     </Card>
                     <Card>
-                        <CardHeader sx={{ pb: 1.5 }}>
+                        <CardHeader sx={{ px: 3, pb: 1.5 }}>
                             <CardTitle sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
                                 Pending
                             </CardTitle>

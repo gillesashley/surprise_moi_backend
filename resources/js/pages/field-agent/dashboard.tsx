@@ -1,4 +1,5 @@
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
     Card,
     CardContent,
@@ -155,16 +156,14 @@ export default function FieldAgentDashboard({
                     </Box>
                     <Box sx={{ display: 'flex', gap: 1 }}>
                         {(['today', 'week', 'month'] as Period[]).map((p) => (
-                            <button
+                            <Button
                                 key={p}
-                                type="button"
+                                size="sm"
+                                variant={period === p ? 'default' : 'outline'}
                                 onClick={() => changePeriod(p)}
-                                className={`rounded-md border px-3 py-1.5 text-sm capitalize ${
-                                    period === p ? 'bg-primary text-primary-foreground' : 'hover:bg-accent'
-                                }`}
                             >
                                 {p === 'today' ? 'Today' : p === 'week' ? 'This Week' : 'This Month'}
-                            </button>
+                            </Button>
                         ))}
                     </Box>
                 </Box>
@@ -220,13 +219,17 @@ export default function FieldAgentDashboard({
                                     </Typography>
                                 </Box>
                             </Box>
-                            <a
-                                href="/field-agent/payouts"
-                                className="inline-flex items-center gap-1 rounded-md bg-primary px-3 py-1.5 text-sm text-primary-foreground hover:bg-primary/90"
+                            <Button
+                                asChild
+                                size="sm"
+                                variant="default"
+                                sx={{ gap: 0.5 }}
                             >
-                                <DollarSign size={16} />
-                                Request payout
-                            </a>
+                                <a href="/field-agent/payouts">
+                                    <DollarSign size={16} />
+                                    Request payout
+                                </a>
+                            </Button>
                         </CardContent>
                     </Card>
 
