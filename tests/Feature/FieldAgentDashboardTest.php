@@ -134,6 +134,9 @@ class FieldAgentDashboardTest extends TestCase
 
     public function test_invalid_period_falls_back_to_week(): void
     {
+        // Freeze to mid-week so subDays(2) is reliably after startOfWeek().
+        $this->travelTo(Carbon::create(2026, 4, 22, 12, 0, 0));
+
         $myCode = ReferralCode::where('influencer_id', $this->agent->id)->first();
         VendorApplication::factory()->approved()->create([
             'referral_code_id' => $myCode->id,
