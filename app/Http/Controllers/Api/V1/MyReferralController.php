@@ -164,8 +164,6 @@ class MyReferralController extends Controller
                 'pending_rewards' => $pendingRewards,
                 'milestone_first' => $first,
                 'milestone_increment' => $increment,
-                'registration_bonus_tier1' => $this->referralService->calculateRegistrationBonus($user->role ?? 'customer', 1),
-                'registration_bonus_tier2' => $this->referralService->calculateRegistrationBonus($user->role ?? 'customer', 2),
                 'available_payout_amount' => $user->availableReferralPayoutAmount(),
                 'next_unlock_threshold' => $user->nextReferralUnlockThreshold(),
                 'can_request_payout' => $user->canRequestReferralPayout(),
