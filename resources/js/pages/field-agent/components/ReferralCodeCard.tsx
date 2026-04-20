@@ -1,3 +1,4 @@
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
@@ -34,15 +35,16 @@ export default function ReferralCodeCard({ code }: Props) {
                     >
                         {code}
                     </Typography>
-                    <button
-                        type="button"
+                    <Button
+                        size="sm"
+                        variant="outline"
                         onClick={handleCopy}
-                        className="flex items-center gap-1 rounded-md border px-3 py-1.5 text-sm hover:bg-accent"
                         aria-label="Copy referral code"
+                        sx={{ gap: 0.5 }}
                     >
                         {copied ? <Check size={16} /> : <Copy size={16} />}
                         {copied ? 'Copied' : 'Copy'}
-                    </button>
+                    </Button>
                 </Box>
                 <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
                     Share this code with a vendor at registration so they are attributed to you.
