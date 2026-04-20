@@ -167,4 +167,41 @@ class MyReferralControllerTest extends TestCase
             $response->assertOk();
         }
     }
+
+    /**
+     * Contract test: pins the response shape the Flutter app consumes.
+     *
+     * The Flutter ReferralSummaryModel at
+     * C:\dev\surprise_moi\lib\models\referral_summary_model.dart reads
+     * exactly this set of keys. If any are removed or renamed, the
+     * mobile app's deserializer will crash for every user — this test
+     * is the tripwire.
+     */
+    public function test_response_shape_matches_flutter_contract(): void
+    {
+        $user = User::factory()->create(['role' => 'customer']);
+
+        $response = $this->actingAs($user)->getJson('/api/v1/me/referral-summary');
+
+        $response->assertOk()
+            ->assertJsonStructure([
+                'success',
+                'data' => [
+                    'referral_code',
+                    'referral_points',
+                    'next_milestone',
+                    'previous_milestone',
+                    'progress_to_next',
+                    'milestones',
+                    'total_referrals',
+                    'pending_rewards',
+                    'milestone_first',
+                    'milestone_increment',
+                    'available_payout_amount',
+                    'next_unlock_threshold',
+                    'can_request_payout',
+                    'pending_payout',
+                ],
+            ]);
+    }
 }
