@@ -139,4 +139,51 @@ class FieldAgentApplicationAdminTest extends TestCase
             ])
             ->assertSessionHasErrors();
     }
+
+    public function test_approval_creates_a_referral_code_for_the_new_user(): void
+    {
+        $app = FieldAgentApplication::factory()->pending()->create([
+            'email' => 'newagent@example.com',
+            'password' => Hash::make('AgentSecret1'),
+        ]);
+
+        app(\App\Services\FieldAgentApprovalService::class)->approve($app->fresh(), $this->admin);
+
+        $newUser = User::where('email', $app->email)->firstOrFail();
+        $code = \App\Models\ReferralCode::where('influencer_id', $newUser->id)->first();
+
+        $this->assertNotNull($code, 'A ReferralCode should be created for the new agent');
+    }
+
+    public function test_generated_referral_code_uses_the_FA_prefix(): void
+    {
+        $app = FieldAgentApplication::factory()->pending()->create([
+            'email' => 'newagent@example.com',
+            'password' => Hash::make('AgentSecret1'),
+        ]);
+
+        app(\App\Services\FieldAgentApprovalService::class)->approve($app->fresh(), $this->admin);
+
+        $newUser = User::where('email', $app->email)->firstOrFail();
+        $code = \App\Models\ReferralCode::where('influencer_id', $newUser->id)->firstOrFail();
+
+        $this->assertStringStartsWith('FA-', $code->code);
+    }
+
+    public function test_generated_referral_code_is_active_with_no_expiry_or_max_usages(): void
+    {
+        $app = FieldAgentApplication::factory()->pending()->create([
+            'email' => 'newagent@example.com',
+            'password' => Hash::make('AgentSecret1'),
+        ]);
+
+        app(\App\Services\FieldAgentApprovalService::class)->approve($app->fresh(), $this->admin);
+
+        $newUser = User::where('email', $app->email)->firstOrFail();
+        $code = \App\Models\ReferralCode::where('influencer_id', $newUser->id)->firstOrFail();
+
+        $this->assertTrue($code->is_active);
+        $this->assertNull($code->expires_at);
+        $this->assertNull($code->max_usages);
+    }
 }

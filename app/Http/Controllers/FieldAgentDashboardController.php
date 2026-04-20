@@ -4,9 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\Earning;
 use App\Models\PayoutRequest;
+use App\Models\ReferralCode;
 use App\Models\Target;
+use App\Models\User;
+use App\Models\VendorApplication;
 use App\Services\EarningService;
 use App\Services\TargetService;
+use Carbon\CarbonImmutable;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -21,28 +25,24 @@ class FieldAgentDashboardController extends Controller
     public function index(Request $request): Response
     {
         $user = $request->user();
+        $period = $this->resolvePeriod($request);
+        $referralCode = $this->getOrCreateReferralCode($user);
 
-        // Get stats
-        $targetStats = $this->targetService->getUserTargetStats($user);
         $earningsSummary = $this->earningService->getUserEarningsSummary($user);
 
-        // Get active targets
-        $activeTargets = Target::where('user_id', $user->id)
-            ->where('status', Target::STATUS_ACTIVE)
-            ->with(['assignedBy'])
-            ->latest()
-            ->get();
-
-        // Get recent earnings
-        $recentEarnings = Earning::where('user_id', $user->id)
-            ->latest('earned_at')
-            ->limit(5)
-            ->get();
-
         return Inertia::render('field-agent/dashboard', [
-            'stats' => array_merge($targetStats ?? [], $earningsSummary ?? []),
-            'activeTargets' => $activeTargets ?? [],
-            'recentEarnings' => $recentEarnings ?? [],
+            'agent' => [
+                'id' => $user->id,
+                'first_name' => $user->first_name ?? (explode(' ', (string) $user->name)[0] ?: $user->name),
+            ],
+            'period' => $period,
+            'referralCode' => [
+                'code' => $referralCode->code,
+            ],
+            'vendorStats' => $this->computeVendorStats($user, $period),
+            'earningsSummary' => $earningsSummary,
+            'activeTarget' => $this->computeActiveTarget($user),
+            'recentVendors' => $this->computeRecentVendors($user),
         ]);
     }
 
@@ -82,5 +82,100 @@ class FieldAgentDashboardController extends Controller
         return Inertia::render('field-agent/payouts', [
             'payoutRequests' => $payoutRequests,
         ]);
+    }
+
+    private function getOrCreateReferralCode(User $agent): ReferralCode
+    {
+        $code = ReferralCode::where('influencer_id', $agent->id)->first();
+
+        if ($code) {
+            return $code;
+        }
+
+        $code = new ReferralCode(['influencer_id' => $agent->id, 'is_active' => true]);
+        $code->prefix = ReferralCode::getPrefixForRole('field_agent');
+        $code->save();
+
+        return $code;
+    }
+
+    private function resolvePeriod(Request $request): string
+    {
+        $raw = (string) $request->input('period', 'week');
+
+        return in_array($raw, ['today', 'week', 'month'], true) ? $raw : 'week';
+    }
+
+    /**
+     * @return array{total:int, pending:int, approved:int, rejected:int}
+     */
+    private function computeVendorStats(User $agent, string $period): array
+    {
+        $now = CarbonImmutable::now();
+        $start = match ($period) {
+            'today' => $now->startOfDay(),
+            'month' => $now->startOfMonth(),
+            default => $now->startOfWeek(),
+        };
+
+        $base = VendorApplication::query()
+            ->whereHas('referralCode', fn ($q) => $q->where('influencer_id', $agent->id));
+
+        $total = (clone $base)->count();
+
+        $inPeriod = (clone $base)->where('created_at', '>=', $start);
+
+        return [
+            'total' => $total,
+            'pending' => (clone $inPeriod)
+                ->whereIn('status', [VendorApplication::STATUS_PENDING, VendorApplication::STATUS_UNDER_REVIEW])
+                ->count(),
+            'approved' => (clone $inPeriod)
+                ->where('status', VendorApplication::STATUS_APPROVED)
+                ->count(),
+            'rejected' => (clone $inPeriod)
+                ->where('status', VendorApplication::STATUS_REJECTED)
+                ->count(),
+        ];
+    }
+
+    /**
+     * @return array<int, array{id:int, business_name:string, status:string, created_at:string|null}>
+     */
+    private function computeRecentVendors(User $agent): array
+    {
+        return VendorApplication::query()
+            ->whereHas('referralCode', fn ($q) => $q->where('influencer_id', $agent->id))
+            ->with('user:id,name,business_name')
+            ->latest('created_at')
+            ->limit(5)
+            ->get()
+            ->map(fn (VendorApplication $app) => [
+                'id' => $app->id,
+                'business_name' => $app->user?->business_name ?: ($app->user?->name ?? ''),
+                'status' => $app->status,
+                'created_at' => $app->created_at?->toIso8601String(),
+            ])
+            ->all();
+    }
+
+    private function computeActiveTarget(User $agent): ?array
+    {
+        $target = Target::where('user_id', $agent->id)
+            ->where('status', Target::STATUS_ACTIVE)
+            ->latest()
+            ->first();
+
+        if (! $target) {
+            return null;
+        }
+
+        return [
+            'id' => $target->id,
+            'current' => (float) $target->current_value,
+            'goal' => (float) $target->target_value,
+            'completion_percentage' => $target->getCompletionPercentage(),
+            'ends_at' => $target->end_date?->toIso8601String(),
+        ];
     }
 }
