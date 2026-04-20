@@ -45,6 +45,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'favorite_color',
         'favorite_music_genre',
         'is_popular',
+        'field_verified_at',
+        'field_verified_until',
     ];
 
     /**
@@ -75,6 +77,8 @@ class User extends Authenticatable implements MustVerifyEmail
             'is_popular' => 'boolean',
             'vendor_tier' => 'integer',
             'referral_points' => 'integer',
+            'field_verified_at' => 'datetime',
+            'field_verified_until' => 'datetime',
         ];
     }
 
@@ -396,6 +400,15 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Check if this vendor currently holds a valid field-verification badge.
+     */
+    public function isFieldVerified(): bool
+    {
+        return $this->field_verified_until !== null
+            && $this->field_verified_until->isFuture();
+    }
+
+    /**
      * Check if user is an employee.
      */
     public function isEmployee(): bool
@@ -493,6 +506,22 @@ class User extends Authenticatable implements MustVerifyEmail
     public function earnings()
     {
         return $this->hasMany(Earning::class);
+    }
+
+    /**
+     * Get all vendor visits received by this vendor (as the subject of the visit).
+     */
+    public function vendorVisitsReceived(): HasMany
+    {
+        return $this->hasMany(VendorVisit::class, 'vendor_user_id');
+    }
+
+    /**
+     * Get all vendor visits conducted by this user as a field agent.
+     */
+    public function vendorVisitsAsAgent(): HasMany
+    {
+        return $this->hasMany(VendorVisit::class, 'field_agent_user_id');
     }
 
     /**
