@@ -175,7 +175,12 @@ export default function VendorPayouts({
     initialData: ApiResponse;
 }) {
     const [data, setData] = useState<ApiResponse>(initialData);
-    const [statusFilter, setStatusFilter] = useState<string>('pending');
+    const [statusFilter, setStatusFilter] = useState<string>(
+        () =>
+            new URLSearchParams(
+                typeof window !== 'undefined' ? window.location.search : '',
+            ).get('status') ?? 'pending',
+    );
     const [selectedPayout, setSelectedPayout] = useState<PayoutRequest | null>(
         null,
     );
