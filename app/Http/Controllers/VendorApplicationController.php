@@ -250,10 +250,11 @@ class VendorApplicationController extends Controller
     /**
      * Approve a vendor application.
      */
-    public function approve(VendorApplication $vendorApplication, ReferralService $referralService)
+    public function approve(VendorApplication $vendorApplication, \App\Services\ReferralService $referralService)
     {
         // Check if application is complete and ready for review
         if (! $vendorApplication->canBeReviewed()) {
+            dump($vendorApplication->completed_step, $vendorApplication->payment_required, $vendorApplication->payment_completed, $vendorApplication->submitted_at, $vendorApplication->isStep3Complete());
             return back()->with('error', 'This application cannot be reviewed. Ensure all steps are completed, payment is made, and the application has been submitted.');
         }
 

@@ -12,6 +12,15 @@ class DomainEventAuditTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->withoutMiddleware([
+            \Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class,
+            \Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class,
+        ]);
+    }
+
     public function test_vendor_application_approve_logs_domain_event(): void
     {
         $admin = User::factory()->create(['role' => 'admin']);
@@ -24,12 +33,22 @@ class DomainEventAuditTest extends TestCase
             'payment_completed_at' => now(),
         ]);
 
+        if (! $app->canBeReviewed()) {
+            dump($app->completed_step, $app->payment_required, $app->payment_completed, $app->submitted_at);
+        }
+
         $response = $this->actingAs($admin)
             ->withSession(['user_management.verified_at' => time()])
             ->post(route('vendor-applications.approve', $app));
 
+        if ($response->status() !== 302 && $response->status() !== 200) {
+            dump($response->status(), $response->getContent());
+        }
         if ($response->isRedirect() && session()->has('errors')) {
             dump(session('errors')->getBag('default')->getMessages());
+        }
+        if ($response->isRedirect() && session()->has('error')) {
+            dump(session('error'));
         }
 
         $this->assertDatabaseHas('activity_log', [
