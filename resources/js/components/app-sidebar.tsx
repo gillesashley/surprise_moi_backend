@@ -98,6 +98,11 @@ const getNavItemsForRole = (role: string): NavItem[] => {
                         href: '/dashboard/field-agent-applications',
                         icon: UserCheck,
                     },
+                    {
+                        title: 'Vendor Visits',
+                        href: '/dashboard/vendor-visits',
+                        icon: Footprints,
+                    },
                 ],
             },
             {
