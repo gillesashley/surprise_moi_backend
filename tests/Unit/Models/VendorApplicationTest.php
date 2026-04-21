@@ -15,8 +15,8 @@ class VendorApplicationTest extends TestCase
     #[\PHPUnit\Framework\Attributes\Test]
     public function calculate_final_amount_without_referral_code_returns_full_fee(): void
     {
-        Setting::set('vendor_tier1_onboarding_fee', '200', 'number');
-        $application = VendorApplication::factory()->create([
+        Setting::set('vendor_tier1_onboarding_fee', 200.0, 'number');
+        $application = VendorApplication::factory()->registeredVendor()->create([
             'business_certificate_document' => 'certificates/doc.pdf',
         ]);
 
@@ -30,9 +30,9 @@ class VendorApplicationTest extends TestCase
     #[\PHPUnit\Framework\Attributes\Test]
     public function calculate_final_amount_with_referral_code_applies_subsidy(): void
     {
-        Setting::set('vendor_tier1_onboarding_fee', '200', 'number');
-        Setting::set('vendor_onboarding_subsidy_pct', '25', 'number');
-        $application = VendorApplication::factory()->create([
+        Setting::set('vendor_tier1_onboarding_fee', 200.0, 'number');
+        Setting::set('vendor_onboarding_subsidy_pct', 25.0, 'number');
+        $application = VendorApplication::factory()->registeredVendor()->create([
             'business_certificate_document' => 'certificates/doc.pdf',
         ]);
         $code = ReferralCode::factory()->create();
@@ -47,9 +47,9 @@ class VendorApplicationTest extends TestCase
     #[\PHPUnit\Framework\Attributes\Test]
     public function calculate_final_amount_ignores_invalid_referral_code(): void
     {
-        Setting::set('vendor_tier1_onboarding_fee', '200', 'number');
-        Setting::set('vendor_onboarding_subsidy_pct', '25', 'number');
-        $application = VendorApplication::factory()->create([
+        Setting::set('vendor_tier1_onboarding_fee', 200.0, 'number');
+        Setting::set('vendor_onboarding_subsidy_pct', 25.0, 'number');
+        $application = VendorApplication::factory()->registeredVendor()->create([
             'business_certificate_document' => 'certificates/doc.pdf',
         ]);
         $code = ReferralCode::factory()->create(['is_active' => false]);

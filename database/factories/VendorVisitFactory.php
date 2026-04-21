@@ -18,9 +18,6 @@ class VendorVisitFactory extends Factory
             'field_agent_user_id' => User::factory()->fieldAgent(),
             'status' => VendorVisitStatus::Draft->value,
             'started_at' => now(),
-            'visit_latitude' => $this->faker->latitude(),
-            'visit_longitude' => $this->faker->longitude(),
-            'escalated' => false,
         ];
     }
 
@@ -32,8 +29,6 @@ class VendorVisitFactory extends Factory
             'submitted_at' => now(),
             'storefront_photo_path' => 'visits/storefront.jpg',
             'owner_photo_path' => 'visits/owner.jpg',
-            'badge_issued_at' => now(),
-            'badge_expires_at' => now()->addMonths(12),
         ]);
     }
 
@@ -53,7 +48,6 @@ class VendorVisitFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'status' => VendorVisitStatus::Submitted->value,
             'submitted_at' => now(),
-            'escalated' => true,
             'storefront_photo_path' => 'visits/storefront.jpg',
             'owner_photo_path' => 'visits/owner.jpg',
         ]);

@@ -25,6 +25,10 @@ class VendorFieldVerificationTest extends TestCase
         $response = $this->actingAs($vendor, 'sanctum')
             ->getJson('/api/v1/vendor/field-verification');
 
+        if ($response->status() === 500) {
+            dump($response->json());
+        }
+
         $response->assertOk()
             ->assertJsonPath('data.is_field_verified', true)
             ->assertJsonCount(1, 'data.visits')

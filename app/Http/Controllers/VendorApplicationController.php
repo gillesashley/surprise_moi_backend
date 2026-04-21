@@ -272,7 +272,7 @@ class VendorApplicationController extends Controller
         );
 
         // Activate referral if one exists
-        if ($vendorApplication->referral_code) {
+        if ($vendorApplication->referral_code_id) {
             try {
                 $referralService->activateReferral($vendorApplication);
             } catch (\Exception $e) {
