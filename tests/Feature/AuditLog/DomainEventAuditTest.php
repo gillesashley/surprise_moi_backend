@@ -159,7 +159,7 @@ class DomainEventAuditTest extends TestCase
     {
         $admin = User::factory()->create(['role' => 'super_admin']);
 
-        $this->actingAs($admin)
+        $response = $this->actingAs($admin)
             ->post('/settings/vendor-onboarding', [
                 'vendor_tier1_onboarding_fee' => 50.00,
                 'vendor_tier2_onboarding_fee' => 30.00,
@@ -170,7 +170,17 @@ class DomainEventAuditTest extends TestCase
                 'referral_bonus_influencer_pct' => 10.00,
                 'referral_bonus_field_agent_pct' => 6.00,
                 'referral_bonus_employee_pct' => 4.00,
+                'vendor_onboarding_subsidy_pct' => 20.00,
+                'referral_points_per_ghs' => 10,
+                'referral_cashout_min_points' => 100,
             ]);
+
+        if ($response->isRedirect() && session()->has('errors')) {
+            dump(session('errors')->getBag('default')->getMessages());
+        }
+        if ($response->status() !== 302 && $response->status() !== 200) {
+            dump($response->status(), $response->getContent());
+        }
 
         $this->assertDatabaseHas('activity_log', [
             'event' => 'settings.updated',
