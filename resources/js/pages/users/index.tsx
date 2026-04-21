@@ -260,6 +260,16 @@ export default function UsersIndex({ users, canDelete, activeRole, filters }: Pr
                                         >
                                             Joined{getSortIcon('created_at')}
                                         </Box>
+                                        {activeRole === 'field_agent' && (
+                                            <>
+                                                <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
+                                                    Visits
+                                                </Box>
+                                                <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
+                                                    Pass Rate
+                                                </Box>
+                                            </>
+                                        )}
                                         <Box component="th" sx={{ p: 1, textAlign: 'right', fontSize: '0.875rem', fontWeight: 500 }}>
                                             Actions
                                         </Box>
@@ -296,6 +306,16 @@ export default function UsersIndex({ users, canDelete, activeRole, filters }: Pr
                                                     user.created_at,
                                                 ).toLocaleDateString()}
                                             </Box>
+                                            {activeRole === 'field_agent' && (
+                                                <>
+                                                    <Box component="td" sx={{ p: 1, fontSize: '0.875rem' }}>
+                                                        {(user as any).visits_completed_count ?? 0}
+                                                    </Box>
+                                                    <Box component="td" sx={{ p: 1, fontSize: '0.875rem' }}>
+                                                        {(user as any).pass_rate !== null ? `${(user as any).pass_rate}%` : '—'}
+                                                    </Box>
+                                                </>
+                                            )}
                                             <Box component="td" sx={{ p: 1 }}>
                                                 <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
                                                     <Button

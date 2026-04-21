@@ -142,6 +142,17 @@ interface MusicGenre {
     name: string;
 }
 
+interface FieldVerification {
+    is_verified: boolean;
+    verified_until: string | null;
+    recent_visits: Array<{
+        id: string;
+        status: string;
+        started_at: string;
+        badge_expires_at: string | null;
+    }>;
+}
+
 interface Props {
     user: User & {
         favorite_color?: string;
@@ -164,6 +175,7 @@ interface Props {
         recent_reviews?: RecentReview[];
         phone_verified_at?: string;
         vendor_application?: VendorApplication;
+        fieldVerification?: FieldVerification | null;
     };
     canDelete: boolean;
 }
@@ -1220,65 +1232,63 @@ export default function UserShow({ user, canDelete }: Props) {
                         {/* Shops List */}
                         {user.shops && user.shops.length > 0 && (
                             <Card>
+...
+                            </Card>
+                        )}
+
+                        {/* Field Verification */}
+                        {user.fieldVerification && (
+                            <Card>
                                 <CardHeader>
                                     <CardTitle style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                        <Store style={{ width: 20, height: 20 }} />
-                                        Shops
+                                        <CheckCircle style={{ width: 20, height: 20 }} />
+                                        Field Verification
                                     </CardTitle>
                                     <CardDescription>
-                                        All shops owned by this vendor
+                                        Post-approval on-site verification status
                                     </CardDescription>
                                 </CardHeader>
                                 <CardContent>
-                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-                                        {user.shops.map((shop) => (
-                                            <Box
-                                                key={shop.id}
-                                                sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderRadius: 2, border: 1, borderColor: 'divider', p: 2 }}
-                                            >
-                                                <Box sx={{ flex: 1 }}>
-                                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                                        <Typography variant="h6" sx={{ fontWeight: 500 }}>
-                                                            {shop.name}
-                                                        </Typography>
-                                                        <Badge
-                                                            variant={
-                                                                shop.is_active
-                                                                    ? 'default'
-                                                                    : 'secondary'
-                                                            }
-                                                        >
-                                                            {shop.is_active
-                                                                ? 'Active'
-                                                                : 'Inactive'}
-                                                        </Badge>
-                                                    </Box>
-                                                    {shop.location && (
-                                                        <Typography sx={{ mt: 0.5, display: 'flex', alignItems: 'center', gap: 0.5, fontSize: '0.875rem', color: 'text.secondary' }}>
-                                                            <MapPin style={{ width: 12, height: 12 }} />
-                                                            {shop.location}
-                                                        </Typography>
-                                                    )}
-                                                    <Box sx={{ mt: 1, display: 'flex', gap: 2, fontSize: '0.875rem', color: 'text.secondary' }}>
-                                                        <Box component="span" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                                            <Package style={{ width: 12, height: 12 }} />
-                                                            {
-                                                                shop.products_count
-                                                            }{' '}
-                                                            products
-                                                        </Box>
-                                                        <Box component="span" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                                            <Briefcase style={{ width: 12, height: 12 }} />
-                                                            {
-                                                                shop.services_count
-                                                            }{' '}
-                                                            services
-                                                        </Box>
-                                                    </Box>
-                                                </Box>
-                                            </Box>
-                                        ))}
+                                    <Box sx={{ mb: 3, borderRadius: 2, border: 1, borderColor: user.fieldVerification.is_verified ? 'success.main' : 'divider', p: 2, bgcolor: user.fieldVerification.is_verified ? 'success.light' : 'transparent', opacity: user.fieldVerification.is_verified ? 0.1 : 1 }}>
+                                        <Typography variant="h6" sx={{ fontSize: '0.875rem', fontWeight: 600 }}>
+                                            Current Status: {user.fieldVerification.is_verified ? 'VERIFIED' : 'NOT VERIFIED'}
+                                        </Typography>
+                                        {user.fieldVerification.is_verified && (
+                                            <Typography sx={{ fontSize: '0.875rem' }}>
+                                                Badge active until: {new Date(user.fieldVerification.verified_until!).toLocaleDateString()}
+                                            </Typography>
+                                        )}
                                     </Box>
+
+                                    <Typography variant="h6" sx={{ mb: 1, fontSize: '0.875rem', fontWeight: 500 }}>
+                                        Recent Visits
+                                    </Typography>
+                                    {user.fieldVerification.recent_visits.length === 0 ? (
+                                        <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
+                                            No field visits recorded yet.
+                                        </Typography>
+                                    ) : (
+                                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                            {user.fieldVerification.recent_visits.map((v) => (
+                                                <Box key={v.id} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderRadius: 1.5, border: 1, borderColor: 'divider', p: 1.5 }}>
+                                                    <Box>
+                                                        <Typography sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                                                            {new Date(v.started_at).toLocaleDateString()}
+                                                        </Typography>
+                                                        <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
+                                                            {v.status.toUpperCase()}
+                                                            {v.badge_expires_at && ` · Expires ${new Date(v.badge_expires_at).toLocaleDateString()}`}
+                                                        </Typography>
+                                                    </Box>
+                                                    <Button variant="ghost" size="sm" asChild>
+                                                        <Link href={`/dashboard/vendor-visits/${v.id}`}>
+                                                            Details →
+                                                        </Link>
+                                                    </Button>
+                                                </Box>
+                                            ))}
+                                        </Box>
+                                    )}
                                 </CardContent>
                             </Card>
                         )}

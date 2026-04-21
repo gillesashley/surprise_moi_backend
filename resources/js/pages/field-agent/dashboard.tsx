@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type SharedData } from '@/types';
-import { Head, router, usePage } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { CheckCircle, Clock, DollarSign, Users, XCircle } from 'lucide-react';
@@ -55,6 +55,7 @@ interface DashboardProps {
     period: Period;
     referralCode: { code: string };
     vendorStats: VendorStats;
+    needsVisitCount: number;
     earningsSummary: EarningsSummary;
     activeTarget: ActiveTarget | null;
     recentVendors: RecentVendor[];
@@ -116,6 +117,7 @@ export default function FieldAgentDashboard({
     period,
     referralCode,
     vendorStats,
+    needsVisitCount,
     earningsSummary,
     activeTarget,
     recentVendors,
@@ -136,6 +138,18 @@ export default function FieldAgentDashboard({
             <Head title="Field Agent Dashboard" />
 
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, p: 3 }}>
+                {needsVisitCount > 0 && (
+                    <Link
+                        href="/field-agent/visits"
+                        className="block rounded border bg-amber-50 p-4 hover:bg-amber-100"
+                    >
+                        <div className="text-sm font-medium text-amber-900">
+                            {needsVisitCount} {needsVisitCount === 1 ? 'vendor needs' : 'vendors need'} a visit
+                        </div>
+                        <div className="text-xs text-amber-800">Open the visits queue →</div>
+                    </Link>
+                )}
+
                 {/* Header */}
                 <Box
                     sx={{
