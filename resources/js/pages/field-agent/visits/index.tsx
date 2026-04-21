@@ -23,7 +23,7 @@ interface VendorApplication {
         name: string;
         email: string;
     };
-    vendorVisit: {
+    vendor_visit: {
         id: string;
         status: string;
     } | null;
@@ -34,8 +34,8 @@ interface Props {
 }
 
 export default function VisitsIndex({ applications }: Props) {
-    const pendingAction = applications.filter(a => a.vendorVisit?.status !== 'submitted');
-    const submitted = applications.filter(a => a.vendorVisit?.status === 'submitted');
+    const pendingAction = applications.filter(a => a.vendor_visit?.status !== 'submitted');
+    const submitted = applications.filter(a => a.vendor_visit?.status === 'submitted');
 
     return (
         <AppLayout
@@ -124,16 +124,16 @@ function Section({
 
 function VendorApplicationRow({ application }: { application: VendorApplication }) {
     const label = application.user.business_name ?? application.user.name;
-    const isSubmitted = application.vendorVisit?.status === 'submitted';
-    const isDraft = application.vendorVisit?.status === 'draft';
+    const isSubmitted = application.vendor_visit?.status === 'submitted';
+    const isDraft = application.vendor_visit?.status === 'draft';
     
     let secondary = 'New registration';
     if (isSubmitted) secondary = 'Questionnaire submitted';
     else if (isDraft) secondary = 'Draft questionnaire started';
 
     const handleAction = () => {
-        if (application.vendorVisit) {
-            router.get(`/field-agent/visits/forms/${application.vendorVisit.id}`);
+        if (application.vendor_visit) {
+            router.get(`/field-agent/visits/forms/${application.vendor_visit.id}`);
         } else {
             router.post(`/field-agent/visits/${application.id}/start`);
         }

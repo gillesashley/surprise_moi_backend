@@ -24,7 +24,7 @@ interface Visit {
     shop_location: string | null;
     primary_business_address: string | null;
     storefront_photo_path: string | null;
-    vendorApplication: {
+    vendor_application: {
         id: number;
         user: { id: number; business_name: string | null; name: string };
     };
@@ -55,7 +55,7 @@ export default function VisitForm({ visit }: Props) {
         })).post(`/field-agent/visits/forms/${visit.id}/submit`, { forceFormData: true });
     };
 
-    const vendorLabel = visit.vendorApplication.user.business_name ?? visit.vendorApplication.user.name;
+    const vendorLabel = visit.vendor_application?.user?.business_name ?? visit.vendor_application?.user?.name ?? 'Vendor';
 
     const hasShop = submit.data.has_shop === 'true';
 
