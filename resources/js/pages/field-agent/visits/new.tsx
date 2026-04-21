@@ -52,7 +52,9 @@ export default function VisitForm({ visit }: Props) {
         submit.transform((data) => ({
             ...data,
             has_shop: data.has_shop === 'true',
-        })).post(`/field-agent/visits/forms/${visit.id}/submit`, { forceFormData: true });
+        }));
+        
+        submit.post(`/field-agent/visits/forms/${visit.id}/submit`, { forceFormData: true });
     };
 
     const vendorLabel = visit.vendor_application?.user?.business_name ?? visit.vendor_application?.user?.name ?? 'Vendor';

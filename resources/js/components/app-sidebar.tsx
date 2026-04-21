@@ -243,13 +243,18 @@ const getNavItemsForRole = (role: string): NavItem[] => {
         ];
     }
 
-    // Field Agent - targets, earnings, payouts
+    // Field Agent - targets, earnings, payouts, onboarding
     if (role === 'field_agent') {
         return [
             {
                 title: 'Dashboard',
                 href: '/field-agent/dashboard',
                 icon: LayoutGrid,
+            },
+            {
+                title: 'Vendor Onboarding',
+                href: '/field-agent/visits',
+                icon: UserCheck,
             },
             {
                 title: 'Work & Earnings',

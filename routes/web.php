@@ -162,6 +162,12 @@ Route::middleware(['auth', 'dashboard'])->prefix('dashboard')->group(function ()
         Route::delete('/{vendorApplication}', [VendorApplicationController::class, 'destroy'])->name('destroy');
     });
 
+    // Vendor Visit Review (Questionnaires)
+    Route::prefix('vendor-visits')->name('vendor-visits.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\VendorVisitsController::class, 'index'])->name('index');
+        Route::get('/{visit}', [\App\Http\Controllers\Admin\VendorVisitsController::class, 'show'])->name('show');
+    });
+
     // Field Agent Application Management (admin review)
     Route::prefix('field-agent-applications')->name('admin.field-agent-applications.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Admin\FieldAgentApplicationController::class, 'index'])->name('index');
