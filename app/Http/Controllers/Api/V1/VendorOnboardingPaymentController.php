@@ -302,7 +302,8 @@ class VendorOnboardingPaymentController extends Controller
                 'payment_required' => $application->payment_required,
                 'payment_completed' => $application->payment_completed,
                 'payment_completed_at' => $application->payment_completed_at,
-                'onboarding_fee' => $application->onboarding_fee,
+                'original_fee' => $application->onboarding_fee,
+                'onboarding_fee' => $application->final_amount > 0 ? $application->final_amount : ($application->onboarding_fee ?? $application->getOnboardingFee()),
                 'discount_amount' => $application->discount_amount,
                 'final_amount' => $application->final_amount,
                 'latest_payment' => $latestPayment ? [

@@ -62,7 +62,8 @@ class VendorApplicationResource extends JsonResource
             'payment_required' => $this->payment_required,
             'payment_completed' => $this->payment_completed,
             'needs_payment' => $this->needsPayment(),
-            'onboarding_fee' => (float) $this->onboarding_fee,
+            'onboarding_fee' => (float) ($this->final_amount > 0 ? $this->final_amount : ($this->onboarding_fee ?? $this->getOnboardingFee())),
+            'original_fee' => (float) $this->onboarding_fee,
             'discount_amount' => (float) $this->discount_amount,
             'final_amount' => (float) $this->final_amount,
 
