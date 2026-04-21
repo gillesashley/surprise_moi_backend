@@ -6,86 +6,75 @@ import {
     CardTitle,
 } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
-import { Head, Link } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import { ArrowRight, CalendarClock, FileClock, Store } from 'lucide-react';
+import { ArrowRight, UserPlus, ClipboardList } from 'lucide-react';
+import Button from '@mui/material/Button';
 
-interface VendorRow {
+interface VendorApplication {
     id: number;
-    business_name: string | null;
-    name: string;
-    field_verified_until: string | null;
-}
-
-interface DraftRow {
-    id: string;
-    started_at: string;
-    vendor: { id: number; business_name: string | null; name: string };
+    status: string;
+    submitted_at: string | null;
+    user: {
+        id: number;
+        business_name: string | null;
+        name: string;
+        email: string;
+    };
+    vendorVisit: {
+        id: string;
+        status: string;
+    } | null;
 }
 
 interface Props {
-    needsVisit: VendorRow[];
-    expiringSoon: VendorRow[];
-    drafts: DraftRow[];
+    applications: VendorApplication[];
 }
 
-export default function VisitsIndex({ needsVisit, expiringSoon, drafts }: Props) {
+export default function VisitsIndex({ applications }: Props) {
+    const pendingAction = applications.filter(a => a.vendorVisit?.status !== 'submitted');
+    const submitted = applications.filter(a => a.vendorVisit?.status === 'submitted');
+
     return (
         <AppLayout
             breadcrumbs={[
                 { title: 'Dashboard', href: '/field-agent/dashboard' },
-                { title: 'Visits', href: '/field-agent/visits' },
+                { title: 'Vendor Onboarding', href: '/field-agent/visits' },
             ]}
         >
-            <Head title="Vendor visits" />
+            <Head title="Vendor Onboarding" />
 
             <Box sx={{ display: 'flex', flex: 1, flexDirection: 'column', gap: 3, p: 3 }}>
                 <Box>
                     <Typography variant="h4" fontWeight={700}>
-                        Vendor visits
+                        Vendor Onboarding
                     </Typography>
                     <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-                        Verify vendors in the field, resume drafts, and catch expiring badges.
+                        Manage new vendors who registered using your referral code. Complete their questionnaires to get them approved.
                     </Typography>
                 </Box>
 
                 <Section
-                    icon={<Store size={18} />}
-                    title="Needs visit now"
-                    count={needsVisit.length}
-                    emptyText="Nothing pending — great job."
+                    icon={<UserPlus size={18} />}
+                    title="Needs Questionnaire"
+                    count={pendingAction.length}
+                    emptyText="No pending vendors."
                 >
-                    {needsVisit.map((v) => (
-                        <VendorRowItem key={v.id} vendor={v} badgeExpires={v.field_verified_until} />
+                    {pendingAction.map((app) => (
+                        <VendorApplicationRow key={app.id} application={app} />
                     ))}
                 </Section>
 
                 <Section
-                    icon={<CalendarClock size={18} />}
-                    title="Expiring soon"
-                    count={expiringSoon.length}
-                    emptyText="No badges expiring in the next 30 days."
+                    icon={<ClipboardList size={18} />}
+                    title="Submitted Questionnaires"
+                    count={submitted.length}
+                    emptyText="No submitted questionnaires."
                 >
-                    {expiringSoon.map((v) => (
-                        <VendorRowItem key={v.id} vendor={v} badgeExpires={v.field_verified_until} />
-                    ))}
-                </Section>
-
-                <Section
-                    icon={<FileClock size={18} />}
-                    title="Resume drafts"
-                    count={drafts.length}
-                    emptyText="No draft visits."
-                >
-                    {drafts.map((d) => (
-                        <RowLink
-                            key={d.id}
-                            href={`/field-agent/visits/forms/${d.id}`}
-                            primary={d.vendor.business_name ?? d.vendor.name}
-                            secondary={`Started ${new Date(d.started_at).toLocaleString()}`}
-                        />
+                    {submitted.map((app) => (
+                        <VendorApplicationRow key={app.id} application={app} />
                     ))}
                 </Section>
             </Box>
@@ -133,19 +122,25 @@ function Section({
     );
 }
 
-function VendorRowItem({ vendor, badgeExpires }: { vendor: VendorRow; badgeExpires: string | null }) {
-    const label = vendor.business_name ?? vendor.name;
-    const secondary = badgeExpires
-        ? `Expires ${new Date(badgeExpires).toLocaleDateString()}`
-        : 'Never verified';
-    return <RowLink href={`/field-agent/visits/${vendor.id}`} primary={label} secondary={secondary} />;
-}
+function VendorApplicationRow({ application }: { application: VendorApplication }) {
+    const label = application.user.business_name ?? application.user.name;
+    const isSubmitted = application.vendorVisit?.status === 'submitted';
+    const isDraft = application.vendorVisit?.status === 'draft';
+    
+    let secondary = 'New registration';
+    if (isSubmitted) secondary = 'Questionnaire submitted';
+    else if (isDraft) secondary = 'Draft questionnaire started';
 
-function RowLink({ href, primary, secondary }: { href: string; primary: string; secondary: string }) {
+    const handleAction = () => {
+        if (application.vendorVisit) {
+            router.get(`/field-agent/visits/forms/${application.vendorVisit.id}`);
+        } else {
+            router.post(`/field-agent/visits/${application.id}/start`);
+        }
+    };
+
     return (
         <Box
-            component={Link}
-            href={href}
             sx={{
                 display: 'flex',
                 alignItems: 'center',
@@ -155,8 +150,6 @@ function RowLink({ href, primary, secondary }: { href: string; primary: string; 
                 borderRadius: 1,
                 border: '1px solid',
                 borderColor: 'divider',
-                textDecoration: 'none',
-                color: 'inherit',
                 transition: 'background-color 120ms ease, border-color 120ms ease',
                 '&:hover': {
                     backgroundColor: 'action.hover',
@@ -166,17 +159,21 @@ function RowLink({ href, primary, secondary }: { href: string; primary: string; 
         >
             <Box sx={{ minWidth: 0 }}>
                 <Typography variant="body1" fontWeight={600} noWrap>
-                    {primary}
+                    {label}
                 </Typography>
                 <Typography variant="body2" color="text.secondary" noWrap>
                     {secondary}
                 </Typography>
             </Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, color: 'primary.main', flexShrink: 0 }}>
-                <Typography variant="body2" fontWeight={500}>
-                    Open
-                </Typography>
-                <ArrowRight size={16} />
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexShrink: 0 }}>
+                <Button 
+                    variant="outlined" 
+                    size="small" 
+                    onClick={handleAction}
+                    endIcon={!isSubmitted && <ArrowRight size={16} />}
+                >
+                    {isSubmitted ? 'View' : (isDraft ? 'Resume' : 'Start Questionnaire')}
+                </Button>
             </Box>
         </Box>
     );
