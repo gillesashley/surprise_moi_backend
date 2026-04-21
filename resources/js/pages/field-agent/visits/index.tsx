@@ -1,5 +1,16 @@
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
 import { Head, Link } from '@inertiajs/react';
+import Box from '@mui/material/Box';
+import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
+import { ArrowRight, CalendarClock, FileClock, Store } from 'lucide-react';
 
 interface VendorRow {
     id: number;
@@ -22,55 +33,151 @@ interface Props {
 
 export default function VisitsIndex({ needsVisit, expiringSoon, drafts }: Props) {
     return (
-        <AppLayout breadcrumbs={[{ title: 'Dashboard', href: '/field-agent/dashboard' }, { title: 'Visits', href: '/field-agent/visits' }]}>
+        <AppLayout
+            breadcrumbs={[
+                { title: 'Dashboard', href: '/field-agent/dashboard' },
+                { title: 'Visits', href: '/field-agent/visits' },
+            ]}
+        >
             <Head title="Vendor visits" />
-            <div className="space-y-8 p-6">
-                <Section title={`Needs visit now (${needsVisit.length})`} emptyText="Nothing pending — great job.">
+
+            <Box sx={{ display: 'flex', flex: 1, flexDirection: 'column', gap: 3, p: 3 }}>
+                <Box>
+                    <Typography variant="h4" fontWeight={700}>
+                        Vendor visits
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                        Verify vendors in the field, resume drafts, and catch expiring badges.
+                    </Typography>
+                </Box>
+
+                <Section
+                    icon={<Store size={18} />}
+                    title="Needs visit now"
+                    count={needsVisit.length}
+                    emptyText="Nothing pending — great job."
+                >
                     {needsVisit.map((v) => (
                         <VendorRowItem key={v.id} vendor={v} badgeExpires={v.field_verified_until} />
                     ))}
                 </Section>
 
-                <Section title={`Expiring soon (${expiringSoon.length})`} emptyText="No badges expiring in the next 30 days.">
+                <Section
+                    icon={<CalendarClock size={18} />}
+                    title="Expiring soon"
+                    count={expiringSoon.length}
+                    emptyText="No badges expiring in the next 30 days."
+                >
                     {expiringSoon.map((v) => (
                         <VendorRowItem key={v.id} vendor={v} badgeExpires={v.field_verified_until} />
                     ))}
                 </Section>
 
-                <Section title={`Resume drafts (${drafts.length})`} emptyText="No draft visits.">
+                <Section
+                    icon={<FileClock size={18} />}
+                    title="Resume drafts"
+                    count={drafts.length}
+                    emptyText="No draft visits."
+                >
                     {drafts.map((d) => (
-                        <Link key={d.id} href={`/field-agent/visits/forms/${d.id}`} className="block rounded border p-3 hover:bg-muted">
-                            <div className="font-medium">{d.vendor.business_name ?? d.vendor.name}</div>
-                            <div className="text-sm text-muted-foreground">Started {new Date(d.started_at).toLocaleString()}</div>
-                        </Link>
+                        <RowLink
+                            key={d.id}
+                            href={`/field-agent/visits/forms/${d.id}`}
+                            primary={d.vendor.business_name ?? d.vendor.name}
+                            secondary={`Started ${new Date(d.started_at).toLocaleString()}`}
+                        />
                     ))}
                 </Section>
-            </div>
+            </Box>
         </AppLayout>
     );
 }
 
-function Section({ title, emptyText, children }: { title: string; emptyText: string; children: React.ReactNode }) {
-    const empty = !children || (Array.isArray(children) && children.length === 0);
+function Section({
+    icon,
+    title,
+    count,
+    emptyText,
+    children,
+}: {
+    icon: React.ReactNode;
+    title: string;
+    count: number;
+    emptyText: string;
+    children: React.ReactNode;
+}) {
+    const isEmpty = count === 0;
     return (
-        <section>
-            <h2 className="mb-3 text-lg font-semibold">{title}</h2>
-            <div className="space-y-2">{empty ? <p className="text-sm text-muted-foreground">{emptyText}</p> : children}</div>
-        </section>
+        <Card>
+            <CardHeader>
+                <CardTitle>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        {icon}
+                        <span>{title}</span>
+                    </Box>
+                </CardTitle>
+                <CardDescription>
+                    {count} {count === 1 ? 'vendor' : 'vendors'}
+                </CardDescription>
+            </CardHeader>
+            <CardContent>
+                {isEmpty ? (
+                    <Typography variant="body2" color="text.secondary">
+                        {emptyText}
+                    </Typography>
+                ) : (
+                    <Stack spacing={1.5}>{children}</Stack>
+                )}
+            </CardContent>
+        </Card>
     );
 }
 
 function VendorRowItem({ vendor, badgeExpires }: { vendor: VendorRow; badgeExpires: string | null }) {
     const label = vendor.business_name ?? vendor.name;
+    const secondary = badgeExpires
+        ? `Expires ${new Date(badgeExpires).toLocaleDateString()}`
+        : 'Never verified';
+    return <RowLink href={`/field-agent/visits/${vendor.id}`} primary={label} secondary={secondary} />;
+}
+
+function RowLink({ href, primary, secondary }: { href: string; primary: string; secondary: string }) {
     return (
-        <Link href={`/field-agent/visits/${vendor.id}`} className="flex items-center justify-between rounded border p-3 hover:bg-muted">
-            <div>
-                <div className="font-medium">{label}</div>
-                <div className="text-sm text-muted-foreground">
-                    {badgeExpires ? `Expires ${new Date(badgeExpires).toLocaleDateString()}` : 'Never verified'}
-                </div>
-            </div>
-            <span className="text-sm text-primary">Open →</span>
-        </Link>
+        <Box
+            component={Link}
+            href={href}
+            sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: 2,
+                p: 2,
+                borderRadius: 1,
+                border: '1px solid',
+                borderColor: 'divider',
+                textDecoration: 'none',
+                color: 'inherit',
+                transition: 'background-color 120ms ease, border-color 120ms ease',
+                '&:hover': {
+                    backgroundColor: 'action.hover',
+                    borderColor: 'text.secondary',
+                },
+            }}
+        >
+            <Box sx={{ minWidth: 0 }}>
+                <Typography variant="body1" fontWeight={600} noWrap>
+                    {primary}
+                </Typography>
+                <Typography variant="body2" color="text.secondary" noWrap>
+                    {secondary}
+                </Typography>
+            </Box>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, color: 'primary.main', flexShrink: 0 }}>
+                <Typography variant="body2" fontWeight={500}>
+                    Open
+                </Typography>
+                <ArrowRight size={16} />
+            </Box>
+        </Box>
     );
 }

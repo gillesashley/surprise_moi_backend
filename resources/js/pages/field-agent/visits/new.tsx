@@ -1,5 +1,21 @@
+import { Button } from '@/components/ui/button';
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
-import { Head, router, useForm } from '@inertiajs/react';
+import { Head, useForm } from '@inertiajs/react';
+import Alert from '@mui/material/Alert';
+import Box from '@mui/material/Box';
+import Checkbox from '@mui/material/Checkbox';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Stack from '@mui/material/Stack';
+import TextField from '@mui/material/TextField';
+import Typography from '@mui/material/Typography';
+import { Check, MapPin, X } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
 interface Item {
@@ -60,21 +76,28 @@ export default function VisitForm({ visit, items }: Props) {
     const canSubmit = allAnswered && hasStorefront && hasOwner;
     const isTerminal = visit.status !== 'draft';
 
+    const patchItem = async (itemId: number, body: Record<string, unknown>) => {
+        const match = document.cookie.match(/XSRF-TOKEN=([^;]+)/);
+        const token = match ? decodeURIComponent(match[1]) : '';
+        await fetch(`/field-agent/visits/forms/${visit.id}/items/${itemId}`, {
+            method: 'PATCH',
+            credentials: 'same-origin',
+            headers: {
+                'Content-Type': 'application/json',
+                Accept: 'application/json',
+                'X-XSRF-TOKEN': token,
+            },
+            body: JSON.stringify(body),
+        });
+    };
+
     const toggleItem = (item: Item, passed: boolean) => {
         setItemState((prev) => prev.map((i) => (i.id === item.id ? { ...i, passed } : i)));
-        router.patch(
-            `/field-agent/visits/forms/${visit.id}/items/${item.id}`,
-            { passed },
-            { preserveScroll: true, preserveState: true, only: [] },
-        );
+        patchItem(item.id, { passed });
     };
 
     const saveNote = (item: Item, note: string) => {
-        router.patch(
-            `/field-agent/visits/forms/${visit.id}/items/${item.id}`,
-            { passed: item.passed, note },
-            { preserveScroll: true, preserveState: true, only: [] },
-        );
+        patchItem(item.id, { passed: item.passed, note });
     };
 
     const onSubmit = (e: React.FormEvent) => {
@@ -82,115 +105,181 @@ export default function VisitForm({ visit, items }: Props) {
         submit.post(`/field-agent/visits/forms/${visit.id}/submit`, { forceFormData: true });
     };
 
+    const vendorLabel = visit.vendor.business_name ?? visit.vendor.name;
+
     return (
         <AppLayout
             breadcrumbs={[
                 { title: 'Visits', href: '/field-agent/visits' },
-                {
-                    title: visit.vendor.business_name ?? visit.vendor.name,
-                    href: `/field-agent/visits/${visit.vendor.id}`,
-                },
+                { title: vendorLabel, href: `/field-agent/visits/${visit.vendor.id}` },
                 { title: 'Form', href: `/field-agent/visits/forms/${visit.id}` },
             ]}
         >
             <Head title="Visit form" />
-            <form onSubmit={onSubmit} className="mx-auto max-w-xl space-y-6 p-6">
-                <div className="rounded bg-green-50 p-3 text-sm text-green-900">GPS captured ✓</div>
+
+            <Box
+                component="form"
+                onSubmit={onSubmit}
+                sx={{ display: 'flex', flex: 1, flexDirection: 'column', gap: 3, p: 3, maxWidth: 720, mx: 'auto', width: '100%' }}
+            >
+                <Box>
+                    <Typography variant="h4" fontWeight={700}>
+                        Verify {vendorLabel}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                        Answer every question honestly based on what you see in person.
+                    </Typography>
+                </Box>
+
+                <Alert severity="success" icon={<MapPin size={18} />}>
+                    GPS captured — this visit is tied to your location.
+                </Alert>
 
                 {Object.entries(categories).map(([cat, catItems]) => (
-                    <section key={cat}>
-                        <h2 className="mb-2 text-lg font-semibold capitalize">{cat.replace('_', ' ')}</h2>
-                        <div className="space-y-3">
-                            {catItems.map((item) => (
-                                <div key={item.id} className="rounded border p-3">
-                                    <div className="text-sm">
-                                        {CHECKLIST_LABELS[item.item_key] ?? item.item_key}
-                                    </div>
-                                    <div className="mt-2 flex gap-2">
-                                        <button
-                                            type="button"
+                    <Card key={cat}>
+                        <CardHeader>
+                            <CardTitle>
+                                <Box component="span" sx={{ textTransform: 'capitalize' }}>
+                                    {cat.replace('_', ' ')}
+                                </Box>
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <Stack spacing={2}>
+                                {catItems.map((item) => (
+                                    <Box
+                                        key={item.id}
+                                        sx={{
+                                            p: 2,
+                                            borderRadius: 1,
+                                            border: '1px solid',
+                                            borderColor: 'divider',
+                                        }}
+                                    >
+                                        <Typography variant="body2" sx={{ mb: 1.5 }}>
+                                            {CHECKLIST_LABELS[item.item_key] ?? item.item_key}
+                                        </Typography>
+                                        <Box sx={{ display: 'flex', gap: 1, mb: 1.5 }}>
+                                            <Button
+                                                type="button"
+                                                variant={item.passed === true ? 'default' : 'outline'}
+                                                disabled={isTerminal}
+                                                onClick={() => toggleItem(item, true)}
+                                                sx={{
+                                                    flex: 1,
+                                                    gap: 0.5,
+                                                    ...(item.passed === true && {
+                                                        backgroundColor: 'success.main',
+                                                        '&:hover': { backgroundColor: 'success.dark' },
+                                                    }),
+                                                }}
+                                            >
+                                                <Check size={16} />
+                                                Pass
+                                            </Button>
+                                            <Button
+                                                type="button"
+                                                variant={item.passed === false ? 'destructive' : 'outline'}
+                                                disabled={isTerminal}
+                                                onClick={() => toggleItem(item, false)}
+                                                sx={{ flex: 1, gap: 0.5 }}
+                                            >
+                                                <X size={16} />
+                                                Fail
+                                            </Button>
+                                        </Box>
+                                        <TextField
+                                            size="small"
+                                            fullWidth
                                             disabled={isTerminal}
-                                            onClick={() => toggleItem(item, true)}
-                                            className={`flex-1 rounded border px-3 py-1 ${item.passed === true ? 'bg-green-600 text-white' : ''}`}
-                                        >
-                                            Pass
-                                        </button>
-                                        <button
-                                            type="button"
-                                            disabled={isTerminal}
-                                            onClick={() => toggleItem(item, false)}
-                                            className={`flex-1 rounded border px-3 py-1 ${item.passed === false ? 'bg-red-600 text-white' : ''}`}
-                                        >
-                                            Fail
-                                        </button>
-                                    </div>
-                                    <input
-                                        disabled={isTerminal}
-                                        placeholder="Optional note"
-                                        defaultValue={item.note ?? ''}
-                                        onBlur={(e) => saveNote(item, e.target.value)}
-                                        className="mt-2 w-full rounded border px-2 py-1 text-sm"
-                                    />
-                                </div>
-                            ))}
-                        </div>
-                    </section>
+                                            placeholder="Optional note"
+                                            defaultValue={item.note ?? ''}
+                                            onBlur={(e) => saveNote(item, e.target.value)}
+                                        />
+                                    </Box>
+                                ))}
+                            </Stack>
+                        </CardContent>
+                    </Card>
                 ))}
 
-                <section>
-                    <h2 className="mb-2 text-lg font-semibold">Required evidence</h2>
-                    <label className="mb-3 block">
-                        <div className="text-sm">Storefront photo {hasStorefront && '✓'}</div>
-                        <input
-                            type="file"
-                            accept="image/*"
-                            capture="environment"
-                            onChange={(e) => submit.setData('storefront_photo', e.target.files?.[0] ?? null)}
-                        />
-                    </label>
-                    <label className="mb-3 block">
-                        <div className="text-sm">Owner-at-premises photo {hasOwner && '✓'}</div>
-                        <input
-                            type="file"
-                            accept="image/*"
-                            capture="environment"
-                            onChange={(e) => submit.setData('owner_photo', e.target.files?.[0] ?? null)}
-                        />
-                    </label>
-                </section>
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Required evidence</CardTitle>
+                        <CardDescription>
+                            Capture both photos on site — we use them to audit your visit.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <Stack spacing={2}>
+                            <Box>
+                                <Typography variant="body2" sx={{ mb: 0.5 }}>
+                                    Storefront photo {hasStorefront && '✓'}
+                                </Typography>
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    capture="environment"
+                                    onChange={(e) => submit.setData('storefront_photo', e.target.files?.[0] ?? null)}
+                                />
+                            </Box>
+                            <Box>
+                                <Typography variant="body2" sx={{ mb: 0.5 }}>
+                                    Owner-at-premises photo {hasOwner && '✓'}
+                                </Typography>
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    capture="environment"
+                                    onChange={(e) => submit.setData('owner_photo', e.target.files?.[0] ?? null)}
+                                />
+                            </Box>
+                        </Stack>
+                    </CardContent>
+                </Card>
 
-                <section>
-                    <label className="block">
-                        <div className="text-sm">General notes</div>
-                        <textarea
-                            disabled={isTerminal}
-                            value={submit.data.notes}
-                            onChange={(e) => submit.setData('notes', e.target.value)}
-                            className="w-full rounded border p-2"
-                            rows={3}
-                        />
-                    </label>
-                    <label className="mt-3 flex items-center gap-2">
-                        <input
-                            type="checkbox"
-                            disabled={isTerminal}
-                            checked={submit.data.escalated}
-                            onChange={(e) => submit.setData('escalated', e.target.checked)}
-                        />
-                        <span className="text-sm">
-                            Escalate to admin — tick if something feels off but you can't prove it.
-                        </span>
-                    </label>
-                </section>
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Notes & escalation</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <Stack spacing={2}>
+                            <TextField
+                                label="General notes"
+                                multiline
+                                minRows={3}
+                                fullWidth
+                                disabled={isTerminal}
+                                value={submit.data.notes}
+                                onChange={(e) => submit.setData('notes', e.target.value)}
+                            />
+                            <FormControlLabel
+                                control={
+                                    <Checkbox
+                                        disabled={isTerminal}
+                                        checked={submit.data.escalated}
+                                        onChange={(e) => submit.setData('escalated', e.target.checked)}
+                                    />
+                                }
+                                label="Escalate to admin — tick if something feels off but you can't prove it."
+                            />
+                        </Stack>
+                    </CardContent>
+                </Card>
 
-                <button
+                <Button
                     type="submit"
+                    size="lg"
                     disabled={!canSubmit || submit.processing || isTerminal}
-                    className="w-full rounded bg-primary px-4 py-3 text-primary-foreground disabled:opacity-50"
+                    sx={{ py: 1.5 }}
                 >
-                    {isTerminal ? `Visit ${visit.status}` : submit.processing ? 'Submitting…' : 'Submit visit'}
-                </button>
-            </form>
+                    {isTerminal
+                        ? `Visit ${visit.status}`
+                        : submit.processing
+                          ? 'Submitting…'
+                          : 'Submit visit'}
+                </Button>
+            </Box>
         </AppLayout>
     );
 }

@@ -43,6 +43,8 @@ class Target extends Model
         'notes',
     ];
 
+    protected $appends = ['completion_percentage', 'base_bonus'];
+
     protected function casts(): array
     {
         return [
@@ -139,5 +141,15 @@ class Target extends Model
     public function scopeForRole($query, string $role)
     {
         return $query->where('user_role', $role);
+    }
+
+    public function getCompletionPercentageAttribute(): int
+    {
+        return $this->getCompletionPercentage();
+    }
+
+    public function getBaseBonusAttribute(): float
+    {
+        return (float) $this->bonus_amount;
     }
 }

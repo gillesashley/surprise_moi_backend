@@ -27,7 +27,7 @@ interface TargetItem {
     target_type: string;
     target_value: number;
     current_value: number;
-    period: string;
+    period_type: string;
     start_date: string;
     end_date: string;
     status: string;
@@ -158,7 +158,7 @@ export default function FieldAgentTargets({ targets }: Props) {
                                                     </Box>
                                                 </TableCell>
                                                 <TableCell>
-                                                    {target.period}
+                                                    {target.period_type}
                                                 </TableCell>
                                                 <TableCell>
                                                     {getStatusBadge(

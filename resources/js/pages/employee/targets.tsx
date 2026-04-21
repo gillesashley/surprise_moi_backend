@@ -26,7 +26,7 @@ interface TargetItem {
     target_type: string;
     target_value: number;
     current_value: number;
-    period: string;
+    period_type: string;
     start_date: string;
     end_date: string;
     status: string;
@@ -83,9 +83,18 @@ const calculateProgress = (current: number, target: number) => {
     return Math.min(100, Math.round((current / target) * 100));
 };
 
-const getQuarterFromPeriod = (period: string): string => {
+const getQuarterFromPeriod = (period: string | undefined | null, startDate?: string): string => {
+    if (!period) return '';
     const match = period.match(/Q(\d)/);
-    return match ? `Q${match[1]}` : period;
+    if (match) return `Q${match[1]}`;
+
+    if (period === 'quarterly' && startDate) {
+        const date = new Date(startDate);
+        const quarter = Math.floor(date.getMonth() / 3) + 1;
+        return `Q${quarter}`;
+    }
+
+    return period.charAt(0).toUpperCase() + period.slice(1);
 };
 
 export default function MarketerTargets({ targets }: Props) {
@@ -141,7 +150,8 @@ export default function MarketerTargets({ targets }: Props) {
                                                         <TrendingUp style={{ width: 16, height: 16, color: 'gray' }} />
                                                         <Typography component="span" fontWeight={500}>
                                                             {getQuarterFromPeriod(
-                                                                target.period,
+                                                                target.period_type,
+                                                                target.start_date,
                                                             )}
                                                         </Typography>
                                                     </Box>
