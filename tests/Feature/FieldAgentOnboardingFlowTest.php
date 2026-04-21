@@ -49,6 +49,14 @@ class FieldAgentOnboardingFlowTest extends TestCase
             'submitted_at' => now(),
         ]);
 
+        \App\Models\Referral::create([
+            'referral_code_id' => $referralCode->id,
+            'influencer_id' => $referralCode->influencer_id,
+            'vendor_id' => $vendor->id,
+            'vendor_application_id' => $application->id,
+            'status' => \App\Models\Referral::STATUS_PENDING,
+        ]);
+
         // 3. Field Agent views their pending visits
         $response = $this->actingAs($fieldAgent)
             ->get(route('field-agent.visits.index'));
@@ -65,7 +73,7 @@ class FieldAgentOnboardingFlowTest extends TestCase
         // Assert visit record created
         $this->assertDatabaseHas('vendor_visits', [
             'vendor_application_id' => $application->id,
-            'field_agent_id' => $fieldAgent->id,
+            'field_agent_user_id' => $fieldAgent->id,
             'status' => 'draft',
         ]);
 

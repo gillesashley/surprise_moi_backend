@@ -508,13 +508,7 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Earning::class);
     }
 
-    /**
-     * Get all vendor visits received by this vendor (as the subject of the visit).
-     */
-    public function vendorVisitsReceived(): HasMany
-    {
-        return $this->hasMany(VendorVisit::class, 'vendor_user_id');
-    }
+
 
     /**
      * Get all vendor visits conducted by this user as a field agent.

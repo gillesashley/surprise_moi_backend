@@ -82,11 +82,10 @@ class UserController extends Controller
                 ];
 
                 if ($activeRole === 'field_agent') {
-                    $totalVisits = $user->vendorVisitsAsAgent()->whereIn('status', ['passed', 'failed'])->count();
-                    $passedVisits = $user->vendorVisitsAsAgent()->where('status', 'passed')->count();
+                    $totalVisits = $user->vendorVisitsAsAgent()->whereIn('status', ['submitted'])->count();
 
                     $data['visits_completed_count'] = $totalVisits;
-                    $data['pass_rate'] = $totalVisits > 0 ? round(($passedVisits / $totalVisits) * 100, 1) : null;
+                    $data['pass_rate'] = null; // pass rate is deprecated
                 }
 
                 return $data;
@@ -245,14 +244,6 @@ class UserController extends Controller
                 'products_count' => $user->products()->count(),
                 'services_count' => $user->services()->count(),
                 'vendor_application' => $vendorApplication,
-                'fieldVerification' => $user->role === 'vendor' ? [
-                    'is_verified' => $user->isFieldVerified(),
-                    'verified_until' => $user->field_verified_until?->toIso8601String(),
-                    'recent_visits' => $user->vendorVisitsReceived()
-                        ->latest('started_at')
-                        ->take(3)
-                        ->get(['id', 'status', 'started_at', 'badge_expires_at']),
-                ] : null,
             ],
             'roles' => self::ROLES,
             'canDelete' => Auth::user()->isAdmin(),

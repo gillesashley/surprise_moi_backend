@@ -71,7 +71,7 @@ class AppServiceProvider extends ServiceProvider
         \App\Models\Order::observe(\App\Observers\OrderObserver::class);
         \App\Models\Message::observe(\App\Observers\MessageObserver::class);
         \App\Models\VendorApplication::observe(\App\Observers\VendorApplicationObserver::class);
-        \App\Models\VendorVisit::observe(\App\Observers\VendorVisitObserver::class);
+
         \App\Models\User::updated(function (\App\Models\User $user) {
             app(\App\Observers\FieldVerificationInvalidationObserver::class)->userUpdated($user);
         });
