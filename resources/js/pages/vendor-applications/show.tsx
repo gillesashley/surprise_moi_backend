@@ -51,15 +51,17 @@ interface BespokeService {
     image: string | null;
 }
 
-interface FieldVerification {
-    is_verified: boolean;
-    verified_until: string | null;
-    recent_visits: Array<{
-        id: string;
-        status: string;
-        started_at: string;
-        badge_expires_at: string | null;
-    }>;
+interface Questionnaire {
+    id: string;
+    status: string;
+    ghana_card_number: string | null;
+    tin_number: string | null;
+    has_shop: boolean;
+    shop_location: string | null;
+    primary_business_address: string | null;
+    storefront_photo: string | null;
+    submitted_at: string | null;
+    field_agent: { name: string } | null;
 }
 
 interface Application {
@@ -116,7 +118,7 @@ interface Application {
         failure_reason: string | null;
     } | null;
     can_be_reviewed: boolean;
-    fieldVerification?: FieldVerification | null;
+    questionnaire?: Questionnaire | null;
 }
 
 interface VendorOrder {
@@ -416,59 +418,74 @@ export default function VendorApplicationShow({ application, vendorOrders }: Pro
                     </CardContent>
                 </Card>
 
-                {/* Field Verification */}
-                {application.fieldVerification && (
+                {/* Field Agent Questionnaire */}
+                {application.questionnaire && application.questionnaire.status === 'submitted' && (
                     <Card>
                         <CardHeader>
                             <CardTitle style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '1.125rem' }}>
                                 <CheckCircle style={{ width: 20, height: 20 }} />
-                                Field Verification
+                                Field Agent Questionnaire
                             </CardTitle>
                             <CardDescription>
-                                Post-approval on-site verification status
+                                Details verified in person by {application.questionnaire.field_agent?.name || 'a field agent'}
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <Box sx={{ mb: 3, borderRadius: 2, border: 1, borderColor: application.fieldVerification.is_verified ? 'success.main' : 'divider', p: 2, bgcolor: application.fieldVerification.is_verified ? 'success.light' : 'transparent', opacity: application.fieldVerification.is_verified ? 0.1 : 1 }}>
-                                <Typography variant="h6" sx={{ fontSize: '0.875rem', fontWeight: 600 }}>
-                                    Current Status: {application.fieldVerification.is_verified ? 'VERIFIED' : 'NOT VERIFIED'}
-                                </Typography>
-                                {application.fieldVerification.is_verified && (
-                                    <Typography sx={{ fontSize: '0.875rem' }}>
-                                        Badge active until: {new Date(application.fieldVerification.verified_until!).toLocaleDateString()}
-                                    </Typography>
-                                )}
-                            </Box>
-
-                            <Typography variant="h6" sx={{ mb: 1, fontSize: '0.875rem', fontWeight: 500 }}>
-                                Recent Visits
-                            </Typography>
-                            {application.fieldVerification.recent_visits.length === 0 ? (
-                                <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
-                                    No field visits recorded yet.
-                                </Typography>
-                            ) : (
-                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                                    {application.fieldVerification.recent_visits.map((v) => (
-                                        <Box key={v.id} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderRadius: 1.5, border: 1, borderColor: 'divider', p: 1.5 }}>
-                                            <Box>
-                                                <Typography sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
-                                                    {new Date(v.started_at).toLocaleDateString()}
-                                                </Typography>
-                                                <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
-                                                    {v.status.toUpperCase()}
-                                                    {v.badge_expires_at && ` · Expires ${new Date(v.badge_expires_at).toLocaleDateString()}`}
-                                                </Typography>
-                                            </Box>
-                                            <Button variant="ghost" size="sm" asChild>
-                                                <Link href={`/dashboard/vendor-visits/${v.id}`}>
-                                                    Details →
-                                                </Link>
-                                            </Button>
-                                        </Box>
-                                    ))}
+                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                                <Box sx={{ display: 'grid', gap: 2, gridTemplateColumns: { md: 'repeat(2, 1fr)' } }}>
+                                    <Box>
+                                        <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
+                                            Verified Ghana Card
+                                        </Typography>
+                                        <Typography sx={{ fontWeight: 500 }}>
+                                            {application.questionnaire.ghana_card_number}
+                                        </Typography>
+                                    </Box>
+                                    <Box>
+                                        <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
+                                            Verified TIN
+                                        </Typography>
+                                        <Typography sx={{ fontWeight: 500 }}>
+                                            {application.questionnaire.tin_number || 'N/A'}
+                                        </Typography>
+                                    </Box>
                                 </Box>
-                            )}
+
+                                <Box>
+                                    <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary', mb: 1 }}>
+                                        Physical Location
+                                    </Typography>
+                                    {application.questionnaire.has_shop ? (
+                                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                            <Typography sx={{ fontWeight: 500 }}>
+                                                Has Shop: Yes
+                                            </Typography>
+                                            <Typography sx={{ fontWeight: 500 }}>
+                                                Location: {application.questionnaire.shop_location}
+                                            </Typography>
+                                            {application.questionnaire.storefront_photo && (
+                                                <Box sx={{ mt: 1, overflow: 'hidden', borderRadius: 2, border: 1, borderColor: 'divider', maxWidth: 300 }}>
+                                                    <Box
+                                                        component="img"
+                                                        src={application.questionnaire.storefront_photo}
+                                                        alt="Storefront Photo"
+                                                        sx={{ height: 'auto', width: '100%', objectFit: 'cover' }}
+                                                    />
+                                                </Box>
+                                            )}
+                                        </Box>
+                                    ) : (
+                                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                            <Typography sx={{ fontWeight: 500 }}>
+                                                Has Shop: No
+                                            </Typography>
+                                            <Typography sx={{ fontWeight: 500 }}>
+                                                Primary Address: {application.questionnaire.primary_business_address}
+                                            </Typography>
+                                        </Box>
+                                    )}
+                                </Box>
+                            </Box>
                         </CardContent>
                     </Card>
                 )}

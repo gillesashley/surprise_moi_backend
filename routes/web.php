@@ -175,13 +175,7 @@ Route::middleware(['auth', 'dashboard'])->prefix('dashboard')->group(function ()
         ->middleware('role:super_admin')
         ->name('audit-log.index');
 
-    // Vendor Visits Management
-    Route::middleware('role:admin,super_admin')->prefix('vendor-visits')->name('admin.vendor-visits.')->group(function () {
-        Route::get('/', [\App\Http\Controllers\Admin\VendorVisitsController::class, 'index'])->name('index');
-        Route::get('/{vendorVisit}', [\App\Http\Controllers\Admin\VendorVisitsController::class, 'show'])->name('show');
-        Route::post('/{vendorVisit}/override', [\App\Http\Controllers\Admin\VendorVisitsController::class, 'override'])->name('override');
-        Route::post('/{vendorVisit}/revoke', [\App\Http\Controllers\Admin\VendorVisitsController::class, 'revoke'])->name('revoke');
-    });
+
 
     // Customer Support Tickets
     Route::prefix('customer-support')->name('dashboard.customer-support.')->group(function () {

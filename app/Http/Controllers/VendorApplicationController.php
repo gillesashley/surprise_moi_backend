@@ -81,7 +81,7 @@ class VendorApplicationController extends Controller
      */
     public function show(VendorApplication $vendorApplication)
     {
-        $vendorApplication->load(['user', 'reviewer', 'bespokeServices', 'latestOnboardingPayment']);
+        $vendorApplication->load(['user', 'reviewer', 'bespokeServices', 'latestOnboardingPayment', 'vendorVisit.fieldAgent']);
 
         return Inertia::render('vendor-applications/show', [
             'application' => [
@@ -175,14 +175,20 @@ class VendorApplicationController extends Controller
                 // Review eligibility
                 'can_be_reviewed' => $vendorApplication->canBeReviewed(),
 
-                'fieldVerification' => [
-                    'is_verified' => $vendorApplication->user->isFieldVerified(),
-                    'verified_until' => $vendorApplication->user->field_verified_until?->toIso8601String(),
-                    'recent_visits' => $vendorApplication->user->vendorVisitsReceived()
-                        ->latest('started_at')
-                        ->take(3)
-                        ->get(['id', 'status', 'started_at', 'badge_expires_at']),
-                ],
+                'questionnaire' => $vendorApplication->vendorVisit ? [
+                    'id' => $vendorApplication->vendorVisit->id,
+                    'status' => $vendorApplication->vendorVisit->status,
+                    'ghana_card_number' => $vendorApplication->vendorVisit->ghana_card_number,
+                    'tin_number' => $vendorApplication->vendorVisit->tin_number,
+                    'has_shop' => $vendorApplication->vendorVisit->has_shop,
+                    'shop_location' => $vendorApplication->vendorVisit->shop_location,
+                    'primary_business_address' => $vendorApplication->vendorVisit->primary_business_address,
+                    'storefront_photo' => $vendorApplication->vendorVisit->storefront_photo_path ? Storage::url($vendorApplication->vendorVisit->storefront_photo_path) : null,
+                    'submitted_at' => $vendorApplication->vendorVisit->submitted_at?->toIso8601String(),
+                    'field_agent' => $vendorApplication->vendorVisit->fieldAgent ? [
+                        'name' => $vendorApplication->vendorVisit->fieldAgent->name,
+                    ] : null,
+                ] : null,
             ],
             'vendorOrders' => $this->getVendorOrders($vendorApplication),
         ]);
