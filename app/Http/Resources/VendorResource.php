@@ -24,6 +24,8 @@ class VendorResource extends JsonResource
             'products_rating' => $this->whenNotNull($this->products_avg_rating !== null ? (float) $this->products_avg_rating : null),
             'services_rating' => $this->whenNotNull($this->services_avg_rating !== null ? (float) $this->services_avg_rating : null),
             'is_verified' => $this->email_verified_at !== null,
+            'is_field_verified' => $this->isFieldVerified(),
+            'field_verified_until' => $this->field_verified_until?->toIso8601String(),
             'is_online' => true,
             'is_popular' => (bool) ($this->is_popular ?? false),
             'products_count' => (int) ($this->products_count ?? 0),

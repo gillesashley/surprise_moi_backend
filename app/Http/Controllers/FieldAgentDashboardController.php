@@ -40,6 +40,13 @@ class FieldAgentDashboardController extends Controller
                 'code' => $referralCode->code,
             ],
             'vendorStats' => $this->computeVendorStats($user, $period),
+            'needsVisitCount' => \App\Models\User::query()
+                ->where('role', 'vendor')
+                ->whereHas('vendorApplications', fn ($q) => $q->where('status', VendorApplication::STATUS_APPROVED))
+                ->where(function ($q) {
+                    $q->whereNull('field_verified_until')->orWhere('field_verified_until', '<=', now());
+                })
+                ->count(),
             'earningsSummary' => $earningsSummary,
             'activeTarget' => $this->computeActiveTarget($user),
             'recentVendors' => $this->computeRecentVendors($user),

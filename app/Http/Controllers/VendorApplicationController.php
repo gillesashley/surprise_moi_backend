@@ -174,6 +174,15 @@ class VendorApplicationController extends Controller
 
                 // Review eligibility
                 'can_be_reviewed' => $vendorApplication->canBeReviewed(),
+
+                'fieldVerification' => [
+                    'is_verified' => $vendorApplication->user->isFieldVerified(),
+                    'verified_until' => $vendorApplication->user->field_verified_until?->toIso8601String(),
+                    'recent_visits' => $vendorApplication->user->vendorVisitsReceived()
+                        ->latest('started_at')
+                        ->take(3)
+                        ->get(['id', 'status', 'started_at', 'badge_expires_at']),
+                ],
             ],
             'vendorOrders' => $this->getVendorOrders($vendorApplication),
         ]);

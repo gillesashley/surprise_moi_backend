@@ -10,12 +10,12 @@ use App\Http\Controllers\Api\V1\CartController;
 use App\Http\Controllers\Api\V1\ChatController;
 use App\Http\Controllers\Api\V1\CouponController;
 use App\Http\Controllers\Api\V1\DeviceTokenController;
+use App\Http\Controllers\Api\V1\EmployeeDashboardController;
 use App\Http\Controllers\Api\V1\FieldAgentDashboardController;
 use App\Http\Controllers\Api\V1\FilterController;
 use App\Http\Controllers\Api\V1\HealthController;
 use App\Http\Controllers\Api\V1\InfluencerDashboardController;
 use App\Http\Controllers\Api\V1\LocationController;
-use App\Http\Controllers\Api\V1\EmployeeDashboardController;
 use App\Http\Controllers\Api\V1\NotificationController;
 use App\Http\Controllers\Api\V1\OrderController;
 use App\Http\Controllers\Api\V1\PartnerProfileController;
@@ -294,9 +294,10 @@ Route::prefix('v1')->group(function () {
         });
 
         // Vendor Balance routes (vendors only)
-        Route::prefix('vendor')->group(function () {
+        Route::middleware('role:vendor')->prefix('vendor')->group(function () {
             Route::get('/balance', [\App\Http\Controllers\Api\V1\VendorBalanceController::class, 'index']);
             Route::get('/transactions', [\App\Http\Controllers\Api\V1\VendorBalanceController::class, 'transactions']);
+            Route::get('/field-verification', [\App\Http\Controllers\Api\V1\VendorFieldVerificationController::class, 'show']);
         });
 
         // Chat routes (real-time messaging with vendors)

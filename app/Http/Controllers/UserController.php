@@ -69,7 +69,27 @@ class UserController extends Controller
 
         $filters = $this->applyFiltersAndSorting($request, $query);
 
-        $users = $query->paginate(15)->withQueryString();
+        $users = $query->paginate(15)->withQueryString()
+            ->through(function (User $user) use ($activeRole) {
+                $data = [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'phone' => $user->phone,
+                    'role' => $user->role,
+                    'created_at' => $user->created_at?->toIso8601String(),
+                ];
+
+                if ($activeRole === 'field_agent') {
+                    $totalVisits = $user->vendorVisitsAsAgent()->whereIn('status', ['passed', 'failed'])->count();
+                    $passedVisits = $user->vendorVisitsAsAgent()->where('status', 'passed')->count();
+
+                    $data['visits_completed_count'] = $totalVisits;
+                    $data['pass_rate'] = $totalVisits > 0 ? round(($passedVisits / $totalVisits) * 100, 1) : null;
+                }
+
+                return $data;
+            });
 
         return Inertia::render('users/index', [
             'users' => $users,
@@ -224,6 +244,14 @@ class UserController extends Controller
                 'products_count' => $user->products()->count(),
                 'services_count' => $user->services()->count(),
                 'vendor_application' => $vendorApplication,
+                'fieldVerification' => $user->role === 'vendor' ? [
+                    'is_verified' => $user->isFieldVerified(),
+                    'verified_until' => $user->field_verified_until?->toIso8601String(),
+                    'recent_visits' => $user->vendorVisitsReceived()
+                        ->latest('started_at')
+                        ->take(3)
+                        ->get(['id', 'status', 'started_at', 'badge_expires_at']),
+                ] : null,
             ],
             'roles' => self::ROLES,
             'canDelete' => Auth::user()->isAdmin(),
