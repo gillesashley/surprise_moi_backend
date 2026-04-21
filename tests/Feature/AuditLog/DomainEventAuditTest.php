@@ -24,9 +24,13 @@ class DomainEventAuditTest extends TestCase
             'payment_completed_at' => now(),
         ]);
 
-        $this->actingAs($admin)
+        $response = $this->actingAs($admin)
             ->withSession(['user_management.verified_at' => time()])
             ->post(route('vendor-applications.approve', $app));
+
+        if ($response->isRedirect() && session()->has('errors')) {
+            dump(session('errors')->getBag('default')->getMessages());
+        }
 
         $this->assertDatabaseHas('activity_log', [
             'event' => 'vendor_application.approved',

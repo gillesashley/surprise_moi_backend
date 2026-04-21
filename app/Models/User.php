@@ -519,6 +519,14 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Get all vendor visits received by this user as a vendor.
+     */
+    public function vendorVisitsReceived(): HasMany
+    {
+        return $this->hasMany(VendorVisit::class, 'vendor_user_id');
+    }
+
+    /**
      * Get unpaid earnings for this user.
      * These are earnings that haven't been paid out yet.
      */
