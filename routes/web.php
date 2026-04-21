@@ -6,10 +6,10 @@ use App\Http\Controllers\BespokeServiceController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ContentManagementController;
 use App\Http\Controllers\CouponManagementController;
+use App\Http\Controllers\EmployeeDashboardController;
 use App\Http\Controllers\FieldAgentDashboardController;
 use App\Http\Controllers\InfluencerDashboardController;
 use App\Http\Controllers\InterestController;
-use App\Http\Controllers\EmployeeDashboardController;
 use App\Http\Controllers\MusicGenreController;
 use App\Http\Controllers\OrderManagementController;
 use App\Http\Controllers\PaymentManagementController;
@@ -270,6 +270,15 @@ Route::middleware(['auth', 'dashboard'])->prefix('field-agent')->name('field-age
     Route::get('earnings', [FieldAgentDashboardController::class, 'earnings'])->name('earnings');
     Route::get('payouts', [FieldAgentDashboardController::class, 'payouts'])->name('payouts');
     Route::get('verification', [\App\Http\Controllers\FieldAgentVerificationController::class, 'show'])->name('verification');
+
+    Route::middleware('role:field_agent')->prefix('visits')->name('visits.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\FieldAgent\VendorVisitsController::class, 'index'])->name('index');
+        Route::get('/forms/{visit}', [\App\Http\Controllers\FieldAgent\VendorVisitsController::class, 'form'])->name('form');
+        Route::patch('/forms/{visit}/items/{item}', [\App\Http\Controllers\FieldAgent\VendorVisitsController::class, 'updateItem'])->name('items.update');
+        Route::post('/forms/{visit}/submit', [\App\Http\Controllers\FieldAgent\VendorVisitsController::class, 'submit'])->name('submit');
+        Route::get('/{vendor}', [\App\Http\Controllers\FieldAgent\VendorVisitsController::class, 'show'])->name('show');
+        Route::post('/{vendor}/start', [\App\Http\Controllers\FieldAgent\VendorVisitsController::class, 'start'])->name('start');
+    });
 
     // SPA catch-all - must be LAST in the group
     Route::get('/{any?}', [FieldAgentDashboardController::class, 'index'])
