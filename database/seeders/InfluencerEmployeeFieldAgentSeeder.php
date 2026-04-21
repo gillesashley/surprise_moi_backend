@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\ReferralCode;
 use App\Models\Target;
 use App\Models\User;
+use App\Models\VendorApplication;
 use Illuminate\Database\Seeder;
 
 class InfluencerEmployeeFieldAgentSeeder extends Seeder
@@ -39,14 +40,76 @@ class InfluencerEmployeeFieldAgentSeeder extends Seeder
             ]);
         }
 
-        // Create Field Agents
+        // Create a deterministic field agent for testing the onboarding flow.
+        // This agent always has the same email so credentials survive re-seeding.
+        $primaryAgent = User::updateOrCreate(
+            ['email' => 'fieldagent@surprisemoi.test'],
+            [
+                'name' => 'Test Field Agent',
+                'phone' => '0240000010',
+                'password' => 'password',
+                'role' => 'field_agent',
+                'email_verified_at' => now(),
+                'phone_verified_at' => now(),
+            ]
+        );
+
+        // Ensure the primary agent has a referral code
+        $agentCode = ReferralCode::firstOrCreate(
+            ['influencer_id' => $primaryAgent->id],
+            [
+                'description' => "Referral code for {$primaryAgent->name}",
+                'is_active' => true,
+                'registration_bonus' => 0,
+            ]
+        );
+
+        // Seed 2 pending vendor applications tied to this agent's referral code.
+        // These represent new vendors the field agent brought on board.
+        for ($i = 1; $i <= 2; $i++) {
+            $vendorEmail = "onboard.vendor{$i}@example.com";
+            $vendorUser = User::updateOrCreate(
+                ['email' => $vendorEmail],
+                [
+                    'name' => "Onboarding Vendor {$i}",
+                    'phone' => '024100000' . $i,
+                    'password' => 'password',
+                    'role' => 'customer',
+                    'email_verified_at' => now(),
+                ]
+            );
+
+            // Only create the application if one doesn't already exist for this user
+            if (! $vendorUser->vendorApplications()->exists()) {
+                VendorApplication::factory()
+                    ->for($vendorUser)
+                    ->withGhanaCard()
+                    ->pending()
+                    ->create([
+                        'completed_step' => 4,
+                        'referral_code_id' => $agentCode->id,
+                        'referral_code_used' => $agentCode->code,
+                        'payment_required' => true,
+                        'payment_completed' => true,
+                    ]);
+            }
+        }
+
+        // Create remaining Field Agents (random)
         $fieldAgents = User::factory()
             ->fieldAgent()
-            ->count(15)
+            ->count(14)
             ->create();
 
-        foreach ($fieldAgents as $agent) {
-            // Assign targets to field agents
+        // Include the primary agent in the collection for target assignment
+        $allAgents = collect([$primaryAgent])->merge($fieldAgents);
+
+        foreach ($allAgents as $agent) {
+            // Skip if this agent already has an active target this month
+            if ($agent->targets()->where('status', Target::STATUS_ACTIVE)->where('start_date', now()->startOfMonth())->exists()) {
+                continue;
+            }
+
             Target::create([
                 'user_id' => $agent->id,
                 'assigned_by' => $superAdmin->id,
@@ -105,6 +168,7 @@ class InfluencerEmployeeFieldAgentSeeder extends Seeder
         $this->command->newLine();
 
         $this->command->info('--- FIELD AGENTS ---');
+        $this->command->info("Email: {$primaryAgent->email} (primary — has 2 pending vendor onboardings)");
         foreach ($fieldAgents as $agent) {
             $this->command->info("Email: {$agent->email}");
         }
