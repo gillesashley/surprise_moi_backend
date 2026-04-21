@@ -63,9 +63,57 @@ interface FieldVerification {
 }
 
 interface Application {
-...
+    id: number;
+    status: string;
+    current_step: number;
+    completed_step: number;
+    is_registered_vendor: boolean;
+    user: {
+        id: number;
+        name: string;
+        email: string;
+        phone: string | null;
+        role: string;
+    };
+    ghana_card_front: string | null;
+    ghana_card_back: string | null;
+    has_business_certificate: boolean;
+    has_tin: boolean;
+    business_certificate_document: string | null;
+    tin_document: string | null;
+    selfie_image: string | null;
+    proof_of_business: string | null;
+    mobile_money_number: string | null;
+    mobile_money_provider: string | null;
+    facebook_handle: string | null;
+    instagram_handle: string | null;
+    twitter_handle: string | null;
+    bespoke_services: BespokeService[];
+    submitted_at: string | null;
+    reviewed_at: string | null;
+    reviewed_by: {
+        id: number;
+        name: string;
+    } | null;
+    rejection_reason: string | null;
+    payment_required: boolean;
+    payment_completed: boolean;
+    payment_completed_at: string | null;
+    onboarding_fee: number | null;
+    discount_amount: number | null;
+    final_amount: number | null;
     payment: {
-...
+        status: string;
+        amount: number;
+        currency: string;
+        channel: string | null;
+        reference: string;
+        card_last4: string | null;
+        card_bank: string | null;
+        mobile_money_number: string | null;
+        mobile_money_provider: string | null;
+        paid_at: string | null;
+        failure_reason: string | null;
     } | null;
     can_be_reviewed: boolean;
     fieldVerification?: FieldVerification | null;
@@ -291,7 +339,80 @@ export default function VendorApplicationShow({ application, vendorOrders }: Pro
 
                 {/* Application Summary */}
                 <Card>
-...
+                    <CardHeader>
+                        <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+                            <Box>
+                                <CardTitle>{application.user.name}</CardTitle>
+                                <CardDescription>
+                                    {application.user.email}
+                                    {application.user.phone && (
+                                        <> • {application.user.phone}</>
+                                    )}
+                                </CardDescription>
+                            </Box>
+                            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 1 }}>
+                                {getStatusBadge(application.status)}
+                                <Badge variant="outline">
+                                    {application.is_registered_vendor
+                                        ? 'Registered Business'
+                                        : 'Individual Vendor'}
+                                </Badge>
+                            </Box>
+                        </Box>
+                    </CardHeader>
+                    <CardContent>
+                        <Box sx={{ display: 'grid', gap: 2, gridTemplateColumns: { md: 'repeat(3, 1fr)' } }}>
+                            <Box>
+                                <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
+                                    Current Role
+                                </Typography>
+                                <Typography sx={{ fontWeight: 500, textTransform: 'capitalize' }}>
+                                    {application.user.role}
+                                </Typography>
+                            </Box>
+                            <Box>
+                                <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
+                                    Progress
+                                </Typography>
+                                <Typography sx={{ fontWeight: 500 }}>
+                                    Step {application.completed_step} of 4
+                                    completed
+                                </Typography>
+                            </Box>
+                            <Box>
+                                <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
+                                    Submitted
+                                </Typography>
+                                <Typography sx={{ fontWeight: 500 }}>
+                                    {application.submitted_at
+                                        ? new Date(
+                                              application.submitted_at,
+                                          ).toLocaleDateString()
+                                        : 'Not submitted'}
+                                </Typography>
+                            </Box>
+                        </Box>
+                        {application.reviewed_at && (
+                            <Box sx={{ mt: 2, borderRadius: 2, bgcolor: 'action.hover', p: 1.5 }}>
+                                <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
+                                    Reviewed by {application.reviewed_by?.name}{' '}
+                                    on{' '}
+                                    {new Date(
+                                        application.reviewed_at,
+                                    ).toLocaleDateString()}
+                                </Typography>
+                            </Box>
+                        )}
+                        {application.rejection_reason && (
+                            <Box sx={{ mt: 2, borderRadius: 2, bgcolor: 'error.light', opacity: 0.1, p: 1.5 }}>
+                                <Typography sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'error.main' }}>
+                                    Rejection Reason:
+                                </Typography>
+                                <Typography sx={{ mt: 0.5, fontSize: '0.875rem', color: 'error.main', opacity: 0.8 }}>
+                                    {application.rejection_reason}
+                                </Typography>
+                            </Box>
+                        )}
                     </CardContent>
                 </Card>
 

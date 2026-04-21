@@ -1232,7 +1232,66 @@ export default function UserShow({ user, canDelete }: Props) {
                         {/* Shops List */}
                         {user.shops && user.shops.length > 0 && (
                             <Card>
-...
+                                <CardHeader>
+                                    <CardTitle style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                        <Store style={{ width: 20, height: 20 }} />
+                                        Shops
+                                    </CardTitle>
+                                    <CardDescription>
+                                        All shops owned by this vendor
+                                    </CardDescription>
+                                </CardHeader>
+                                <CardContent>
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                                        {user.shops.map((shop) => (
+                                            <Box
+                                                key={shop.id}
+                                                sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderRadius: 2, border: 1, borderColor: 'divider', p: 2 }}
+                                            >
+                                                <Box sx={{ flex: 1 }}>
+                                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                        <Typography variant="h6" sx={{ fontWeight: 500 }}>
+                                                            {shop.name}
+                                                        </Typography>
+                                                        <Badge
+                                                            variant={
+                                                                shop.is_active
+                                                                    ? 'default'
+                                                                    : 'secondary'
+                                                            }
+                                                        >
+                                                            {shop.is_active
+                                                                ? 'Active'
+                                                                : 'Inactive'}
+                                                        </Badge>
+                                                    </Box>
+                                                    {shop.location && (
+                                                        <Typography sx={{ mt: 0.5, display: 'flex', alignItems: 'center', gap: 0.5, fontSize: '0.875rem', color: 'text.secondary' }}>
+                                                            <MapPin style={{ width: 12, height: 12 }} />
+                                                            {shop.location}
+                                                        </Typography>
+                                                    )}
+                                                    <Box sx={{ mt: 1, display: 'flex', gap: 2, fontSize: '0.875rem', color: 'text.secondary' }}>
+                                                        <Box component="span" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                                            <Package style={{ width: 12, height: 12 }} />
+                                                            {
+                                                                shop.products_count
+                                                            }{' '}
+                                                            products
+                                                        </Box>
+                                                        <Box component="span" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                                            <Briefcase style={{ width: 12, height: 12 }} />
+                                                            {
+                                                                shop.services_count
+                                                            }{' '}
+                                                            services
+                                                        </Box>
+                                                    </Box>
+                                                </Box>
+                                            </Box>
+                                        ))}
+                                    </Box>
+                                </CardContent>
                             </Card>
                         )}
 
