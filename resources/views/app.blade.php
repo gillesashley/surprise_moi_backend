@@ -6,6 +6,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
+    <!-- Primary Meta Tags -->
+    <meta name="title" content="Surprise Moi - Dashboard">
+    <meta name="description" content="Manage your Surprise Moi account, view earnings, and more.">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ config('app.url') }}">
+    <meta property="og:title" content="Surprise Moi - Dashboard">
+    <meta property="og:description" content="Manage your Surprise Moi account, view earnings, and more.">
+    <meta property="og:image" content="{{ asset('images/surprise-logo-22.jpeg') }}">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="{{ config('app.url') }}">
+    <meta property="twitter:title" content="Surprise Moi - Dashboard">
+    <meta property="twitter:description" content="Manage your Surprise Moi account, view earnings, and more.">
+    <meta property="twitter:image" content="{{ asset('images/surprise-logo-22.jpeg') }}">
+
     {{-- Inline script to detect system dark mode preference and apply it immediately --}}
     <script>
         (function () {
