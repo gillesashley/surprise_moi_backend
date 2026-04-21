@@ -17,22 +17,22 @@ class VendorVisit extends Model
     protected $fillable = [
         'vendor_user_id',
         'field_agent_user_id',
+        'vendor_application_id',
         'status',
         'started_at',
         'submitted_at',
-        'visit_latitude',
-        'visit_longitude',
         'storefront_photo_path',
         'owner_photo_path',
-        'notes',
-        'escalated',
+        'ghana_card_number',
+        'tin_number',
+        'has_shop',
+        'shop_location',
+        'primary_business_address',
         'computed_result',
         'admin_override_result',
         'admin_override_reason',
         'admin_override_by',
         'admin_override_at',
-        'badge_issued_at',
-        'badge_expires_at',
     ];
 
     protected function casts(): array
@@ -44,11 +44,7 @@ class VendorVisit extends Model
             'started_at' => 'datetime',
             'submitted_at' => 'datetime',
             'admin_override_at' => 'datetime',
-            'badge_issued_at' => 'datetime',
-            'badge_expires_at' => 'datetime',
-            'escalated' => 'boolean',
-            'visit_latitude' => 'decimal:7',
-            'visit_longitude' => 'decimal:7',
+            'has_shop' => 'boolean',
         ];
     }
 
@@ -62,9 +58,9 @@ class VendorVisit extends Model
         return $this->belongsTo(User::class, 'field_agent_user_id');
     }
 
-    public function items(): HasMany
+    public function vendorApplication(): BelongsTo
     {
-        return $this->hasMany(VendorVisitItem::class);
+        return $this->belongsTo(VendorApplication::class, 'vendor_application_id');
     }
 
     public function overrideBy(): BelongsTo

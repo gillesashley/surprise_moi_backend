@@ -144,6 +144,11 @@ class VendorApplication extends Model
         return $this->hasOne(VendorOnboardingPayment::class)->latestOfMany();
     }
 
+    public function vendorVisit(): HasOne
+    {
+        return $this->hasOne(VendorVisit::class, 'vendor_application_id');
+    }
+
     /**
      * Check if vendor is registered (has business documents).
      */

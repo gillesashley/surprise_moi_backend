@@ -2,21 +2,12 @@
 
 namespace App\Http\Controllers\FieldAgent;
 
-use App\Actions\VendorVisit\CompleteVendorVisit;
-use App\Actions\VendorVisit\StartVendorVisit;
 use App\Enums\VendorVisitStatus;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\FieldAgent\StartVendorVisitRequest;
-use App\Http\Requests\FieldAgent\SubmitVendorVisitRequest;
-use App\Http\Requests\FieldAgent\UpdateVendorVisitItemRequest;
-use App\Models\User;
 use App\Models\VendorApplication;
 use App\Models\VendorVisit;
-use App\Models\VendorVisitItem;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -26,87 +17,35 @@ class VendorVisitsController extends Controller
     {
         $agent = $request->user();
 
-        $needsVisit = User::query()
-            ->where('role', 'vendor')
-            ->whereHas('vendorApplications', fn ($q) => $q->where('status', VendorApplication::STATUS_APPROVED))
-            ->where(function ($q) {
-                $q->whereNull('field_verified_until')
-                    ->orWhere('field_verified_until', '<=', now());
+        // Get applications linked to this agent's referral code
+        $applications = VendorApplication::query()
+            ->with(['user:id,business_name,name,email', 'vendorVisit'])
+            ->whereHas('referralCode', function ($query) use ($agent) {
+                $query->where('influencer_id', $agent->id);
             })
-            ->select(['id', 'business_name', 'name', 'field_verified_until'])
-            ->orderBy('field_verified_until')
-            ->limit(50)
-            ->get();
-
-        $expiringSoon = User::query()
-            ->where('role', 'vendor')
-            ->whereBetween('field_verified_until', [now(), now()->addDays(30)])
-            ->select(['id', 'business_name', 'name', 'field_verified_until'])
-            ->orderBy('field_verified_until')
-            ->limit(50)
-            ->get();
-
-        $drafts = VendorVisit::query()
-            ->where('field_agent_user_id', $agent->id)
-            ->where('status', VendorVisitStatus::Draft->value)
-            ->with('vendor:id,business_name,name')
-            ->orderByDesc('started_at')
+            ->latest('id')
             ->get();
 
         return Inertia::render('field-agent/visits/index', [
-            'needsVisit' => $needsVisit,
-            'expiringSoon' => $expiringSoon,
-            'drafts' => $drafts,
+            'applications' => $applications,
         ]);
     }
 
-    public function show(Request $request, User $vendor): Response
+    public function start(Request $request, VendorApplication $application): RedirectResponse
     {
-        abort_unless($vendor->role === 'vendor', 404);
+        // Ensure application belongs to a referral code from this agent
+        abort_unless($application->referralCode?->influencer_id === $request->user()->id, 403);
 
-        $application = VendorApplication::query()
-            ->where('user_id', $vendor->id)
-            ->latest('id')
-            ->first();
-
-        abort_unless($application?->status === VendorApplication::STATUS_APPROVED, 404, 'Vendor is not approved yet.');
-
-        $visits = VendorVisit::query()
-            ->where('vendor_user_id', $vendor->id)
-            ->orderByDesc('started_at')
-            ->limit(10)
-            ->get();
-
-        return Inertia::render('field-agent/visits/show', [
-            'vendor' => $vendor->only(['id', 'business_name', 'name', 'email', 'phone']),
-            'application' => $application?->only([
-                'id', 'has_business_certificate', 'tin_number', 'ghana_card_front',
-                'ghana_card_back', 'selfie_image', 'business_certificate_document',
-                'proof_of_business', 'mobile_money_number', 'mobile_money_provider',
-                'facebook_handle', 'instagram_handle', 'twitter_handle',
-            ]),
-            'recentVisits' => $visits,
-        ]);
-    }
-
-    public function start(StartVendorVisitRequest $request, User $vendor, StartVendorVisit $start): RedirectResponse
-    {
-        $application = VendorApplication::query()
-            ->where('user_id', $vendor->id)
-            ->latest('id')
-            ->first();
-
-        if ($application?->status !== VendorApplication::STATUS_APPROVED) {
-            throw ValidationException::withMessages([
-                'vendor' => "This vendor isn't approved yet — there's nothing to verify.",
-            ]);
-        }
-
-        $visit = $start->execute(
-            vendor: $vendor,
-            agent: $request->user(),
-            latitude: (float) $request->validated('latitude'),
-            longitude: (float) $request->validated('longitude'),
+        $visit = VendorVisit::firstOrCreate(
+            [
+                'vendor_application_id' => $application->id,
+                'field_agent_user_id' => $request->user()->id,
+            ],
+            [
+                'vendor_user_id' => $application->user_id,
+                'status' => VendorVisitStatus::Draft->value,
+                'started_at' => now(),
+            ]
         );
 
         return redirect("/field-agent/visits/forms/{$visit->id}");
@@ -116,50 +55,48 @@ class VendorVisitsController extends Controller
     {
         $this->authorizeAgent($request, $visit);
 
-        $visit->load(['items', 'vendor:id,business_name,name']);
+        $visit->load(['vendorApplication.user']);
 
         return Inertia::render('field-agent/visits/new', [
             'visit' => $visit,
-            'items' => $visit->items,
         ]);
     }
 
-    public function updateItem(UpdateVendorVisitItemRequest $request, VendorVisit $visit, VendorVisitItem $item): JsonResponse
-    {
-        $this->authorizeAgent($request, $visit);
-        abort_unless($item->vendor_visit_id === $visit->id, 404);
-        abort_if($visit->status->isTerminal(), 422, 'Visit is already submitted.');
-
-        $item->update($request->validated());
-
-        return response()->json(['ok' => true, 'item' => $item->fresh()]);
-    }
-
-    public function submit(SubmitVendorVisitRequest $request, VendorVisit $visit, CompleteVendorVisit $complete): RedirectResponse
+    public function submit(Request $request, VendorVisit $visit): RedirectResponse
     {
         $this->authorizeAgent($request, $visit);
 
         if ($visit->status->isTerminal()) {
-            return redirect("/field-agent/visits/forms/{$visit->id}");
+            return redirect("/field-agent/visits");
         }
 
-        $updates = $request->only(['notes']);
-        $updates['escalated'] = (bool) $request->boolean('escalated');
+        $validated = $request->validate([
+            'ghana_card_number' => ['required', 'string', 'max:255'],
+            'tin_number' => ['nullable', 'string', 'max:255'],
+            'has_shop' => ['required', 'boolean'],
+            'shop_location' => ['required_if:has_shop,true', 'nullable', 'string', 'max:255'],
+            'primary_business_address' => ['required_if:has_shop,false', 'nullable', 'string', 'max:255'],
+            'storefront_photo' => ['required_if:has_shop,true', 'nullable', 'image', 'max:10240'],
+        ]);
+
+        $updates = [
+            'ghana_card_number' => $validated['ghana_card_number'],
+            'tin_number' => $validated['tin_number'] ?? null,
+            'has_shop' => $validated['has_shop'],
+            'shop_location' => $validated['has_shop'] ? $validated['shop_location'] : null,
+            'primary_business_address' => ! $validated['has_shop'] ? $validated['primary_business_address'] : null,
+            'status' => VendorVisitStatus::Submitted->value,
+            'submitted_at' => now(),
+        ];
 
         if ($request->hasFile('storefront_photo')) {
             $updates['storefront_photo_path'] = $request->file('storefront_photo')
                 ->store('vendor-visits/storefronts', 'public');
         }
-        if ($request->hasFile('owner_photo')) {
-            $updates['owner_photo_path'] = $request->file('owner_photo')
-                ->store('vendor-visits/owners', 'public');
-        }
 
         $visit->update($updates);
 
-        $complete->execute($visit->fresh('items'));
-
-        return redirect("/field-agent/visits/forms/{$visit->id}");
+        return redirect("/field-agent/visits")->with('success', 'Questionnaire submitted successfully.');
     }
 
     private function authorizeAgent(Request $request, VendorVisit $visit): void

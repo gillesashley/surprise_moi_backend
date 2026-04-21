@@ -281,11 +281,9 @@ Route::middleware(['auth', 'dashboard'])->prefix('field-agent')->name('field-age
 
     Route::middleware('role:field_agent')->prefix('visits')->name('visits.')->group(function () {
         Route::get('/', [\App\Http\Controllers\FieldAgent\VendorVisitsController::class, 'index'])->name('index');
+        Route::post('/{application}/start', [\App\Http\Controllers\FieldAgent\VendorVisitsController::class, 'start'])->name('start');
         Route::get('/forms/{visit}', [\App\Http\Controllers\FieldAgent\VendorVisitsController::class, 'form'])->name('form');
-        Route::patch('/forms/{visit}/items/{item}', [\App\Http\Controllers\FieldAgent\VendorVisitsController::class, 'updateItem'])->name('items.update');
         Route::post('/forms/{visit}/submit', [\App\Http\Controllers\FieldAgent\VendorVisitsController::class, 'submit'])->name('submit');
-        Route::get('/{vendor}', [\App\Http\Controllers\FieldAgent\VendorVisitsController::class, 'show'])->name('show');
-        Route::post('/{vendor}/start', [\App\Http\Controllers\FieldAgent\VendorVisitsController::class, 'start'])->name('start');
     });
 
     // SPA catch-all - must be LAST in the group
