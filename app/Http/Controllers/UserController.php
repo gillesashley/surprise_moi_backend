@@ -68,6 +68,7 @@ class UserController extends Controller
             ->select(['id', 'name', 'email', 'phone', 'role', 'email_verified_at', 'created_at']);
 
         $filters = $this->applyFiltersAndSorting($request, $query);
+        $activeRole = $filters['role_filter'];
 
         $users = $query->paginate(15)->withQueryString()
             ->through(function (User $user) use ($activeRole) {
