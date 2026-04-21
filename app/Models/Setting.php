@@ -18,14 +18,22 @@ class Setting extends Model
     protected static function booted(): void
     {
         parent::booted();
+
         static::creating(function (self $s) {
             $s->disableLogging();
         });
+
         static::deleting(function (self $s) {
             $s->disableLogging();
         });
+
         static::saved(function (self $s) {
             $s->enableLogging();
+            Cache::forget("setting:{$s->key}");
+        });
+
+        static::deleted(function (self $s) {
+            Cache::forget("setting:{$s->key}");
         });
     }
 
@@ -80,21 +88,5 @@ class Setting extends Model
             'json' => json_decode($value, true),
             default => $value,
         };
-    }
-
-    /**
-     * Clear the cache when a setting is saved.
-     */
-    protected static function boot(): void
-    {
-        parent::boot();
-
-        static::saved(function (Setting $setting) {
-            Cache::forget("setting:{$setting->key}");
-        });
-
-        static::deleted(function (Setting $setting) {
-            Cache::forget("setting:{$setting->key}");
-        });
     }
 }

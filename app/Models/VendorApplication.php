@@ -78,6 +78,8 @@ class VendorApplication extends Model
         'payment_required',
         'payment_completed',
         'payment_completed_at',
+        'referral_code_id',
+        'referral_code_used',
         'coupon_id',
         'onboarding_fee',
         'discount_amount',

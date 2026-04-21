@@ -54,7 +54,10 @@ class VendorOnboardingPaymentController extends Controller
         }
 
         $tier = $application->getVendorTier();
-        $onboardingFee = $application->getOnboardingFee();
+        
+        // Use calculateFinalAmount to account for any already applied referral code
+        $referralCode = $application->referralCode;
+        $amounts = $application->calculateFinalAmount($referralCode);
 
         return response()->json([
             'success' => true,
@@ -62,11 +65,15 @@ class VendorOnboardingPaymentController extends Controller
                 'application_id' => $application->id,
                 'vendor_tier' => $tier,
                 'vendor_type' => $tier === 1 ? 'Registered Business' : 'Individual Vendor',
-                'onboarding_fee' => $onboardingFee,
+                'original_fee' => $amounts['onboarding_fee'],
+                'onboarding_fee' => $amounts['final_amount'], // For mobile app compatibility
+                'discount_amount' => $amounts['discount_amount'],
+                'final_amount' => $amounts['final_amount'],
                 'currency' => 'GHS',
                 'payment_required' => $application->payment_required,
                 'payment_completed' => $application->payment_completed,
-                'can_apply_referral_code' => true,
+                'can_apply_referral_code' => ! $referralCode,
+                'applied_referral_code' => $referralCode?->code,
             ],
         ]);
     }
@@ -75,8 +82,9 @@ class VendorOnboardingPaymentController extends Controller
      * Validate a referral code.
      *
      * Check if a referral code is valid for this vendor application.
-     * Referral codes do not discount the onboarding fee — they track the
-     * referrer for reward on approval.
+     * When valid, the onboarding_fee field in the response returns the
+     * discounted (final) amount to ensure the mobile app displays the
+     * correct payable amount.
      */
     public function validateReferralCode(ValidateReferralCodeRequest $request): JsonResponse
     {
@@ -106,7 +114,8 @@ class VendorOnboardingPaymentController extends Controller
             'message' => $result['message'],
             'data' => [
                 'referral_code' => $result['referral_code']->code,
-                'onboarding_fee' => $result['onboarding_fee'],
+                'original_fee' => $result['onboarding_fee'],
+                'onboarding_fee' => $result['final_amount'],
                 'discount_amount' => $result['discount_amount'],
                 'final_amount' => $result['final_amount'],
                 'currency' => 'GHS',

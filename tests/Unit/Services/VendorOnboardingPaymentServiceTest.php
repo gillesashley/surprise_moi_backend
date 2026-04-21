@@ -22,7 +22,7 @@ class VendorOnboardingPaymentServiceTest extends TestCase
         Setting::set('vendor_onboarding_subsidy_pct', '25', 'number');
 
         $vendor = User::factory()->create();
-        $application = VendorApplication::factory()->create([
+        $application = VendorApplication::factory()->registeredVendor()->create([
             'user_id' => $vendor->id,
             'business_certificate_document' => 'certificates/doc.pdf',
         ]);
@@ -44,7 +44,7 @@ class VendorOnboardingPaymentServiceTest extends TestCase
         Setting::set('vendor_tier1_onboarding_fee', '200', 'number');
 
         $user = User::factory()->create();
-        $application = VendorApplication::factory()->create([
+        $application = VendorApplication::factory()->registeredVendor()->create([
             'user_id' => $user->id,
             'business_certificate_document' => 'certificates/doc.pdf',
         ]);
@@ -62,7 +62,7 @@ class VendorOnboardingPaymentServiceTest extends TestCase
     {
         Setting::set('vendor_tier1_onboarding_fee', '200', 'number');
 
-        $application = VendorApplication::factory()->create([
+        $application = VendorApplication::factory()->registeredVendor()->create([
             'business_certificate_document' => 'certificates/doc.pdf',
         ]);
         $service = $this->app->make(VendorOnboardingPaymentService::class);
@@ -79,7 +79,7 @@ class VendorOnboardingPaymentServiceTest extends TestCase
         Setting::set('vendor_onboarding_subsidy_pct', '25', 'number');
 
         $vendor = User::factory()->create();
-        $application = VendorApplication::factory()->create([
+        $application = VendorApplication::factory()->registeredVendor()->create([
             'user_id' => $vendor->id,
             'business_certificate_document' => 'certificates/doc.pdf',
             'completed_step' => 4,
