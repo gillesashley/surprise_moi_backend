@@ -17,14 +17,22 @@ class FieldAgentVerificationController extends Controller
             ->latest()
             ->first();
 
+        if ($application) {
+            $disk = Storage::disk(config('filesystems.default'));
+            $data = $application->toArray();
+            $data['ghana_card_image_url'] = $disk->url($application->ghana_card_image_path);
+            $data['ghana_card_back_image_url'] = $application->ghana_card_back_image_path
+                ? $disk->url($application->ghana_card_back_image_path)
+                : null;
+            $data['selfie_url'] = $disk->url($application->selfie_path);
+
+            // Ensure reviewed_at and created_at are formatted correctly
+            $data['created_at_formatted'] = $application->created_at?->format('M d, Y');
+            $data['reviewed_at_formatted'] = $application->reviewed_at?->format('M d, Y');
+        }
+
         return Inertia::render('field-agent/verification', [
-            'application' => $application ? array_merge($application->toArray(), [
-                'ghana_card_image_url' => Storage::disk('public')->url($application->ghana_card_image_path),
-                'ghana_card_back_image_url' => $application->ghana_card_back_image_path
-                    ? Storage::disk('public')->url($application->ghana_card_back_image_path)
-                    : null,
-                'selfie_url' => Storage::disk('public')->url($application->selfie_path),
-            ]) : null,
+            'application' => $application ? $data : null,
         ]);
     }
 }
