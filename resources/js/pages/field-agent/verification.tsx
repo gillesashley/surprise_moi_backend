@@ -141,24 +141,37 @@ export default function Verification({ application }: Props) {
                 </div>
 
                 {/* Personal Details Card */}
-                <Card className="border-0 shadow-sm">
-                    <CardHeader className="pb-0">
+                <Card className="border-0 shadow-md ring-1 ring-border">
+                    <CardHeader className="border-b bg-muted/30 px-6 py-4">
                         <div className="flex items-center gap-2">
-                            <User className="h-4 w-4 text-gray-500" />
-                            <CardTitle className="text-base">Personal Details</CardTitle>
+                            <User className="h-5 w-5 text-primary" />
+                            <CardTitle className="text-lg">Personal & Location Information</CardTitle>
                         </div>
-                        <CardDescription>Your submitted application information</CardDescription>
                     </CardHeader>
-                    <CardContent className="pt-2">
-                        <div className="grid gap-0 divide-y sm:grid-cols-2 sm:gap-x-8 sm:divide-y-0">
-                            <InfoRow icon={User} label="Full Name" value={`${application.first_name} ${application.last_name}`} />
-                            <InfoRow icon={Mail} label="Email" value={application.email} />
-                            <InfoRow icon={Phone} label="Phone" value={application.contact_number} />
-                            <InfoRow icon={MapPin} label="Region" value={application.region?.name} />
-                            <InfoRow icon={MapPin} label="City" value={application.city?.name} />
-                            <InfoRow icon={MapPin} label="Location" value={application.location} />
-                            <InfoRow icon={IdCard} label="Ghana Card No." value={application.ghana_card_number} />
-                            <InfoRow icon={FileText} label="Status" value={application.status} />
+                    <CardContent className="p-0">
+                        <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-border">
+                            {/* Identity Column */}
+                            <div className="p-6 space-y-4">
+                                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-2">Identity Details</h3>
+                                <InfoRow icon={User} label="Full Name" value={`${application.first_name} ${application.last_name}`} />
+                                <InfoRow icon={Mail} label="Email Address" value={application.email} />
+                                <InfoRow icon={Phone} label="Contact Number" value={application.contact_number} />
+                                <InfoRow icon={IdCard} label="Ghana Card No." value={application.ghana_card_number} />
+                            </div>
+
+                            {/* Location Column */}
+                            <div className="p-6 space-y-4">
+                                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-2">Location Details</h3>
+                                <InfoRow icon={MapPin} label="Region" value={application.region?.name} />
+                                <InfoRow icon={MapPin} label="City" value={application.city?.name} />
+                                <InfoRow icon={MapPin} label="Street / House No." value={application.location} />
+                                <div className="pt-2">
+                                   <div className="rounded-lg bg-muted p-3">
+                                       <p className="text-xs font-medium text-muted-foreground mb-1 uppercase">Current Status</p>
+                                       <p className="text-sm font-bold capitalize">{application.status.replace('_', ' ')}</p>
+                                   </div>
+                                </div>
+                            </div>
                         </div>
                     </CardContent>
                 </Card>
