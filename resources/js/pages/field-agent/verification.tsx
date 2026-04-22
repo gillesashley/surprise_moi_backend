@@ -10,6 +10,8 @@ import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/react';
 import {
+    CheckCircle,
+    Clock,
     FileText,
     IdCard,
     Mail,
@@ -38,6 +40,8 @@ type Props = {
         ghana_card_image_url: string;
         ghana_card_back_image_url: string | null;
         selfie_url: string;
+        created_at_formatted: string;
+        reviewed_at_formatted: string | null;
     } | null;
 };
 
@@ -108,23 +112,32 @@ export default function Verification({ application }: Props) {
 
             <div className="mx-auto max-w-4xl space-y-6 p-4 md:p-6">
                 {/* Page Header */}
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="flex items-center gap-3">
-                        <div className="rounded-xl bg-purple-100 p-2.5 dark:bg-purple-900/30">
-                            <ShieldCheck className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between border-b pb-6">
+                    <div className="flex items-center gap-4">
+                        <div className="rounded-2xl bg-primary/10 p-3 text-primary">
+                            <ShieldCheck className="h-8 w-8" />
                         </div>
                         <div>
-                            <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">
-                                My Verification
-                            </h1>
-                            <p className="text-sm text-gray-500 dark:text-gray-400">
-                                Your field agent application details
-                            </p>
+                            <h1 className="text-2xl font-bold tracking-tight">Verification Status</h1>
+                            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1 text-sm text-muted-foreground">
+                                <span className="flex items-center gap-1">
+                                    <Clock className="h-3.5 w-3.5" />
+                                    Submitted: {application.created_at_formatted}
+                                </span>
+                                {application.reviewed_at_formatted && (
+                                    <span className="flex items-center gap-1">
+                                        <CheckCircle className="h-3.5 w-3.5 text-emerald-500" />
+                                        Reviewed: {application.reviewed_at_formatted}
+                                    </span>
+                                )}
+                            </div>
                         </div>
                     </div>
-                    <Badge className={`px-3 py-1.5 text-xs font-semibold ${status.className}`} variant={status.variant}>
-                        {status.label}
-                    </Badge>
+                    <div className="flex flex-col items-start md:items-end gap-2">
+                        <Badge className={`text-sm py-1.5 px-4 font-semibold ${status.className}`} variant={status.variant}>
+                            {status.label}
+                        </Badge>
+                    </div>
                 </div>
 
                 {/* Personal Details Card */}
