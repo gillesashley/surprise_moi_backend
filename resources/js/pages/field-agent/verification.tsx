@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/react';
+import Box from '@mui/material/Box';
 import {
     CheckCircle,
     Clock,
@@ -142,7 +143,17 @@ export default function Verification({ application }: Props) {
         return (
             <AppLayout breadcrumbs={breadcrumbs}>
                 <Head title="My Verification" />
-                <div className="mx-auto max-w-4xl space-y-6 p-4 md:p-6">
+                <Box
+                    sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: 4,
+                        p: { xs: 2, md: 3 },
+                        mx: 'auto',
+                        maxWidth: '1280px',
+                        width: '100%',
+                    }}
+                >
                     <div className="flex min-h-[40vh] flex-col items-center justify-center gap-4 rounded-3xl border-2 border-dashed border-muted p-12 text-center transition-colors hover:border-muted-foreground/20">
                         <div className="rounded-full bg-primary/10 p-6 ring-8 ring-primary/5">
                             <ShieldCheck className="h-12 w-12 text-primary" />
@@ -188,7 +199,7 @@ export default function Verification({ application }: Props) {
                             Contact Support
                         </Button>
                     </div>
-                </div>
+                </Box>
             </AppLayout>
         );
     }
@@ -199,7 +210,17 @@ export default function Verification({ application }: Props) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="My Verification" />
 
-            <div className="mx-auto max-w-4xl space-y-6 p-4 md:p-6">
+            <Box
+                sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 4,
+                    p: { xs: 2, md: 3 },
+                    mx: 'auto',
+                    maxWidth: '1280px',
+                    width: '100%',
+                }}
+            >
                 {/* Page Header */}
                 <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between border-b pb-6">
                     <div className="flex items-center gap-4">
@@ -364,7 +385,7 @@ export default function Verification({ application }: Props) {
                         Contact Support
                     </Button>
                 </div>
-            </div>
+            </Box>
         </AppLayout>
     );
 }

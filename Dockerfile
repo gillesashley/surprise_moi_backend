@@ -110,7 +110,7 @@ RUN cp .env.example .env \
     && php artisan key:generate --ansi
 
 # Generate Wayfinder routes BEFORE building (with form support for formVariants)
-RUN php artisan wayfinder:generate --with-form
+RUN php -d memory_limit=512M artisan wayfinder:generate --with-form
 
 # Build the frontend assets (skip Wayfinder plugin since we already generated)
 RUN SKIP_WAYFINDER=true pnpm run build
@@ -257,7 +257,7 @@ RUN cp .env.example .env \
     && sed -i 's/CACHE_STORE=redis/CACHE_STORE=array/' .env \
     && php artisan key:generate --ansi \
     && pnpm install --frozen-lockfile \
-    && php artisan wayfinder:generate --with-form \
+    && php -d memory_limit=512M artisan wayfinder:generate --with-form \
     && SKIP_WAYFINDER=true pnpm run build \
     && rm .env
 
