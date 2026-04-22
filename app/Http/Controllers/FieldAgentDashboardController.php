@@ -34,6 +34,7 @@ class FieldAgentDashboardController extends Controller
             'agent' => [
                 'id' => $user->id,
                 'first_name' => $user->first_name ?? (explode(' ', (string) $user->name)[0] ?: $user->name),
+                'referral_points' => (int) ($user->referral_points ?? 0),
             ],
             'period' => $period,
             'referralCode' => [
@@ -69,6 +70,7 @@ class FieldAgentDashboardController extends Controller
 
         return Inertia::render('field-agent/earnings', [
             'earnings' => $earnings,
+            'referral_points' => (int) ($request->user()->referral_points ?? 0),
         ]);
     }
 

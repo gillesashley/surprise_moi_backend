@@ -19,7 +19,7 @@ import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import { Calendar, DollarSign } from 'lucide-react';
+import { Award, Calendar, DollarSign } from 'lucide-react';
 
 interface Earning {
     id: number;
@@ -37,6 +37,7 @@ interface Props {
         last_page: number;
         total: number;
     };
+    referral_points: number;
 }
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -84,7 +85,7 @@ const formatEarningType = (type: string) => {
         .join(' ');
 };
 
-export default function FieldAgentEarnings({ earnings }: Props) {
+export default function FieldAgentEarnings({ earnings, referral_points }: Props) {
     const totalEarnings = earnings.data.reduce((sum, e) => sum + e.amount, 0);
 
     return (
@@ -99,7 +100,22 @@ export default function FieldAgentEarnings({ earnings }: Props) {
                     </Typography>
                 </Box>
 
-                <Box sx={{ display: 'grid', gap: 2, gridTemplateColumns: { md: 'repeat(3, 1fr)' } }}>
+                <Box sx={{ display: 'grid', gap: 2, gridTemplateColumns: { md: 'repeat(4, 1fr)' } }}>
+                    <Card>
+                        <CardHeader sx={{ px: 3, pb: 1.5 }}>
+                            <CardTitle sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                                Referral Points
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <Award style={{ width: 20, height: 20, color: 'gray' }} />
+                                <Typography variant="h5" fontWeight={700}>
+                                    {referral_points}
+                                </Typography>
+                            </Box>
+                        </CardContent>
+                    </Card>
                     <Card>
                         <CardHeader sx={{ px: 3, pb: 1.5 }}>
                             <CardTitle sx={{ fontSize: '0.875rem', fontWeight: 500 }}>

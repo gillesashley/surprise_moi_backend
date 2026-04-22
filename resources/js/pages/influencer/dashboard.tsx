@@ -12,6 +12,7 @@ import { Head, usePage } from '@inertiajs/react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import {
+    Award,
     CheckCircle,
     Clock,
     Code,
@@ -36,6 +37,7 @@ interface Stats {
     pending_earnings: number;
     approved_earnings: number;
     paid_earnings: number;
+    referral_points: number;
 }
 
 interface ReferralCode {
@@ -177,6 +179,7 @@ export default function InfluencerDashboard({
         pending_earnings: 0,
         approved_earnings: 0,
         paid_earnings: 0,
+        referral_points: 0,
     },
     recent_referrals = [],
     recent_earnings = [],
@@ -221,7 +224,7 @@ export default function InfluencerDashboard({
                         gridTemplateColumns: {
                             xs: '1fr',
                             sm: 'repeat(2, 1fr)',
-                            lg: 'repeat(4, 1fr)',
+                            lg: 'repeat(5, 1fr)',
                         },
                     }}
                 >
@@ -231,6 +234,13 @@ export default function InfluencerDashboard({
                         icon={Users}
                         bgColor="bg-card"
                         iconBgColor="#3b82f6"
+                    />
+                    <StatCard
+                        title="Referral Points"
+                        value={stats.referral_points}
+                        icon={Award}
+                        bgColor="bg-card"
+                        iconBgColor="#8b5cf6"
                     />
                     <StatCard
                         title="Active Referrals"

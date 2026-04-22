@@ -241,6 +241,7 @@ class ReferralService
             'active_referrals' => $referrals->where('status', Referral::STATUS_ACTIVE)->count(),
             'pending_referrals' => $referrals->where('status', Referral::STATUS_PENDING)->count(),
             'total_earned' => $referrals->sum('earned_amount'),
+            'referral_points' => (int) ($influencer->referral_points ?? 0),
             'unpaid_earnings' => $influencer->getTotalUnpaidEarnings(),
             'paid_earnings' => $influencer->getTotalPaidEarnings(),
         ];

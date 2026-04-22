@@ -40,7 +40,9 @@ class FieldAgentDashboardController extends Controller
         return response()->json([
             'success' => true,
             'data' => [
-                'stats' => array_merge($targetStats, $earningsSummary),
+                'stats' => array_merge($targetStats, $earningsSummary, [
+                    'referral_points' => (int) ($user->referral_points ?? 0)
+                ]),
                 'active_targets' => TargetResource::collection($activeTargets),
                 'recent_earnings' => EarningResource::collection($recentEarnings),
             ],

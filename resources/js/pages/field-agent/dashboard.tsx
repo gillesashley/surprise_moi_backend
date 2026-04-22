@@ -12,7 +12,7 @@ import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, router, usePage } from '@inertiajs/react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import { CheckCircle, Clock, DollarSign, TrendingUp, Users, XCircle } from 'lucide-react';
+import { Award, CheckCircle, Clock, DollarSign, TrendingUp, Users, XCircle } from 'lucide-react';
 import ReferralCodeCard from './components/ReferralCodeCard';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -51,7 +51,7 @@ interface RecentVendor {
 }
 
 interface DashboardProps {
-    agent: { id: number; first_name: string };
+    agent: { id: number; first_name: string; referral_points: number };
     period: Period;
     referralCode: { code: string };
     vendorStats: VendorStats;
@@ -176,10 +176,11 @@ export default function FieldAgentDashboard({
                     sx={{
                         display: 'grid',
                         gap: 2.5,
-                        gridTemplateColumns: { xs: '1fr 1fr', sm: 'repeat(2, 1fr)', lg: 'repeat(4, 1fr)' },
+                        gridTemplateColumns: { xs: '1fr 1fr', sm: 'repeat(2, 1fr)', lg: 'repeat(5, 1fr)' },
                     }}
                 >
                     <StatTile title="Total Vendors" value={vendorStats.total} icon={Users} iconBg="#3b82f6" />
+                    <StatTile title="Referral Points" value={agent.referral_points} icon={Award} iconBg="#8b5cf6" />
                     <StatTile title="Pending" value={vendorStats.pending} icon={Clock} iconBg="#f59e0b" />
                     <StatTile title="Approved" value={vendorStats.approved} icon={CheckCircle} iconBg="#22c55e" />
                     <StatTile title="Rejected" value={vendorStats.rejected} icon={XCircle} iconBg="#ef4444" />
