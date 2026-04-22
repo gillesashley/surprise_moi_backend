@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Earning;
 use App\Models\Referral;
 use App\Models\ReferralCode;
 use App\Models\ReferralPointTransaction;
@@ -162,9 +163,11 @@ class ReferralService
     /**
      * Activate a referral when vendor application is approved.
      *
-     * All roles earn referral points — no GHS Earning rows are created. The
-     * reward is a percentage of what the vendor actually paid (post-subsidy),
-     * converted to points via the `referral_points_per_ghs` setting.
+     * All roles earn referral points. Earning-capable roles (field_agent,
+     * influencer, employee) also receive a GHS Earning record so their
+     * dashboard earnings summary reflects the commission. The reward is a
+     * percentage of what the vendor actually paid (post-subsidy), converted
+     * to points via the `referral_points_per_ghs` setting.
      *
      * @return Referral|null Null if application has no referral code.
      */
@@ -199,6 +202,23 @@ class ReferralService
 
             if ($points > 0) {
                 $this->awardPoints($referral, $points);
+            }
+
+            // Earning-capable roles also get a GHS Earning record so the
+            // dashboard earnings summary is populated correctly.
+            if ($sharer->isEarningCapable() && $ghsAmount > 0) {
+                Earning::create([
+                    'user_id' => $sharer->id,
+                    'user_role' => $sharer->role,
+                    'earning_type' => Earning::TYPE_REFERRAL_BONUS,
+                    'earnable_id' => $referral->id,
+                    'earnable_type' => Referral::class,
+                    'amount' => $ghsAmount,
+                    'currency' => 'GHS',
+                    'status' => Earning::STATUS_PENDING,
+                    'description' => "Referral bonus for vendor onboarding: {$vendorApplication->user?->name}",
+                    'earned_at' => now(),
+                ]);
             }
 
             return $referral->fresh();
