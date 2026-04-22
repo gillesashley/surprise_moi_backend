@@ -23,6 +23,7 @@ import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
 import Typography from '@mui/material/Typography';
+import { useInactivityLock } from '@/hooks/use-inactivity-lock';
 import {
     ArrowLeft,
     Briefcase,
@@ -196,6 +197,7 @@ const formatStatus = (status: string): string => {
 };
 
 export default function VendorApplicationShow({ application, vendorOrders }: Props) {
+    useInactivityLock();
     const [showRejectDialog, setShowRejectDialog] = useState(false);
     const [previewDoc, setPreviewDoc] = useState<{ url: string; title: string } | null>(null);
     const { data, setData, post, processing } = useForm({

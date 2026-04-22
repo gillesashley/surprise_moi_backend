@@ -44,6 +44,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useVendorApprovalEvents } from '@/hooks/use-vendor-approval-events';
+import { useInactivityLock } from '@/hooks/use-inactivity-lock';
 
 interface VendorApplicationSummary {
     id: number;
@@ -137,6 +138,7 @@ export default function VendorApplicationsIndex({
     filters,
     statuses,
 }: Props) {
+    useInactivityLock();
     const isDevelopment = import.meta.env.DEV;
 
     const [statusFilter, setStatusFilter] = useState(filters.status || 'all');

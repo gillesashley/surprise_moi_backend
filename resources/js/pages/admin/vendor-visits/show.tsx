@@ -7,9 +7,12 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
+import { useInactivityLock } from '@/hooks/use-inactivity-lock';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/react';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
 import { ArrowLeft, CheckCircle, IdCard, MapPin, Store, User } from 'lucide-react';
 
 interface Visit {
@@ -45,6 +48,8 @@ interface Props {
 }
 
 export default function VendorVisitShow({ visit }: Props) {
+    useInactivityLock();
+
     const breadcrumbs: BreadcrumbItem[] = [
         {
             title: 'Vendor Visits',
@@ -59,8 +64,8 @@ export default function VendorVisitShow({ visit }: Props) {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={`Review Visit - ${visit.application?.user?.name || 'Unknown'}`} />
-            <div className="flex h-full flex-1 flex-col gap-4 p-4 overflow-auto">
-                <div className="flex items-center justify-between">
+            <Box sx={{ display: 'flex', height: '100%', flex: 1, flexDirection: 'column', gap: 2, p: 2, overflow: 'auto' }}>
+                <Box sx={{ display: 'flex', itemsCenter: 'center', justifyContent: 'space-between' }}>
                     <Button variant="ghost" size="sm" asChild>
                         <Link href="/dashboard/vendor-visits">
                             <ArrowLeft className="w-4 h-4 mr-2" />
@@ -74,13 +79,13 @@ export default function VendorVisitShow({ visit }: Props) {
                             </Link>
                         </Button>
                     )}
-                </div>
+                </Box>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3 }}>
                     {/* Left: Field Agent Questionnaire Results */}
-                    <div className="space-y-6">
-                        <Card className="border-primary/20">
-                            <CardHeader className="bg-primary/5">
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                        <Card>
+                            <CardHeader>
                                 <CardTitle className="flex items-center gap-2">
                                     <CheckCircle className="w-5 h-5 text-primary" />
                                     Field Agent Questionnaire
@@ -89,47 +94,47 @@ export default function VendorVisitShow({ visit }: Props) {
                                     Submitted by {visit.field_agent.name} on {visit.submitted_at ? new Date(visit.submitted_at).toLocaleString() : 'N/A'}
                                 </CardDescription>
                             </CardHeader>
-                            <CardContent className="pt-6 space-y-4">
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <p className="text-sm text-muted-foreground">Verified Ghana Card</p>
-                                        <p className="font-medium">{visit.ghana_card_number}</p>
-                                    </div>
-                                    <div>
-                                        <p className="text-sm text-muted-foreground">Verified TIN</p>
-                                        <p className="font-medium">{visit.tin_number || 'N/A'}</p>
-                                    </div>
-                                </div>
+                            <CardContent className="space-y-4">
+                                <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+                                    <Box>
+                                        <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>Verified Ghana Card</Typography>
+                                        <Typography sx={{ fontWeight: 500 }}>{visit.ghana_card_number}</Typography>
+                                    </Box>
+                                    <Box>
+                                        <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>Verified TIN</Typography>
+                                        <Typography sx={{ fontWeight: 500 }}>{visit.tin_number || 'N/A'}</Typography>
+                                    </Box>
+                                </Box>
 
-                                <div className="space-y-2 border-t pt-4">
-                                    <div className="flex items-center gap-2">
+                                <Box sx={{ spaceY: 2, borderTop: 1, borderColor: 'divider', pt: 2 }}>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
                                         {visit.has_shop ? <Store className="w-4 h-4 text-blue-500" /> : <MapPin className="w-4 h-4 text-orange-500" />}
-                                        <span className="font-semibold">
+                                        <Typography sx={{ fontWeight: 600 }}>
                                             {visit.has_shop ? 'Physical Shop/Storefront' : 'Home-based / Online Only'}
-                                        </span>
-                                    </div>
-                                    <p className="text-sm text-muted-foreground">
+                                        </Typography>
+                                    </Box>
+                                    <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
                                         {visit.has_shop ? 'Shop Location:' : 'Business Address:'}
-                                    </p>
-                                    <p className="font-medium italic">
+                                    </Typography>
+                                    <Typography sx={{ fontWeight: 500, fontStyle: 'italic' }}>
                                         {visit.has_shop ? visit.shop_location : visit.primary_business_address}
-                                    </p>
-                                </div>
+                                    </Typography>
+                                </Box>
 
                                 {visit.storefront_photo && (
-                                    <div className="border-t pt-4">
-                                        <p className="text-sm text-muted-foreground mb-2">Storefront / Evidence Photo</p>
-                                        <div className="rounded-lg overflow-hidden border">
-                                            <img src={visit.storefront_photo} alt="Storefront" className="w-full h-auto object-cover max-h-[300px]" />
-                                        </div>
-                                    </div>
+                                    <Box sx={{ borderTop: 1, borderColor: 'divider', pt: 2 }}>
+                                        <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary', mb: 1.5 }}>Storefront / Evidence Photo</Typography>
+                                        <Box sx={{ borderRadius: 2, overflow: 'hidden', border: 1, borderColor: 'divider' }}>
+                                            <img src={visit.storefront_photo} alt="Storefront" className="w-full h-auto object-cover max-h-[400px]" />
+                                        </Box>
+                                    </Box>
                                 )}
                             </CardContent>
                         </Card>
-                    </div>
+                    </Box>
 
                     {/* Right: Original Application Data (Comparison) */}
-                    <div className="space-y-6">
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
                         {visit.application ? (
                             <Card>
                                 <CardHeader>
@@ -142,37 +147,41 @@ export default function VendorVisitShow({ visit }: Props) {
                                     </CardDescription>
                                 </CardHeader>
                                 <CardContent className="space-y-4">
-                                    <div>
-                                        <p className="text-sm text-muted-foreground">Business Name / Name</p>
-                                        <p className="font-medium text-lg">{visit.application.user.name}</p>
-                                        <p className="text-sm">{visit.application.user.email} • {visit.application.user.phone}</p>
-                                    </div>
+                                    <Box>
+                                        <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>Business Name / Name</Typography>
+                                        <Typography sx={{ fontWeight: 600, fontSize: '1.125rem' }}>{visit.application.user.name}</Typography>
+                                        <Typography sx={{ fontSize: '0.875rem' }}>{visit.application.user.email} • {visit.application.user.phone}</Typography>
+                                    </Box>
 
-                                    <div className="flex gap-2">
+                                    <Box sx={{ display: 'flex', gap: 1 }}>
                                         <Badge variant="outline">{visit.application.is_registered_vendor ? 'Registered' : 'Individual'}</Badge>
                                         <Badge variant="secondary">Status: {visit.application.status}</Badge>
-                                    </div>
+                                    </Box>
 
-                                    <div className="border-t pt-4 space-y-4">
-                                        <p className="text-sm font-semibold flex items-center gap-2">
+                                    <Box sx={{ borderTop: 1, borderColor: 'divider', pt: 2, spaceY: 3 }}>
+                                        <Typography sx={{ fontSize: '0.875rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
                                             <IdCard className="w-4 h-4" />
                                             Uploaded Ghana Card Photos
-                                        </p>
-                                        <div className="grid grid-cols-2 gap-4">
+                                        </Typography>
+                                        <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
                                             {visit.application.ghana_card_front && (
-                                                <div className="space-y-1">
-                                                    <p className="text-[10px] uppercase text-muted-foreground">Front</p>
-                                                    <img src={visit.application.ghana_card_front} alt="Card Front" className="rounded border w-full h-auto object-cover aspect-video" />
-                                                </div>
+                                                <Box>
+                                                    <Typography sx={{ fontSize: '0.625rem', textTransform: 'uppercase', color: 'text.secondary', mb: 0.5 }}>Front</Typography>
+                                                    <Box sx={{ borderRadius: 1, border: 1, borderColor: 'divider', overflow: 'hidden' }}>
+                                                        <img src={visit.application.ghana_card_front} alt="Card Front" className="w-full h-auto object-cover aspect-video" />
+                                                    </Box>
+                                                </Box>
                                             )}
                                             {visit.application.ghana_card_back && (
-                                                <div className="space-y-1">
-                                                    <p className="text-[10px] uppercase text-muted-foreground">Back</p>
-                                                    <img src={visit.application.ghana_card_back} alt="Card Back" className="rounded border w-full h-auto object-cover aspect-video" />
-                                                </div>
+                                                <Box>
+                                                    <Typography sx={{ fontSize: '0.625rem', textTransform: 'uppercase', color: 'text.secondary', mb: 0.5 }}>Back</Typography>
+                                                    <Box sx={{ borderRadius: 1, border: 1, borderColor: 'divider', overflow: 'hidden' }}>
+                                                        <img src={visit.application.ghana_card_back} alt="Card Back" className="w-full h-auto object-cover aspect-video" />
+                                                    </Box>
+                                                </Box>
                                             )}
-                                        </div>
-                                    </div>
+                                        </Box>
+                                    </Box>
                                 </CardContent>
                             </Card>
                         ) : (
@@ -184,15 +193,15 @@ export default function VendorVisitShow({ visit }: Props) {
                                     </CardDescription>
                                 </CardHeader>
                                 <CardContent>
-                                    <p className="text-sm text-muted-foreground">
+                                    <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
                                         This might happen if the original application was deleted or if the visit record was created for testing purposes.
-                                    </p>
+                                    </Typography>
                                 </CardContent>
                             </Card>
                         )}
-                    </div>
-                </div>
-            </div>
+                    </Box>
+                </Box>
+            </Box>
         </AppLayout>
     );
 }

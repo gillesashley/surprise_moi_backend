@@ -153,7 +153,7 @@ Route::middleware(['auth', 'dashboard'])->prefix('dashboard')->group(function ()
         ->name('referral-milestones.fulfill');
 
     // Vendor Application Management
-    Route::prefix('vendor-applications')->name('vendor-applications.')->group(function () {
+    Route::prefix('vendor-applications')->name('vendor-applications.')->middleware('user-management')->group(function () {
         Route::get('/', [VendorApplicationController::class, 'index'])->name('index');
         Route::get('/{vendorApplication}', [VendorApplicationController::class, 'show'])->name('show');
         Route::post('/{vendorApplication}/approve', [VendorApplicationController::class, 'approve'])->name('approve');
@@ -163,13 +163,13 @@ Route::middleware(['auth', 'dashboard'])->prefix('dashboard')->group(function ()
     });
 
     // Vendor Visit Review (Questionnaires)
-    Route::prefix('vendor-visits')->name('vendor-visits.')->group(function () {
+    Route::prefix('vendor-visits')->name('vendor-visits.')->middleware('user-management')->group(function () {
         Route::get('/', [\App\Http\Controllers\Admin\VendorVisitsController::class, 'index'])->name('index');
         Route::get('/{visit}', [\App\Http\Controllers\Admin\VendorVisitsController::class, 'show'])->name('show');
     });
 
     // Field Agent Application Management (admin review)
-    Route::prefix('field-agent-applications')->name('admin.field-agent-applications.')->group(function () {
+    Route::prefix('field-agent-applications')->name('admin.field-agent-applications.')->middleware('user-management')->group(function () {
         Route::get('/', [\App\Http\Controllers\Admin\FieldAgentApplicationController::class, 'index'])->name('index');
         Route::get('/{fieldAgentApplication}', [\App\Http\Controllers\Admin\FieldAgentApplicationController::class, 'show'])->name('show');
         Route::post('/{fieldAgentApplication}/approve', [\App\Http\Controllers\Admin\FieldAgentApplicationController::class, 'approve'])->name('approve');

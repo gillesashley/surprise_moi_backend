@@ -16,6 +16,7 @@ import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
+import { useInactivityLock } from '@/hooks/use-inactivity-lock';
 import { FormEvent, useState } from 'react';
 
 type Application = {
@@ -54,6 +55,7 @@ const STATUS_VARIANT: Record<string, BadgeVariant> = {
 };
 
 export default function FieldAgentApplicationShow({ application }: { application: Application }) {
+    useInactivityLock();
     const [rejectOpen, setRejectOpen] = useState(false);
 
     const approveForm = useForm({});

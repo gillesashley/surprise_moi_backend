@@ -19,6 +19,7 @@ import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/react';
 import { Eye, Footprints, MapPin, Store } from 'lucide-react';
+import { useInactivityLock } from '@/hooks/use-inactivity-lock';
 
 interface Visit {
     id: string;
@@ -48,6 +49,8 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function VendorVisitsIndex({ visits }: Props) {
+    useInactivityLock();
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Vendor Visits - Questionnaires" />

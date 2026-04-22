@@ -5,6 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import AppLayout from '@/layouts/app-layout';
 import { Head, Link, router } from '@inertiajs/react';
 import { useState } from 'react';
+import { useInactivityLock } from '@/hooks/use-inactivity-lock';
 
 type Application = {
     id: number;
@@ -35,6 +36,7 @@ const statusClasses: Record<string, string> = {
 };
 
 export default function FieldAgentApplicationsIndex({ applications, filters, statuses }: Props) {
+    useInactivityLock();
     const [status, setStatus] = useState(filters.status ?? '');
 
     const applyFilter = (newStatus: string) => {
