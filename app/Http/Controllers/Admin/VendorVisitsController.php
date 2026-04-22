@@ -24,8 +24,8 @@ class VendorVisitsController extends Controller
         return Inertia::render('admin/vendor-visits/index', [
             'visits' => $visits->through(fn ($visit) => [
                 'id' => $visit->id,
-                'vendor_name' => $visit->vendorApplication->user->name ?? 'Unknown',
-                'field_agent_name' => $visit->fieldAgent->name ?? 'Unknown',
+                'vendor_name' => $visit->vendorApplication?->user?->name ?? 'Unknown',
+                'field_agent_name' => $visit->fieldAgent?->name ?? 'Unknown',
                 'status' => $visit->status,
                 'submitted_at' => $visit->submitted_at?->toIso8601String(),
                 'has_shop' => $visit->has_shop,
@@ -52,20 +52,20 @@ class VendorVisitsController extends Controller
                 'storefront_photo' => $visit->storefront_photo_path ? Storage::url($visit->storefront_photo_path) : null,
                 'owner_photo' => $visit->owner_photo_path ? Storage::url($visit->owner_photo_path) : null,
                 'field_agent' => [
-                    'name' => $visit->fieldAgent->name,
+                    'name' => $visit->fieldAgent?->name ?? 'Unknown',
                 ],
-                'application' => [
+                'application' => $visit->vendorApplication ? [
                     'id' => $visit->vendorApplication->id,
                     'status' => $visit->vendorApplication->status,
                     'user' => [
-                        'name' => $visit->vendorApplication->user->name,
-                        'email' => $visit->vendorApplication->user->email,
-                        'phone' => $visit->vendorApplication->user->phone,
+                        'name' => $visit->vendorApplication->user?->name ?? 'Unknown',
+                        'email' => $visit->vendorApplication->user?->email ?? 'Unknown',
+                        'phone' => $visit->vendorApplication->user?->phone,
                     ],
                     'is_registered_vendor' => $visit->vendorApplication->isRegisteredVendor(),
                     'ghana_card_front' => $visit->vendorApplication->ghana_card_front ? Storage::url($visit->vendorApplication->ghana_card_front) : null,
                     'ghana_card_back' => $visit->vendorApplication->ghana_card_back ? Storage::url($visit->vendorApplication->ghana_card_back) : null,
-                ]
+                ] : null,
             ]
         ]);
     }

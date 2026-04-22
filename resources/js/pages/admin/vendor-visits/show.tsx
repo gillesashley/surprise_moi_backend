@@ -51,14 +51,14 @@ export default function VendorVisitShow({ visit }: Props) {
             href: '/dashboard/vendor-visits',
         },
         {
-            title: `Review: ${visit.application.user.name}`,
+            title: `Review: ${visit.application?.user?.name || 'Unknown'}`,
             href: `/dashboard/vendor-visits/${visit.id}`,
         },
     ];
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title={`Review Visit - ${visit.application.user.name}`} />
+            <Head title={`Review Visit - ${visit.application?.user?.name || 'Unknown'}`} />
             <div className="flex h-full flex-1 flex-col gap-4 p-4 overflow-auto">
                 <div className="flex items-center justify-between">
                     <Button variant="ghost" size="sm" asChild>
@@ -67,11 +67,13 @@ export default function VendorVisitShow({ visit }: Props) {
                             Back to Visits
                         </Link>
                     </Button>
-                    <Button asChild>
-                        <Link href={`/dashboard/vendor-applications/${visit.application.id}`}>
-                            Go to Full Application
-                        </Link>
-                    </Button>
+                    {visit.application && (
+                        <Button asChild>
+                            <Link href={`/dashboard/vendor-applications/${visit.application.id}`}>
+                                Go to Full Application
+                            </Link>
+                        </Button>
+                    )}
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -128,50 +130,66 @@ export default function VendorVisitShow({ visit }: Props) {
 
                     {/* Right: Original Application Data (Comparison) */}
                     <div className="space-y-6">
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="flex items-center gap-2">
-                                    <User className="w-5 h-5" />
-                                    Vendor Application Details
-                                </CardTitle>
-                                <CardDescription>
-                                    Data provided by the vendor during registration
-                                </CardDescription>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                <div>
-                                    <p className="text-sm text-muted-foreground">Business Name / Name</p>
-                                    <p className="font-medium text-lg">{visit.application.user.name}</p>
-                                    <p className="text-sm">{visit.application.user.email} • {visit.application.user.phone}</p>
-                                </div>
-
-                                <div className="flex gap-2">
-                                    <Badge variant="outline">{visit.application.is_registered_vendor ? 'Registered' : 'Individual'}</Badge>
-                                    <Badge variant="secondary">Status: {visit.application.status}</Badge>
-                                </div>
-
-                                <div className="border-t pt-4 space-y-4">
-                                    <p className="text-sm font-semibold flex items-center gap-2">
-                                        <IdCard className="w-4 h-4" />
-                                        Uploaded Ghana Card Photos
-                                    </p>
-                                    <div className="grid grid-cols-2 gap-4">
-                                        {visit.application.ghana_card_front && (
-                                            <div className="space-y-1">
-                                                <p className="text-[10px] uppercase text-muted-foreground">Front</p>
-                                                <img src={visit.application.ghana_card_front} alt="Card Front" className="rounded border w-full h-auto object-cover aspect-video" />
-                                            </div>
-                                        )}
-                                        {visit.application.ghana_card_back && (
-                                            <div className="space-y-1">
-                                                <p className="text-[10px] uppercase text-muted-foreground">Back</p>
-                                                <img src={visit.application.ghana_card_back} alt="Card Back" className="rounded border w-full h-auto object-cover aspect-video" />
-                                            </div>
-                                        )}
+                        {visit.application ? (
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle className="flex items-center gap-2">
+                                        <User className="w-5 h-5" />
+                                        Vendor Application Details
+                                    </CardTitle>
+                                    <CardDescription>
+                                        Data provided by the vendor during registration
+                                    </CardDescription>
+                                </CardHeader>
+                                <CardContent className="space-y-4">
+                                    <div>
+                                        <p className="text-sm text-muted-foreground">Business Name / Name</p>
+                                        <p className="font-medium text-lg">{visit.application.user.name}</p>
+                                        <p className="text-sm">{visit.application.user.email} • {visit.application.user.phone}</p>
                                     </div>
-                                </div>
-                            </CardContent>
-                        </Card>
+
+                                    <div className="flex gap-2">
+                                        <Badge variant="outline">{visit.application.is_registered_vendor ? 'Registered' : 'Individual'}</Badge>
+                                        <Badge variant="secondary">Status: {visit.application.status}</Badge>
+                                    </div>
+
+                                    <div className="border-t pt-4 space-y-4">
+                                        <p className="text-sm font-semibold flex items-center gap-2">
+                                            <IdCard className="w-4 h-4" />
+                                            Uploaded Ghana Card Photos
+                                        </p>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            {visit.application.ghana_card_front && (
+                                                <div className="space-y-1">
+                                                    <p className="text-[10px] uppercase text-muted-foreground">Front</p>
+                                                    <img src={visit.application.ghana_card_front} alt="Card Front" className="rounded border w-full h-auto object-cover aspect-video" />
+                                                </div>
+                                            )}
+                                            {visit.application.ghana_card_back && (
+                                                <div className="space-y-1">
+                                                    <p className="text-[10px] uppercase text-muted-foreground">Back</p>
+                                                    <img src={visit.application.ghana_card_back} alt="Card Back" className="rounded border w-full h-auto object-cover aspect-video" />
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        ) : (
+                            <Card className="bg-muted/50 border-dashed">
+                                <CardHeader>
+                                    <CardTitle>Missing Application</CardTitle>
+                                    <CardDescription>
+                                        This visit questionnaire is not linked to any active vendor application.
+                                    </CardDescription>
+                                </CardHeader>
+                                <CardContent>
+                                    <p className="text-sm text-muted-foreground">
+                                        This might happen if the original application was deleted or if the visit record was created for testing purposes.
+                                    </p>
+                                </CardContent>
+                            </Card>
+                        )}
                     </div>
                 </div>
             </div>
