@@ -1,10 +1,10 @@
-import { Bell, Check, Trash2 } from 'lucide-react';
 import { useNotifications } from '@/hooks/useNotifications';
 import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
-import IconButton from '@mui/material/IconButton';
 import MuiButton from '@mui/material/Button';
+import IconButton from '@mui/material/IconButton';
 import { alpha } from '@mui/material/styles';
+import Typography from '@mui/material/Typography';
+import { Bell, Check, Trash2 } from 'lucide-react';
 
 interface NotificationDropdownProps {
     onClose: () => void;
@@ -28,7 +28,10 @@ export function NotificationDropdown({ onClose }: NotificationDropdownProps) {
         await markAllAsRead();
     };
 
-    const handleDelete = async (e: React.MouseEvent, notificationId: string) => {
+    const handleDelete = async (
+        e: React.MouseEvent,
+        notificationId: string,
+    ) => {
         e.stopPropagation();
         await deleteNotification(notificationId);
     };
@@ -54,7 +57,9 @@ export function NotificationDropdown({ onClose }: NotificationDropdownProps) {
                         onClick={handleMarkAllRead}
                         sx={{ fontSize: '0.75rem', textTransform: 'none' }}
                     >
-                        <Check style={{ width: 12, height: 12, marginRight: 4 }} />
+                        <Check
+                            style={{ width: 12, height: 12, marginRight: 4 }}
+                        />
                         Mark all read
                     </MuiButton>
                 )}
@@ -223,9 +228,7 @@ export function NotificationDropdown({ onClose }: NotificationDropdownProps) {
 function formatTimeAgo(dateString: string): string {
     const date = new Date(dateString);
     const now = new Date();
-    const diffInSeconds = Math.floor(
-        (now.getTime() - date.getTime()) / 1000,
-    );
+    const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
 
     if (diffInSeconds < 60) {
         return 'Just now';

@@ -181,8 +181,6 @@ Route::middleware(['auth', 'dashboard'])->prefix('dashboard')->group(function ()
         ->middleware('role:super_admin')
         ->name('audit-log.index');
 
-
-
     // Customer Support Tickets
     Route::prefix('customer-support')->name('dashboard.customer-support.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Admin\SupportTicketController::class, 'index'])->name('index');

@@ -7,8 +7,8 @@ import {
     CardTitle,
 } from '@/components/ui/card';
 import { home } from '@/routes';
-import Box from '@mui/material/Box';
 import { Link } from '@inertiajs/react';
+import Box from '@mui/material/Box';
 import { type PropsWithChildren } from 'react';
 
 export default function AuthCardLayout({
@@ -63,9 +63,7 @@ export default function AuthCardLayout({
                             justifyContent: 'center',
                         }}
                     >
-                        <AppLogoIcon
-                            style={{ width: 36, height: 36 }}
-                        />
+                        <AppLogoIcon style={{ width: 36, height: 36 }} />
                     </Box>
                 </Link>
 
@@ -77,15 +75,28 @@ export default function AuthCardLayout({
                     }}
                 >
                     <Card style={{ borderRadius: 12 }}>
-                        <CardHeader style={{ paddingLeft: 40, paddingRight: 40, paddingTop: 32, paddingBottom: 0, textAlign: 'center' }}>
+                        <CardHeader
+                            style={{
+                                paddingLeft: 40,
+                                paddingRight: 40,
+                                paddingTop: 32,
+                                paddingBottom: 0,
+                                textAlign: 'center',
+                            }}
+                        >
                             <CardTitle style={{ fontSize: '1.25rem' }}>
                                 {title}
                             </CardTitle>
-                            <CardDescription>
-                                {description}
-                            </CardDescription>
+                            <CardDescription>{description}</CardDescription>
                         </CardHeader>
-                        <CardContent style={{ paddingLeft: 40, paddingRight: 40, paddingTop: 32, paddingBottom: 32 }}>
+                        <CardContent
+                            style={{
+                                paddingLeft: 40,
+                                paddingRight: 40,
+                                paddingTop: 32,
+                                paddingBottom: 32,
+                            }}
+                        >
                             {children}
                         </CardContent>
                     </Card>

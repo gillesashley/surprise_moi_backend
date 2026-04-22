@@ -1,5 +1,3 @@
-import Box from '@mui/material/Box';
-import Divider from '@mui/material/Divider';
 import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
 import { isSameUrl, resolveUrl } from '@/lib/utils';
@@ -10,6 +8,8 @@ import { show } from '@/routes/two-factor';
 import { edit as editPassword } from '@/routes/user-password';
 import { type NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
+import Box from '@mui/material/Box';
+import Divider from '@mui/material/Divider';
 import { type PropsWithChildren } from 'react';
 
 const sidebarNavItems: NavItem[] = [
@@ -71,9 +71,25 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
                 description="Manage your profile and account settings"
             />
 
-            <Box sx={{ display: 'flex', flexDirection: { xs: 'column', lg: 'row' }, gap: { lg: 6 } }}>
-                <Box component="aside" sx={{ width: '100%', maxWidth: { lg: 192 } }}>
-                    <Box component="nav" sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+            <Box
+                sx={{
+                    display: 'flex',
+                    flexDirection: { xs: 'column', lg: 'row' },
+                    gap: { lg: 6 },
+                }}
+            >
+                <Box
+                    component="aside"
+                    sx={{ width: '100%', maxWidth: { lg: 192 } }}
+                >
+                    <Box
+                        component="nav"
+                        sx={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: 0.5,
+                        }}
+                    >
                         {allNavItems.map((item, index) => {
                             const isActive = isSameUrl(currentPath, item.href);
                             return (
@@ -85,12 +101,19 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
                                     sx={{
                                         width: '100%',
                                         justifyContent: 'flex-start',
-                                        ...(isActive && { bgcolor: 'action.selected' }),
+                                        ...(isActive && {
+                                            bgcolor: 'action.selected',
+                                        }),
                                     }}
                                 >
                                     <Link href={item.href}>
                                         {item.icon && (
-                                            <item.icon style={{ width: 16, height: 16 }} />
+                                            <item.icon
+                                                style={{
+                                                    width: 16,
+                                                    height: 16,
+                                                }}
+                                            />
                                         )}
                                         {item.title}
                                     </Link>
@@ -103,7 +126,15 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
                 <Divider sx={{ my: 3, display: { lg: 'none' } }} />
 
                 <Box sx={{ flex: 1, maxWidth: { md: 672 } }}>
-                    <Box component="section" sx={{ maxWidth: 576, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    <Box
+                        component="section"
+                        sx={{
+                            maxWidth: 576,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: 6,
+                        }}
+                    >
                         {children}
                     </Box>
                 </Box>

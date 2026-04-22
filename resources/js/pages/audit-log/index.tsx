@@ -1,6 +1,5 @@
 import AppLayout from '@/layouts/app-layout';
 import { Head, router } from '@inertiajs/react';
-import { ChevronDown, ChevronUp } from 'lucide-react';
 import {
     Box,
     Chip,
@@ -18,6 +17,7 @@ import {
     TextField,
     Typography,
 } from '@mui/material';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 type Props = {
@@ -28,7 +28,12 @@ type Props = {
             description: string;
             subject_type: string | null;
             subject_id: number | null;
-            causer: { id: number; name: string; email: string; role: string } | null;
+            causer: {
+                id: number;
+                name: string;
+                email: string;
+                role: string;
+            } | null;
             properties: Record<string, any>;
             created_at: string;
         }>;
@@ -48,7 +53,10 @@ type Props = {
     eventOptions: Array<{ value: string; label: string }>;
 };
 
-const ACTION_COLORS: Record<string, 'success' | 'info' | 'error' | 'warning' | 'default'> = {
+const ACTION_COLORS: Record<
+    string,
+    'success' | 'info' | 'error' | 'warning' | 'default'
+> = {
     created: 'success',
     updated: 'info',
     deleted: 'error',
@@ -64,10 +72,18 @@ function shortType(fullType: string | null): string {
     return parts[parts.length - 1];
 }
 
-function actionColorFor(event: string): 'success' | 'info' | 'error' | 'warning' | 'default' {
+function actionColorFor(
+    event: string,
+): 'success' | 'info' | 'error' | 'warning' | 'default' {
     if (ACTION_COLORS[event]) return ACTION_COLORS[event];
-    if (event.endsWith('.approved') || event.endsWith('.paid') || event.endsWith('.fulfilled')) return 'success';
-    if (event.endsWith('.rejected') || event.endsWith('.role_changed')) return 'error';
+    if (
+        event.endsWith('.approved') ||
+        event.endsWith('.paid') ||
+        event.endsWith('.fulfilled')
+    )
+        return 'success';
+    if (event.endsWith('.rejected') || event.endsWith('.role_changed'))
+        return 'error';
     if (event.endsWith('.updated')) return 'info';
     return 'default';
 }
@@ -75,7 +91,9 @@ function actionColorFor(event: string): 'success' | 'info' | 'error' | 'warning'
 function ChangesPanel({ properties }: { properties: Record<string, any> }) {
     const old = properties.old ?? {};
     const attrs = properties.attributes ?? {};
-    const keys = Array.from(new Set([...Object.keys(old), ...Object.keys(attrs)]));
+    const keys = Array.from(
+        new Set([...Object.keys(old), ...Object.keys(attrs)]),
+    );
 
     if (keys.length === 0) {
         const extra = properties.extra ?? {};
@@ -84,10 +102,16 @@ function ChangesPanel({ properties }: { properties: Record<string, any> }) {
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                     {Object.entries(extra).map(([k, v]) => (
                         <Box key={k} sx={{ display: 'flex', gap: 2 }}>
-                            <Typography variant="caption" sx={{ fontWeight: 700, minWidth: 140 }}>
+                            <Typography
+                                variant="caption"
+                                sx={{ fontWeight: 700, minWidth: 140 }}
+                            >
                                 {k}
                             </Typography>
-                            <Typography variant="caption" sx={{ fontFamily: 'monospace' }}>
+                            <Typography
+                                variant="caption"
+                                sx={{ fontFamily: 'monospace' }}
+                            >
                                 {JSON.stringify(v)}
                             </Typography>
                         </Box>
@@ -105,11 +129,29 @@ function ChangesPanel({ properties }: { properties: Record<string, any> }) {
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
             {keys.map((k) => (
-                <Box key={k} sx={{ display: 'flex', gap: 2, alignItems: 'flex-start' }}>
-                    <Typography variant="caption" sx={{ fontWeight: 700, minWidth: 140, color: 'text.secondary' }}>
+                <Box
+                    key={k}
+                    sx={{ display: 'flex', gap: 2, alignItems: 'flex-start' }}
+                >
+                    <Typography
+                        variant="caption"
+                        sx={{
+                            fontWeight: 700,
+                            minWidth: 140,
+                            color: 'text.secondary',
+                        }}
+                    >
                         {k}
                     </Typography>
-                    <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', flexWrap: 'wrap', flex: 1 }}>
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            gap: 1,
+                            alignItems: 'center',
+                            flexWrap: 'wrap',
+                            flex: 1,
+                        }}
+                    >
                         {old[k] !== undefined && (
                             <Box
                                 sx={{
@@ -120,7 +162,13 @@ function ChangesPanel({ properties }: { properties: Record<string, any> }) {
                                     border: '1px solid rgba(229,62,62,0.2)',
                                 }}
                             >
-                                <Typography variant="caption" sx={{ color: 'error.main', fontFamily: 'monospace' }}>
+                                <Typography
+                                    variant="caption"
+                                    sx={{
+                                        color: 'error.main',
+                                        fontFamily: 'monospace',
+                                    }}
+                                >
                                     {JSON.stringify(old[k])}
                                 </Typography>
                             </Box>
@@ -140,7 +188,13 @@ function ChangesPanel({ properties }: { properties: Record<string, any> }) {
                                     border: '1px solid rgba(72,187,120,0.2)',
                                 }}
                             >
-                                <Typography variant="caption" sx={{ color: 'success.main', fontFamily: 'monospace' }}>
+                                <Typography
+                                    variant="caption"
+                                    sx={{
+                                        color: 'success.main',
+                                        fontFamily: 'monospace',
+                                    }}
+                                >
                                     {JSON.stringify(attrs[k])}
                                 </Typography>
                             </Box>
@@ -160,14 +214,22 @@ function AuditRow({ row }: { row: Props['logs']['data'][number] }) {
             <TableRow hover>
                 <TableCell sx={{ width: 40, pr: 0 }}>
                     <IconButton size="small" onClick={() => setOpen((v) => !v)}>
-                        {open ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                        {open ? (
+                            <ChevronUp size={20} />
+                        ) : (
+                            <ChevronDown size={20} />
+                        )}
                     </IconButton>
                 </TableCell>
                 <TableCell>
-                    <Typography variant="body2">{new Date(row.created_at).toLocaleString()}</Typography>
+                    <Typography variant="body2">
+                        {new Date(row.created_at).toLocaleString()}
+                    </Typography>
                 </TableCell>
                 <TableCell>
-                    <Typography variant="body2">{row.causer ? row.causer.name : 'System'}</Typography>
+                    <Typography variant="body2">
+                        {row.causer ? row.causer.name : 'System'}
+                    </Typography>
                     {row.causer && (
                         <Typography variant="caption" color="text.secondary">
                             {row.causer.email}
@@ -175,11 +237,17 @@ function AuditRow({ row }: { row: Props['logs']['data'][number] }) {
                     )}
                 </TableCell>
                 <TableCell>
-                    <Chip label={row.event} color={actionColorFor(row.event)} size="small" sx={{ fontWeight: 700 }} />
+                    <Chip
+                        label={row.event}
+                        color={actionColorFor(row.event)}
+                        size="small"
+                        sx={{ fontWeight: 700 }}
+                    />
                 </TableCell>
                 <TableCell>
                     <Typography variant="body2">
-                        {shortType(row.subject_type)} {row.subject_id ? `#${row.subject_id}` : ''}
+                        {shortType(row.subject_type)}{' '}
+                        {row.subject_id ? `#${row.subject_id}` : ''}
                     </Typography>
                 </TableCell>
                 <TableCell>
@@ -203,9 +271,15 @@ function AuditRow({ row }: { row: Props['logs']['data'][number] }) {
                         >
                             <Typography
                                 variant="caption"
-                                sx={{ fontWeight: 700, mb: 1, display: 'block', color: 'text.secondary' }}
+                                sx={{
+                                    fontWeight: 700,
+                                    mb: 1,
+                                    display: 'block',
+                                    color: 'text.secondary',
+                                }}
                             >
-                                DETAILS · IP: {row.properties.ip ?? '—'} · UA: {row.properties.user_agent ?? '—'}
+                                DETAILS · IP: {row.properties.ip ?? '—'} · UA:{' '}
+                                {row.properties.user_agent ?? '—'}
                             </Typography>
                             <ChangesPanel properties={row.properties} />
                         </Box>
@@ -216,7 +290,12 @@ function AuditRow({ row }: { row: Props['logs']['data'][number] }) {
     );
 }
 
-export default function AuditLogIndex({ logs, filters, entityOptions, eventOptions }: Props) {
+export default function AuditLogIndex({
+    logs,
+    filters,
+    entityOptions,
+    eventOptions,
+}: Props) {
     const [event, setEvent] = useState(filters.event ?? '');
     const [subjectType, setSubjectType] = useState(filters.subject_type ?? '');
     const [user, setUser] = useState(filters.user ?? '');
@@ -251,7 +330,8 @@ export default function AuditLogIndex({ logs, filters, entityOptions, eventOptio
                         Audit Log
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                        Every create, update, delete, and key action across the dashboard.
+                        Every create, update, delete, and key action across the
+                        dashboard.
                     </Typography>
                 </Box>
 
@@ -329,12 +409,20 @@ export default function AuditLogIndex({ logs, filters, entityOptions, eventOptio
                             <TableBody>
                                 {logs.data.length === 0 ? (
                                     <TableRow>
-                                        <TableCell colSpan={6} align="center" sx={{ py: 6 }}>
-                                            <Typography color="text.secondary">No audit logs found.</Typography>
+                                        <TableCell
+                                            colSpan={6}
+                                            align="center"
+                                            sx={{ py: 6 }}
+                                        >
+                                            <Typography color="text.secondary">
+                                                No audit logs found.
+                                            </Typography>
                                         </TableCell>
                                     </TableRow>
                                 ) : (
-                                    logs.data.map((row) => <AuditRow key={row.id} row={row} />)
+                                    logs.data.map((row) => (
+                                        <AuditRow key={row.id} row={row} />
+                                    ))
                                 )}
                             </TableBody>
                         </Table>
@@ -354,7 +442,11 @@ export default function AuditLogIndex({ logs, filters, entityOptions, eventOptio
                         onRowsPerPageChange={(e) =>
                             router.get(
                                 '/dashboard/audit-log',
-                                { ...filters, per_page: parseInt(e.target.value, 10), page: 1 },
+                                {
+                                    ...filters,
+                                    per_page: parseInt(e.target.value, 10),
+                                    page: 1,
+                                },
                                 { preserveState: true, replace: true },
                             )
                         }

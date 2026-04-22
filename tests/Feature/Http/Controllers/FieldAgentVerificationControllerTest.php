@@ -6,8 +6,8 @@ use App\Models\FieldAgentApplication;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
-use Tests\TestCase;
 use Inertia\Testing\AssertableInertia as Assert;
+use Tests\TestCase;
 
 class FieldAgentVerificationControllerTest extends TestCase
 {
@@ -17,7 +17,7 @@ class FieldAgentVerificationControllerTest extends TestCase
     {
         Storage::fake('public');
         $user = User::factory()->create(['role' => 'field_agent']);
-        
+
         $application = FieldAgentApplication::factory()->create([
             'approved_user_id' => $user->id,
             'reviewed_at' => now(),

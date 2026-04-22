@@ -14,6 +14,7 @@ class PublicSpecialOfferTest extends TestCase
     use RefreshDatabase;
 
     protected User $vendor;
+
     protected Shop $shop;
 
     protected function setUp(): void

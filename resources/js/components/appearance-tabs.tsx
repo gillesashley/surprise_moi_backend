@@ -1,9 +1,9 @@
 import { Appearance, useAppearance } from '@/hooks/use-appearance';
 import Box from '@mui/material/Box';
+import { type SxProps, type Theme } from '@mui/material/styles';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import { LucideIcon, Monitor, Moon, Sun } from 'lucide-react';
-import { type SxProps, type Theme } from '@mui/material/styles';
 
 export default function AppearanceToggleTab({
     sx: sxProp,

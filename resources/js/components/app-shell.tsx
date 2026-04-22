@@ -1,7 +1,7 @@
-import Box from '@mui/material/Box';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { SharedData } from '@/types';
 import { usePage } from '@inertiajs/react';
+import Box from '@mui/material/Box';
 
 interface AppShellProps {
     children: React.ReactNode;

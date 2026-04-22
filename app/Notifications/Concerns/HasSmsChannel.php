@@ -16,7 +16,6 @@ trait HasSmsChannel
     /**
      * Get the notification's delivery channels.
      *
-     * @param  mixed  $notifiable
      * @return array<int, string>
      */
     abstract public function via(mixed $notifiable): array;
@@ -27,17 +26,12 @@ trait HasSmsChannel
      * This method should be implemented by the notification class
      * to return an SmsMessage instance.
      *
-     * @param  mixed  $notifiable
      * @return SmsMessage|array<string, mixed>
      */
     abstract public function toSms(mixed $notifiable): SmsMessage|array;
 
     /**
      * Determine if the notification should be sent via SMS.
-     *
-     * @param  mixed  $notifiable
-     * @param  string  $channel
-     * @return bool
      */
     public function shouldSend(mixed $notifiable, string $channel): bool
     {

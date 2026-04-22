@@ -28,7 +28,10 @@ export default function AppSidebarLayout({
             <NotificationLayer>
                 <AppShell variant="sidebar">
                     <AppSidebar />
-                    <AppContent variant="sidebar" style={{ overflowX: 'hidden' }}>
+                    <AppContent
+                        variant="sidebar"
+                        style={{ overflowX: 'hidden' }}
+                    >
                         <AppSidebarHeader breadcrumbs={breadcrumbs} />
                         {children}
                     </AppContent>

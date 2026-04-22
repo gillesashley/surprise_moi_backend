@@ -40,15 +40,36 @@ export default function CategoryCreate() {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Create Category" />
-            <Box sx={{ display: 'flex', height: '100%', flex: 1, flexDirection: 'column', gap: 2, p: 2 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <Box
+                sx={{
+                    display: 'flex',
+                    height: '100%',
+                    flex: 1,
+                    flexDirection: 'column',
+                    gap: 2,
+                    p: 2,
+                }}
+            >
+                <Box
+                    sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                    }}
+                >
                     <Button variant="ghost" size="sm" asChild>
                         <Link
                             href={ContentManagementController.index.url({
                                 query: { tab: 'categories' },
                             })}
                         >
-                            <ArrowLeft style={{ marginRight: 8, width: 16, height: 16 }} />
+                            <ArrowLeft
+                                style={{
+                                    marginRight: 8,
+                                    width: 16,
+                                    height: 16,
+                                }}
+                            />
                             Back to Content Management
                         </Link>
                     </Button>
@@ -68,18 +89,41 @@ export default function CategoryCreate() {
                             encType="multipart/form-data"
                         >
                             {({ errors, processing }) => (
-                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                <Box
+                                    sx={{
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        gap: 2,
+                                    }}
+                                >
+                                    <Box
+                                        sx={{
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            gap: 1,
+                                        }}
+                                    >
                                         <Label htmlFor="name">Name</Label>
                                         <Input id="name" name="name" required />
                                         {errors.name && (
-                                            <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
+                                            <Typography
+                                                sx={{
+                                                    fontSize: '0.875rem',
+                                                    color: 'error.main',
+                                                }}
+                                            >
                                                 {errors.name}
                                             </Typography>
                                         )}
                                     </Box>
 
-                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                    <Box
+                                        sx={{
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            gap: 1,
+                                        }}
+                                    >
                                         <Label htmlFor="type">Type</Label>
                                         <Select
                                             name="type"
@@ -99,13 +143,24 @@ export default function CategoryCreate() {
                                             </SelectContent>
                                         </Select>
                                         {errors.type && (
-                                            <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
+                                            <Typography
+                                                sx={{
+                                                    fontSize: '0.875rem',
+                                                    color: 'error.main',
+                                                }}
+                                            >
                                                 {errors.type}
                                             </Typography>
                                         )}
                                     </Box>
 
-                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                    <Box
+                                        sx={{
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            gap: 1,
+                                        }}
+                                    >
                                         <Label htmlFor="description">
                                             Description
                                         </Label>
@@ -125,13 +180,28 @@ export default function CategoryCreate() {
                                                 bgcolor: 'background.paper',
                                                 px: 1.5,
                                                 py: 1,
-                                                fontSize: { xs: '1rem', md: '0.875rem' },
-                                                '&:focus-visible': { outline: 'none', ring: 2, ringColor: 'primary.main' },
-                                                '&:disabled': { cursor: 'not-allowed', opacity: 0.5 },
+                                                fontSize: {
+                                                    xs: '1rem',
+                                                    md: '0.875rem',
+                                                },
+                                                '&:focus-visible': {
+                                                    outline: 'none',
+                                                    ring: 2,
+                                                    ringColor: 'primary.main',
+                                                },
+                                                '&:disabled': {
+                                                    cursor: 'not-allowed',
+                                                    opacity: 0.5,
+                                                },
                                             }}
                                         />
                                         {errors.description && (
-                                            <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
+                                            <Typography
+                                                sx={{
+                                                    fontSize: '0.875rem',
+                                                    color: 'error.main',
+                                                }}
+                                            >
                                                 {errors.description}
                                             </Typography>
                                         )}
@@ -153,7 +223,13 @@ export default function CategoryCreate() {
                                         acceptedFormats={['image/png']}
                                     />
 
-                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                    <Box
+                                        sx={{
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            gap: 1,
+                                        }}
+                                    >
                                         <Label htmlFor="sort_order">
                                             Sort Order
                                         </Label>
@@ -164,13 +240,24 @@ export default function CategoryCreate() {
                                             defaultValue="0"
                                         />
                                         {errors.sort_order && (
-                                            <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
+                                            <Typography
+                                                sx={{
+                                                    fontSize: '0.875rem',
+                                                    color: 'error.main',
+                                                }}
+                                            >
                                                 {errors.sort_order}
                                             </Typography>
                                         )}
                                     </Box>
 
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                    <Box
+                                        sx={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: 1,
+                                        }}
+                                    >
                                         <Box
                                             component="input"
                                             type="checkbox"

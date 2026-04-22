@@ -508,8 +508,6 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Earning::class);
     }
 
-
-
     /**
      * Get all vendor visits conducted by this user as a field agent.
      */

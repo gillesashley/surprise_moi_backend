@@ -66,7 +66,7 @@ class VendorVisitsController extends Controller
                     'ghana_card_front' => $visit->vendorApplication->ghana_card_front ? Storage::url($visit->vendorApplication->ghana_card_front) : null,
                     'ghana_card_back' => $visit->vendorApplication->ghana_card_back ? Storage::url($visit->vendorApplication->ghana_card_back) : null,
                 ] : null,
-            ]
+            ],
         ]);
     }
 }

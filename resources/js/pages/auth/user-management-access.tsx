@@ -5,8 +5,8 @@ import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import AuthLayout from '@/layouts/auth-layout';
 import { verify } from '@/routes/user-management-access';
-import Box from '@mui/material/Box';
 import { Form, Head } from '@inertiajs/react';
+import Box from '@mui/material/Box';
 
 export default function UserManagementAccess() {
     return (
@@ -18,7 +18,13 @@ export default function UserManagementAccess() {
 
             <Form {...verify.form()} resetOnSuccess={['code']}>
                 {({ processing, errors }) => (
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: 3,
+                        }}
+                    >
                         <Box sx={{ display: 'grid', gap: 1 }}>
                             <Label htmlFor="code">Access code</Label>
                             <Input

@@ -1,15 +1,23 @@
+import { show } from '@/routes/user-management-access';
 import { router } from '@inertiajs/react';
 import { useEffect, useRef } from 'react';
-import { show } from '@/routes/user-management-access';
 
 const INACTIVITY_TIMEOUT_MS = 15 * 60 * 1000; // 15 minutes
-const ACTIVITY_EVENTS = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'] as const;
+const ACTIVITY_EVENTS = [
+    'mousemove',
+    'keydown',
+    'click',
+    'scroll',
+    'touchstart',
+] as const;
 
 /**
  * Monitors user activity and redirects to the access code page
  * after the specified period of inactivity.
  */
-export function useInactivityLock(timeoutMs: number = INACTIVITY_TIMEOUT_MS): void {
+export function useInactivityLock(
+    timeoutMs: number = INACTIVITY_TIMEOUT_MS,
+): void {
     const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     useEffect(() => {

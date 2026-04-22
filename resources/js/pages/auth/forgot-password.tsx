@@ -21,7 +21,11 @@ export default function ForgotPassword({ status }: { status?: string }) {
             <Head title="Forgot password" />
 
             {status && (
-                <Typography variant="body2" color="success.main" sx={{ textAlign: 'center', fontWeight: 500 }}>
+                <Typography
+                    variant="body2"
+                    color="success.main"
+                    sx={{ textAlign: 'center', fontWeight: 500 }}
+                >
                     {status}
                 </Typography>
             )}
@@ -44,7 +48,14 @@ export default function ForgotPassword({ status }: { status?: string }) {
                                 <InputError message={errors.email} />
                             </Box>
 
-                            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', my: 3 }}>
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'flex-start',
+                                    my: 3,
+                                }}
+                            >
                                 <Button
                                     type="submit"
                                     sx={{ width: '100%' }}
@@ -59,7 +70,11 @@ export default function ForgotPassword({ status }: { status?: string }) {
                     )}
                 </Form>
 
-                <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center' }}>
+                <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ textAlign: 'center' }}
+                >
                     <span>Or, return to </span>
                     <TextLink href={login()}>log in</TextLink>
                 </Typography>

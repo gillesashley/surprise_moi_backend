@@ -15,11 +15,11 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import { useInactivityLock } from '@/hooks/use-inactivity-lock';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/react';
-import { Eye, Footprints, MapPin, Store } from 'lucide-react';
-import { useInactivityLock } from '@/hooks/use-inactivity-lock';
+import { Eye, MapPin, Store } from 'lucide-react';
 
 interface Visit {
     id: string;
@@ -57,9 +57,12 @@ export default function VendorVisitsIndex({ visits }: Props) {
             <div className="flex h-full flex-1 flex-col gap-4 p-4 overflow-auto">
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-2xl font-bold tracking-tight">Vendor Visits</h1>
+                        <h1 className="text-2xl font-bold tracking-tight">
+                            Vendor Visits
+                        </h1>
                         <p className="text-muted-foreground">
-                            Review questionnaires submitted by field agents during vendor onboarding.
+                            Review questionnaires submitted by field agents
+                            during vendor onboarding.
                         </p>
                     </div>
                 </div>
@@ -68,7 +71,8 @@ export default function VendorVisitsIndex({ visits }: Props) {
                     <CardHeader>
                         <CardTitle>Recent Questionnaires</CardTitle>
                         <CardDescription>
-                            A list of all vendor visits and their questionnaire status.
+                            A list of all vendor visits and their questionnaire
+                            status.
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -81,7 +85,9 @@ export default function VendorVisitsIndex({ visits }: Props) {
                                     <TableHead>Location</TableHead>
                                     <TableHead>Submitted</TableHead>
                                     <TableHead>Status</TableHead>
-                                    <TableHead className="text-right">Action</TableHead>
+                                    <TableHead className="text-right">
+                                        Action
+                                    </TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -90,7 +96,9 @@ export default function VendorVisitsIndex({ visits }: Props) {
                                         <TableCell className="font-medium">
                                             {visit.vendor_name}
                                         </TableCell>
-                                        <TableCell>{visit.field_agent_name}</TableCell>
+                                        <TableCell>
+                                            {visit.field_agent_name}
+                                        </TableCell>
                                         <TableCell>
                                             <div className="flex items-center gap-2">
                                                 {visit.has_shop ? (
@@ -99,7 +107,9 @@ export default function VendorVisitsIndex({ visits }: Props) {
                                                     <MapPin className="w-4 h-4 text-orange-500" />
                                                 )}
                                                 <span className="text-xs">
-                                                    {visit.has_shop ? 'Physical Shop' : 'Online/Home'}
+                                                    {visit.has_shop
+                                                        ? 'Physical Shop'
+                                                        : 'Online/Home'}
                                                 </span>
                                             </div>
                                         </TableCell>
@@ -108,17 +118,31 @@ export default function VendorVisitsIndex({ visits }: Props) {
                                         </TableCell>
                                         <TableCell>
                                             {visit.submitted_at
-                                                ? new Date(visit.submitted_at).toLocaleDateString()
+                                                ? new Date(
+                                                      visit.submitted_at,
+                                                  ).toLocaleDateString()
                                                 : 'Pending'}
                                         </TableCell>
                                         <TableCell>
-                                            <Badge variant={visit.status === 'submitted' ? 'default' : 'secondary'}>
+                                            <Badge
+                                                variant={
+                                                    visit.status === 'submitted'
+                                                        ? 'default'
+                                                        : 'secondary'
+                                                }
+                                            >
                                                 {visit.status}
                                             </Badge>
                                         </TableCell>
                                         <TableCell className="text-right">
-                                            <Button variant="ghost" size="sm" asChild>
-                                                <Link href={`/dashboard/vendor-visits/${visit.id}`}>
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                asChild
+                                            >
+                                                <Link
+                                                    href={`/dashboard/vendor-visits/${visit.id}`}
+                                                >
                                                     <Eye className="w-4 h-4 mr-2" />
                                                     Review
                                                 </Link>
@@ -128,7 +152,10 @@ export default function VendorVisitsIndex({ visits }: Props) {
                                 ))}
                                 {visits.data.length === 0 && (
                                     <TableRow>
-                                        <TableCell colSpan={7} className="h-24 text-center">
+                                        <TableCell
+                                            colSpan={7}
+                                            className="h-24 text-center"
+                                        >
                                             No vendor visits found.
                                         </TableCell>
                                     </TableRow>

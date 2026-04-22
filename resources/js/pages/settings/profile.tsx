@@ -1,10 +1,10 @@
 import ProfileController from '@/actions/App/Http/Controllers/Settings/ProfileController';
 import { send } from '@/routes/verification';
 import { type BreadcrumbItem, type SharedData } from '@/types';
+import { Form, Head, Link, usePage } from '@inertiajs/react';
+import Box from '@mui/material/Box';
 import Fade from '@mui/material/Fade';
 import Typography from '@mui/material/Typography';
-import Box from '@mui/material/Box';
-import { Form, Head, Link, usePage } from '@inertiajs/react';
 
 import DeleteUser from '@/components/delete-user';
 import HeadingSmall from '@/components/heading-small';
@@ -55,7 +55,11 @@ export default function Profile({
                         options={{
                             preserveScroll: true,
                         }}
-                        style={{ display: 'flex', flexDirection: 'column', gap: 24 }}
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: 24,
+                        }}
                     >
                         {({ processing, recentlySuccessful, errors }) => (
                             <>
@@ -71,9 +75,7 @@ export default function Profile({
                                         placeholder="Full name"
                                     />
 
-                                    <InputError
-                                        message={errors.name}
-                                    />
+                                    <InputError message={errors.name} />
                                 </Box>
 
                                 <Box sx={{ display: 'grid', gap: 1 }}>
@@ -89,9 +91,7 @@ export default function Profile({
                                         placeholder="Email address"
                                     />
 
-                                    <InputError
-                                        message={errors.email}
-                                    />
+                                    <InputError message={errors.email} />
                                 </Box>
 
                                 <Box sx={{ display: 'grid', gap: 1 }}>
@@ -106,9 +106,7 @@ export default function Profile({
                                         placeholder="Phone number"
                                     />
 
-                                    <InputError
-                                        message={errors.phone}
-                                    />
+                                    <InputError message={errors.phone} />
                                 </Box>
 
                                 <Box sx={{ display: 'grid', gap: 1 }}>
@@ -137,9 +135,7 @@ export default function Profile({
                                         </SelectContent>
                                     </Select>
 
-                                    <InputError
-                                        message={errors.gender}
-                                    />
+                                    <InputError message={errors.gender} />
                                 </Box>
 
                                 <Box sx={{ display: 'grid', gap: 1 }}>
@@ -165,15 +161,21 @@ export default function Profile({
                                 {mustVerifyEmail &&
                                     auth.user.email_verified_at === null && (
                                         <Box>
-                                            <Typography variant="body2" color="text.secondary" sx={{ mt: -2 }}>
+                                            <Typography
+                                                variant="body2"
+                                                color="text.secondary"
+                                                sx={{ mt: -2 }}
+                                            >
                                                 Your email address is
                                                 unverified.{' '}
                                                 <Link
                                                     href={send()}
                                                     as="button"
                                                     style={{
-                                                        textDecoration: 'underline',
-                                                        textUnderlineOffset: '4px',
+                                                        textDecoration:
+                                                            'underline',
+                                                        textUnderlineOffset:
+                                                            '4px',
                                                         color: 'inherit',
                                                     }}
                                                 >
@@ -184,7 +186,14 @@ export default function Profile({
 
                                             {status ===
                                                 'verification-link-sent' && (
-                                                <Typography variant="body2" color="success.main" sx={{ mt: 1, fontWeight: 500 }}>
+                                                <Typography
+                                                    variant="body2"
+                                                    color="success.main"
+                                                    sx={{
+                                                        mt: 1,
+                                                        fontWeight: 500,
+                                                    }}
+                                                >
                                                     A new verification link has
                                                     been sent to your email
                                                     address.
@@ -193,7 +202,13 @@ export default function Profile({
                                         </Box>
                                     )}
 
-                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                                <Box
+                                    sx={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 2,
+                                    }}
+                                >
                                     <Button
                                         type="submit"
                                         disabled={processing}
@@ -203,7 +218,10 @@ export default function Profile({
                                     </Button>
 
                                     <Fade in={recentlySuccessful}>
-                                        <Typography variant="body2" color="text.secondary">
+                                        <Typography
+                                            variant="body2"
+                                            color="text.secondary"
+                                        >
                                             Saved
                                         </Typography>
                                     </Fade>

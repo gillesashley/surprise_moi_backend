@@ -1,9 +1,9 @@
 import AppLogoIcon from '@/components/app-logo-icon';
 import { home } from '@/routes';
 import { type SharedData } from '@/types';
+import { Link, usePage } from '@inertiajs/react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import { Link, usePage } from '@inertiajs/react';
 import { type PropsWithChildren } from 'react';
 
 interface AuthLayoutProps {
@@ -81,7 +81,10 @@ export default function AuthSplitLayout({
                             mt: 'auto',
                         }}
                     >
-                        <Box component="blockquote" sx={{ '& > * + *': { mt: 1 } }}>
+                        <Box
+                            component="blockquote"
+                            sx={{ '& > * + *': { mt: 1 } }}
+                        >
                             <Typography
                                 variant="body1"
                                 sx={{ fontSize: '1.125rem' }}
@@ -126,9 +129,7 @@ export default function AuthSplitLayout({
                                 justifyContent: 'center',
                             }}
                         >
-                            <AppLogoIcon
-                                style={{ height: 40 }}
-                            />
+                            <AppLogoIcon style={{ height: 40 }} />
                         </Box>
                     </Link>
                     <Box
@@ -140,10 +141,7 @@ export default function AuthSplitLayout({
                             textAlign: { xs: 'left', sm: 'center' },
                         }}
                     >
-                        <Typography
-                            variant="h5"
-                            sx={{ fontWeight: 500 }}
-                        >
+                        <Typography variant="h5" sx={{ fontWeight: 500 }}>
                             {title}
                         </Typography>
                         <Typography

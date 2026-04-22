@@ -55,7 +55,7 @@ class MyReferralPayoutController extends Controller
             ? UserPayoutDetail::where('user_id', $user->id)->where('id', $detailId)->first()
             : $user->defaultUserPayoutDetail();
 
-        if (!$detail) {
+        if (! $detail) {
             return response()->json([
                 'message' => 'Please save your mobile money details before requesting a payout.',
             ], 422);

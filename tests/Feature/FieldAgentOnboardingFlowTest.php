@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Models\ReferralCode;
 use App\Models\User;
 use App\Models\VendorApplication;
 use App\Models\VendorVisit;
@@ -60,16 +59,16 @@ class FieldAgentOnboardingFlowTest extends TestCase
         // 3. Field Agent views their pending visits
         $response = $this->actingAs($fieldAgent)
             ->get(route('field-agent.visits.index'));
-        
+
         $response->assertStatus(200);
         $response->assertSee($vendor->name); // Should see the application in the dashboard
 
         // 4. Field Agent starts a visit
         $response = $this->actingAs($fieldAgent)
             ->post(route('field-agent.visits.start', $application));
-            
+
         $response->assertRedirect();
-        
+
         // Assert visit record created
         $this->assertDatabaseHas('vendor_visits', [
             'vendor_application_id' => $application->id,
@@ -126,7 +125,7 @@ class FieldAgentOnboardingFlowTest extends TestCase
             'id' => $application->id,
             'status' => VendorApplication::STATUS_APPROVED,
         ]);
-        
+
         $this->assertDatabaseHas('users', [
             'id' => $vendor->id,
             'role' => 'vendor',

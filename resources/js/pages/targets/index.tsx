@@ -57,7 +57,9 @@ const formatTargetType = (type: string) => {
         .join(' ');
 };
 
-const getStatusChipColor = (status: string): 'success' | 'info' | 'error' | 'default' => {
+const getStatusChipColor = (
+    status: string,
+): 'success' | 'info' | 'error' | 'default' => {
     switch (status) {
         case 'active':
             return 'success';
@@ -103,20 +105,46 @@ export default function TargetsIndex({ targets }: Props) {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Targets Management" />
-            <Box sx={{ display: 'flex', height: '100%', flex: 1, flexDirection: 'column', gap: 2, p: 2 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <Box
+                sx={{
+                    display: 'flex',
+                    height: '100%',
+                    flex: 1,
+                    flexDirection: 'column',
+                    gap: 2,
+                    p: 2,
+                }}
+            >
+                <Box
+                    sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                    }}
+                >
                     <Box>
                         <Typography variant="h5" sx={{ fontWeight: 700 }}>
                             Targets Management
                         </Typography>
-                        <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
+                        <Typography
+                            sx={{
+                                fontSize: '0.875rem',
+                                color: 'text.secondary',
+                            }}
+                        >
                             Assign and manage targets for field agents and
                             employees
                         </Typography>
                     </Box>
                     <Button asChild>
                         <Link href="/dashboard/targets/create">
-                            <Plus style={{ marginRight: 8, width: 16, height: 16 }} />
+                            <Plus
+                                style={{
+                                    marginRight: 8,
+                                    width: 16,
+                                    height: 16,
+                                }}
+                            />
                             Create Target
                         </Link>
                     </Button>
@@ -133,26 +161,88 @@ export default function TargetsIndex({ targets }: Props) {
                         <Box sx={{ overflowX: 'auto' }}>
                             <Box component="table" sx={{ width: '100%' }}>
                                 <thead>
-                                    <Box component="tr" sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                                        <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
+                                    <Box
+                                        component="tr"
+                                        sx={{
+                                            borderBottom: 1,
+                                            borderColor: 'divider',
+                                        }}
+                                    >
+                                        <Box
+                                            component="th"
+                                            sx={{
+                                                p: 1,
+                                                textAlign: 'left',
+                                                fontSize: '0.875rem',
+                                                fontWeight: 500,
+                                            }}
+                                        >
                                             User
                                         </Box>
-                                        <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
+                                        <Box
+                                            component="th"
+                                            sx={{
+                                                p: 1,
+                                                textAlign: 'left',
+                                                fontSize: '0.875rem',
+                                                fontWeight: 500,
+                                            }}
+                                        >
                                             Target Type
                                         </Box>
-                                        <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
+                                        <Box
+                                            component="th"
+                                            sx={{
+                                                p: 1,
+                                                textAlign: 'left',
+                                                fontSize: '0.875rem',
+                                                fontWeight: 500,
+                                            }}
+                                        >
                                             Progress
                                         </Box>
-                                        <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
+                                        <Box
+                                            component="th"
+                                            sx={{
+                                                p: 1,
+                                                textAlign: 'left',
+                                                fontSize: '0.875rem',
+                                                fontWeight: 500,
+                                            }}
+                                        >
                                             Bonus
                                         </Box>
-                                        <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
+                                        <Box
+                                            component="th"
+                                            sx={{
+                                                p: 1,
+                                                textAlign: 'left',
+                                                fontSize: '0.875rem',
+                                                fontWeight: 500,
+                                            }}
+                                        >
                                             Period
                                         </Box>
-                                        <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
+                                        <Box
+                                            component="th"
+                                            sx={{
+                                                p: 1,
+                                                textAlign: 'left',
+                                                fontSize: '0.875rem',
+                                                fontWeight: 500,
+                                            }}
+                                        >
                                             Status
                                         </Box>
-                                        <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
+                                        <Box
+                                            component="th"
+                                            sx={{
+                                                p: 1,
+                                                textAlign: 'left',
+                                                fontSize: '0.875rem',
+                                                fontWeight: 500,
+                                            }}
+                                        >
                                             Actions
                                         </Box>
                                     </Box>
@@ -162,14 +252,28 @@ export default function TargetsIndex({ targets }: Props) {
                                         <Box
                                             component="tr"
                                             key={target.id}
-                                            sx={{ borderBottom: 1, borderColor: 'divider', '&:hover': { bgcolor: 'action.hover' } }}
+                                            sx={{
+                                                borderBottom: 1,
+                                                borderColor: 'divider',
+                                                '&:hover': {
+                                                    bgcolor: 'action.hover',
+                                                },
+                                            }}
                                         >
                                             <Box component="td" sx={{ p: 1 }}>
                                                 <Box>
-                                                    <Typography sx={{ fontWeight: 500 }}>
+                                                    <Typography
+                                                        sx={{ fontWeight: 500 }}
+                                                    >
                                                         {target.user.name}
                                                     </Typography>
-                                                    <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
+                                                    <Typography
+                                                        sx={{
+                                                            fontSize:
+                                                                '0.875rem',
+                                                            color: 'text.secondary',
+                                                        }}
+                                                    >
                                                         {target.user.email}
                                                     </Typography>
                                                 </Box>
@@ -181,13 +285,35 @@ export default function TargetsIndex({ targets }: Props) {
                                             </Box>
                                             <Box component="td" sx={{ p: 1 }}>
                                                 <Box>
-                                                    <Typography sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                                                    <Typography
+                                                        sx={{
+                                                            fontSize:
+                                                                '0.875rem',
+                                                            fontWeight: 500,
+                                                        }}
+                                                    >
                                                         {target.current_value} /{' '}
                                                         {target.target_value}
                                                     </Typography>
-                                                    <Box sx={{ mt: 0.5, height: 8, width: 96, overflow: 'hidden', borderRadius: 4, bgcolor: 'action.hover' }}>
+                                                    <Box
+                                                        sx={{
+                                                            mt: 0.5,
+                                                            height: 8,
+                                                            width: 96,
+                                                            overflow: 'hidden',
+                                                            borderRadius: 4,
+                                                            bgcolor:
+                                                                'action.hover',
+                                                        }}
+                                                    >
                                                         <Box
-                                                            sx={{ height: '100%', bgcolor: 'primary.main', transition: 'all 0.3s' }}
+                                                            sx={{
+                                                                height: '100%',
+                                                                bgcolor:
+                                                                    'primary.main',
+                                                                transition:
+                                                                    'all 0.3s',
+                                                            }}
                                                             style={{
                                                                 width: `${progressPercentage(
                                                                     target.current_value,
@@ -201,29 +327,57 @@ export default function TargetsIndex({ targets }: Props) {
                                             <Box component="td" sx={{ p: 1 }}>
                                                 GH₵{target.bonus_amount}
                                             </Box>
-                                            <Box component="td" sx={{ p: 1, textTransform: 'capitalize' }}>
+                                            <Box
+                                                component="td"
+                                                sx={{
+                                                    p: 1,
+                                                    textTransform: 'capitalize',
+                                                }}
+                                            >
                                                 {target.period_type}
                                             </Box>
                                             <Box component="td" sx={{ p: 1 }}>
                                                 <Chip
                                                     label={target.status}
-                                                    color={getStatusChipColor(target.status)}
+                                                    color={getStatusChipColor(
+                                                        target.status,
+                                                    )}
                                                     size="small"
                                                     variant="outlined"
-                                                    sx={{ textTransform: 'uppercase' }}
+                                                    sx={{
+                                                        textTransform:
+                                                            'uppercase',
+                                                    }}
                                                 />
                                             </Box>
                                             <Box component="td" sx={{ p: 1 }}>
-                                                <Box sx={{ display: 'flex', gap: 1 }}>
+                                                <Box
+                                                    sx={{
+                                                        display: 'flex',
+                                                        gap: 1,
+                                                    }}
+                                                >
                                                     <Link
                                                         href={`/dashboard/targets/${target.id}`}
                                                     >
-                                                        <Eye style={{ width: 16, height: 16, color: 'gray' }} />
+                                                        <Eye
+                                                            style={{
+                                                                width: 16,
+                                                                height: 16,
+                                                                color: 'gray',
+                                                            }}
+                                                        />
                                                     </Link>
                                                     <Link
                                                         href={`/dashboard/targets/${target.id}/edit`}
                                                     >
-                                                        <Pencil style={{ width: 16, height: 16, color: 'gray' }} />
+                                                        <Pencil
+                                                            style={{
+                                                                width: 16,
+                                                                height: 16,
+                                                                color: 'gray',
+                                                            }}
+                                                        />
                                                     </Link>
                                                     <Box
                                                         component="button"
@@ -233,9 +387,23 @@ export default function TargetsIndex({ targets }: Props) {
                                                                 target.id,
                                                             )
                                                         }
-                                                        sx={{ color: 'text.secondary', '&:hover': { color: 'error.main' }, background: 'none', border: 'none', cursor: 'pointer', p: 0 }}
+                                                        sx={{
+                                                            color: 'text.secondary',
+                                                            '&:hover': {
+                                                                color: 'error.main',
+                                                            },
+                                                            background: 'none',
+                                                            border: 'none',
+                                                            cursor: 'pointer',
+                                                            p: 0,
+                                                        }}
                                                     >
-                                                        <Trash2 style={{ width: 16, height: 16 }} />
+                                                        <Trash2
+                                                            style={{
+                                                                width: 16,
+                                                                height: 16,
+                                                            }}
+                                                        />
                                                     </Box>
                                                 </Box>
                                             </Box>
@@ -246,14 +414,32 @@ export default function TargetsIndex({ targets }: Props) {
                         </Box>
 
                         {targets.data.length === 0 && (
-                            <Box sx={{ py: 4, textAlign: 'center', color: 'text.secondary' }}>
+                            <Box
+                                sx={{
+                                    py: 4,
+                                    textAlign: 'center',
+                                    color: 'text.secondary',
+                                }}
+                            >
                                 No targets found. Create one to get started.
                             </Box>
                         )}
 
                         {targets.last_page > 1 && (
-                            <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
+                            <Box
+                                sx={{
+                                    mt: 2,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                }}
+                            >
+                                <Typography
+                                    sx={{
+                                        fontSize: '0.875rem',
+                                        color: 'text.secondary',
+                                    }}
+                                >
                                     Showing {targets.data.length} of{' '}
                                     {targets.total} targets
                                 </Typography>
@@ -270,7 +456,14 @@ export default function TargetsIndex({ targets }: Props) {
                                     >
                                         Previous
                                     </Button>
-                                    <Box sx={{ display: 'flex', alignItems: 'center', px: 1.5, fontSize: '0.875rem' }}>
+                                    <Box
+                                        sx={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            px: 1.5,
+                                            fontSize: '0.875rem',
+                                        }}
+                                    >
                                         Page {targets.current_page} of{' '}
                                         {targets.last_page}
                                     </Box>

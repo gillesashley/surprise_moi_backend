@@ -93,35 +93,100 @@ export default function CommissionStatistics({
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Commission Statistics" />
 
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, p: 3 }}>
+            <Box
+                sx={{ display: 'flex', flexDirection: 'column', gap: 3, p: 3 }}
+            >
                 {/* Summary Cards */}
-                <Box sx={{ display: 'grid', gap: 2, gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)', lg: 'repeat(5, 1fr)' }, '& > *': { minWidth: 0 } }}>
+                <Box
+                    sx={{
+                        display: 'grid',
+                        gap: 2,
+                        gridTemplateColumns: {
+                            xs: '1fr',
+                            sm: 'repeat(2, 1fr)',
+                            md: 'repeat(3, 1fr)',
+                            lg: 'repeat(5, 1fr)',
+                        },
+                        '& > *': { minWidth: 0 },
+                    }}
+                >
                     <Card sx={{ py: 2, gap: 1 }}>
-                        <CardHeader sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', px: 3, pb: 0, '& > *': { my: 0 } }}>
-                            <CardTitle sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                        <CardHeader
+                            sx={{
+                                display: 'flex',
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                px: 3,
+                                pb: 0,
+                                '& > *': { my: 0 },
+                            }}
+                        >
+                            <CardTitle
+                                sx={{ fontSize: '0.875rem', fontWeight: 500 }}
+                            >
                                 Total Orders
                             </CardTitle>
-                            <ShoppingCart style={{ width: 16, height: 16, color: '#2563eb', flexShrink: 0 }} />
+                            <ShoppingCart
+                                style={{
+                                    width: 16,
+                                    height: 16,
+                                    color: '#2563eb',
+                                    flexShrink: 0,
+                                }}
+                            />
                         </CardHeader>
                         <CardContent>
                             <Box sx={{ fontSize: '1.5rem', fontWeight: 700 }}>
                                 {stats.summary.total_orders}
                             </Box>
-                            <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
+                            <Typography
+                                sx={{
+                                    fontSize: '0.75rem',
+                                    color: 'text.secondary',
+                                }}
+                            >
                                 All time orders
                             </Typography>
                         </CardContent>
                     </Card>
 
                     <Card sx={{ py: 2, gap: 1 }}>
-                        <CardHeader sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', px: 3, pb: 0, '& > *': { my: 0 } }}>
-                            <CardTitle sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                        <CardHeader
+                            sx={{
+                                display: 'flex',
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                px: 3,
+                                pb: 0,
+                                '& > *': { my: 0 },
+                            }}
+                        >
+                            <CardTitle
+                                sx={{ fontSize: '0.875rem', fontWeight: 500 }}
+                            >
                                 Total Sales
                             </CardTitle>
-                            <DollarSign style={{ width: 16, height: 16, color: '#16a34a', flexShrink: 0 }} />
+                            <DollarSign
+                                style={{
+                                    width: 16,
+                                    height: 16,
+                                    color: '#16a34a',
+                                    flexShrink: 0,
+                                }}
+                            />
                         </CardHeader>
                         <CardContent>
-                            <Box sx={{ fontSize: '1.5rem', fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            <Box
+                                sx={{
+                                    fontSize: '1.5rem',
+                                    fontWeight: 700,
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    whiteSpace: 'nowrap',
+                                }}
+                            >
                                 GHS{' '}
                                 {parseFloat(
                                     stats.summary.total_order_value,
@@ -129,21 +194,66 @@ export default function CommissionStatistics({
                                     maximumFractionDigits: 2,
                                 })}
                             </Box>
-                            <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
+                            <Typography
+                                sx={{
+                                    fontSize: '0.75rem',
+                                    color: 'text.secondary',
+                                }}
+                            >
                                 Gross revenue
                             </Typography>
                         </CardContent>
                     </Card>
 
-                    <Card sx={{ py: 2, gap: 1, borderColor: '#e9d5ff', background: 'linear-gradient(135deg, #faf5ff, #f3e8ff)' }}>
-                        <CardHeader sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', px: 3, pb: 0, '& > *': { my: 0 } }}>
-                            <CardTitle sx={{ fontSize: '0.875rem', fontWeight: 500, color: '#581c87' }}>
+                    <Card
+                        sx={{
+                            py: 2,
+                            gap: 1,
+                            borderColor: '#e9d5ff',
+                            background:
+                                'linear-gradient(135deg, #faf5ff, #f3e8ff)',
+                        }}
+                    >
+                        <CardHeader
+                            sx={{
+                                display: 'flex',
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                px: 3,
+                                pb: 0,
+                                '& > *': { my: 0 },
+                            }}
+                        >
+                            <CardTitle
+                                sx={{
+                                    fontSize: '0.875rem',
+                                    fontWeight: 500,
+                                    color: '#581c87',
+                                }}
+                            >
                                 Platform Commission
                             </CardTitle>
-                            <TrendingUp style={{ width: 16, height: 16, color: '#9333ea', flexShrink: 0 }} />
+                            <TrendingUp
+                                style={{
+                                    width: 16,
+                                    height: 16,
+                                    color: '#9333ea',
+                                    flexShrink: 0,
+                                }}
+                            />
                         </CardHeader>
                         <CardContent>
-                            <Box sx={{ fontSize: '1.5rem', fontWeight: 700, color: '#581c87', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            <Box
+                                sx={{
+                                    fontSize: '1.5rem',
+                                    fontWeight: 700,
+                                    color: '#581c87',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    whiteSpace: 'nowrap',
+                                }}
+                            >
                                 GHS{' '}
                                 {parseFloat(
                                     stats.summary.total_commission_earned,
@@ -151,7 +261,9 @@ export default function CommissionStatistics({
                                     maximumFractionDigits: 2,
                                 })}
                             </Box>
-                            <Typography sx={{ fontSize: '0.75rem', color: '#7e22ce' }}>
+                            <Typography
+                                sx={{ fontSize: '0.75rem', color: '#7e22ce' }}
+                            >
                                 {stats.summary.average_commission_rate} average
                                 rate
                             </Typography>
@@ -159,14 +271,41 @@ export default function CommissionStatistics({
                     </Card>
 
                     <Card sx={{ py: 2, gap: 1 }}>
-                        <CardHeader sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', px: 3, pb: 0, '& > *': { my: 0 } }}>
-                            <CardTitle sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                        <CardHeader
+                            sx={{
+                                display: 'flex',
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                px: 3,
+                                pb: 0,
+                                '& > *': { my: 0 },
+                            }}
+                        >
+                            <CardTitle
+                                sx={{ fontSize: '0.875rem', fontWeight: 500 }}
+                            >
                                 Vendor Payouts
                             </CardTitle>
-                            <Users style={{ width: 16, height: 16, color: '#ea580c', flexShrink: 0 }} />
+                            <Users
+                                style={{
+                                    width: 16,
+                                    height: 16,
+                                    color: '#ea580c',
+                                    flexShrink: 0,
+                                }}
+                            />
                         </CardHeader>
                         <CardContent>
-                            <Box sx={{ fontSize: '1.5rem', fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            <Box
+                                sx={{
+                                    fontSize: '1.5rem',
+                                    fontWeight: 700,
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    whiteSpace: 'nowrap',
+                                }}
+                            >
                                 GHS{' '}
                                 {parseFloat(
                                     stats.summary.total_vendor_payouts,
@@ -174,27 +313,74 @@ export default function CommissionStatistics({
                                     maximumFractionDigits: 2,
                                 })}
                             </Box>
-                            <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
+                            <Typography
+                                sx={{
+                                    fontSize: '0.75rem',
+                                    color: 'text.secondary',
+                                }}
+                            >
                                 Paid to vendors
                             </Typography>
                         </CardContent>
                     </Card>
 
-                    <Card sx={{ py: 2, gap: 1, borderColor: '#a7f3d0', background: 'linear-gradient(135deg, #ecfdf5, #d1fae5)' }}>
-                        <CardHeader sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', px: 3, pb: 0, '& > *': { my: 0 } }}>
-                            <CardTitle sx={{ fontSize: '0.875rem', fontWeight: 500, color: '#064e3b' }}>
+                    <Card
+                        sx={{
+                            py: 2,
+                            gap: 1,
+                            borderColor: '#a7f3d0',
+                            background:
+                                'linear-gradient(135deg, #ecfdf5, #d1fae5)',
+                        }}
+                    >
+                        <CardHeader
+                            sx={{
+                                display: 'flex',
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                px: 3,
+                                pb: 0,
+                                '& > *': { my: 0 },
+                            }}
+                        >
+                            <CardTitle
+                                sx={{
+                                    fontSize: '0.875rem',
+                                    fontWeight: 500,
+                                    color: '#064e3b',
+                                }}
+                            >
                                 Net Income
                             </CardTitle>
-                            <TrendingUp style={{ width: 16, height: 16, color: '#059669', flexShrink: 0 }} />
+                            <TrendingUp
+                                style={{
+                                    width: 16,
+                                    height: 16,
+                                    color: '#059669',
+                                    flexShrink: 0,
+                                }}
+                            />
                         </CardHeader>
                         <CardContent>
-                            <Box sx={{ fontSize: '1.5rem', fontWeight: 700, color: '#064e3b', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            <Box
+                                sx={{
+                                    fontSize: '1.5rem',
+                                    fontWeight: 700,
+                                    color: '#064e3b',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    whiteSpace: 'nowrap',
+                                }}
+                            >
                                 GHS{' '}
                                 {platformNet.toLocaleString('en-US', {
                                     maximumFractionDigits: 2,
                                 })}
                             </Box>
-                            <Typography sx={{ fontSize: '0.75rem', color: '#047857' }}>
+                            <Typography
+                                sx={{ fontSize: '0.75rem', color: '#047857' }}
+                            >
                                 Commission - Payouts
                             </Typography>
                         </CardContent>
@@ -202,7 +388,16 @@ export default function CommissionStatistics({
                 </Box>
 
                 {/* Charts */}
-                <Box sx={{ display: 'grid', gap: 3, gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' } }}>
+                <Box
+                    sx={{
+                        display: 'grid',
+                        gap: 3,
+                        gridTemplateColumns: {
+                            xs: '1fr',
+                            md: 'repeat(2, 1fr)',
+                        },
+                    }}
+                >
                     {/* Commission by Tier */}
                     <Card>
                         <CardHeader>
@@ -250,29 +445,57 @@ export default function CommissionStatistics({
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    gap: 2,
+                                }}
+                            >
                                 {stats.tier_breakdown.map((tier, index) => (
                                     <Box
                                         key={index}
-                                        sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderRadius: 2, bgcolor: 'action.selected', p: 1.5 }}
+                                        sx={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'space-between',
+                                            borderRadius: 2,
+                                            bgcolor: 'action.selected',
+                                            p: 1.5,
+                                        }}
                                     >
                                         <Box>
-                                            <Typography sx={{ fontWeight: 500 }}>
+                                            <Typography
+                                                sx={{ fontWeight: 500 }}
+                                            >
                                                 {tier.tier_name}
                                             </Typography>
-                                            <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
+                                            <Typography
+                                                sx={{
+                                                    fontSize: '0.875rem',
+                                                    color: 'text.secondary',
+                                                }}
+                                            >
                                                 {tier.order_count} orders
                                             </Typography>
                                         </Box>
                                         <Box sx={{ textAlign: 'right' }}>
-                                            <Box sx={{ fontSize: '1.125rem', fontWeight: 700 }}>
+                                            <Box
+                                                sx={{
+                                                    fontSize: '1.125rem',
+                                                    fontWeight: 700,
+                                                }}
+                                            >
                                                 GHS{' '}
                                                 {parseFloat(
                                                     tier.commission_earned,
                                                 ).toFixed(2)}
                                             </Box>
                                             <Box
-                                                sx={{ fontSize: '0.75rem', fontWeight: 500 }}
+                                                sx={{
+                                                    fontSize: '0.75rem',
+                                                    fontWeight: 500,
+                                                }}
                                                 style={{
                                                     color: COLORS[
                                                         index % COLORS.length
@@ -358,33 +581,63 @@ export default function CommissionStatistics({
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: 2,
+                            }}
+                        >
                             {stats.top_vendors.map((vendor, index) => (
                                 <Box
                                     key={index}
-                                    sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderRadius: 2, border: 1, borderColor: 'divider', p: 1.5 }}
+                                    sx={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'space-between',
+                                        borderRadius: 2,
+                                        border: 1,
+                                        borderColor: 'divider',
+                                        p: 1.5,
+                                    }}
                                 >
                                     <Box sx={{ flex: 1 }}>
-                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                            <Box sx={{
+                                        <Box
+                                            sx={{
                                                 display: 'flex',
-                                                width: 32,
-                                                height: 32,
                                                 alignItems: 'center',
-                                                justifyContent: 'center',
-                                                borderRadius: '50%',
-                                                background: 'linear-gradient(135deg, #8b5cf6, #9333ea)',
-                                                fontSize: '0.875rem',
-                                                fontWeight: 700,
-                                                color: '#fff',
-                                            }}>
+                                                gap: 1,
+                                            }}
+                                        >
+                                            <Box
+                                                sx={{
+                                                    display: 'flex',
+                                                    width: 32,
+                                                    height: 32,
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                    borderRadius: '50%',
+                                                    background:
+                                                        'linear-gradient(135deg, #8b5cf6, #9333ea)',
+                                                    fontSize: '0.875rem',
+                                                    fontWeight: 700,
+                                                    color: '#fff',
+                                                }}
+                                            >
                                                 {index + 1}
                                             </Box>
                                             <Box>
-                                                <Typography sx={{ fontWeight: 500 }}>
+                                                <Typography
+                                                    sx={{ fontWeight: 500 }}
+                                                >
                                                     {vendor.vendor_name}
                                                 </Typography>
-                                                <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
+                                                <Typography
+                                                    sx={{
+                                                        fontSize: '0.875rem',
+                                                        color: 'text.secondary',
+                                                    }}
+                                                >
                                                     {vendor.order_count} orders
                                                     {' \u2022 '}GHS{' '}
                                                     {parseFloat(
@@ -406,7 +659,12 @@ export default function CommissionStatistics({
                                                 maximumFractionDigits: 2,
                                             })}
                                         </Box>
-                                        <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
+                                        <Typography
+                                            sx={{
+                                                fontSize: '0.75rem',
+                                                color: 'text.secondary',
+                                            }}
+                                        >
                                             commission
                                         </Typography>
                                     </Box>

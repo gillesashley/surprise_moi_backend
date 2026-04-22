@@ -87,8 +87,22 @@ export function NavMain({ items = [] }: { items: NavItem[] }) {
     };
 
     return (
-        <SidebarGroup style={{ paddingLeft: 12, paddingRight: 12, paddingTop: 4, paddingBottom: 4 }}>
-            <SidebarGroupLabel style={{ fontSize: '0.6875rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--muted-foreground, #94a3b8)' }}>
+        <SidebarGroup
+            style={{
+                paddingLeft: 12,
+                paddingRight: 12,
+                paddingTop: 4,
+                paddingBottom: 4,
+            }}
+        >
+            <SidebarGroupLabel
+                style={{
+                    fontSize: '0.6875rem',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                    color: 'var(--muted-foreground, #94a3b8)',
+                }}
+            >
                 Navigation
             </SidebarGroupLabel>
             <SidebarMenu>
@@ -113,7 +127,11 @@ export function NavMain({ items = [] }: { items: NavItem[] }) {
                                             }}
                                         >
                                             {item.icon && (
-                                                <item.icon size={ICON_SIZE} strokeWidth={1.75} style={{ flexShrink: 0 }} />
+                                                <item.icon
+                                                    size={ICON_SIZE}
+                                                    strokeWidth={1.75}
+                                                    style={{ flexShrink: 0 }}
+                                                />
                                             )}
                                             <span>{item.title}</span>
                                             <ChevronRight
@@ -121,7 +139,8 @@ export function NavMain({ items = [] }: { items: NavItem[] }) {
                                                 strokeWidth={2}
                                                 style={{
                                                     marginLeft: 'auto',
-                                                    transition: 'transform 0.2s ease',
+                                                    transition:
+                                                        'transform 0.2s ease',
                                                     transform: isOpen
                                                         ? 'rotate(90deg)'
                                                         : 'none',
@@ -134,18 +153,36 @@ export function NavMain({ items = [] }: { items: NavItem[] }) {
                                         <SidebarMenuSub>
                                             {item.items.map((subItem) => (
                                                 <SidebarMenuSubItem
-                                                    key={subItem.href ? resolveUrl(subItem.href) : subItem.title}
+                                                    key={
+                                                        subItem.href
+                                                            ? resolveUrl(
+                                                                  subItem.href,
+                                                              )
+                                                            : subItem.title
+                                                    }
                                                 >
                                                     <SidebarMenuSubButton
                                                         asChild
-                                                        isActive={isActive(subItem.href)}
+                                                        isActive={isActive(
+                                                            subItem.href,
+                                                        )}
                                                     >
                                                         <Link
                                                             href={subItem.href!}
                                                             prefetch
                                                         >
                                                             {subItem.icon && (
-                                                                <subItem.icon size={SUB_ICON_SIZE} strokeWidth={1.75} style={{ flexShrink: 0 }} />
+                                                                <subItem.icon
+                                                                    size={
+                                                                        SUB_ICON_SIZE
+                                                                    }
+                                                                    strokeWidth={
+                                                                        1.75
+                                                                    }
+                                                                    style={{
+                                                                        flexShrink: 0,
+                                                                    }}
+                                                                />
                                                             )}
                                                             <span>
                                                                 {subItem.title}
@@ -162,7 +199,9 @@ export function NavMain({ items = [] }: { items: NavItem[] }) {
                     }
 
                     return (
-                        <SidebarMenuItem key={item.href ? resolveUrl(item.href) : item.title}>
+                        <SidebarMenuItem
+                            key={item.href ? resolveUrl(item.href) : item.title}
+                        >
                             <SidebarMenuButton
                                 asChild
                                 isActive={isActive(item.href)}
@@ -170,7 +209,11 @@ export function NavMain({ items = [] }: { items: NavItem[] }) {
                             >
                                 <Link href={item.href!} prefetch>
                                     {item.icon && (
-                                        <item.icon size={ICON_SIZE} strokeWidth={1.75} style={{ flexShrink: 0 }} />
+                                        <item.icon
+                                            size={ICON_SIZE}
+                                            strokeWidth={1.75}
+                                            style={{ flexShrink: 0 }}
+                                        />
                                     )}
                                     <span>{item.title}</span>
                                 </Link>

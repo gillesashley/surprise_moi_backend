@@ -155,7 +155,7 @@ class FieldAgentApplicationAdminTest extends TestCase
         $this->assertNotNull($code, 'A ReferralCode should be created for the new agent');
     }
 
-    public function test_generated_referral_code_uses_the_FA_prefix(): void
+    public function test_generated_referral_code_uses_the_f_a_prefix(): void
     {
         $app = FieldAgentApplication::factory()->pending()->create([
             'email' => 'newagent@example.com',

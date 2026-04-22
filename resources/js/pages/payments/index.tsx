@@ -79,7 +79,12 @@ export default function PaymentsIndex({ payments, statuses, filters }: Props) {
             if (searchTerm !== filters.search) {
                 router.get(
                     '/dashboard/payments',
-                    { search: searchTerm, status: filters.status, type: filters.type, page: 1 },
+                    {
+                        search: searchTerm,
+                        status: filters.status,
+                        type: filters.type,
+                        page: 1,
+                    },
                     {
                         preserveState: true,
                         preserveScroll: true,
@@ -142,13 +147,24 @@ export default function PaymentsIndex({ payments, statuses, filters }: Props) {
     };
 
     const handleRowClick = (payment: Payment) => {
-        router.visit(`/dashboard/payments/${payment.type === 'order' ? 'order' : 'vendor-onboarding'}/${payment.id}`);
+        router.visit(
+            `/dashboard/payments/${payment.type === 'order' ? 'order' : 'vendor-onboarding'}/${payment.id}`,
+        );
     };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Payments" />
-            <Box sx={{ display: 'flex', height: '100%', flex: 1, flexDirection: 'column', gap: 2, p: 2 }}>
+            <Box
+                sx={{
+                    display: 'flex',
+                    height: '100%',
+                    flex: 1,
+                    flexDirection: 'column',
+                    gap: 2,
+                    p: 2,
+                }}
+            >
                 <Card>
                     <CardHeader>
                         <CardTitle>Payment Management</CardTitle>
@@ -158,21 +174,41 @@ export default function PaymentsIndex({ payments, statuses, filters }: Props) {
                     </CardHeader>
                     <CardContent>
                         {/* Search Bar & Filters */}
-                        <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Box
+                            sx={{
+                                mb: 2,
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 1,
+                            }}
+                        >
                             <Box sx={{ position: 'relative', flex: 1 }}>
-                                <Search style={{ position: 'absolute', top: 10, left: 10, width: 16, height: 16, color: 'var(--muted-foreground)' }} />
+                                <Search
+                                    style={{
+                                        position: 'absolute',
+                                        top: 10,
+                                        left: 10,
+                                        width: 16,
+                                        height: 16,
+                                        color: 'var(--muted-foreground)',
+                                    }}
+                                />
                                 <Input
                                     type="search"
                                     placeholder="Search by reference, user name, or email..."
                                     value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    onChange={(e) =>
+                                        setSearchTerm(e.target.value)
+                                    }
                                     style={{ paddingLeft: 36 }}
                                 />
                             </Box>
                             <Box
                                 component="select"
                                 value={filters.status || ''}
-                                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleStatusFilter(e.target.value)}
+                                onChange={(
+                                    e: React.ChangeEvent<HTMLSelectElement>,
+                                ) => handleStatusFilter(e.target.value)}
                                 sx={{
                                     height: 36,
                                     borderRadius: 1,
@@ -183,7 +219,10 @@ export default function PaymentsIndex({ payments, statuses, filters }: Props) {
                                     bgcolor: 'background.paper',
                                     color: 'text.primary',
                                     cursor: 'pointer',
-                                    '&:focus': { outline: 'none', borderColor: 'primary.main' },
+                                    '&:focus': {
+                                        outline: 'none',
+                                        borderColor: 'primary.main',
+                                    },
                                 }}
                             >
                                 <option value="">All Statuses</option>
@@ -196,7 +235,9 @@ export default function PaymentsIndex({ payments, statuses, filters }: Props) {
                             <Box
                                 component="select"
                                 value={filters.type || ''}
-                                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleTypeFilter(e.target.value)}
+                                onChange={(
+                                    e: React.ChangeEvent<HTMLSelectElement>,
+                                ) => handleTypeFilter(e.target.value)}
                                 sx={{
                                     height: 36,
                                     borderRadius: 1,
@@ -207,102 +248,241 @@ export default function PaymentsIndex({ payments, statuses, filters }: Props) {
                                     bgcolor: 'background.paper',
                                     color: 'text.primary',
                                     cursor: 'pointer',
-                                    '&:focus': { outline: 'none', borderColor: 'primary.main' },
+                                    '&:focus': {
+                                        outline: 'none',
+                                        borderColor: 'primary.main',
+                                    },
                                 }}
                             >
                                 <option value="">All Types</option>
                                 <option value="order">Order Payments</option>
-                                <option value="vendor-onboarding">Vendor Onboarding</option>
+                                <option value="vendor-onboarding">
+                                    Vendor Onboarding
+                                </option>
                             </Box>
                         </Box>
 
                         <Box sx={{ overflowX: 'auto' }}>
                             <Box component="table" sx={{ width: '100%' }}>
                                 <thead>
-                                    <Box component="tr" sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                                        <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
+                                    <Box
+                                        component="tr"
+                                        sx={{
+                                            borderBottom: 1,
+                                            borderColor: 'divider',
+                                        }}
+                                    >
+                                        <Box
+                                            component="th"
+                                            sx={{
+                                                p: 1,
+                                                textAlign: 'left',
+                                                fontSize: '0.875rem',
+                                                fontWeight: 500,
+                                            }}
+                                        >
                                             Reference
                                         </Box>
-                                        <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
+                                        <Box
+                                            component="th"
+                                            sx={{
+                                                p: 1,
+                                                textAlign: 'left',
+                                                fontSize: '0.875rem',
+                                                fontWeight: 500,
+                                            }}
+                                        >
                                             User
                                         </Box>
-                                        <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
+                                        <Box
+                                            component="th"
+                                            sx={{
+                                                p: 1,
+                                                textAlign: 'left',
+                                                fontSize: '0.875rem',
+                                                fontWeight: 500,
+                                            }}
+                                        >
                                             Type
                                         </Box>
-                                        <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
+                                        <Box
+                                            component="th"
+                                            sx={{
+                                                p: 1,
+                                                textAlign: 'left',
+                                                fontSize: '0.875rem',
+                                                fontWeight: 500,
+                                            }}
+                                        >
                                             Amount
                                         </Box>
-                                        <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
+                                        <Box
+                                            component="th"
+                                            sx={{
+                                                p: 1,
+                                                textAlign: 'left',
+                                                fontSize: '0.875rem',
+                                                fontWeight: 500,
+                                            }}
+                                        >
                                             Status
                                         </Box>
-                                        <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
+                                        <Box
+                                            component="th"
+                                            sx={{
+                                                p: 1,
+                                                textAlign: 'left',
+                                                fontSize: '0.875rem',
+                                                fontWeight: 500,
+                                            }}
+                                        >
                                             Channel
                                         </Box>
-                                        <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
+                                        <Box
+                                            component="th"
+                                            sx={{
+                                                p: 1,
+                                                textAlign: 'left',
+                                                fontSize: '0.875rem',
+                                                fontWeight: 500,
+                                            }}
+                                        >
                                             Date
                                         </Box>
                                     </Box>
                                 </thead>
                                 <tbody>
                                     {payments.data.map((payment) => {
-                                        const statusColors = statusBadgeColors[payment.status] || { bg: '#F3F4F6', text: '#374151' };
+                                        const statusColors = statusBadgeColors[
+                                            payment.status
+                                        ] || { bg: '#F3F4F6', text: '#374151' };
 
                                         return (
                                             <Box
                                                 component="tr"
                                                 key={payment.id}
-                                                onClick={() => handleRowClick(payment)}
+                                                onClick={() =>
+                                                    handleRowClick(payment)
+                                                }
                                                 sx={{
                                                     borderBottom: 1,
                                                     borderColor: 'divider',
                                                     cursor: 'pointer',
-                                                    '&:last-child': { border: 0 },
-                                                    '&:hover': { bgcolor: 'action.hover' },
+                                                    '&:last-child': {
+                                                        border: 0,
+                                                    },
+                                                    '&:hover': {
+                                                        bgcolor: 'action.hover',
+                                                    },
                                                 }}
                                             >
-                                                <Box component="td" sx={{ p: 1, fontSize: '0.875rem', fontFamily: 'monospace', maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                                <Box
+                                                    component="td"
+                                                    sx={{
+                                                        p: 1,
+                                                        fontSize: '0.875rem',
+                                                        fontFamily: 'monospace',
+                                                        maxWidth: 200,
+                                                        overflow: 'hidden',
+                                                        textOverflow:
+                                                            'ellipsis',
+                                                        whiteSpace: 'nowrap',
+                                                    }}
+                                                >
                                                     {payment.reference}
                                                 </Box>
-                                                <Box component="td" sx={{ p: 1, fontSize: '0.875rem' }}>
+                                                <Box
+                                                    component="td"
+                                                    sx={{
+                                                        p: 1,
+                                                        fontSize: '0.875rem',
+                                                    }}
+                                                >
                                                     {payment.user_name}
                                                 </Box>
-                                                <Box component="td" sx={{ p: 1, fontSize: '0.875rem' }}>
-                                                    {payment.type === 'order' && payment.related_reference
+                                                <Box
+                                                    component="td"
+                                                    sx={{
+                                                        p: 1,
+                                                        fontSize: '0.875rem',
+                                                    }}
+                                                >
+                                                    {payment.type === 'order' &&
+                                                    payment.related_reference
                                                         ? `Order ${payment.related_reference}`
                                                         : 'Vendor Onboarding'}
                                                 </Box>
-                                                <Box component="td" sx={{ p: 1, fontSize: '0.875rem' }}>
-                                                    {payment.currency} {payment.amount}
+                                                <Box
+                                                    component="td"
+                                                    sx={{
+                                                        p: 1,
+                                                        fontSize: '0.875rem',
+                                                    }}
+                                                >
+                                                    {payment.currency}{' '}
+                                                    {payment.amount}
                                                 </Box>
-                                                <Box component="td" sx={{ p: 1 }}>
+                                                <Box
+                                                    component="td"
+                                                    sx={{ p: 1 }}
+                                                >
                                                     <Box
                                                         component="span"
                                                         sx={{
-                                                            display: 'inline-block',
+                                                            display:
+                                                                'inline-block',
                                                             px: 1,
                                                             py: 0.25,
-                                                            borderRadius: '9999px',
+                                                            borderRadius:
+                                                                '9999px',
                                                             fontSize: '0.75rem',
                                                             fontWeight: 500,
-                                                            bgcolor: statusColors.bg,
+                                                            bgcolor:
+                                                                statusColors.bg,
                                                             color: statusColors.text,
                                                         }}
                                                     >
-                                                        {formatStatus(payment.status)}
+                                                        {formatStatus(
+                                                            payment.status,
+                                                        )}
                                                     </Box>
                                                 </Box>
-                                                <Box component="td" sx={{ p: 1, fontSize: '0.875rem' }}>
-                                                    {payment.channel || '\u2014'}
+                                                <Box
+                                                    component="td"
+                                                    sx={{
+                                                        p: 1,
+                                                        fontSize: '0.875rem',
+                                                    }}
+                                                >
+                                                    {payment.channel ||
+                                                        '\u2014'}
                                                 </Box>
-                                                <Box component="td" sx={{ p: 1, fontSize: '0.875rem' }}>
-                                                    {new Date(payment.created_at).toLocaleDateString()}
+                                                <Box
+                                                    component="td"
+                                                    sx={{
+                                                        p: 1,
+                                                        fontSize: '0.875rem',
+                                                    }}
+                                                >
+                                                    {new Date(
+                                                        payment.created_at,
+                                                    ).toLocaleDateString()}
                                                 </Box>
                                             </Box>
                                         );
                                     })}
                                     {payments.data.length === 0 && (
                                         <Box component="tr">
-                                            <Box component="td" colSpan={7} sx={{ p: 4, textAlign: 'center', fontSize: '0.875rem', color: 'text.secondary' }}>
+                                            <Box
+                                                component="td"
+                                                colSpan={7}
+                                                sx={{
+                                                    p: 4,
+                                                    textAlign: 'center',
+                                                    fontSize: '0.875rem',
+                                                    color: 'text.secondary',
+                                                }}
+                                            >
                                                 No payments found.
                                             </Box>
                                         </Box>
@@ -313,27 +493,60 @@ export default function PaymentsIndex({ payments, statuses, filters }: Props) {
 
                         {/* Pagination */}
                         {payments.last_page > 1 && (
-                            <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
-                                    Showing {payments.data.length} of {payments.total} payments
+                            <Box
+                                sx={{
+                                    mt: 2,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                }}
+                            >
+                                <Typography
+                                    sx={{
+                                        fontSize: '0.875rem',
+                                        color: 'text.secondary',
+                                    }}
+                                >
+                                    Showing {payments.data.length} of{' '}
+                                    {payments.total} payments
                                 </Typography>
                                 <Box sx={{ display: 'flex', gap: 1 }}>
                                     <Button
                                         variant="outline"
                                         size="sm"
-                                        onClick={() => handlePageChange(payments.current_page - 1)}
+                                        onClick={() =>
+                                            handlePageChange(
+                                                payments.current_page - 1,
+                                            )
+                                        }
                                         disabled={payments.current_page === 1}
                                     >
                                         Previous
                                     </Button>
-                                    <Box component="span" sx={{ display: 'flex', alignItems: 'center', px: 1, fontSize: '0.875rem' }}>
-                                        Page {payments.current_page} of {payments.last_page}
+                                    <Box
+                                        component="span"
+                                        sx={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            px: 1,
+                                            fontSize: '0.875rem',
+                                        }}
+                                    >
+                                        Page {payments.current_page} of{' '}
+                                        {payments.last_page}
                                     </Box>
                                     <Button
                                         variant="outline"
                                         size="sm"
-                                        onClick={() => handlePageChange(payments.current_page + 1)}
-                                        disabled={payments.current_page === payments.last_page}
+                                        onClick={() =>
+                                            handlePageChange(
+                                                payments.current_page + 1,
+                                            )
+                                        }
+                                        disabled={
+                                            payments.current_page ===
+                                            payments.last_page
+                                        }
                                     >
                                         Next
                                     </Button>

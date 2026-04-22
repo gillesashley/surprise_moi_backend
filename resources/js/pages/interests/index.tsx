@@ -79,41 +79,101 @@ export default function InterestsIndex({
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Interests" />
-            <Box sx={{ display: 'flex', height: '100%', flex: 1, flexDirection: 'column', gap: 2, p: 2 }}>
+            <Box
+                sx={{
+                    display: 'flex',
+                    height: '100%',
+                    flex: 1,
+                    flexDirection: 'column',
+                    gap: 2,
+                    p: 2,
+                }}
+            >
                 <Card>
                     <CardHeader>
-                        <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <Box>
-                            <CardTitle>Interests</CardTitle>
-                            <CardDescription>
-                                Manage user interests for personalization
-                            </CardDescription>
-                        </Box>
-                        {canCreate && (
-                            <Button asChild>
-                                <Link href={interestCreate.url()}>
-                                    <Plus style={{ marginRight: 8, width: 16, height: 16 }} />
-                                    Add Interest
-                                </Link>
-                            </Button>
-                        )}
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                            }}
+                        >
+                            <Box>
+                                <CardTitle>Interests</CardTitle>
+                                <CardDescription>
+                                    Manage user interests for personalization
+                                </CardDescription>
+                            </Box>
+                            {canCreate && (
+                                <Button asChild>
+                                    <Link href={interestCreate.url()}>
+                                        <Plus
+                                            style={{
+                                                marginRight: 8,
+                                                width: 16,
+                                                height: 16,
+                                            }}
+                                        />
+                                        Add Interest
+                                    </Link>
+                                </Button>
+                            )}
                         </Box>
                     </CardHeader>
                     <CardContent>
                         <Box sx={{ overflowX: 'auto' }}>
                             <Box component="table" sx={{ width: '100%' }}>
                                 <Box component="thead">
-                                    <Box component="tr" sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                                        <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
+                                    <Box
+                                        component="tr"
+                                        sx={{
+                                            borderBottom: 1,
+                                            borderColor: 'divider',
+                                        }}
+                                    >
+                                        <Box
+                                            component="th"
+                                            sx={{
+                                                p: 1,
+                                                textAlign: 'left',
+                                                fontSize: '0.875rem',
+                                                fontWeight: 500,
+                                            }}
+                                        >
                                             Name
                                         </Box>
-                                        <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
+                                        <Box
+                                            component="th"
+                                            sx={{
+                                                p: 1,
+                                                textAlign: 'left',
+                                                fontSize: '0.875rem',
+                                                fontWeight: 500,
+                                            }}
+                                        >
                                             Icon
                                         </Box>
-                                        <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
+                                        <Box
+                                            component="th"
+                                            sx={{
+                                                p: 1,
+                                                textAlign: 'left',
+                                                fontSize: '0.875rem',
+                                                fontWeight: 500,
+                                            }}
+                                        >
                                             Users
                                         </Box>
-                                        <Box component="th" sx={{ p: 1, textAlign: 'right', fontSize: '0.875rem', fontWeight: 500 }}>
+                                        <Box
+                                            component="th"
+                                            sx={{
+                                                p: 1,
+                                                textAlign: 'right',
+                                                fontSize: '0.875rem',
+                                                fontWeight: 500,
+                                            }}
+                                        >
                                             Actions
                                         </Box>
                                     </Box>
@@ -123,19 +183,54 @@ export default function InterestsIndex({
                                         <Box
                                             component="tr"
                                             key={interest.id}
-                                            sx={{ borderBottom: 1, borderColor: 'divider', '&:last-child': { borderBottom: 0 }, '&:hover': { bgcolor: 'action.hover' } }}
+                                            sx={{
+                                                borderBottom: 1,
+                                                borderColor: 'divider',
+                                                '&:last-child': {
+                                                    borderBottom: 0,
+                                                },
+                                                '&:hover': {
+                                                    bgcolor: 'action.hover',
+                                                },
+                                            }}
                                         >
-                                            <Box component="td" sx={{ p: 1, fontSize: '0.875rem', fontWeight: 500 }}>
+                                            <Box
+                                                component="td"
+                                                sx={{
+                                                    p: 1,
+                                                    fontSize: '0.875rem',
+                                                    fontWeight: 500,
+                                                }}
+                                            >
                                                 {interest.name}
                                             </Box>
-                                            <Box component="td" sx={{ p: 1, fontSize: '0.875rem' }}>
+                                            <Box
+                                                component="td"
+                                                sx={{
+                                                    p: 1,
+                                                    fontSize: '0.875rem',
+                                                }}
+                                            >
                                                 {interest.icon || '-'}
                                             </Box>
-                                            <Box component="td" sx={{ p: 1, fontSize: '0.875rem' }}>
+                                            <Box
+                                                component="td"
+                                                sx={{
+                                                    p: 1,
+                                                    fontSize: '0.875rem',
+                                                }}
+                                            >
                                                 {interest.users_count}
                                             </Box>
                                             <Box component="td" sx={{ p: 1 }}>
-                                                <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
+                                                <Box
+                                                    sx={{
+                                                        display: 'flex',
+                                                        justifyContent:
+                                                            'flex-end',
+                                                        gap: 1,
+                                                    }}
+                                                >
                                                     <Button
                                                         variant="ghost"
                                                         size="sm"
@@ -146,7 +241,12 @@ export default function InterestsIndex({
                                                                 interest.id,
                                                             )}
                                                         >
-                                                            <Pencil style={{ width: 16, height: 16 }} />
+                                                            <Pencil
+                                                                style={{
+                                                                    width: 16,
+                                                                    height: 16,
+                                                                }}
+                                                            />
                                                         </Link>
                                                     </Button>
                                                     {canDelete && (
@@ -160,7 +260,13 @@ export default function InterestsIndex({
                                                                 )
                                                             }
                                                         >
-                                                            <Trash2 style={{ width: 16, height: 16, color: 'var(--destructive)' }} />
+                                                            <Trash2
+                                                                style={{
+                                                                    width: 16,
+                                                                    height: 16,
+                                                                    color: 'var(--destructive)',
+                                                                }}
+                                                            />
                                                         </Button>
                                                     )}
                                                 </Box>
@@ -173,8 +279,20 @@ export default function InterestsIndex({
 
                         {/* Pagination */}
                         {interests.last_page > 1 && (
-                            <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
+                            <Box
+                                sx={{
+                                    mt: 2,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                }}
+                            >
+                                <Typography
+                                    sx={{
+                                        fontSize: '0.875rem',
+                                        color: 'text.secondary',
+                                    }}
+                                >
                                     Showing {interests.data.length} of{' '}
                                     {interests.total} interests
                                 </Typography>
@@ -191,7 +309,15 @@ export default function InterestsIndex({
                                     >
                                         Previous
                                     </Button>
-                                    <Box component="span" sx={{ display: 'flex', alignItems: 'center', px: 1, fontSize: '0.875rem' }}>
+                                    <Box
+                                        component="span"
+                                        sx={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            px: 1,
+                                            fontSize: '0.875rem',
+                                        }}
+                                    >
                                         Page {interests.current_page} of{' '}
                                         {interests.last_page}
                                     </Box>

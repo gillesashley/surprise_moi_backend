@@ -138,8 +138,13 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-const getStatusChipColor = (status: string): 'warning' | 'info' | 'secondary' | 'success' | 'error' | 'default' => {
-    const colorMap: Record<string, 'warning' | 'info' | 'secondary' | 'success' | 'error' | 'default'> = {
+const getStatusChipColor = (
+    status: string,
+): 'warning' | 'info' | 'secondary' | 'success' | 'error' | 'default' => {
+    const colorMap: Record<
+        string,
+        'warning' | 'info' | 'secondary' | 'success' | 'error' | 'default'
+    > = {
         pending: 'warning',
         confirmed: 'info',
         processing: 'secondary',
@@ -230,72 +235,196 @@ export default function TransactionsIndex({
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="All Transactions" />
-            <Box sx={{ display: 'flex', flex: 1, flexDirection: 'column', gap: 2, p: 2, height: '100%' }}>
+            <Box
+                sx={{
+                    display: 'flex',
+                    flex: 1,
+                    flexDirection: 'column',
+                    gap: 2,
+                    p: 2,
+                    height: '100%',
+                }}
+            >
                 {/* Statistics Cards */}
-                <Box sx={{ display: 'grid', gap: 2, gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)', lg: 'repeat(4, 1fr)' }, '& > *': { minWidth: 0 } }}>
+                <Box
+                    sx={{
+                        display: 'grid',
+                        gap: 2,
+                        gridTemplateColumns: {
+                            xs: '1fr',
+                            md: 'repeat(2, 1fr)',
+                            lg: 'repeat(4, 1fr)',
+                        },
+                        '& > *': { minWidth: 0 },
+                    }}
+                >
                     <Card sx={{ py: 2, gap: 1 }}>
-                        <CardHeader sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', px: 3, pb: 0, '& > *': { my: 0 } }}>
-                            <CardTitle sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                        <CardHeader
+                            sx={{
+                                display: 'flex',
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                px: 3,
+                                pb: 0,
+                                '& > *': { my: 0 },
+                            }}
+                        >
+                            <CardTitle
+                                sx={{ fontSize: '0.875rem', fontWeight: 500 }}
+                            >
                                 Total Orders
                             </CardTitle>
-                            <ShoppingCart style={{ width: 16, height: 16, color: 'var(--muted-foreground)', flexShrink: 0 }} />
+                            <ShoppingCart
+                                style={{
+                                    width: 16,
+                                    height: 16,
+                                    color: 'var(--muted-foreground)',
+                                    flexShrink: 0,
+                                }}
+                            />
                         </CardHeader>
                         <CardContent>
                             <Box sx={{ fontSize: '1.5rem', fontWeight: 700 }}>
                                 {statistics.total_orders}
                             </Box>
-                            <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
+                            <Typography
+                                sx={{
+                                    fontSize: '0.75rem',
+                                    color: 'text.secondary',
+                                }}
+                            >
                                 All time orders
                             </Typography>
                         </CardContent>
                     </Card>
 
                     <Card sx={{ py: 2, gap: 1 }}>
-                        <CardHeader sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', px: 3, pb: 0, '& > *': { my: 0 } }}>
-                            <CardTitle sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                        <CardHeader
+                            sx={{
+                                display: 'flex',
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                px: 3,
+                                pb: 0,
+                                '& > *': { my: 0 },
+                            }}
+                        >
+                            <CardTitle
+                                sx={{ fontSize: '0.875rem', fontWeight: 500 }}
+                            >
                                 Total Sales
                             </CardTitle>
-                            <DollarSign style={{ width: 16, height: 16, color: 'var(--muted-foreground)', flexShrink: 0 }} />
+                            <DollarSign
+                                style={{
+                                    width: 16,
+                                    height: 16,
+                                    color: 'var(--muted-foreground)',
+                                    flexShrink: 0,
+                                }}
+                            />
                         </CardHeader>
                         <CardContent>
-                            <Box sx={{ fontSize: '1.5rem', fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            <Box
+                                sx={{
+                                    fontSize: '1.5rem',
+                                    fontWeight: 700,
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    whiteSpace: 'nowrap',
+                                }}
+                            >
                                 {formatCurrency(statistics.total_sales)}
                             </Box>
-                            <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
+                            <Typography
+                                sx={{
+                                    fontSize: '0.75rem',
+                                    color: 'text.secondary',
+                                }}
+                            >
                                 Gross revenue
                             </Typography>
                         </CardContent>
                     </Card>
 
                     <Card sx={{ py: 2, gap: 1 }}>
-                        <CardHeader sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', px: 3, pb: 0, '& > *': { my: 0 } }}>
-                            <CardTitle sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                        <CardHeader
+                            sx={{
+                                display: 'flex',
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                px: 3,
+                                pb: 0,
+                                '& > *': { my: 0 },
+                            }}
+                        >
+                            <CardTitle
+                                sx={{ fontSize: '0.875rem', fontWeight: 500 }}
+                            >
                                 Pending Orders
                             </CardTitle>
-                            <Package style={{ width: 16, height: 16, color: 'var(--muted-foreground)', flexShrink: 0 }} />
+                            <Package
+                                style={{
+                                    width: 16,
+                                    height: 16,
+                                    color: 'var(--muted-foreground)',
+                                    flexShrink: 0,
+                                }}
+                            />
                         </CardHeader>
                         <CardContent>
                             <Box sx={{ fontSize: '1.5rem', fontWeight: 700 }}>
                                 {statistics.pending_orders}
                             </Box>
-                            <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
+                            <Typography
+                                sx={{
+                                    fontSize: '0.75rem',
+                                    color: 'text.secondary',
+                                }}
+                            >
                                 Awaiting processing
                             </Typography>
                         </CardContent>
                     </Card>
 
                     <Card sx={{ py: 2, gap: 1 }}>
-                        <CardHeader sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', px: 3, pb: 0, '& > *': { my: 0 } }}>
-                            <CardTitle sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                        <CardHeader
+                            sx={{
+                                display: 'flex',
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                px: 3,
+                                pb: 0,
+                                '& > *': { my: 0 },
+                            }}
+                        >
+                            <CardTitle
+                                sx={{ fontSize: '0.875rem', fontWeight: 500 }}
+                            >
                                 Delivered Orders
                             </CardTitle>
-                            <Truck style={{ width: 16, height: 16, color: 'var(--muted-foreground)', flexShrink: 0 }} />
+                            <Truck
+                                style={{
+                                    width: 16,
+                                    height: 16,
+                                    color: 'var(--muted-foreground)',
+                                    flexShrink: 0,
+                                }}
+                            />
                         </CardHeader>
                         <CardContent>
                             <Box sx={{ fontSize: '1.5rem', fontWeight: 700 }}>
                                 {statistics.delivered_orders}
                             </Box>
-                            <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
+                            <Typography
+                                sx={{
+                                    fontSize: '0.75rem',
+                                    color: 'text.secondary',
+                                }}
+                            >
                                 Successfully delivered
                             </Typography>
                         </CardContent>
@@ -403,7 +532,13 @@ export default function TransactionsIndex({
                 {/* Orders Table */}
                 <Card>
                     <CardHeader>
-                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                            }}
+                        >
                             <Box>
                                 <CardTitle>All Transactions</CardTitle>
                                 <CardDescription>
@@ -415,40 +550,127 @@ export default function TransactionsIndex({
                     </CardHeader>
                     <CardContent>
                         {orders.data.length === 0 ? (
-                            <Box sx={{ py: 4, textAlign: 'center', color: 'text.secondary' }}>
+                            <Box
+                                sx={{
+                                    py: 4,
+                                    textAlign: 'center',
+                                    color: 'text.secondary',
+                                }}
+                            >
                                 No transactions found.
                             </Box>
                         ) : (
                             <>
                                 <Box sx={{ overflowX: 'auto' }}>
-                                    <Box component="table" sx={{ width: '100%' }}>
+                                    <Box
+                                        component="table"
+                                        sx={{ width: '100%' }}
+                                    >
                                         <thead>
-                                            <Box component="tr" sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                                                <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
+                                            <Box
+                                                component="tr"
+                                                sx={{
+                                                    borderBottom: 1,
+                                                    borderColor: 'divider',
+                                                }}
+                                            >
+                                                <Box
+                                                    component="th"
+                                                    sx={{
+                                                        p: 1,
+                                                        textAlign: 'left',
+                                                        fontSize: '0.875rem',
+                                                        fontWeight: 500,
+                                                    }}
+                                                >
                                                     Order #
                                                 </Box>
-                                                <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
+                                                <Box
+                                                    component="th"
+                                                    sx={{
+                                                        p: 1,
+                                                        textAlign: 'left',
+                                                        fontSize: '0.875rem',
+                                                        fontWeight: 500,
+                                                    }}
+                                                >
                                                     Customer
                                                 </Box>
-                                                <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
+                                                <Box
+                                                    component="th"
+                                                    sx={{
+                                                        p: 1,
+                                                        textAlign: 'left',
+                                                        fontSize: '0.875rem',
+                                                        fontWeight: 500,
+                                                    }}
+                                                >
                                                     Product/Service
                                                 </Box>
-                                                <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
+                                                <Box
+                                                    component="th"
+                                                    sx={{
+                                                        p: 1,
+                                                        textAlign: 'left',
+                                                        fontSize: '0.875rem',
+                                                        fontWeight: 500,
+                                                    }}
+                                                >
                                                     Receiver
                                                 </Box>
-                                                <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
+                                                <Box
+                                                    component="th"
+                                                    sx={{
+                                                        p: 1,
+                                                        textAlign: 'left',
+                                                        fontSize: '0.875rem',
+                                                        fontWeight: 500,
+                                                    }}
+                                                >
                                                     Vendor
                                                 </Box>
-                                                <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
+                                                <Box
+                                                    component="th"
+                                                    sx={{
+                                                        p: 1,
+                                                        textAlign: 'left',
+                                                        fontSize: '0.875rem',
+                                                        fontWeight: 500,
+                                                    }}
+                                                >
                                                     Amount
                                                 </Box>
-                                                <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
+                                                <Box
+                                                    component="th"
+                                                    sx={{
+                                                        p: 1,
+                                                        textAlign: 'left',
+                                                        fontSize: '0.875rem',
+                                                        fontWeight: 500,
+                                                    }}
+                                                >
                                                     Delivery Date
                                                 </Box>
-                                                <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
+                                                <Box
+                                                    component="th"
+                                                    sx={{
+                                                        p: 1,
+                                                        textAlign: 'left',
+                                                        fontSize: '0.875rem',
+                                                        fontWeight: 500,
+                                                    }}
+                                                >
                                                     Delivered By
                                                 </Box>
-                                                <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
+                                                <Box
+                                                    component="th"
+                                                    sx={{
+                                                        p: 1,
+                                                        textAlign: 'left',
+                                                        fontSize: '0.875rem',
+                                                        fontWeight: 500,
+                                                    }}
+                                                >
                                                     Status
                                                 </Box>
                                             </Box>
@@ -461,27 +683,69 @@ export default function TransactionsIndex({
                                                     sx={{
                                                         borderBottom: 1,
                                                         borderColor: 'divider',
-                                                        '&:last-child': { borderBottom: 0 },
-                                                        '&:hover': { bgcolor: 'action.hover' },
+                                                        '&:last-child': {
+                                                            borderBottom: 0,
+                                                        },
+                                                        '&:hover': {
+                                                            bgcolor:
+                                                                'action.hover',
+                                                        },
                                                     }}
                                                 >
-                                                    <Box component="td" sx={{ p: 1 }}>
-                                                        <Box sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                                                    <Box
+                                                        component="td"
+                                                        sx={{ p: 1 }}
+                                                    >
+                                                        <Box
+                                                            sx={{
+                                                                fontSize:
+                                                                    '0.875rem',
+                                                                fontWeight: 500,
+                                                            }}
+                                                        >
                                                             {
                                                                 order.transaction_number
                                                             }
                                                         </Box>
-                                                        <Box sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
+                                                        <Box
+                                                            sx={{
+                                                                fontSize:
+                                                                    '0.75rem',
+                                                                color: 'text.secondary',
+                                                            }}
+                                                        >
                                                             {formatDateTime(
                                                                 order.created_at,
                                                             )}
                                                         </Box>
                                                     </Box>
-                                                    <Box component="td" sx={{ p: 1 }}>
-                                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                                            <User style={{ width: 16, height: 16, color: 'var(--muted-foreground)' }} />
+                                                    <Box
+                                                        component="td"
+                                                        sx={{ p: 1 }}
+                                                    >
+                                                        <Box
+                                                            sx={{
+                                                                display: 'flex',
+                                                                alignItems:
+                                                                    'center',
+                                                                gap: 1,
+                                                            }}
+                                                        >
+                                                            <User
+                                                                style={{
+                                                                    width: 16,
+                                                                    height: 16,
+                                                                    color: 'var(--muted-foreground)',
+                                                                }}
+                                                            />
                                                             <Box>
-                                                                <Box sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                                                                <Box
+                                                                    sx={{
+                                                                        fontSize:
+                                                                            '0.875rem',
+                                                                        fontWeight: 500,
+                                                                    }}
+                                                                >
                                                                     {
                                                                         order
                                                                             .customer
@@ -490,7 +754,13 @@ export default function TransactionsIndex({
                                                                 </Box>
                                                                 {order.customer
                                                                     .phone && (
-                                                                    <Box sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
+                                                                    <Box
+                                                                        sx={{
+                                                                            fontSize:
+                                                                                '0.75rem',
+                                                                            color: 'text.secondary',
+                                                                        }}
+                                                                    >
                                                                         {
                                                                             order
                                                                                 .customer
@@ -501,12 +771,24 @@ export default function TransactionsIndex({
                                                             </Box>
                                                         </Box>
                                                     </Box>
-                                                    <Box component="td" sx={{ p: 1 }}>
-                                                        <Box sx={{ fontSize: '0.875rem' }}>
+                                                    <Box
+                                                        component="td"
+                                                        sx={{ p: 1 }}
+                                                    >
+                                                        <Box
+                                                            sx={{
+                                                                fontSize:
+                                                                    '0.875rem',
+                                                            }}
+                                                        >
                                                             {order.items
                                                                 .length > 0 ? (
                                                                 <Box>
-                                                                    <Box sx={{ fontWeight: 500 }}>
+                                                                    <Box
+                                                                        sx={{
+                                                                            fontWeight: 500,
+                                                                        }}
+                                                                    >
                                                                         {
                                                                             order
                                                                                 .items[0]
@@ -516,7 +798,13 @@ export default function TransactionsIndex({
                                                                     {order.items
                                                                         .length >
                                                                         1 && (
-                                                                        <Box sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
+                                                                        <Box
+                                                                            sx={{
+                                                                                fontSize:
+                                                                                    '0.75rem',
+                                                                                color: 'text.secondary',
+                                                                            }}
+                                                                        >
                                                                             +
                                                                             {order
                                                                                 .items
@@ -528,16 +816,30 @@ export default function TransactionsIndex({
                                                                     )}
                                                                 </Box>
                                                             ) : (
-                                                                <Box component="span" sx={{ color: 'text.secondary' }}>
+                                                                <Box
+                                                                    component="span"
+                                                                    sx={{
+                                                                        color: 'text.secondary',
+                                                                    }}
+                                                                >
                                                                     -
                                                                 </Box>
                                                             )}
                                                         </Box>
                                                     </Box>
-                                                    <Box component="td" sx={{ p: 1 }}>
+                                                    <Box
+                                                        component="td"
+                                                        sx={{ p: 1 }}
+                                                    >
                                                         {order.receiver ? (
                                                             <Box>
-                                                                <Box sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                                                                <Box
+                                                                    sx={{
+                                                                        fontSize:
+                                                                            '0.875rem',
+                                                                        fontWeight: 500,
+                                                                    }}
+                                                                >
                                                                     {
                                                                         order
                                                                             .receiver
@@ -546,7 +848,13 @@ export default function TransactionsIndex({
                                                                 </Box>
                                                                 {order.receiver
                                                                     .phone && (
-                                                                    <Box sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
+                                                                    <Box
+                                                                        sx={{
+                                                                            fontSize:
+                                                                                '0.75rem',
+                                                                            color: 'text.secondary',
+                                                                        }}
+                                                                    >
                                                                         {
                                                                             order
                                                                                 .receiver
@@ -556,7 +864,20 @@ export default function TransactionsIndex({
                                                                 )}
                                                                 {order.receiver
                                                                     .address && (
-                                                                    <Box sx={{ maxWidth: 150, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: '0.75rem', color: 'text.secondary' }}>
+                                                                    <Box
+                                                                        sx={{
+                                                                            maxWidth: 150,
+                                                                            overflow:
+                                                                                'hidden',
+                                                                            textOverflow:
+                                                                                'ellipsis',
+                                                                            whiteSpace:
+                                                                                'nowrap',
+                                                                            fontSize:
+                                                                                '0.75rem',
+                                                                            color: 'text.secondary',
+                                                                        }}
+                                                                    >
                                                                         {
                                                                             order
                                                                                 .receiver
@@ -574,15 +895,29 @@ export default function TransactionsIndex({
                                                                 )}
                                                             </Box>
                                                         ) : (
-                                                            <Box component="span" sx={{ color: 'text.secondary' }}>
+                                                            <Box
+                                                                component="span"
+                                                                sx={{
+                                                                    color: 'text.secondary',
+                                                                }}
+                                                            >
                                                                 -
                                                             </Box>
                                                         )}
                                                     </Box>
-                                                    <Box component="td" sx={{ p: 1 }}>
+                                                    <Box
+                                                        component="td"
+                                                        sx={{ p: 1 }}
+                                                    >
                                                         {order.vendor ? (
                                                             <Box>
-                                                                <Box sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                                                                <Box
+                                                                    sx={{
+                                                                        fontSize:
+                                                                            '0.875rem',
+                                                                        fontWeight: 500,
+                                                                    }}
+                                                                >
                                                                     {
                                                                         order
                                                                             .vendor
@@ -591,7 +926,13 @@ export default function TransactionsIndex({
                                                                 </Box>
                                                                 {order.vendor
                                                                     .phone && (
-                                                                    <Box sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
+                                                                    <Box
+                                                                        sx={{
+                                                                            fontSize:
+                                                                                '0.75rem',
+                                                                            color: 'text.secondary',
+                                                                        }}
+                                                                    >
                                                                         {
                                                                             order
                                                                                 .vendor
@@ -601,26 +942,55 @@ export default function TransactionsIndex({
                                                                 )}
                                                             </Box>
                                                         ) : (
-                                                            <Box component="span" sx={{ color: 'text.secondary' }}>
+                                                            <Box
+                                                                component="span"
+                                                                sx={{
+                                                                    color: 'text.secondary',
+                                                                }}
+                                                            >
                                                                 -
                                                             </Box>
                                                         )}
                                                     </Box>
-                                                    <Box component="td" sx={{ p: 1 }}>
-                                                        <Box sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'success.main' }}>
+                                                    <Box
+                                                        component="td"
+                                                        sx={{ p: 1 }}
+                                                    >
+                                                        <Box
+                                                            sx={{
+                                                                fontSize:
+                                                                    '0.875rem',
+                                                                fontWeight: 500,
+                                                                color: 'success.main',
+                                                            }}
+                                                        >
                                                             {formatCurrency(
                                                                 order.amount,
                                                             )}
                                                         </Box>
-                                                        <Box sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
+                                                        <Box
+                                                            sx={{
+                                                                fontSize:
+                                                                    '0.75rem',
+                                                                color: 'text.secondary',
+                                                            }}
+                                                        >
                                                             Commission:{' '}
                                                             {formatCurrency(
                                                                 order.platform_commission,
                                                             )}
                                                         </Box>
                                                     </Box>
-                                                    <Box component="td" sx={{ p: 1 }}>
-                                                        <Box sx={{ fontSize: '0.875rem' }}>
+                                                    <Box
+                                                        component="td"
+                                                        sx={{ p: 1 }}
+                                                    >
+                                                        <Box
+                                                            sx={{
+                                                                fontSize:
+                                                                    '0.875rem',
+                                                            }}
+                                                        >
                                                             {order.scheduled_datetime
                                                                 ? formatDateTime(
                                                                       order.scheduled_datetime,
@@ -628,20 +998,39 @@ export default function TransactionsIndex({
                                                                 : '-'}
                                                         </Box>
                                                     </Box>
-                                                    <Box component="td" sx={{ p: 1 }}>
-                                                        <Box sx={{ fontSize: '0.875rem' }}>
+                                                    <Box
+                                                        component="td"
+                                                        sx={{ p: 1 }}
+                                                    >
+                                                        <Box
+                                                            sx={{
+                                                                fontSize:
+                                                                    '0.875rem',
+                                                            }}
+                                                        >
                                                             {order.delivery_method ===
                                                                 'platform_rider' &&
                                                             order.rider ? (
                                                                 <Box>
-                                                                    <Box sx={{ fontWeight: 500, color: 'info.main' }}>
+                                                                    <Box
+                                                                        sx={{
+                                                                            fontWeight: 500,
+                                                                            color: 'info.main',
+                                                                        }}
+                                                                    >
                                                                         {
                                                                             order
                                                                                 .rider
                                                                                 .name
                                                                         }
                                                                     </Box>
-                                                                    <Box sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
+                                                                    <Box
+                                                                        sx={{
+                                                                            fontSize:
+                                                                                '0.75rem',
+                                                                            color: 'text.secondary',
+                                                                        }}
+                                                                    >
                                                                         {
                                                                             order
                                                                                 .rider
@@ -650,7 +1039,12 @@ export default function TransactionsIndex({
                                                                     </Box>
                                                                 </Box>
                                                             ) : (
-                                                                <Box component="span" sx={{ color: 'text.secondary' }}>
+                                                                <Box
+                                                                    component="span"
+                                                                    sx={{
+                                                                        color: 'text.secondary',
+                                                                    }}
+                                                                >
                                                                     {getDeliveryMethodLabel(
                                                                         order.delivery_method,
                                                                     )}
@@ -658,13 +1052,30 @@ export default function TransactionsIndex({
                                                             )}
                                                         </Box>
                                                     </Box>
-                                                    <Box component="td" sx={{ p: 1 }}>
-                                                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                                                    <Box
+                                                        component="td"
+                                                        sx={{ p: 1 }}
+                                                    >
+                                                        <Box
+                                                            sx={{
+                                                                display: 'flex',
+                                                                flexDirection:
+                                                                    'column',
+                                                                gap: 0.5,
+                                                            }}
+                                                        >
                                                             {getStatusBadge(
                                                                 order.status,
                                                             )}
                                                             {order.payment_status && (
-                                                                <Box component="span" sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
+                                                                <Box
+                                                                    component="span"
+                                                                    sx={{
+                                                                        fontSize:
+                                                                            '0.75rem',
+                                                                        color: 'text.secondary',
+                                                                    }}
+                                                                >
                                                                     Payment:{' '}
                                                                     {
                                                                         order.payment_status
@@ -681,8 +1092,20 @@ export default function TransactionsIndex({
 
                                 {/* Pagination */}
                                 {orders.last_page > 1 && (
-                                    <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                        <Box sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
+                                    <Box
+                                        sx={{
+                                            mt: 2,
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'space-between',
+                                        }}
+                                    >
+                                        <Box
+                                            sx={{
+                                                fontSize: '0.875rem',
+                                                color: 'text.secondary',
+                                            }}
+                                        >
                                             Page {orders.current_page} of{' '}
                                             {orders.last_page}
                                         </Box>
@@ -697,7 +1120,12 @@ export default function TransactionsIndex({
                                                 }
                                                 disabled={!orders.prev_page_url}
                                             >
-                                                <ChevronLeft style={{ width: 16, height: 16 }} />
+                                                <ChevronLeft
+                                                    style={{
+                                                        width: 16,
+                                                        height: 16,
+                                                    }}
+                                                />
                                                 Previous
                                             </Button>
                                             <Button
@@ -711,7 +1139,12 @@ export default function TransactionsIndex({
                                                 disabled={!orders.next_page_url}
                                             >
                                                 Next
-                                                <ChevronRight style={{ width: 16, height: 16 }} />
+                                                <ChevronRight
+                                                    style={{
+                                                        width: 16,
+                                                        height: 16,
+                                                    }}
+                                                />
                                             </Button>
                                         </Box>
                                     </Box>

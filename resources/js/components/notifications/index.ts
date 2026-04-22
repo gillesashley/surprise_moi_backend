@@ -1,3 +1,3 @@
 export { NotificationBell } from './NotificationBell';
 export { NotificationDropdown } from './NotificationDropdown';
-export { showNotificationToast, ToastProvider } from './NotificationToast';
+export { ToastProvider, showNotificationToast } from './NotificationToast';

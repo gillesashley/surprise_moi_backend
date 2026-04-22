@@ -8,9 +8,9 @@ import AppLayout from '@/layouts/app-layout';
 import SettingsLayout from '@/layouts/settings/layout';
 import { disable, enable, show } from '@/routes/two-factor';
 import { type BreadcrumbItem } from '@/types';
+import { Form, Head } from '@inertiajs/react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import { Form, Head } from '@inertiajs/react';
 import { ShieldBan, ShieldCheck } from 'lucide-react';
 import { useState } from 'react';
 
@@ -52,7 +52,14 @@ export default function TwoFactor({
                         description="Manage your two-factor authentication settings"
                     />
                     {twoFactorEnabled ? (
-                        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 2 }}>
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'flex-start',
+                                gap: 2,
+                            }}
+                        >
                             <Badge variant="default">Enabled</Badge>
                             <Typography variant="body2" color="text.secondary">
                                 With two-factor authentication enabled, you will
@@ -67,7 +74,9 @@ export default function TwoFactor({
                                 errors={errors}
                             />
 
-                            <Box sx={{ position: 'relative', display: 'inline' }}>
+                            <Box
+                                sx={{ position: 'relative', display: 'inline' }}
+                            >
                                 <Form {...disable.form()}>
                                     {({ processing }) => (
                                         <Button
@@ -82,7 +91,14 @@ export default function TwoFactor({
                             </Box>
                         </Box>
                     ) : (
-                        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 2 }}>
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'flex-start',
+                                gap: 2,
+                            }}
+                        >
                             <Badge variant="destructive">Disabled</Badge>
                             <Typography variant="body2" color="text.secondary">
                                 When you enable two-factor authentication, you

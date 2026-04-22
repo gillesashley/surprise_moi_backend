@@ -1,8 +1,8 @@
 import AppLogoIcon from '@/components/app-logo-icon';
 import { home } from '@/routes';
+import { Link } from '@inertiajs/react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import { Link } from '@inertiajs/react';
 import { type PropsWithChildren } from 'react';
 
 interface AuthLayoutProps {
@@ -96,10 +96,7 @@ export default function AuthSimpleLayout({
                                 '& > * + *': { mt: 1 },
                             }}
                         >
-                            <Typography
-                                variant="h5"
-                                sx={{ fontWeight: 500 }}
-                            >
+                            <Typography variant="h5" sx={{ fontWeight: 500 }}>
                                 {title}
                             </Typography>
                             <Typography

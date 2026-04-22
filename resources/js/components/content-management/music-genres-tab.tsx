@@ -13,9 +13,9 @@ import {
     destroy as musicGenreDestroy,
     edit as musicGenreEdit,
 } from '@/routes/dashboard/music-genres';
+import { Link, router } from '@inertiajs/react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import { Link, router } from '@inertiajs/react';
 import { Pencil, Plus, Trash2 } from 'lucide-react';
 
 interface MusicGenre {
@@ -41,7 +41,12 @@ interface Props {
     search?: string;
 }
 
-export function MusicGenresTab({ musicGenres, canCreate, canDelete, search }: Props) {
+export function MusicGenresTab({
+    musicGenres,
+    canCreate,
+    canDelete,
+    search,
+}: Props) {
     const handleDelete = (genreId: number, genreName: string) => {
         if (
             confirm(
@@ -70,7 +75,13 @@ export function MusicGenresTab({ musicGenres, canCreate, canDelete, search }: Pr
                 {canCreate && (
                     <Button asChild>
                         <Link href={musicGenreCreate.url()}>
-                            <Plus style={{ width: 16, height: 16, marginRight: 8 }} />
+                            <Plus
+                                style={{
+                                    width: 16,
+                                    height: 16,
+                                    marginRight: 8,
+                                }}
+                            />
                             Add Genre
                         </Link>
                     </Button>
@@ -113,17 +124,16 @@ export function MusicGenresTab({ musicGenres, canCreate, canDelete, search }: Pr
                                         gap: 1,
                                     }}
                                 >
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        asChild
-                                    >
+                                    <Button variant="ghost" size="sm" asChild>
                                         <Link
-                                            href={musicGenreEdit.url(
-                                                genre.id,
-                                            )}
+                                            href={musicGenreEdit.url(genre.id)}
                                         >
-                                            <Pencil style={{ width: 16, height: 16 }} />
+                                            <Pencil
+                                                style={{
+                                                    width: 16,
+                                                    height: 16,
+                                                }}
+                                            />
                                         </Link>
                                     </Button>
                                     {canDelete && (
@@ -137,7 +147,13 @@ export function MusicGenresTab({ musicGenres, canCreate, canDelete, search }: Pr
                                                 )
                                             }
                                         >
-                                            <Trash2 style={{ width: 16, height: 16, color: 'var(--mui-palette-error-main, #d32f2f)' }} />
+                                            <Trash2
+                                                style={{
+                                                    width: 16,
+                                                    height: 16,
+                                                    color: 'var(--mui-palette-error-main, #d32f2f)',
+                                                }}
+                                            />
                                         </Button>
                                     )}
                                 </Box>

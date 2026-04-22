@@ -88,12 +88,26 @@ function StatCard({
                 bgcolor: 'background.paper',
             }}
         >
-            <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+            <Box
+                sx={{
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    justifyContent: 'space-between',
+                }}
+            >
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                    <Typography variant="body2" fontWeight={500} color="text.secondary">
+                    <Typography
+                        variant="body2"
+                        fontWeight={500}
+                        color="text.secondary"
+                    >
                         {title}
                     </Typography>
-                    <Typography variant="h4" fontWeight={700} sx={{ letterSpacing: '-0.02em' }}>
+                    <Typography
+                        variant="h4"
+                        fontWeight={700}
+                        sx={{ letterSpacing: '-0.02em' }}
+                    >
                         {value}
                     </Typography>
                 </Box>
@@ -134,7 +148,17 @@ export default function MarketerDashboard({
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Marketer Dashboard" />
 
-            <Box sx={{ display: 'flex', height: '100%', flex: 1, flexDirection: 'column', gap: 3, overflowX: 'auto', p: 3 }}>
+            <Box
+                sx={{
+                    display: 'flex',
+                    height: '100%',
+                    flex: 1,
+                    flexDirection: 'column',
+                    gap: 3,
+                    overflowX: 'auto',
+                    p: 3,
+                }}
+            >
                 {/* Welcome Section */}
                 <Box
                     sx={{
@@ -152,7 +176,9 @@ export default function MarketerDashboard({
                         <Typography variant="h5" fontWeight={700}>
                             Welcome back, {auth.user?.name}!
                         </Typography>
-                        <Typography sx={{ mt: 1, color: 'rgba(255,255,255,0.8)' }}>
+                        <Typography
+                            sx={{ mt: 1, color: 'rgba(255,255,255,0.8)' }}
+                        >
                             Track your targets and quarterly earnings.
                         </Typography>
                     </Box>
@@ -209,9 +235,18 @@ export default function MarketerDashboard({
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: 3,
+                            }}
+                        >
                             {active_targets.length === 0 ? (
-                                <Typography variant="body2" color="text.secondary">
+                                <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                >
                                     No active targets assigned yet
                                 </Typography>
                             ) : (
@@ -228,14 +263,23 @@ export default function MarketerDashboard({
                                             p: 2,
                                         }}
                                     >
-                                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                        <Box
+                                            sx={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'space-between',
+                                            }}
+                                        >
                                             <Box>
                                                 <Typography fontWeight={500}>
                                                     {target.target_type
                                                         .replace('_', ' ')
                                                         .toUpperCase()}
                                                 </Typography>
-                                                <Typography variant="body2" color="text.secondary">
+                                                <Typography
+                                                    variant="body2"
+                                                    color="text.secondary"
+                                                >
                                                     Target:{' '}
                                                     {target.target_value} |
                                                     Current:{' '}
@@ -269,14 +313,27 @@ export default function MarketerDashboard({
                                                 }}
                                             />
                                         </Box>
-                                        <Box sx={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem', color: 'text.secondary' }}>
-                                            <Typography variant="body2" color="text.secondary">
+                                        <Box
+                                            sx={{
+                                                display: 'flex',
+                                                justifyContent: 'space-between',
+                                                fontSize: '0.875rem',
+                                                color: 'text.secondary',
+                                            }}
+                                        >
+                                            <Typography
+                                                variant="body2"
+                                                color="text.secondary"
+                                            >
                                                 Ends:{' '}
                                                 {new Date(
                                                     target.end_date,
                                                 ).toLocaleDateString()}
                                             </Typography>
-                                            <Typography variant="body2" color="text.secondary">
+                                            <Typography
+                                                variant="body2"
+                                                color="text.secondary"
+                                            >
                                                 Sign-on Bonus: GHS{' '}
                                                 {target.base_bonus}
                                             </Typography>
@@ -297,23 +354,39 @@ export default function MarketerDashboard({
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: 2,
+                            }}
+                        >
                             {recent_sign_on_bonuses.length === 0 ? (
-                                <Typography variant="body2" color="text.secondary">
+                                <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                >
                                     No sign-on bonuses yet
                                 </Typography>
                             ) : (
                                 recent_sign_on_bonuses.map((earning) => (
                                     <Box
                                         key={earning.id}
-                                        sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
+                                        sx={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'space-between',
+                                        }}
                                     >
                                         <Box>
                                             <Typography fontWeight={500}>
                                                 {earning.currency}{' '}
                                                 {earning.amount.toFixed(2)}
                                             </Typography>
-                                            <Typography variant="body2" color="text.secondary">
+                                            <Typography
+                                                variant="body2"
+                                                color="text.secondary"
+                                            >
                                                 {new Date(
                                                     earning.earned_at,
                                                 ).toLocaleDateString()}

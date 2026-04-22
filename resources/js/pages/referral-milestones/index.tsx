@@ -81,7 +81,9 @@ const formatDate = (iso: string) =>
     });
 
 export default function ReferralMilestonesIndex({ rewards }: Props) {
-    const [activeReward, setActiveReward] = useState<MilestoneReward | null>(null);
+    const [activeReward, setActiveReward] = useState<MilestoneReward | null>(
+        null,
+    );
     const [rewardType, setRewardType] = useState('');
     const [rewardDescription, setRewardDescription] = useState('');
     const [rewardValue, setRewardValue] = useState('');
@@ -130,13 +132,24 @@ export default function ReferralMilestonesIndex({ rewards }: Props) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Milestone Rewards" />
 
-            <Box sx={{ display: 'flex', flex: 1, flexDirection: 'column', gap: 2, p: 2 }}>
+            <Box
+                sx={{
+                    display: 'flex',
+                    flex: 1,
+                    flexDirection: 'column',
+                    gap: 2,
+                    p: 2,
+                }}
+            >
                 <Box>
                     <Typography variant="h5" sx={{ fontWeight: 700 }}>
                         Milestone Rewards
                     </Typography>
-                    <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
-                        Users who have crossed a referral points milestone. Pending rewards need platform fulfillment.
+                    <Typography
+                        sx={{ fontSize: '0.875rem', color: 'text.secondary' }}
+                    >
+                        Users who have crossed a referral points milestone.
+                        Pending rewards need platform fulfillment.
                     </Typography>
                 </Box>
 
@@ -151,15 +164,101 @@ export default function ReferralMilestonesIndex({ rewards }: Props) {
                         <Box sx={{ overflowX: 'auto' }}>
                             <Box component="table" sx={{ width: '100%' }}>
                                 <thead>
-                                    <Box component="tr" sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                                        <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>User</Box>
-                                        <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>Role</Box>
-                                        <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>Threshold</Box>
-                                        <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>Points</Box>
-                                        <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>Status</Box>
-                                        <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>Reward</Box>
-                                        <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>Crossed On</Box>
-                                        <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>Action</Box>
+                                    <Box
+                                        component="tr"
+                                        sx={{
+                                            borderBottom: 1,
+                                            borderColor: 'divider',
+                                        }}
+                                    >
+                                        <Box
+                                            component="th"
+                                            sx={{
+                                                p: 1,
+                                                textAlign: 'left',
+                                                fontSize: '0.875rem',
+                                                fontWeight: 500,
+                                            }}
+                                        >
+                                            User
+                                        </Box>
+                                        <Box
+                                            component="th"
+                                            sx={{
+                                                p: 1,
+                                                textAlign: 'left',
+                                                fontSize: '0.875rem',
+                                                fontWeight: 500,
+                                            }}
+                                        >
+                                            Role
+                                        </Box>
+                                        <Box
+                                            component="th"
+                                            sx={{
+                                                p: 1,
+                                                textAlign: 'left',
+                                                fontSize: '0.875rem',
+                                                fontWeight: 500,
+                                            }}
+                                        >
+                                            Threshold
+                                        </Box>
+                                        <Box
+                                            component="th"
+                                            sx={{
+                                                p: 1,
+                                                textAlign: 'left',
+                                                fontSize: '0.875rem',
+                                                fontWeight: 500,
+                                            }}
+                                        >
+                                            Points
+                                        </Box>
+                                        <Box
+                                            component="th"
+                                            sx={{
+                                                p: 1,
+                                                textAlign: 'left',
+                                                fontSize: '0.875rem',
+                                                fontWeight: 500,
+                                            }}
+                                        >
+                                            Status
+                                        </Box>
+                                        <Box
+                                            component="th"
+                                            sx={{
+                                                p: 1,
+                                                textAlign: 'left',
+                                                fontSize: '0.875rem',
+                                                fontWeight: 500,
+                                            }}
+                                        >
+                                            Reward
+                                        </Box>
+                                        <Box
+                                            component="th"
+                                            sx={{
+                                                p: 1,
+                                                textAlign: 'left',
+                                                fontSize: '0.875rem',
+                                                fontWeight: 500,
+                                            }}
+                                        >
+                                            Crossed On
+                                        </Box>
+                                        <Box
+                                            component="th"
+                                            sx={{
+                                                p: 1,
+                                                textAlign: 'left',
+                                                fontSize: '0.875rem',
+                                                fontWeight: 500,
+                                            }}
+                                        >
+                                            Action
+                                        </Box>
                                     </Box>
                                 </thead>
                                 <tbody>
@@ -167,28 +266,71 @@ export default function ReferralMilestonesIndex({ rewards }: Props) {
                                         <Box
                                             component="tr"
                                             key={r.id}
-                                            sx={{ borderBottom: 1, borderColor: 'divider', '&:hover': { bgcolor: 'action.hover' } }}
+                                            sx={{
+                                                borderBottom: 1,
+                                                borderColor: 'divider',
+                                                '&:hover': {
+                                                    bgcolor: 'action.hover',
+                                                },
+                                            }}
                                         >
                                             <Box component="td" sx={{ p: 1 }}>
-                                                <Typography sx={{ fontWeight: 500 }}>{r.user.name}</Typography>
-                                                <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>{r.user.email}</Typography>
+                                                <Typography
+                                                    sx={{ fontWeight: 500 }}
+                                                >
+                                                    {r.user.name}
+                                                </Typography>
+                                                <Typography
+                                                    sx={{
+                                                        fontSize: '0.75rem',
+                                                        color: 'text.secondary',
+                                                    }}
+                                                >
+                                                    {r.user.email}
+                                                </Typography>
                                             </Box>
-                                            <Box component="td" sx={{ p: 1, fontSize: '0.875rem', textTransform: 'capitalize' }}>
-                                                {(r.user.role || 'customer').replace('_', ' ')}
+                                            <Box
+                                                component="td"
+                                                sx={{
+                                                    p: 1,
+                                                    fontSize: '0.875rem',
+                                                    textTransform: 'capitalize',
+                                                }}
+                                            >
+                                                {(
+                                                    r.user.role || 'customer'
+                                                ).replace('_', ' ')}
                                             </Box>
-                                            <Box component="td" sx={{ p: 1, fontWeight: 600 }}>
+                                            <Box
+                                                component="td"
+                                                sx={{ p: 1, fontWeight: 600 }}
+                                            >
                                                 {formatNumber(r.threshold)} pts
                                             </Box>
                                             <Box component="td" sx={{ p: 1 }}>
-                                                {formatNumber(r.points_at_milestone)}
+                                                {formatNumber(
+                                                    r.points_at_milestone,
+                                                )}
                                             </Box>
                                             <Box component="td" sx={{ p: 1 }}>
                                                 {r.status === 'pending' && (
-                                                    <Chip label="PENDING" color="warning" size="small" variant="outlined" />
+                                                    <Chip
+                                                        label="PENDING"
+                                                        color="warning"
+                                                        size="small"
+                                                        variant="outlined"
+                                                    />
                                                 )}
                                                 {r.status === 'fulfilled' && (
                                                     <Chip
-                                                        icon={<CheckCircle style={{ width: 12, height: 12 }} />}
+                                                        icon={
+                                                            <CheckCircle
+                                                                style={{
+                                                                    width: 12,
+                                                                    height: 12,
+                                                                }}
+                                                            />
+                                                        }
                                                         label="FULFILLED"
                                                         color="success"
                                                         size="small"
@@ -196,19 +338,56 @@ export default function ReferralMilestonesIndex({ rewards }: Props) {
                                                     />
                                                 )}
                                                 {r.status === 'cancelled' && (
-                                                    <Chip label="CANCELLED" color="default" size="small" variant="outlined" />
+                                                    <Chip
+                                                        label="CANCELLED"
+                                                        color="default"
+                                                        size="small"
+                                                        variant="outlined"
+                                                    />
                                                 )}
                                             </Box>
-                                            <Box component="td" sx={{ p: 1, fontSize: '0.875rem' }}>
-                                                {r.reward_description || <Box component="span" sx={{ color: 'text.secondary' }}>—</Box>}
+                                            <Box
+                                                component="td"
+                                                sx={{
+                                                    p: 1,
+                                                    fontSize: '0.875rem',
+                                                }}
+                                            >
+                                                {r.reward_description || (
+                                                    <Box
+                                                        component="span"
+                                                        sx={{
+                                                            color: 'text.secondary',
+                                                        }}
+                                                    >
+                                                        —
+                                                    </Box>
+                                                )}
                                             </Box>
-                                            <Box component="td" sx={{ p: 1, fontSize: '0.875rem' }}>
+                                            <Box
+                                                component="td"
+                                                sx={{
+                                                    p: 1,
+                                                    fontSize: '0.875rem',
+                                                }}
+                                            >
                                                 {formatDate(r.created_at)}
                                             </Box>
                                             <Box component="td" sx={{ p: 1 }}>
                                                 {r.status === 'pending' && (
-                                                    <Button size="sm" onClick={() => openFulfillDialog(r)}>
-                                                        <Gift style={{ marginRight: 6, width: 14, height: 14 }} />
+                                                    <Button
+                                                        size="sm"
+                                                        onClick={() =>
+                                                            openFulfillDialog(r)
+                                                        }
+                                                    >
+                                                        <Gift
+                                                            style={{
+                                                                marginRight: 6,
+                                                                width: 14,
+                                                                height: 14,
+                                                            }}
+                                                        />
                                                         Fulfill
                                                     </Button>
                                                 )}
@@ -220,7 +399,13 @@ export default function ReferralMilestonesIndex({ rewards }: Props) {
                         </Box>
 
                         {rewards.data.length === 0 && (
-                            <Box sx={{ py: 4, textAlign: 'center', color: 'text.secondary' }}>
+                            <Box
+                                sx={{
+                                    py: 4,
+                                    textAlign: 'center',
+                                    color: 'text.secondary',
+                                }}
+                            >
                                 No milestone rewards yet.
                             </Box>
                         )}
@@ -228,63 +413,122 @@ export default function ReferralMilestonesIndex({ rewards }: Props) {
                 </Card>
             </Box>
 
-            <Dialog open={activeReward !== null} onOpenChange={(open) => !open && closeDialog()}>
+            <Dialog
+                open={activeReward !== null}
+                onOpenChange={(open) => !open && closeDialog()}
+            >
                 <DialogContent>
                     <DialogHeader>
                         <DialogTitle>Fulfill Milestone Reward</DialogTitle>
                     </DialogHeader>
                     <form onSubmit={handleSubmit}>
-                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, py: 2 }}>
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: 2,
+                                py: 2,
+                            }}
+                        >
                             {activeReward && (
-                                <Box sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
+                                <Box
+                                    sx={{
+                                        fontSize: '0.875rem',
+                                        color: 'text.secondary',
+                                    }}
+                                >
                                     {activeReward.user.name} crossed{' '}
-                                    <strong>{formatNumber(activeReward.threshold)} points</strong>.
+                                    <strong>
+                                        {formatNumber(activeReward.threshold)}{' '}
+                                        points
+                                    </strong>
+                                    .
                                 </Box>
                             )}
-                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    gap: 1,
+                                }}
+                            >
                                 <Label htmlFor="reward_type">Reward Type</Label>
                                 <Input
                                     id="reward_type"
                                     value={rewardType}
-                                    onChange={(e) => setRewardType(e.target.value)}
+                                    onChange={(e) =>
+                                        setRewardType(e.target.value)
+                                    }
                                     placeholder="e.g. cash, gift, power bank"
                                 />
                             </Box>
-                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                                <Label htmlFor="reward_description">Reward Description</Label>
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    gap: 1,
+                                }}
+                            >
+                                <Label htmlFor="reward_description">
+                                    Reward Description
+                                </Label>
                                 <Textarea
                                     id="reward_description"
                                     rows={2}
                                     value={rewardDescription}
-                                    onChange={(e) => setRewardDescription(e.target.value)}
+                                    onChange={(e) =>
+                                        setRewardDescription(e.target.value)
+                                    }
                                     placeholder="What was given to the user..."
                                 />
                             </Box>
-                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                                <Label htmlFor="reward_value">Reward Value (GHS)</Label>
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    gap: 1,
+                                }}
+                            >
+                                <Label htmlFor="reward_value">
+                                    Reward Value (GHS)
+                                </Label>
                                 <Input
                                     id="reward_value"
                                     type="number"
                                     step="0.01"
                                     min="0"
                                     value={rewardValue}
-                                    onChange={(e) => setRewardValue(e.target.value)}
+                                    onChange={(e) =>
+                                        setRewardValue(e.target.value)
+                                    }
                                     placeholder="Optional GHS value for reporting"
                                 />
                             </Box>
-                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    gap: 1,
+                                }}
+                            >
                                 <Label htmlFor="admin_notes">Admin Notes</Label>
                                 <Textarea
                                     id="admin_notes"
                                     rows={2}
                                     value={adminNotes}
-                                    onChange={(e) => setAdminNotes(e.target.value)}
+                                    onChange={(e) =>
+                                        setAdminNotes(e.target.value)
+                                    }
                                     placeholder="Internal notes (optional)"
                                 />
                             </Box>
                         </Box>
                         <DialogFooter>
-                            <Button type="button" variant="outline" onClick={closeDialog}>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={closeDialog}
+                            >
                                 Cancel
                             </Button>
                             <Button type="submit" disabled={submitting}>

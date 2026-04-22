@@ -14,9 +14,9 @@ import AppLayout from '@/layouts/app-layout';
 import SettingsLayout from '@/layouts/settings/layout';
 import { index } from '@/routes/settings/vendor-onboarding';
 import { type BreadcrumbItem } from '@/types';
+import { Form, Head } from '@inertiajs/react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import { Form, Head } from '@inertiajs/react';
 import { useState } from 'react';
 
 interface Settings {
@@ -40,14 +40,46 @@ interface Settings {
         type: string;
         description: string;
     };
-    referral_bonus_customer_pct?: { value: string; type: string; description: string };
-    referral_bonus_vendor_pct?: { value: string; type: string; description: string };
-    referral_bonus_influencer_pct?: { value: string; type: string; description: string };
-    referral_bonus_field_agent_pct?: { value: string; type: string; description: string };
-    referral_bonus_employee_pct?: { value: string; type: string; description: string };
-    vendor_onboarding_subsidy_pct?: { value: string; type: string; description: string };
-    referral_points_per_ghs?: { value: string; type: string; description: string };
-    referral_cashout_min_points?: { value: string; type: string; description: string };
+    referral_bonus_customer_pct?: {
+        value: string;
+        type: string;
+        description: string;
+    };
+    referral_bonus_vendor_pct?: {
+        value: string;
+        type: string;
+        description: string;
+    };
+    referral_bonus_influencer_pct?: {
+        value: string;
+        type: string;
+        description: string;
+    };
+    referral_bonus_field_agent_pct?: {
+        value: string;
+        type: string;
+        description: string;
+    };
+    referral_bonus_employee_pct?: {
+        value: string;
+        type: string;
+        description: string;
+    };
+    vendor_onboarding_subsidy_pct?: {
+        value: string;
+        type: string;
+        description: string;
+    };
+    referral_points_per_ghs?: {
+        value: string;
+        type: string;
+        description: string;
+    };
+    referral_cashout_min_points?: {
+        value: string;
+        type: string;
+        description: string;
+    };
 }
 
 interface Props {
@@ -55,11 +87,31 @@ interface Props {
 }
 
 const BONUS_CATEGORIES = [
-    { key: 'referral_bonus_customer_pct', label: 'Customer', defaultValue: '15.00' },
-    { key: 'referral_bonus_vendor_pct', label: 'Vendor', defaultValue: '20.00' },
-    { key: 'referral_bonus_influencer_pct', label: 'Influencer', defaultValue: '25.00' },
-    { key: 'referral_bonus_field_agent_pct', label: 'Field Agent', defaultValue: '30.00' },
-    { key: 'referral_bonus_employee_pct', label: 'Employee', defaultValue: '20.00' },
+    {
+        key: 'referral_bonus_customer_pct',
+        label: 'Customer',
+        defaultValue: '15.00',
+    },
+    {
+        key: 'referral_bonus_vendor_pct',
+        label: 'Vendor',
+        defaultValue: '20.00',
+    },
+    {
+        key: 'referral_bonus_influencer_pct',
+        label: 'Influencer',
+        defaultValue: '25.00',
+    },
+    {
+        key: 'referral_bonus_field_agent_pct',
+        label: 'Field Agent',
+        defaultValue: '30.00',
+    },
+    {
+        key: 'referral_bonus_employee_pct',
+        label: 'Employee',
+        defaultValue: '20.00',
+    },
 ] as const;
 
 function ReferralBonusFields({
@@ -69,18 +121,28 @@ function ReferralBonusFields({
     settings: Settings;
     errors: Record<string, string>;
 }) {
-    const tier1Fee = parseFloat(settings.vendor_tier1_onboarding_fee?.value || '150');
-    const tier2Fee = parseFloat(settings.vendor_tier2_onboarding_fee?.value || '100');
-    const subsidyPct = parseFloat(settings.vendor_onboarding_subsidy_pct?.value || '25');
+    const tier1Fee = parseFloat(
+        settings.vendor_tier1_onboarding_fee?.value || '150',
+    );
+    const tier2Fee = parseFloat(
+        settings.vendor_tier2_onboarding_fee?.value || '100',
+    );
+    const subsidyPct = parseFloat(
+        settings.vendor_onboarding_subsidy_pct?.value || '25',
+    );
     const postSubsidy = (fee: number) => fee * (1 - subsidyPct / 100);
 
-    const [percentages, setPercentages] = useState<Record<string, string>>(() => {
-        const initial: Record<string, string> = {};
-        for (const cat of BONUS_CATEGORIES) {
-            initial[cat.key] = settings[cat.key as keyof Settings]?.value || cat.defaultValue;
-        }
-        return initial;
-    });
+    const [percentages, setPercentages] = useState<Record<string, string>>(
+        () => {
+            const initial: Record<string, string> = {};
+            for (const cat of BONUS_CATEGORIES) {
+                initial[cat.key] =
+                    settings[cat.key as keyof Settings]?.value ||
+                    cat.defaultValue;
+            }
+            return initial;
+        },
+    );
 
     const computeBonus = (pctStr: string, fee: number) => {
         const pct = parseFloat(pctStr);
@@ -89,7 +151,13 @@ function ReferralBonusFields({
     };
 
     return (
-        <Box sx={{ display: 'grid', gap: 2, gridTemplateColumns: { md: 'repeat(3, 1fr)' } }}>
+        <Box
+            sx={{
+                display: 'grid',
+                gap: 2,
+                gridTemplateColumns: { md: 'repeat(3, 1fr)' },
+            }}
+        >
             {BONUS_CATEGORIES.map((cat) => (
                 <Box key={cat.key} sx={{ display: 'grid', gap: 1 }}>
                     <Label htmlFor={cat.key}>{cat.label} (%)</Label>
@@ -110,10 +178,19 @@ function ReferralBonusFields({
                         required
                     />
                     <Typography variant="body2" color="text.secondary">
-                        Tier 1 post-subsidy: GH₵{postSubsidy(tier1Fee).toFixed(2)} → {cat.label} earns GH₵
-                        {computeBonus(percentages[cat.key], postSubsidy(tier1Fee))} | Tier 2 post-subsidy: GH₵
+                        Tier 1 post-subsidy: GH₵
+                        {postSubsidy(tier1Fee).toFixed(2)} → {cat.label} earns
+                        GH₵
+                        {computeBonus(
+                            percentages[cat.key],
+                            postSubsidy(tier1Fee),
+                        )}{' '}
+                        | Tier 2 post-subsidy: GH₵
                         {postSubsidy(tier2Fee).toFixed(2)} → earns GH₵
-                        {computeBonus(percentages[cat.key], postSubsidy(tier2Fee))}
+                        {computeBonus(
+                            percentages[cat.key],
+                            postSubsidy(tier2Fee),
+                        )}
                     </Typography>
                     <InputError message={errors[cat.key]} />
                 </Box>
@@ -147,7 +224,11 @@ export default function VendorOnboarding({ settings }: Props) {
                         options={{
                             preserveScroll: true,
                         }}
-                        style={{ display: 'flex', flexDirection: 'column', gap: 24 }}
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: 24,
+                        }}
                     >
                         {({ errors, processing, recentlySuccessful }) => (
                             <>
@@ -164,8 +245,16 @@ export default function VendorOnboarding({ settings }: Props) {
                                         </CardDescription>
                                     </CardHeader>
                                     <CardContent>
-                                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                                            <Box sx={{ display: 'grid', gap: 1 }}>
+                                        <Box
+                                            sx={{
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                gap: 2,
+                                            }}
+                                        >
+                                            <Box
+                                                sx={{ display: 'grid', gap: 1 }}
+                                            >
                                                 <Label htmlFor="vendor_tier1_onboarding_fee">
                                                     Onboarding Fee (GHS)
                                                 </Label>
@@ -184,7 +273,10 @@ export default function VendorOnboarding({ settings }: Props) {
                                                     required
                                                 />
 
-                                                <Typography variant="body2" color="text.secondary">
+                                                <Typography
+                                                    variant="body2"
+                                                    color="text.secondary"
+                                                >
                                                     {settings
                                                         .vendor_tier1_onboarding_fee
                                                         ?.description ||
@@ -198,7 +290,9 @@ export default function VendorOnboarding({ settings }: Props) {
                                                 />
                                             </Box>
 
-                                            <Box sx={{ display: 'grid', gap: 1 }}>
+                                            <Box
+                                                sx={{ display: 'grid', gap: 1 }}
+                                            >
                                                 <Label htmlFor="vendor_tier1_commission_rate">
                                                     Commission Rate (%)
                                                 </Label>
@@ -218,7 +312,10 @@ export default function VendorOnboarding({ settings }: Props) {
                                                     required
                                                 />
 
-                                                <Typography variant="body2" color="text.secondary">
+                                                <Typography
+                                                    variant="body2"
+                                                    color="text.secondary"
+                                                >
                                                     {settings
                                                         .vendor_tier1_commission_rate
                                                         ?.description ||
@@ -248,8 +345,16 @@ export default function VendorOnboarding({ settings }: Props) {
                                         </CardDescription>
                                     </CardHeader>
                                     <CardContent>
-                                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                                            <Box sx={{ display: 'grid', gap: 1 }}>
+                                        <Box
+                                            sx={{
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                gap: 2,
+                                            }}
+                                        >
+                                            <Box
+                                                sx={{ display: 'grid', gap: 1 }}
+                                            >
                                                 <Label htmlFor="vendor_tier2_onboarding_fee">
                                                     Onboarding Fee (GHS)
                                                 </Label>
@@ -268,7 +373,10 @@ export default function VendorOnboarding({ settings }: Props) {
                                                     required
                                                 />
 
-                                                <Typography variant="body2" color="text.secondary">
+                                                <Typography
+                                                    variant="body2"
+                                                    color="text.secondary"
+                                                >
                                                     {settings
                                                         .vendor_tier2_onboarding_fee
                                                         ?.description ||
@@ -282,7 +390,9 @@ export default function VendorOnboarding({ settings }: Props) {
                                                 />
                                             </Box>
 
-                                            <Box sx={{ display: 'grid', gap: 1 }}>
+                                            <Box
+                                                sx={{ display: 'grid', gap: 1 }}
+                                            >
                                                 <Label htmlFor="vendor_tier2_commission_rate">
                                                     Commission Rate (%)
                                                 </Label>
@@ -302,7 +412,10 @@ export default function VendorOnboarding({ settings }: Props) {
                                                     required
                                                 />
 
-                                                <Typography variant="body2" color="text.secondary">
+                                                <Typography
+                                                    variant="body2"
+                                                    color="text.secondary"
+                                                >
                                                     {settings
                                                         .vendor_tier2_commission_rate
                                                         ?.description ||
@@ -324,14 +437,19 @@ export default function VendorOnboarding({ settings }: Props) {
                                     <CardHeader>
                                         <CardTitle>Vendor Subsidy</CardTitle>
                                         <CardDescription>
-                                            The discount applied to a vendor's onboarding fee when they onboard using a
-                                            valid referral code. Applies identically to Tier 1 and Tier 2. Example: at
-                                            25%, a Tier 1 vendor with a 200 GHS fee pays 150 GHS.
+                                            The discount applied to a vendor's
+                                            onboarding fee when they onboard
+                                            using a valid referral code. Applies
+                                            identically to Tier 1 and Tier 2.
+                                            Example: at 25%, a Tier 1 vendor
+                                            with a 200 GHS fee pays 150 GHS.
                                         </CardDescription>
                                     </CardHeader>
                                     <CardContent>
                                         <Box sx={{ display: 'grid', gap: 1 }}>
-                                            <Label htmlFor="vendor_onboarding_subsidy_pct">Subsidy (%)</Label>
+                                            <Label htmlFor="vendor_onboarding_subsidy_pct">
+                                                Subsidy (%)
+                                            </Label>
                                             <Input
                                                 id="vendor_onboarding_subsidy_pct"
                                                 name="vendor_onboarding_subsidy_pct"
@@ -340,11 +458,17 @@ export default function VendorOnboarding({ settings }: Props) {
                                                 min="0"
                                                 max="100"
                                                 defaultValue={
-                                                    settings.vendor_onboarding_subsidy_pct?.value || '25.00'
+                                                    settings
+                                                        .vendor_onboarding_subsidy_pct
+                                                        ?.value || '25.00'
                                                 }
                                                 required
                                             />
-                                            <InputError message={errors.vendor_onboarding_subsidy_pct} />
+                                            <InputError
+                                                message={
+                                                    errors.vendor_onboarding_subsidy_pct
+                                                }
+                                            />
                                         </Box>
                                     </CardContent>
                                 </Card>
@@ -352,27 +476,42 @@ export default function VendorOnboarding({ settings }: Props) {
                                 {/* Referral Bonus Percentages */}
                                 <Card>
                                     <CardHeader>
-                                        <CardTitle>Referral Bonus Percentages</CardTitle>
+                                        <CardTitle>
+                                            Referral Bonus Percentages
+                                        </CardTitle>
                                         <CardDescription>
-                                            The share of the amount a vendor actually paid (after the subsidy) that each
-                                            role earns as points when their referral code is used. Example: if Customer
-                                            = 15% and the vendor paid GH₵150, a Customer referrer earns GH₵22.50, shown
-                                            as 225 points at the current conversion rate.
+                                            The share of the amount a vendor
+                                            actually paid (after the subsidy)
+                                            that each role earns as points when
+                                            their referral code is used.
+                                            Example: if Customer = 15% and the
+                                            vendor paid GH₵150, a Customer
+                                            referrer earns GH₵22.50, shown as
+                                            225 points at the current conversion
+                                            rate.
                                         </CardDescription>
                                     </CardHeader>
                                     <CardContent>
-                                        <ReferralBonusFields settings={settings} errors={errors} />
+                                        <ReferralBonusFields
+                                            settings={settings}
+                                            errors={errors}
+                                        />
                                     </CardContent>
                                 </Card>
 
                                 {/* Referral Points System Card */}
                                 <Card>
                                     <CardHeader>
-                                        <CardTitle>Referral Points System</CardTitle>
+                                        <CardTitle>
+                                            Referral Points System
+                                        </CardTitle>
                                         <CardDescription>
-                                            Controls how referrer rewards display and when referrers can cash out. A
-                                            referrer earning GH₵15 sees 150 points at a 10-per-GHS rate, and can cash
-                                            out once they reach 1000 points (GH₵100).
+                                            Controls how referrer rewards
+                                            display and when referrers can cash
+                                            out. A referrer earning GH₵15 sees
+                                            150 points at a 10-per-GHS rate, and
+                                            can cash out once they reach 1000
+                                            points (GH₵100).
                                         </CardDescription>
                                     </CardHeader>
                                     <CardContent>
@@ -380,26 +519,46 @@ export default function VendorOnboarding({ settings }: Props) {
                                             sx={{
                                                 display: 'grid',
                                                 gap: 2,
-                                                gridTemplateColumns: { md: 'repeat(2, 1fr)' },
+                                                gridTemplateColumns: {
+                                                    md: 'repeat(2, 1fr)',
+                                                },
                                             }}
                                         >
-                                            <Box sx={{ display: 'grid', gap: 1 }}>
-                                                <Label htmlFor="referral_points_per_ghs">Points per GHS</Label>
+                                            <Box
+                                                sx={{ display: 'grid', gap: 1 }}
+                                            >
+                                                <Label htmlFor="referral_points_per_ghs">
+                                                    Points per GHS
+                                                </Label>
                                                 <Input
                                                     id="referral_points_per_ghs"
                                                     name="referral_points_per_ghs"
                                                     type="number"
                                                     step="1"
                                                     min="1"
-                                                    defaultValue={settings.referral_points_per_ghs?.value || '10'}
+                                                    defaultValue={
+                                                        settings
+                                                            .referral_points_per_ghs
+                                                            ?.value || '10'
+                                                    }
                                                     required
                                                 />
-                                                <Typography variant="body2" color="text.secondary">
-                                                    How many points a referrer sees per 1 GHS earned.
+                                                <Typography
+                                                    variant="body2"
+                                                    color="text.secondary"
+                                                >
+                                                    How many points a referrer
+                                                    sees per 1 GHS earned.
                                                 </Typography>
-                                                <InputError message={errors.referral_points_per_ghs} />
+                                                <InputError
+                                                    message={
+                                                        errors.referral_points_per_ghs
+                                                    }
+                                                />
                                             </Box>
-                                            <Box sx={{ display: 'grid', gap: 1 }}>
+                                            <Box
+                                                sx={{ display: 'grid', gap: 1 }}
+                                            >
                                                 <Label htmlFor="referral_cashout_min_points">
                                                     Minimum points to cash out
                                                 </Label>
@@ -410,26 +569,46 @@ export default function VendorOnboarding({ settings }: Props) {
                                                     step="1"
                                                     min="1"
                                                     defaultValue={
-                                                        settings.referral_cashout_min_points?.value || '1000'
+                                                        settings
+                                                            .referral_cashout_min_points
+                                                            ?.value || '1000'
                                                     }
                                                     required
                                                 />
-                                                <Typography variant="body2" color="text.secondary">
-                                                    The lowest balance at which a referrer can request a withdrawal.
+                                                <Typography
+                                                    variant="body2"
+                                                    color="text.secondary"
+                                                >
+                                                    The lowest balance at which
+                                                    a referrer can request a
+                                                    withdrawal.
                                                 </Typography>
-                                                <InputError message={errors.referral_cashout_min_points} />
+                                                <InputError
+                                                    message={
+                                                        errors.referral_cashout_min_points
+                                                    }
+                                                />
                                             </Box>
                                         </Box>
                                     </CardContent>
                                 </Card>
 
-                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                                <Box
+                                    sx={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 2,
+                                    }}
+                                >
                                     <Button type="submit" disabled={processing}>
                                         {processing ? 'Saving...' : 'Save'}
                                     </Button>
 
                                     {recentlySuccessful && (
-                                        <Typography variant="body2" color="text.secondary">
+                                        <Typography
+                                            variant="body2"
+                                            color="text.secondary"
+                                        >
                                             Saved.
                                         </Typography>
                                     )}

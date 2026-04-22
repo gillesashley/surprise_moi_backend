@@ -24,6 +24,8 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { useInactivityLock } from '@/hooks/use-inactivity-lock';
+import { useVendorApprovalEvents } from '@/hooks/use-vendor-approval-events';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router, useForm } from '@inertiajs/react';
@@ -43,8 +45,6 @@ import {
     XCircle,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { useVendorApprovalEvents } from '@/hooks/use-vendor-approval-events';
-import { useInactivityLock } from '@/hooks/use-inactivity-lock';
 
 interface VendorApplicationSummary {
     id: number;
@@ -92,7 +92,11 @@ const breadcrumbs: BreadcrumbItem[] = [
 const getStatusBadge = (status: string) => {
     const variants: Record<
         string,
-        { color: 'warning' | 'info' | 'success' | 'error'; icon: React.ReactNode; label: string }
+        {
+            color: 'warning' | 'info' | 'success' | 'error';
+            icon: React.ReactNode;
+            label: string;
+        }
     > = {
         pending: {
             color: 'warning',
@@ -101,12 +105,18 @@ const getStatusBadge = (status: string) => {
         },
         under_review: {
             color: 'info',
-            icon: <FileCheck style={{ marginRight: 4, width: 12, height: 12 }} />,
+            icon: (
+                <FileCheck style={{ marginRight: 4, width: 12, height: 12 }} />
+            ),
             label: 'Under Review',
         },
         approved: {
             color: 'success',
-            icon: <CheckCircle style={{ marginRight: 4, width: 12, height: 12 }} />,
+            icon: (
+                <CheckCircle
+                    style={{ marginRight: 4, width: 12, height: 12 }}
+                />
+            ),
             label: 'Approved',
         },
         rejected: {
@@ -147,7 +157,8 @@ export default function VendorApplicationsIndex({
     const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
     const [selectedApplication, setSelectedApplication] =
         useState<VendorApplicationSummary | null>(null);
-    const [showNewSubmissionNotice, setShowNewSubmissionNotice] = useState(false);
+    const [showNewSubmissionNotice, setShowNewSubmissionNotice] =
+        useState(false);
 
     const rejectForm = useForm({
         reason: '',
@@ -156,24 +167,37 @@ export default function VendorApplicationsIndex({
     if (isDevelopment) {
         console.log('🏪 [VendorApplicationsIndex] Component mounted');
         console.log('🏪 [VendorApplicationsIndex] Current filters:', filters);
-        console.log('🏪 [VendorApplicationsIndex] Applications loaded:', applications.total, 'total,', applications.data.length, 'on page');
+        console.log(
+            '🏪 [VendorApplicationsIndex] Applications loaded:',
+            applications.total,
+            'total,',
+            applications.data.length,
+            'on page',
+        );
     }
 
     // Listen for new vendor application submissions
     useVendorApprovalEvents((event) => {
         if (isDevelopment) {
-            console.log('🎯 [VendorApplicationsIndex] Reverb event callback triggered', {
-                timestamp: new Date().toISOString(),
-                event,
-            });
-            console.log('🎯 [VendorApplicationsIndex] Showing notification banner...');
+            console.log(
+                '🎯 [VendorApplicationsIndex] Reverb event callback triggered',
+                {
+                    timestamp: new Date().toISOString(),
+                    event,
+                },
+            );
+            console.log(
+                '🎯 [VendorApplicationsIndex] Showing notification banner...',
+            );
         }
 
         // Show notification banner
         setShowNewSubmissionNotice(true);
 
         if (isDevelopment) {
-            console.log('🎯 [VendorApplicationsIndex] Scheduling page refresh in 1000ms...');
+            console.log(
+                '🎯 [VendorApplicationsIndex] Scheduling page refresh in 1000ms...',
+            );
         }
 
         // Auto-refresh the list after a short delay
@@ -213,7 +237,10 @@ export default function VendorApplicationsIndex({
             {
                 ...(value !== 'all' && { status: value }),
                 ...(filters.search && { search: filters.search }),
-                ...(filters.sort_by && { sort_by: filters.sort_by, sort_order: filters.sort_order }),
+                ...(filters.sort_by && {
+                    sort_by: filters.sort_by,
+                    sort_order: filters.sort_order,
+                }),
                 page: 1,
             },
             {
@@ -265,9 +292,23 @@ export default function VendorApplicationsIndex({
     const getSortIcon = (column: string) => {
         if (filters.sort_by !== column) return null;
         return filters.sort_order === 'asc' ? (
-            <ArrowUp style={{ marginLeft: 4, display: 'inline', width: 16, height: 16 }} />
+            <ArrowUp
+                style={{
+                    marginLeft: 4,
+                    display: 'inline',
+                    width: 16,
+                    height: 16,
+                }}
+            />
         ) : (
-            <ArrowDown style={{ marginLeft: 4, display: 'inline', width: 16, height: 16 }} />
+            <ArrowDown
+                style={{
+                    marginLeft: 4,
+                    display: 'inline',
+                    width: 16,
+                    height: 16,
+                }}
+            />
         );
     };
 
@@ -315,20 +356,47 @@ export default function VendorApplicationsIndex({
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Vendor Applications" />
-            <Box sx={{ display: 'flex', height: '100%', flex: 1, flexDirection: 'column', gap: 2, p: 2 }}>
+            <Box
+                sx={{
+                    display: 'flex',
+                    height: '100%',
+                    flex: 1,
+                    flexDirection: 'column',
+                    gap: 2,
+                    p: 2,
+                }}
+            >
                 {/* New Submission Notification */}
                 {showNewSubmissionNotice && (
-                    <Box sx={{ borderRadius: 1.5, bgcolor: 'info.light', p: 2, fontSize: '0.875rem', color: 'info.dark', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <Box component="span">✨ New vendor application received! Refreshing...</Box>
+                    <Box
+                        sx={{
+                            borderRadius: 1.5,
+                            bgcolor: 'info.light',
+                            p: 2,
+                            fontSize: '0.875rem',
+                            color: 'info.dark',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                        }}
+                    >
+                        <Box component="span">
+                            ✨ New vendor application received! Refreshing...
+                        </Box>
                         <Box
                             component="button"
                             onClick={() => {
                                 if (isDevelopment) {
-                                    console.log('🎯 [VendorApplicationsIndex] Notification closed');
+                                    console.log(
+                                        '🎯 [VendorApplicationsIndex] Notification closed',
+                                    );
                                 }
                                 setShowNewSubmissionNotice(false);
                             }}
-                            sx={{ color: 'info.main', '&:hover': { color: 'info.dark' } }}
+                            sx={{
+                                color: 'info.main',
+                                '&:hover': { color: 'info.dark' },
+                            }}
                         >
                             ✕
                         </Box>
@@ -336,8 +404,20 @@ export default function VendorApplicationsIndex({
                 )}
                 <Card>
                     <CardHeader>
-                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: 2,
+                            }}
+                        >
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                }}
+                            >
                                 <Box>
                                     <CardTitle>Vendor Applications</CardTitle>
                                     <CardDescription>
@@ -379,9 +459,24 @@ export default function VendorApplicationsIndex({
                             </Box>
 
                             {/* Search Bar */}
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 1,
+                                }}
+                            >
                                 <Box sx={{ position: 'relative', flex: 1 }}>
-                                    <Search style={{ position: 'absolute', top: 10, left: 10, width: 16, height: 16, color: 'var(--muted-foreground)' }} />
+                                    <Search
+                                        style={{
+                                            position: 'absolute',
+                                            top: 10,
+                                            left: 10,
+                                            width: 16,
+                                            height: 16,
+                                            color: 'var(--muted-foreground)',
+                                        }}
+                                    />
                                     <Input
                                         type="search"
                                         placeholder="Search by name or email..."
@@ -397,21 +492,54 @@ export default function VendorApplicationsIndex({
                     </CardHeader>
                     <CardContent>
                         {applications.data.length === 0 ? (
-                            <Box sx={{ py: 4, textAlign: 'center', color: 'text.secondary' }}>
+                            <Box
+                                sx={{
+                                    py: 4,
+                                    textAlign: 'center',
+                                    color: 'text.secondary',
+                                }}
+                            >
                                 No vendor applications found.
                             </Box>
                         ) : (
                             <>
                                 <Box sx={{ overflowX: 'auto' }}>
-                                    <Box component="table" sx={{ width: '100%' }}>
+                                    <Box
+                                        component="table"
+                                        sx={{ width: '100%' }}
+                                    >
                                         <thead>
-                                            <Box component="tr" sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                                                <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
+                                            <Box
+                                                component="tr"
+                                                sx={{
+                                                    borderBottom: 1,
+                                                    borderColor: 'divider',
+                                                }}
+                                            >
+                                                <Box
+                                                    component="th"
+                                                    sx={{
+                                                        p: 1,
+                                                        textAlign: 'left',
+                                                        fontSize: '0.875rem',
+                                                        fontWeight: 500,
+                                                    }}
+                                                >
                                                     Applicant
                                                 </Box>
                                                 <Box
                                                     component="th"
-                                                    sx={{ cursor: 'pointer', p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500, '&:hover': { bgcolor: 'action.hover' } }}
+                                                    sx={{
+                                                        cursor: 'pointer',
+                                                        p: 1,
+                                                        textAlign: 'left',
+                                                        fontSize: '0.875rem',
+                                                        fontWeight: 500,
+                                                        '&:hover': {
+                                                            bgcolor:
+                                                                'action.hover',
+                                                        },
+                                                    }}
                                                     onClick={() =>
                                                         handleSort(
                                                             'is_registered_vendor',
@@ -425,7 +553,17 @@ export default function VendorApplicationsIndex({
                                                 </Box>
                                                 <Box
                                                     component="th"
-                                                    sx={{ cursor: 'pointer', p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500, '&:hover': { bgcolor: 'action.hover' } }}
+                                                    sx={{
+                                                        cursor: 'pointer',
+                                                        p: 1,
+                                                        textAlign: 'left',
+                                                        fontSize: '0.875rem',
+                                                        fontWeight: 500,
+                                                        '&:hover': {
+                                                            bgcolor:
+                                                                'action.hover',
+                                                        },
+                                                    }}
                                                     onClick={() =>
                                                         handleSort('status')
                                                     }
@@ -435,7 +573,17 @@ export default function VendorApplicationsIndex({
                                                 </Box>
                                                 <Box
                                                     component="th"
-                                                    sx={{ cursor: 'pointer', p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500, '&:hover': { bgcolor: 'action.hover' } }}
+                                                    sx={{
+                                                        cursor: 'pointer',
+                                                        p: 1,
+                                                        textAlign: 'left',
+                                                        fontSize: '0.875rem',
+                                                        fontWeight: 500,
+                                                        '&:hover': {
+                                                            bgcolor:
+                                                                'action.hover',
+                                                        },
+                                                    }}
                                                     onClick={() =>
                                                         handleSort(
                                                             'completed_step',
@@ -447,12 +595,30 @@ export default function VendorApplicationsIndex({
                                                         'completed_step',
                                                     )}
                                                 </Box>
-                                                <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
+                                                <Box
+                                                    component="th"
+                                                    sx={{
+                                                        p: 1,
+                                                        textAlign: 'left',
+                                                        fontSize: '0.875rem',
+                                                        fontWeight: 500,
+                                                    }}
+                                                >
                                                     Payment
                                                 </Box>
                                                 <Box
                                                     component="th"
-                                                    sx={{ cursor: 'pointer', p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500, '&:hover': { bgcolor: 'action.hover' } }}
+                                                    sx={{
+                                                        cursor: 'pointer',
+                                                        p: 1,
+                                                        textAlign: 'left',
+                                                        fontSize: '0.875rem',
+                                                        fontWeight: 500,
+                                                        '&:hover': {
+                                                            bgcolor:
+                                                                'action.hover',
+                                                        },
+                                                    }}
                                                     onClick={() =>
                                                         handleSort(
                                                             'submitted_at',
@@ -464,7 +630,15 @@ export default function VendorApplicationsIndex({
                                                         'submitted_at',
                                                     )}
                                                 </Box>
-                                                <Box component="th" sx={{ p: 1, textAlign: 'right', fontSize: '0.875rem', fontWeight: 500 }}>
+                                                <Box
+                                                    component="th"
+                                                    sx={{
+                                                        p: 1,
+                                                        textAlign: 'right',
+                                                        fontSize: '0.875rem',
+                                                        fontWeight: 500,
+                                                    }}
+                                                >
                                                     Actions
                                                 </Box>
                                             </Box>
@@ -475,18 +649,38 @@ export default function VendorApplicationsIndex({
                                                     <Box
                                                         component="tr"
                                                         key={application.id}
-                                                        sx={{ borderBottom: 1, borderColor: 'divider', '&:last-child': { border: 0 } }}
+                                                        sx={{
+                                                            borderBottom: 1,
+                                                            borderColor:
+                                                                'divider',
+                                                            '&:last-child': {
+                                                                border: 0,
+                                                            },
+                                                        }}
                                                     >
-                                                        <Box component="td" sx={{ p: 1 }}>
+                                                        <Box
+                                                            component="td"
+                                                            sx={{ p: 1 }}
+                                                        >
                                                             <Box>
-                                                                <Box sx={{ fontWeight: 500 }}>
+                                                                <Box
+                                                                    sx={{
+                                                                        fontWeight: 500,
+                                                                    }}
+                                                                >
                                                                     {
                                                                         application
                                                                             .user
                                                                             .name
                                                                     }
                                                                 </Box>
-                                                                <Box sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
+                                                                <Box
+                                                                    sx={{
+                                                                        fontSize:
+                                                                            '0.875rem',
+                                                                        color: 'text.secondary',
+                                                                    }}
+                                                                >
                                                                     {
                                                                         application
                                                                             .user
@@ -495,7 +689,10 @@ export default function VendorApplicationsIndex({
                                                                 </Box>
                                                             </Box>
                                                         </Box>
-                                                        <Box component="td" sx={{ p: 1 }}>
+                                                        <Box
+                                                            component="td"
+                                                            sx={{ p: 1 }}
+                                                        >
                                                             <Badge
                                                                 variant={
                                                                     application.is_registered_vendor
@@ -508,60 +705,121 @@ export default function VendorApplicationsIndex({
                                                                     : 'Individual'}
                                                             </Badge>
                                                         </Box>
-                                                        <Box component="td" sx={{ p: 1 }}>
+                                                        <Box
+                                                            component="td"
+                                                            sx={{ p: 1 }}
+                                                        >
                                                             {getStatusBadge(
                                                                 application.status,
                                                             )}
                                                         </Box>
-                                                        <Box component="td" sx={{ p: 1 }}>
-                                                            <Box sx={{ fontSize: '0.875rem' }}>
+                                                        <Box
+                                                            component="td"
+                                                            sx={{ p: 1 }}
+                                                        >
+                                                            <Box
+                                                                sx={{
+                                                                    fontSize:
+                                                                        '0.875rem',
+                                                                }}
+                                                            >
                                                                 {
                                                                     application.completed_step
                                                                 }
                                                                 /4 steps
                                                             </Box>
                                                         </Box>
-                                                        <Box component="td" sx={{ p: 1 }}>
+                                                        <Box
+                                                            component="td"
+                                                            sx={{ p: 1 }}
+                                                        >
                                                             <Chip
                                                                 label={
-                                                                    application.payment_status === 'success' ? 'Paid'
-                                                                    : application.payment_status === 'failed' ? 'Failed'
-                                                                    : application.payment_status === 'pending' ? 'Pending'
-                                                                    : application.payment_status === 'processing' ? 'Processing'
-                                                                    : 'Unpaid'
+                                                                    application.payment_status ===
+                                                                    'success'
+                                                                        ? 'Paid'
+                                                                        : application.payment_status ===
+                                                                            'failed'
+                                                                          ? 'Failed'
+                                                                          : application.payment_status ===
+                                                                              'pending'
+                                                                            ? 'Pending'
+                                                                            : application.payment_status ===
+                                                                                'processing'
+                                                                              ? 'Processing'
+                                                                              : 'Unpaid'
                                                                 }
                                                                 color={
-                                                                    application.payment_status === 'success' ? 'success'
-                                                                    : application.payment_status === 'failed' ? 'error'
-                                                                    : application.payment_status === 'pending' ? 'warning'
-                                                                    : application.payment_status === 'processing' ? 'info'
-                                                                    : 'default'
+                                                                    application.payment_status ===
+                                                                    'success'
+                                                                        ? 'success'
+                                                                        : application.payment_status ===
+                                                                            'failed'
+                                                                          ? 'error'
+                                                                          : application.payment_status ===
+                                                                              'pending'
+                                                                            ? 'warning'
+                                                                            : application.payment_status ===
+                                                                                'processing'
+                                                                              ? 'info'
+                                                                              : 'default'
                                                                 }
                                                                 size="small"
                                                                 variant="outlined"
                                                             />
                                                         </Box>
-                                                        <Box component="td" sx={{ p: 1 }}>
+                                                        <Box
+                                                            component="td"
+                                                            sx={{ p: 1 }}
+                                                        >
                                                             {application.submitted_at ? (
-                                                                <Box sx={{ fontSize: '0.875rem' }}>
+                                                                <Box
+                                                                    sx={{
+                                                                        fontSize:
+                                                                            '0.875rem',
+                                                                    }}
+                                                                >
                                                                     {new Date(
                                                                         application.submitted_at,
                                                                     ).toLocaleDateString()}
                                                                 </Box>
                                                             ) : (
-                                                                <Box component="span" sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
+                                                                <Box
+                                                                    component="span"
+                                                                    sx={{
+                                                                        fontSize:
+                                                                            '0.875rem',
+                                                                        color: 'text.secondary',
+                                                                    }}
+                                                                >
                                                                     Not
                                                                     submitted
                                                                 </Box>
                                                             )}
                                                         </Box>
-                                                        <Box component="td" sx={{ p: 1, textAlign: 'right' }}>
-                                                            <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
+                                                        <Box
+                                                            component="td"
+                                                            sx={{
+                                                                p: 1,
+                                                                textAlign:
+                                                                    'right',
+                                                            }}
+                                                        >
+                                                            <Box
+                                                                sx={{
+                                                                    display:
+                                                                        'flex',
+                                                                    justifyContent:
+                                                                        'flex-end',
+                                                                    gap: 1,
+                                                                }}
+                                                            >
                                                                 {application.status ===
                                                                     'pending' &&
                                                                     application.submitted_at !==
                                                                         null &&
-                                                                    application.completed_step >= 4 &&
+                                                                    application.completed_step >=
+                                                                        4 &&
                                                                     application.payment_completed && (
                                                                         <>
                                                                             <Button
@@ -573,7 +831,13 @@ export default function VendorApplicationsIndex({
                                                                                     )
                                                                                 }
                                                                             >
-                                                                                <ThumbsUp style={{ marginRight: 8, width: 16, height: 16 }} />
+                                                                                <ThumbsUp
+                                                                                    style={{
+                                                                                        marginRight: 8,
+                                                                                        width: 16,
+                                                                                        height: 16,
+                                                                                    }}
+                                                                                />
                                                                                 Approve
                                                                             </Button>
                                                                             <Button
@@ -585,7 +849,13 @@ export default function VendorApplicationsIndex({
                                                                                     )
                                                                                 }
                                                                             >
-                                                                                <ThumbsDown style={{ marginRight: 8, width: 16, height: 16 }} />
+                                                                                <ThumbsDown
+                                                                                    style={{
+                                                                                        marginRight: 8,
+                                                                                        width: 16,
+                                                                                        height: 16,
+                                                                                    }}
+                                                                                />
                                                                                 Reject
                                                                             </Button>
                                                                         </>
@@ -598,7 +868,13 @@ export default function VendorApplicationsIndex({
                                                                     <Link
                                                                         href={`/dashboard/vendor-applications/${application.id}`}
                                                                     >
-                                                                        <Eye style={{ marginRight: 8, width: 16, height: 16 }} />
+                                                                        <Eye
+                                                                            style={{
+                                                                                marginRight: 8,
+                                                                                width: 16,
+                                                                                height: 16,
+                                                                            }}
+                                                                        />
                                                                         View
                                                                     </Link>
                                                                 </Button>
@@ -613,8 +889,20 @@ export default function VendorApplicationsIndex({
 
                                 {/* Pagination */}
                                 {applications.last_page > 1 && (
-                                    <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                        <Box sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
+                                    <Box
+                                        sx={{
+                                            mt: 2,
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'space-between',
+                                        }}
+                                    >
+                                        <Box
+                                            sx={{
+                                                fontSize: '0.875rem',
+                                                color: 'text.secondary',
+                                            }}
+                                        >
                                             Showing {applications.data.length}{' '}
                                             of {applications.total} applications
                                         </Box>
@@ -687,7 +975,13 @@ export default function VendorApplicationsIndex({
                                 Cancel
                             </Button>
                             <Button onClick={confirmApprove}>
-                                <ThumbsUp style={{ marginRight: 8, width: 16, height: 16 }} />
+                                <ThumbsUp
+                                    style={{
+                                        marginRight: 8,
+                                        width: 16,
+                                        height: 16,
+                                    }}
+                                />
                                 Approve Application
                             </Button>
                         </DialogFooter>
@@ -726,7 +1020,13 @@ export default function VendorApplicationsIndex({
                                 }
                             />
                             {rejectForm.errors.reason && (
-                                <Typography sx={{ mt: 0.5, fontSize: '0.875rem', color: 'error.main' }}>
+                                <Typography
+                                    sx={{
+                                        mt: 0.5,
+                                        fontSize: '0.875rem',
+                                        color: 'error.main',
+                                    }}
+                                >
                                     {rejectForm.errors.reason}
                                 </Typography>
                             )}
@@ -749,7 +1049,13 @@ export default function VendorApplicationsIndex({
                                     rejectForm.data.reason.length < 10
                                 }
                             >
-                                <ThumbsDown style={{ marginRight: 8, width: 16, height: 16 }} />
+                                <ThumbsDown
+                                    style={{
+                                        marginRight: 8,
+                                        width: 16,
+                                        height: 16,
+                                    }}
+                                />
                                 {rejectForm.processing
                                     ? 'Rejecting...'
                                     : 'Reject Application'}

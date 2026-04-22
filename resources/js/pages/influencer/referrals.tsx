@@ -78,9 +78,21 @@ export default function InfluencerReferrals({ referrals }: Props) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="My Referrals" />
 
-            <Box sx={{ display: 'flex', height: '100%', flex: 1, flexDirection: 'column', gap: 3, overflowX: 'auto', p: 3 }}>
+            <Box
+                sx={{
+                    display: 'flex',
+                    height: '100%',
+                    flex: 1,
+                    flexDirection: 'column',
+                    gap: 3,
+                    overflowX: 'auto',
+                    p: 3,
+                }}
+            >
                 <Box>
-                    <Typography variant="h4" fontWeight={700}>My Referrals</Typography>
+                    <Typography variant="h4" fontWeight={700}>
+                        My Referrals
+                    </Typography>
                     <Typography color="text.secondary" sx={{ mt: 0.5 }}>
                         Track all vendors you've referred to the platform
                     </Typography>
@@ -145,8 +157,20 @@ export default function InfluencerReferrals({ referrals }: Props) {
                                                 )}
                                             </TableCell>
                                             <TableCell>
-                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                                    <Calendar style={{ width: 16, height: 16, color: 'gray' }} />
+                                                <Box
+                                                    sx={{
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: 1,
+                                                    }}
+                                                >
+                                                    <Calendar
+                                                        style={{
+                                                            width: 16,
+                                                            height: 16,
+                                                            color: 'gray',
+                                                        }}
+                                                    />
                                                     {formatDate(
                                                         referral.created_at,
                                                     )}

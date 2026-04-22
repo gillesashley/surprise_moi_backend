@@ -72,7 +72,7 @@ class InfluencerEmployeeFieldAgentSeeder extends Seeder
                 ['email' => $vendorEmail],
                 [
                     'name' => "Onboarding Vendor {$i}",
-                    'phone' => '024100000' . $i,
+                    'phone' => '024100000'.$i,
                     'password' => 'password',
                     'role' => 'customer',
                     'email_verified_at' => now(),

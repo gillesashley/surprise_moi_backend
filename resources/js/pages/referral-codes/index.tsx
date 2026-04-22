@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
     Card,
@@ -27,7 +26,17 @@ import { Head, Link, router } from '@inertiajs/react';
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
 import Typography from '@mui/material/Typography';
-import { Copy, Eye, Pencil, Plus, Power, PowerOff, Trash2, Users } from 'lucide-react';
+import {
+    Copy,
+    Eye,
+    Pencil,
+    Plus,
+    Power,
+    PowerOff,
+    Trash2,
+    Users,
+} from 'lucide-react';
+import { useState } from 'react';
 
 interface ReferralCode {
     id: number;
@@ -93,23 +102,29 @@ function BulkGenerateModal({
 
     const getCsrfToken = (): string => {
         const match = document.cookie.match(/XSRF-TOKEN=([^;]+)/);
-        return match ? decodeURIComponent(match[1]) : document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content || '';
+        return match
+            ? decodeURIComponent(match[1])
+            : document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')
+                  ?.content || '';
     };
 
     const fetchPreview = async (selectedRole: string) => {
         setLoading(true);
         setPreview(null);
         try {
-            const res = await fetch('/dashboard/referral-codes/bulk-generate/preview', {
-                method: 'POST',
-                credentials: 'same-origin',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Accept: 'application/json',
-                    'X-XSRF-TOKEN': getCsrfToken(),
+            const res = await fetch(
+                '/dashboard/referral-codes/bulk-generate/preview',
+                {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Accept: 'application/json',
+                        'X-XSRF-TOKEN': getCsrfToken(),
+                    },
+                    body: JSON.stringify({ role: selectedRole }),
                 },
-                body: JSON.stringify({ role: selectedRole }),
-            });
+            );
             const data = await res.json();
             setPreview(data);
         } catch {
@@ -163,33 +178,58 @@ function BulkGenerateModal({
                 <DialogHeader>
                     <DialogTitle>Bulk Generate Referral Codes</DialogTitle>
                     <DialogDescription>
-                        Generate codes for all users in a category who don't have an active code.
+                        Generate codes for all users in a category who don't
+                        have an active code.
                     </DialogDescription>
                 </DialogHeader>
 
                 {result !== null ? (
                     <Box sx={{ textAlign: 'center', py: 3 }}>
-                        <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
+                        <Typography
+                            variant="h4"
+                            sx={{ fontWeight: 700, mb: 1 }}
+                        >
                             {result} Codes Generated
                         </Typography>
                         <Typography color="text.secondary" sx={{ mb: 3 }}>
-                            All {BULK_CATEGORIES.find((c) => c.value === role)?.label} users without an active code now have a referral code.
+                            All{' '}
+                            {
+                                BULK_CATEGORIES.find((c) => c.value === role)
+                                    ?.label
+                            }{' '}
+                            users without an active code now have a referral
+                            code.
                         </Typography>
                         <Button onClick={handleClose}>Done</Button>
                     </Box>
                 ) : (
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: 2,
+                        }}
+                    >
                         <Box sx={{ display: 'grid', gap: 1 }}>
-                            <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                            <Typography
+                                variant="body2"
+                                sx={{ fontWeight: 500 }}
+                            >
                                 User Category
                             </Typography>
-                            <Select value={role} onValueChange={handleRoleChange}>
+                            <Select
+                                value={role}
+                                onValueChange={handleRoleChange}
+                            >
                                 <SelectTrigger>
                                     <SelectValue placeholder="Select a category..." />
                                 </SelectTrigger>
                                 <SelectContent>
                                     {BULK_CATEGORIES.map((cat) => (
-                                        <SelectItem key={cat.value} value={cat.value}>
+                                        <SelectItem
+                                            key={cat.value}
+                                            value={cat.value}
+                                        >
                                             {cat.label}
                                         </SelectItem>
                                     ))}
@@ -214,43 +254,98 @@ function BulkGenerateModal({
                                     gap: 1,
                                 }}
                             >
-                                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                                    <Typography variant="body2" color="text.secondary">
+                                <Box
+                                    sx={{
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                    }}
+                                >
+                                    <Typography
+                                        variant="body2"
+                                        color="text.secondary"
+                                    >
                                         Total users
                                     </Typography>
-                                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                                    <Typography
+                                        variant="body2"
+                                        sx={{ fontWeight: 600 }}
+                                    >
                                         {preview.total}
                                     </Typography>
                                 </Box>
-                                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                                    <Typography variant="body2" color="text.secondary">
+                                <Box
+                                    sx={{
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                    }}
+                                >
+                                    <Typography
+                                        variant="body2"
+                                        color="text.secondary"
+                                    >
                                         Already have active code
                                     </Typography>
-                                    <Typography variant="body2" sx={{ fontWeight: 600, color: 'warning.main' }}>
+                                    <Typography
+                                        variant="body2"
+                                        sx={{
+                                            fontWeight: 600,
+                                            color: 'warning.main',
+                                        }}
+                                    >
                                         {preview.with_code}
                                     </Typography>
                                 </Box>
-                                <Box sx={{ borderTop: 1, borderColor: 'divider', pt: 1, display: 'flex', justifyContent: 'space-between' }}>
-                                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                                <Box
+                                    sx={{
+                                        borderTop: 1,
+                                        borderColor: 'divider',
+                                        pt: 1,
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                    }}
+                                >
+                                    <Typography
+                                        variant="body2"
+                                        sx={{ fontWeight: 600 }}
+                                    >
                                         Codes to generate
                                     </Typography>
-                                    <Typography variant="body2" sx={{ fontWeight: 700, color: 'success.main' }}>
+                                    <Typography
+                                        variant="body2"
+                                        sx={{
+                                            fontWeight: 700,
+                                            color: 'success.main',
+                                        }}
+                                    >
                                         {preview.without_code}
                                     </Typography>
                                 </Box>
-                                <Typography variant="caption" color="text.secondary">
+                                <Typography
+                                    variant="caption"
+                                    color="text.secondary"
+                                >
                                     Code format: {preview.prefix}XXXXXXXX
                                 </Typography>
                             </Box>
                         )}
 
-                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                justifyContent: 'flex-end',
+                                gap: 1,
+                            }}
+                        >
                             <Button variant="outline" onClick={handleClose}>
                                 Cancel
                             </Button>
                             <Button
                                 onClick={handleGenerate}
-                                disabled={!preview || preview.without_code === 0 || generating}
+                                disabled={
+                                    !preview ||
+                                    preview.without_code === 0 ||
+                                    generating
+                                }
                             >
                                 {generating
                                     ? 'Generating...'
@@ -310,24 +405,59 @@ export default function ReferralCodesIndex({ codes }: Props) {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Referral Codes" />
-            <Box sx={{ display: 'flex', height: '100%', flex: 1, flexDirection: 'column', gap: 2, p: 2 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <Box
+                sx={{
+                    display: 'flex',
+                    height: '100%',
+                    flex: 1,
+                    flexDirection: 'column',
+                    gap: 2,
+                    p: 2,
+                }}
+            >
+                <Box
+                    sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                    }}
+                >
                     <Box>
                         <Typography variant="h5" sx={{ fontWeight: 700 }}>
                             Referral Codes Management
                         </Typography>
-                        <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
+                        <Typography
+                            sx={{
+                                fontSize: '0.875rem',
+                                color: 'text.secondary',
+                            }}
+                        >
                             Manage referral codes for influencers
                         </Typography>
                     </Box>
                     <Box sx={{ display: 'flex', gap: 1 }}>
-                        <Button variant="outline" onClick={() => setBulkModalOpen(true)}>
-                            <Users style={{ marginRight: 8, width: 16, height: 16 }} />
+                        <Button
+                            variant="outline"
+                            onClick={() => setBulkModalOpen(true)}
+                        >
+                            <Users
+                                style={{
+                                    marginRight: 8,
+                                    width: 16,
+                                    height: 16,
+                                }}
+                            />
                             Bulk Generate
                         </Button>
                         <Button asChild>
                             <Link href="/dashboard/referral-codes/create">
-                                <Plus style={{ marginRight: 8, width: 16, height: 16 }} />
+                                <Plus
+                                    style={{
+                                        marginRight: 8,
+                                        width: 16,
+                                        height: 16,
+                                    }}
+                                />
                                 Create Code
                             </Link>
                         </Button>
@@ -345,23 +475,77 @@ export default function ReferralCodesIndex({ codes }: Props) {
                         <Box sx={{ overflowX: 'auto' }}>
                             <Box component="table" sx={{ width: '100%' }}>
                                 <thead>
-                                    <Box component="tr" sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                                        <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
+                                    <Box
+                                        component="tr"
+                                        sx={{
+                                            borderBottom: 1,
+                                            borderColor: 'divider',
+                                        }}
+                                    >
+                                        <Box
+                                            component="th"
+                                            sx={{
+                                                p: 1,
+                                                textAlign: 'left',
+                                                fontSize: '0.875rem',
+                                                fontWeight: 500,
+                                            }}
+                                        >
                                             Code
                                         </Box>
-                                        <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
+                                        <Box
+                                            component="th"
+                                            sx={{
+                                                p: 1,
+                                                textAlign: 'left',
+                                                fontSize: '0.875rem',
+                                                fontWeight: 500,
+                                            }}
+                                        >
                                             Influencer
                                         </Box>
-                                        <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
+                                        <Box
+                                            component="th"
+                                            sx={{
+                                                p: 1,
+                                                textAlign: 'left',
+                                                fontSize: '0.875rem',
+                                                fontWeight: 500,
+                                            }}
+                                        >
                                             Usage
                                         </Box>
-                                        <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
+                                        <Box
+                                            component="th"
+                                            sx={{
+                                                p: 1,
+                                                textAlign: 'left',
+                                                fontSize: '0.875rem',
+                                                fontWeight: 500,
+                                            }}
+                                        >
                                             Bonus
                                         </Box>
-                                        <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
+                                        <Box
+                                            component="th"
+                                            sx={{
+                                                p: 1,
+                                                textAlign: 'left',
+                                                fontSize: '0.875rem',
+                                                fontWeight: 500,
+                                            }}
+                                        >
                                             Status
                                         </Box>
-                                        <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
+                                        <Box
+                                            component="th"
+                                            sx={{
+                                                p: 1,
+                                                textAlign: 'left',
+                                                fontSize: '0.875rem',
+                                                fontWeight: 500,
+                                            }}
+                                        >
                                             Actions
                                         </Box>
                                     </Box>
@@ -371,13 +555,36 @@ export default function ReferralCodesIndex({ codes }: Props) {
                                         <Box
                                             component="tr"
                                             key={code.id}
-                                            sx={{ borderBottom: 1, borderColor: 'divider', '&:hover': { bgcolor: 'action.hover' } }}
+                                            sx={{
+                                                borderBottom: 1,
+                                                borderColor: 'divider',
+                                                '&:hover': {
+                                                    bgcolor: 'action.hover',
+                                                },
+                                            }}
                                         >
                                             <Box component="td" sx={{ p: 1 }}>
-                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                <Box
+                                                    sx={{
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: 1,
+                                                    }}
+                                                >
                                                     <Box
                                                         component="code"
-                                                        sx={{ borderRadius: 1, bgcolor: 'action.hover', px: 1, py: 0.5, fontFamily: 'monospace', fontSize: '0.875rem', fontWeight: 600 }}
+                                                        sx={{
+                                                            borderRadius: 1,
+                                                            bgcolor:
+                                                                'action.hover',
+                                                            px: 1,
+                                                            py: 0.5,
+                                                            fontFamily:
+                                                                'monospace',
+                                                            fontSize:
+                                                                '0.875rem',
+                                                            fontWeight: 600,
+                                                        }}
                                                     >
                                                         {code.code}
                                                     </Box>
@@ -389,18 +596,40 @@ export default function ReferralCodesIndex({ codes }: Props) {
                                                                 code.code,
                                                             )
                                                         }
-                                                        sx={{ color: 'text.secondary', '&:hover': { color: 'text.primary' }, background: 'none', border: 'none', cursor: 'pointer', p: 0 }}
+                                                        sx={{
+                                                            color: 'text.secondary',
+                                                            '&:hover': {
+                                                                color: 'text.primary',
+                                                            },
+                                                            background: 'none',
+                                                            border: 'none',
+                                                            cursor: 'pointer',
+                                                            p: 0,
+                                                        }}
                                                     >
-                                                        <Copy style={{ width: 16, height: 16 }} />
+                                                        <Copy
+                                                            style={{
+                                                                width: 16,
+                                                                height: 16,
+                                                            }}
+                                                        />
                                                     </Box>
                                                 </Box>
                                             </Box>
                                             <Box component="td" sx={{ p: 1 }}>
                                                 <Box>
-                                                    <Typography sx={{ fontWeight: 500 }}>
+                                                    <Typography
+                                                        sx={{ fontWeight: 500 }}
+                                                    >
                                                         {code.influencer.name}
                                                     </Typography>
-                                                    <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
+                                                    <Typography
+                                                        sx={{
+                                                            fontSize:
+                                                                '0.875rem',
+                                                            color: 'text.secondary',
+                                                        }}
+                                                    >
                                                         {code.influencer.email}
                                                     </Typography>
                                                 </Box>
@@ -410,10 +639,23 @@ export default function ReferralCodesIndex({ codes }: Props) {
                                                 {code.max_usages || '\u221E'}
                                             </Box>
                                             <Box component="td" sx={{ p: 1 }}>
-                                                {Number(code.registration_bonus) > 0 ? (
-                                                    <>GH₵{code.registration_bonus}</>
+                                                {Number(
+                                                    code.registration_bonus,
+                                                ) > 0 ? (
+                                                    <>
+                                                        GH₵
+                                                        {
+                                                            code.registration_bonus
+                                                        }
+                                                    </>
                                                 ) : (
-                                                    <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.8rem' }}>
+                                                    <Typography
+                                                        variant="body2"
+                                                        color="text.secondary"
+                                                        sx={{
+                                                            fontSize: '0.8rem',
+                                                        }}
+                                                    >
                                                         Dynamic
                                                     </Typography>
                                                 )}
@@ -421,7 +663,14 @@ export default function ReferralCodesIndex({ codes }: Props) {
                                             <Box component="td" sx={{ p: 1 }}>
                                                 {code.is_active ? (
                                                     <Chip
-                                                        icon={<Power style={{ width: 12, height: 12 }} />}
+                                                        icon={
+                                                            <Power
+                                                                style={{
+                                                                    width: 12,
+                                                                    height: 12,
+                                                                }}
+                                                            />
+                                                        }
                                                         label="ACTIVE"
                                                         color="success"
                                                         size="small"
@@ -429,7 +678,14 @@ export default function ReferralCodesIndex({ codes }: Props) {
                                                     />
                                                 ) : (
                                                     <Chip
-                                                        icon={<PowerOff style={{ width: 12, height: 12 }} />}
+                                                        icon={
+                                                            <PowerOff
+                                                                style={{
+                                                                    width: 12,
+                                                                    height: 12,
+                                                                }}
+                                                            />
+                                                        }
                                                         label="INACTIVE"
                                                         color="default"
                                                         size="small"
@@ -438,16 +694,33 @@ export default function ReferralCodesIndex({ codes }: Props) {
                                                 )}
                                             </Box>
                                             <Box component="td" sx={{ p: 1 }}>
-                                                <Box sx={{ display: 'flex', gap: 1 }}>
+                                                <Box
+                                                    sx={{
+                                                        display: 'flex',
+                                                        gap: 1,
+                                                    }}
+                                                >
                                                     <Link
                                                         href={`/dashboard/referral-codes/${code.id}`}
                                                     >
-                                                        <Eye style={{ width: 16, height: 16, color: 'gray' }} />
+                                                        <Eye
+                                                            style={{
+                                                                width: 16,
+                                                                height: 16,
+                                                                color: 'gray',
+                                                            }}
+                                                        />
                                                     </Link>
                                                     <Link
                                                         href={`/dashboard/referral-codes/${code.id}/edit`}
                                                     >
-                                                        <Pencil style={{ width: 16, height: 16, color: 'gray' }} />
+                                                        <Pencil
+                                                            style={{
+                                                                width: 16,
+                                                                height: 16,
+                                                                color: 'gray',
+                                                            }}
+                                                        />
                                                     </Link>
                                                     <Box
                                                         component="button"
@@ -462,12 +735,31 @@ export default function ReferralCodesIndex({ codes }: Props) {
                                                                 ? 'Deactivate'
                                                                 : 'Activate'
                                                         }
-                                                        sx={{ color: 'text.secondary', '&:hover': { color: 'text.primary' }, background: 'none', border: 'none', cursor: 'pointer', p: 0 }}
+                                                        sx={{
+                                                            color: 'text.secondary',
+                                                            '&:hover': {
+                                                                color: 'text.primary',
+                                                            },
+                                                            background: 'none',
+                                                            border: 'none',
+                                                            cursor: 'pointer',
+                                                            p: 0,
+                                                        }}
                                                     >
                                                         {code.is_active ? (
-                                                            <PowerOff style={{ width: 16, height: 16 }} />
+                                                            <PowerOff
+                                                                style={{
+                                                                    width: 16,
+                                                                    height: 16,
+                                                                }}
+                                                            />
                                                         ) : (
-                                                            <Power style={{ width: 16, height: 16 }} />
+                                                            <Power
+                                                                style={{
+                                                                    width: 16,
+                                                                    height: 16,
+                                                                }}
+                                                            />
                                                         )}
                                                     </Box>
                                                     <Box
@@ -479,9 +771,23 @@ export default function ReferralCodesIndex({ codes }: Props) {
                                                                 code.code,
                                                             )
                                                         }
-                                                        sx={{ color: 'text.secondary', '&:hover': { color: 'error.main' }, background: 'none', border: 'none', cursor: 'pointer', p: 0 }}
+                                                        sx={{
+                                                            color: 'text.secondary',
+                                                            '&:hover': {
+                                                                color: 'error.main',
+                                                            },
+                                                            background: 'none',
+                                                            border: 'none',
+                                                            cursor: 'pointer',
+                                                            p: 0,
+                                                        }}
                                                     >
-                                                        <Trash2 style={{ width: 16, height: 16 }} />
+                                                        <Trash2
+                                                            style={{
+                                                                width: 16,
+                                                                height: 16,
+                                                            }}
+                                                        />
                                                     </Box>
                                                 </Box>
                                             </Box>
@@ -492,15 +798,33 @@ export default function ReferralCodesIndex({ codes }: Props) {
                         </Box>
 
                         {codes.data.length === 0 && (
-                            <Box sx={{ py: 4, textAlign: 'center', color: 'text.secondary' }}>
+                            <Box
+                                sx={{
+                                    py: 4,
+                                    textAlign: 'center',
+                                    color: 'text.secondary',
+                                }}
+                            >
                                 No referral codes found. Create one to get
                                 started.
                             </Box>
                         )}
 
                         {codes.last_page > 1 && (
-                            <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
+                            <Box
+                                sx={{
+                                    mt: 2,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                }}
+                            >
+                                <Typography
+                                    sx={{
+                                        fontSize: '0.875rem',
+                                        color: 'text.secondary',
+                                    }}
+                                >
                                     Showing {codes.data.length} of {codes.total}{' '}
                                     codes
                                 </Typography>
@@ -517,7 +841,14 @@ export default function ReferralCodesIndex({ codes }: Props) {
                                     >
                                         Previous
                                     </Button>
-                                    <Box sx={{ display: 'flex', alignItems: 'center', px: 1.5, fontSize: '0.875rem' }}>
+                                    <Box
+                                        sx={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            px: 1.5,
+                                            fontSize: '0.875rem',
+                                        }}
+                                    >
                                         Page {codes.current_page} of{' '}
                                         {codes.last_page}
                                     </Box>

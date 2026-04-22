@@ -9,9 +9,9 @@ import {
 import { OTP_MAX_LENGTH } from '@/hooks/use-two-factor-auth';
 import AuthLayout from '@/layouts/auth-layout';
 import { store } from '@/routes/two-factor/login/index';
+import { Form, Head } from '@inertiajs/react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import { Form, Head } from '@inertiajs/react';
 import { REGEXP_ONLY_DIGITS } from 'input-otp';
 import { useMemo, useState } from 'react';
 
@@ -57,7 +57,11 @@ export default function TwoFactorChallenge() {
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
                 <Form
                     {...store.form()}
-                    style={{ display: 'flex', flexDirection: 'column', gap: 16 }}
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: 16,
+                    }}
                     resetOnError
                     resetOnSuccess={!showRecoveryInput}
                 >
@@ -77,8 +81,24 @@ export default function TwoFactorChallenge() {
                                     />
                                 </>
                             ) : (
-                                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 1.5, textAlign: 'center' }}>
-                                    <Box sx={{ display: 'flex', width: '100%', alignItems: 'center', justifyContent: 'center' }}>
+                                <Box
+                                    sx={{
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        gap: 1.5,
+                                        textAlign: 'center',
+                                    }}
+                                >
+                                    <Box
+                                        sx={{
+                                            display: 'flex',
+                                            width: '100%',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                        }}
+                                    >
                                         <InputOTP
                                             name="code"
                                             maxLength={OTP_MAX_LENGTH}
@@ -112,7 +132,11 @@ export default function TwoFactorChallenge() {
                                 Continue
                             </Button>
 
-                            <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center' }}>
+                            <Typography
+                                variant="body2"
+                                color="text.secondary"
+                                sx={{ textAlign: 'center' }}
+                            >
                                 <span>or you can </span>
                                 <Box
                                     component="button"
@@ -125,7 +149,8 @@ export default function TwoFactorChallenge() {
                                         color: 'text.primary',
                                         textDecoration: 'underline',
                                         textUnderlineOffset: '4px',
-                                        transition: 'text-decoration-color 0.3s ease-out',
+                                        transition:
+                                            'text-decoration-color 0.3s ease-out',
                                         background: 'none',
                                         border: 'none',
                                         padding: 0,

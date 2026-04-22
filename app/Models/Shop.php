@@ -45,13 +45,13 @@ class Shop extends Model
     protected function serviceHours(): Attribute
     {
         $default = [
-            'monday'    => ['is_open' => true,  'open' => '09:00', 'close' => '17:00'],
-            'tuesday'   => ['is_open' => true,  'open' => '09:00', 'close' => '17:00'],
+            'monday' => ['is_open' => true,  'open' => '09:00', 'close' => '17:00'],
+            'tuesday' => ['is_open' => true,  'open' => '09:00', 'close' => '17:00'],
             'wednesday' => ['is_open' => true,  'open' => '09:00', 'close' => '17:00'],
-            'thursday'  => ['is_open' => true,  'open' => '09:00', 'close' => '17:00'],
-            'friday'    => ['is_open' => true,  'open' => '09:00', 'close' => '17:00'],
-            'saturday'  => ['is_open' => false, 'open' => null,    'close' => null],
-            'sunday'    => ['is_open' => false, 'open' => null,    'close' => null],
+            'thursday' => ['is_open' => true,  'open' => '09:00', 'close' => '17:00'],
+            'friday' => ['is_open' => true,  'open' => '09:00', 'close' => '17:00'],
+            'saturday' => ['is_open' => false, 'open' => null,    'close' => null],
+            'sunday' => ['is_open' => false, 'open' => null,    'close' => null],
         ];
 
         return Attribute::make(

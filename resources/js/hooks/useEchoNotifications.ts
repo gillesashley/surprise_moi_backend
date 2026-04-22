@@ -1,9 +1,9 @@
-import { useEffect } from 'react';
-import echo from '@/lib/echo';
-import { useNotifications } from '@/hooks/useNotifications';
 import { showNotificationToast } from '@/components/notifications';
+import { useNotifications } from '@/hooks/useNotifications';
+import echo from '@/lib/echo';
 import type { Notification } from '@/lib/notifications/api';
 import { usePage } from '@inertiajs/react';
+import { useEffect } from 'react';
 
 const isDevelopment = import.meta.env.DEV;
 
@@ -42,7 +42,10 @@ export function useEchoNotifications() {
 
         channel.notification((data: BroadcastNotification) => {
             if (isDevelopment) {
-                console.log('[useEchoNotifications] Notification received:', data);
+                console.log(
+                    '[useEchoNotifications] Notification received:',
+                    data,
+                );
             }
 
             const notification: Notification = {

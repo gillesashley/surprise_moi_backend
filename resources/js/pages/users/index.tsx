@@ -27,7 +27,15 @@ import { Head, Link, router } from '@inertiajs/react';
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
 import Typography from '@mui/material/Typography';
-import { ArrowDown, ArrowUp, Eye, FileDown, Pencil, Search, Trash2 } from 'lucide-react';
+import {
+    ArrowDown,
+    ArrowUp,
+    Eye,
+    FileDown,
+    Pencil,
+    Search,
+    Trash2,
+} from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 interface Props {
@@ -46,10 +54,19 @@ interface Props {
 const roleLabelMap: Record<string, { title: string; description: string }> = {
     customer: { title: 'Customers', description: 'Manage customer accounts' },
     vendor: { title: 'Vendors', description: 'Manage vendor accounts' },
-    influencer: { title: 'Influencers', description: 'Manage influencer accounts' },
-    field_agent: { title: 'Field Agents', description: 'Manage field agent accounts' },
+    influencer: {
+        title: 'Influencers',
+        description: 'Manage influencer accounts',
+    },
+    field_agent: {
+        title: 'Field Agents',
+        description: 'Manage field agent accounts',
+    },
     employee: { title: 'Employees', description: 'Manage employee accounts' },
-    'admin,super_admin': { title: 'Administrators', description: 'Manage admin and super admin accounts' },
+    'admin,super_admin': {
+        title: 'Administrators',
+        description: 'Manage admin and super admin accounts',
+    },
 };
 
 const formatRole = (role: string) => {
@@ -59,7 +76,9 @@ const formatRole = (role: string) => {
         .join(' ');
 };
 
-const getRoleBadgeColor = (role: string): 'error' | 'secondary' | 'info' | 'default' => {
+const getRoleBadgeColor = (
+    role: string,
+): 'error' | 'secondary' | 'info' | 'default' => {
     switch (role) {
         case 'super_admin':
             return 'error';
@@ -72,16 +91,25 @@ const getRoleBadgeColor = (role: string): 'error' | 'secondary' | 'info' | 'defa
     }
 };
 
-export default function UsersIndex({ users, canDelete, activeRole, filters }: Props) {
+export default function UsersIndex({
+    users,
+    canDelete,
+    activeRole,
+    filters,
+}: Props) {
     useInactivityLock();
     const [searchTerm, setSearchTerm] = useState(filters.search || '');
     const [showDeleteDialog, setShowDeleteDialog] = useState(false);
     const [deleteConfirmation, setDeleteConfirmation] = useState('');
     const [isDeleting, setIsDeleting] = useState(false);
-    const [userToDelete, setUserToDelete] = useState<{ id: number; name: string } | null>(null);
+    const [userToDelete, setUserToDelete] = useState<{
+        id: number;
+        name: string;
+    } | null>(null);
     const roleInfo = activeRole ? roleLabelMap[activeRole] : null;
     const pageTitle = roleInfo?.title ?? 'All Users';
-    const pageDescription = roleInfo?.description ?? 'Manage all registered users in the system';
+    const pageDescription =
+        roleInfo?.description ?? 'Manage all registered users in the system';
     const isSingleRole = !!activeRole && !activeRole.includes(',');
 
     const breadcrumbs: BreadcrumbItem[] = [
@@ -90,7 +118,12 @@ export default function UsersIndex({ users, canDelete, activeRole, filters }: Pr
             href: usersIndex().url,
         },
         ...(roleInfo
-            ? [{ title: roleInfo.title, href: usersIndex().url + '?role=' + activeRole }]
+            ? [
+                  {
+                      title: roleInfo.title,
+                      href: usersIndex().url + '?role=' + activeRole,
+                  },
+              ]
             : []),
     ];
 
@@ -167,28 +200,65 @@ export default function UsersIndex({ users, canDelete, activeRole, filters }: Pr
     const getSortIcon = (column: string) => {
         if (filters.sort_by !== column) return null;
         return filters.sort_order === 'asc' ? (
-            <ArrowUp style={{ marginLeft: 4, display: 'inline', width: 16, height: 16 }} />
+            <ArrowUp
+                style={{
+                    marginLeft: 4,
+                    display: 'inline',
+                    width: 16,
+                    height: 16,
+                }}
+            />
         ) : (
-            <ArrowDown style={{ marginLeft: 4, display: 'inline', width: 16, height: 16 }} />
+            <ArrowDown
+                style={{
+                    marginLeft: 4,
+                    display: 'inline',
+                    width: 16,
+                    height: 16,
+                }}
+            />
         );
     };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={pageTitle} />
-            <Box sx={{ display: 'flex', height: '100%', flex: 1, flexDirection: 'column', gap: 2, p: 2 }}>
+            <Box
+                sx={{
+                    display: 'flex',
+                    height: '100%',
+                    flex: 1,
+                    flexDirection: 'column',
+                    gap: 2,
+                    p: 2,
+                }}
+            >
                 <Card>
                     <CardHeader>
                         <CardTitle>{pageTitle}</CardTitle>
-                        <CardDescription>
-                            {pageDescription}
-                        </CardDescription>
+                        <CardDescription>{pageDescription}</CardDescription>
                     </CardHeader>
                     <CardContent>
                         {/* Search Bar & Export */}
-                        <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Box
+                            sx={{
+                                mb: 2,
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 1,
+                            }}
+                        >
                             <Box sx={{ position: 'relative', flex: 1 }}>
-                                <Search style={{ position: 'absolute', top: 10, left: 10, width: 16, height: 16, color: 'var(--muted-foreground)' }} />
+                                <Search
+                                    style={{
+                                        position: 'absolute',
+                                        top: 10,
+                                        left: 10,
+                                        width: 16,
+                                        height: 16,
+                                        color: 'var(--muted-foreground)',
+                                    }}
+                                />
                                 <Input
                                     type="search"
                                     placeholder="Search by name, email, or phone..."
@@ -204,15 +274,31 @@ export default function UsersIndex({ users, canDelete, activeRole, filters }: Pr
                                 size="sm"
                                 onClick={() => {
                                     const params = new URLSearchParams();
-                                    if (filters.role) params.set('role', filters.role);
-                                    if (filters.search) params.set('search', filters.search);
-                                    if (filters.sort_by) params.set('sort_by', filters.sort_by);
-                                    if (filters.sort_order) params.set('sort_order', filters.sort_order);
+                                    if (filters.role)
+                                        params.set('role', filters.role);
+                                    if (filters.search)
+                                        params.set('search', filters.search);
+                                    if (filters.sort_by)
+                                        params.set('sort_by', filters.sort_by);
+                                    if (filters.sort_order)
+                                        params.set(
+                                            'sort_order',
+                                            filters.sort_order,
+                                        );
                                     const query = params.toString();
-                                    window.open(`/dashboard/users/export-pdf${query ? `?${query}` : ''}`, '_blank');
+                                    window.open(
+                                        `/dashboard/users/export-pdf${query ? `?${query}` : ''}`,
+                                        '_blank',
+                                    );
                                 }}
                             >
-                                <FileDown style={{ width: 16, height: 16, marginRight: 4 }} />
+                                <FileDown
+                                    style={{
+                                        width: 16,
+                                        height: 16,
+                                        marginRight: 4,
+                                    }}
+                                />
                                 Export PDF
                             </Button>
                         </Box>
@@ -220,24 +306,57 @@ export default function UsersIndex({ users, canDelete, activeRole, filters }: Pr
                         <Box sx={{ overflowX: 'auto' }}>
                             <Box component="table" sx={{ width: '100%' }}>
                                 <thead>
-                                    <Box component="tr" sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                                    <Box
+                                        component="tr"
+                                        sx={{
+                                            borderBottom: 1,
+                                            borderColor: 'divider',
+                                        }}
+                                    >
                                         <Box
                                             component="th"
-                                            sx={{ cursor: 'pointer', p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500, '&:hover': { bgcolor: 'action.hover' } }}
+                                            sx={{
+                                                cursor: 'pointer',
+                                                p: 1,
+                                                textAlign: 'left',
+                                                fontSize: '0.875rem',
+                                                fontWeight: 500,
+                                                '&:hover': {
+                                                    bgcolor: 'action.hover',
+                                                },
+                                            }}
                                             onClick={() => handleSort('name')}
                                         >
                                             Name{getSortIcon('name')}
                                         </Box>
                                         <Box
                                             component="th"
-                                            sx={{ cursor: 'pointer', p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500, '&:hover': { bgcolor: 'action.hover' } }}
+                                            sx={{
+                                                cursor: 'pointer',
+                                                p: 1,
+                                                textAlign: 'left',
+                                                fontSize: '0.875rem',
+                                                fontWeight: 500,
+                                                '&:hover': {
+                                                    bgcolor: 'action.hover',
+                                                },
+                                            }}
                                             onClick={() => handleSort('email')}
                                         >
                                             Email{getSortIcon('email')}
                                         </Box>
                                         <Box
                                             component="th"
-                                            sx={{ cursor: 'pointer', p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500, '&:hover': { bgcolor: 'action.hover' } }}
+                                            sx={{
+                                                cursor: 'pointer',
+                                                p: 1,
+                                                textAlign: 'left',
+                                                fontSize: '0.875rem',
+                                                fontWeight: 500,
+                                                '&:hover': {
+                                                    bgcolor: 'action.hover',
+                                                },
+                                            }}
                                             onClick={() => handleSort('phone')}
                                         >
                                             Phone{getSortIcon('phone')}
@@ -245,15 +364,35 @@ export default function UsersIndex({ users, canDelete, activeRole, filters }: Pr
                                         {!isSingleRole && (
                                             <Box
                                                 component="th"
-                                                sx={{ cursor: 'pointer', p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500, '&:hover': { bgcolor: 'action.hover' } }}
-                                                onClick={() => handleSort('role')}
+                                                sx={{
+                                                    cursor: 'pointer',
+                                                    p: 1,
+                                                    textAlign: 'left',
+                                                    fontSize: '0.875rem',
+                                                    fontWeight: 500,
+                                                    '&:hover': {
+                                                        bgcolor: 'action.hover',
+                                                    },
+                                                }}
+                                                onClick={() =>
+                                                    handleSort('role')
+                                                }
                                             >
                                                 Role{getSortIcon('role')}
                                             </Box>
                                         )}
                                         <Box
                                             component="th"
-                                            sx={{ cursor: 'pointer', p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500, '&:hover': { bgcolor: 'action.hover' } }}
+                                            sx={{
+                                                cursor: 'pointer',
+                                                p: 1,
+                                                textAlign: 'left',
+                                                fontSize: '0.875rem',
+                                                fontWeight: 500,
+                                                '&:hover': {
+                                                    bgcolor: 'action.hover',
+                                                },
+                                            }}
                                             onClick={() =>
                                                 handleSort('created_at')
                                             }
@@ -262,15 +401,39 @@ export default function UsersIndex({ users, canDelete, activeRole, filters }: Pr
                                         </Box>
                                         {activeRole === 'field_agent' && (
                                             <>
-                                                <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
+                                                <Box
+                                                    component="th"
+                                                    sx={{
+                                                        p: 1,
+                                                        textAlign: 'left',
+                                                        fontSize: '0.875rem',
+                                                        fontWeight: 500,
+                                                    }}
+                                                >
                                                     Visits
                                                 </Box>
-                                                <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
+                                                <Box
+                                                    component="th"
+                                                    sx={{
+                                                        p: 1,
+                                                        textAlign: 'left',
+                                                        fontSize: '0.875rem',
+                                                        fontWeight: 500,
+                                                    }}
+                                                >
                                                     Pass Rate
                                                 </Box>
                                             </>
                                         )}
-                                        <Box component="th" sx={{ p: 1, textAlign: 'right', fontSize: '0.875rem', fontWeight: 500 }}>
+                                        <Box
+                                            component="th"
+                                            sx={{
+                                                p: 1,
+                                                textAlign: 'right',
+                                                fontSize: '0.875rem',
+                                                fontWeight: 500,
+                                            }}
+                                        >
                                             Actions
                                         </Box>
                                     </Box>
@@ -280,44 +443,113 @@ export default function UsersIndex({ users, canDelete, activeRole, filters }: Pr
                                         <Box
                                             component="tr"
                                             key={user.id}
-                                            sx={{ borderBottom: 1, borderColor: 'divider', '&:last-child': { border: 0 }, '&:hover': { bgcolor: 'action.hover' } }}
+                                            sx={{
+                                                borderBottom: 1,
+                                                borderColor: 'divider',
+                                                '&:last-child': { border: 0 },
+                                                '&:hover': {
+                                                    bgcolor: 'action.hover',
+                                                },
+                                            }}
                                         >
-                                            <Box component="td" sx={{ p: 1, fontSize: '0.875rem' }}>
+                                            <Box
+                                                component="td"
+                                                sx={{
+                                                    p: 1,
+                                                    fontSize: '0.875rem',
+                                                }}
+                                            >
                                                 {user.name}
                                             </Box>
-                                            <Box component="td" sx={{ p: 1, fontSize: '0.875rem' }}>
+                                            <Box
+                                                component="td"
+                                                sx={{
+                                                    p: 1,
+                                                    fontSize: '0.875rem',
+                                                }}
+                                            >
                                                 {user.email}
                                             </Box>
-                                            <Box component="td" sx={{ p: 1, fontSize: '0.875rem' }}>
+                                            <Box
+                                                component="td"
+                                                sx={{
+                                                    p: 1,
+                                                    fontSize: '0.875rem',
+                                                }}
+                                            >
                                                 {user.phone || '-'}
                                             </Box>
                                             {!isSingleRole && (
-                                                <Box component="td" sx={{ p: 1, fontSize: '0.875rem' }}>
+                                                <Box
+                                                    component="td"
+                                                    sx={{
+                                                        p: 1,
+                                                        fontSize: '0.875rem',
+                                                    }}
+                                                >
                                                     <Chip
-                                                        label={formatRole(user.role || 'customer')}
-                                                        color={getRoleBadgeColor(user.role || 'customer')}
+                                                        label={formatRole(
+                                                            user.role ||
+                                                                'customer',
+                                                        )}
+                                                        color={getRoleBadgeColor(
+                                                            user.role ||
+                                                                'customer',
+                                                        )}
                                                         size="small"
                                                         variant="outlined"
                                                     />
                                                 </Box>
                                             )}
-                                            <Box component="td" sx={{ p: 1, fontSize: '0.875rem' }}>
+                                            <Box
+                                                component="td"
+                                                sx={{
+                                                    p: 1,
+                                                    fontSize: '0.875rem',
+                                                }}
+                                            >
                                                 {new Date(
                                                     user.created_at,
                                                 ).toLocaleDateString()}
                                             </Box>
                                             {activeRole === 'field_agent' && (
                                                 <>
-                                                    <Box component="td" sx={{ p: 1, fontSize: '0.875rem' }}>
-                                                        {(user as any).visits_completed_count ?? 0}
+                                                    <Box
+                                                        component="td"
+                                                        sx={{
+                                                            p: 1,
+                                                            fontSize:
+                                                                '0.875rem',
+                                                        }}
+                                                    >
+                                                        {(user as any)
+                                                            .visits_completed_count ??
+                                                            0}
                                                     </Box>
-                                                    <Box component="td" sx={{ p: 1, fontSize: '0.875rem' }}>
-                                                        {(user as any).pass_rate !== null ? `${(user as any).pass_rate}%` : '—'}
+                                                    <Box
+                                                        component="td"
+                                                        sx={{
+                                                            p: 1,
+                                                            fontSize:
+                                                                '0.875rem',
+                                                        }}
+                                                    >
+                                                        {(user as any)
+                                                            .pass_rate !== null
+                                                            ? `${(user as any).pass_rate}%`
+                                                            : '—'}
                                                     </Box>
                                                 </>
                                             )}
                                             <Box component="td" sx={{ p: 1 }}>
-                                                <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
+                                                <Box
+                                                    sx={{
+                                                        display: 'flex',
+                                                        justifyContent:
+                                                            'flex-end',
+                                                        gap: 1,
+                                                    }}
+                                                >
                                                     <Button
                                                         variant="ghost"
                                                         size="sm"
@@ -328,7 +560,12 @@ export default function UsersIndex({ users, canDelete, activeRole, filters }: Pr
                                                                 user.id,
                                                             )}
                                                         >
-                                                            <Eye style={{ width: 16, height: 16 }} />
+                                                            <Eye
+                                                                style={{
+                                                                    width: 16,
+                                                                    height: 16,
+                                                                }}
+                                                            />
                                                         </Link>
                                                     </Button>
                                                     <Button
@@ -341,7 +578,12 @@ export default function UsersIndex({ users, canDelete, activeRole, filters }: Pr
                                                                 user.id,
                                                             )}
                                                         >
-                                                            <Pencil style={{ width: 16, height: 16 }} />
+                                                            <Pencil
+                                                                style={{
+                                                                    width: 16,
+                                                                    height: 16,
+                                                                }}
+                                                            />
                                                         </Link>
                                                     </Button>
                                                     {canDelete && (
@@ -349,11 +591,24 @@ export default function UsersIndex({ users, canDelete, activeRole, filters }: Pr
                                                             variant="ghost"
                                                             size="sm"
                                                             onClick={() => {
-                                                                setUserToDelete({ id: user.id, name: user.name });
-                                                                setShowDeleteDialog(true);
+                                                                setUserToDelete(
+                                                                    {
+                                                                        id: user.id,
+                                                                        name: user.name,
+                                                                    },
+                                                                );
+                                                                setShowDeleteDialog(
+                                                                    true,
+                                                                );
                                                             }}
                                                         >
-                                                            <Trash2 style={{ width: 16, height: 16, color: 'var(--destructive)' }} />
+                                                            <Trash2
+                                                                style={{
+                                                                    width: 16,
+                                                                    height: 16,
+                                                                    color: 'var(--destructive)',
+                                                                }}
+                                                            />
                                                         </Button>
                                                     )}
                                                 </Box>
@@ -366,8 +621,20 @@ export default function UsersIndex({ users, canDelete, activeRole, filters }: Pr
 
                         {/* Pagination */}
                         {users.last_page > 1 && (
-                            <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
+                            <Box
+                                sx={{
+                                    mt: 2,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                }}
+                            >
+                                <Typography
+                                    sx={{
+                                        fontSize: '0.875rem',
+                                        color: 'text.secondary',
+                                    }}
+                                >
                                     Showing {users.data.length} of {users.total}{' '}
                                     {pageTitle.toLowerCase()}
                                 </Typography>
@@ -384,7 +651,15 @@ export default function UsersIndex({ users, canDelete, activeRole, filters }: Pr
                                     >
                                         Previous
                                     </Button>
-                                    <Box component="span" sx={{ display: 'flex', alignItems: 'center', px: 1, fontSize: '0.875rem' }}>
+                                    <Box
+                                        component="span"
+                                        sx={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            px: 1,
+                                            fontSize: '0.875rem',
+                                        }}
+                                    >
                                         Page {users.current_page} of{' '}
                                         {users.last_page}
                                     </Box>
@@ -411,29 +686,42 @@ export default function UsersIndex({ users, canDelete, activeRole, filters }: Pr
             </Box>
 
             {/* Delete Confirmation Dialog */}
-            <Dialog open={showDeleteDialog} onOpenChange={(open) => {
-                if (!open) {
-                    setShowDeleteDialog(false);
-                    setDeleteConfirmation('');
-                    setUserToDelete(null);
-                }
-            }}>
+            <Dialog
+                open={showDeleteDialog}
+                onOpenChange={(open) => {
+                    if (!open) {
+                        setShowDeleteDialog(false);
+                        setDeleteConfirmation('');
+                        setUserToDelete(null);
+                    }
+                }}
+            >
                 <DialogContent>
                     <DialogHeader>
                         <DialogTitle>Delete User</DialogTitle>
                         <DialogDescription>
-                            This will permanently delete {userToDelete?.name} and all their associated data.
-                            This action cannot be undone.
+                            This will permanently delete {userToDelete?.name}{' '}
+                            and all their associated data. This action cannot be
+                            undone.
                         </DialogDescription>
                     </DialogHeader>
-                    <Box sx={{ py: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    <Box
+                        sx={{
+                            py: 2,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: 2,
+                        }}
+                    >
                         <Box>
                             <Typography sx={{ fontSize: '0.875rem', mb: 1 }}>
                                 Type <strong>DELETE</strong> to confirm:
                             </Typography>
                             <Input
                                 value={deleteConfirmation}
-                                onChange={(e) => setDeleteConfirmation(e.target.value)}
+                                onChange={(e) =>
+                                    setDeleteConfirmation(e.target.value)
+                                }
                                 placeholder='Type "DELETE" to confirm'
                                 autoComplete="off"
                             />
@@ -454,7 +742,9 @@ export default function UsersIndex({ users, canDelete, activeRole, filters }: Pr
                         <Button
                             variant="destructive"
                             onClick={handleDelete}
-                            disabled={deleteConfirmation !== 'DELETE' || isDeleting}
+                            disabled={
+                                deleteConfirmation !== 'DELETE' || isDeleting
+                            }
                         >
                             {isDeleting ? 'Deleting...' : 'Permanently Delete'}
                         </Button>

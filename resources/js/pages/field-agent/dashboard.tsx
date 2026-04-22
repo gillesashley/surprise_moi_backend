@@ -12,7 +12,15 @@ import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, router, usePage } from '@inertiajs/react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import { Award, CheckCircle, Clock, DollarSign, TrendingUp, Users, XCircle } from 'lucide-react';
+import {
+    Award,
+    CheckCircle,
+    Clock,
+    DollarSign,
+    TrendingUp,
+    Users,
+    XCircle,
+} from 'lucide-react';
 import ReferralCodeCard from './components/ReferralCodeCard';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -51,7 +59,12 @@ interface RecentVendor {
 }
 
 interface DashboardProps {
-    agent: { id: number; first_name: string; referral_points: number };
+    agent: {
+        id: number;
+        first_name: string;
+        referral_points: number;
+        earned_amount: number;
+    };
     period: Period;
     referralCode: { code: string };
     vendorStats: VendorStats;
@@ -89,15 +102,26 @@ function StatTile({
                     }}
                 >
                     <Box>
-                        <Typography variant="body2" fontWeight={500} color="text.secondary" sx={{ mb: 0.5 }}>
+                        <Typography
+                            variant="body2"
+                            fontWeight={500}
+                            color="text.secondary"
+                            sx={{ mb: 0.5 }}
+                        >
                             {title}
                         </Typography>
-                        <Typography variant="h4" fontWeight={700} sx={{ letterSpacing: '-0.02em' }}>
+                        <Typography
+                            variant="h4"
+                            fontWeight={700}
+                            sx={{ letterSpacing: '-0.02em' }}
+                        >
                             {value}
                         </Typography>
                     </Box>
                     <Box sx={{ borderRadius: 2.5, p: 1.5, bgcolor: iconBg }}>
-                        <Icon style={{ width: 22, height: 22, color: 'white' }} />
+                        <Icon
+                            style={{ width: 22, height: 22, color: 'white' }}
+                        />
                     </Box>
                 </Box>
             </CardContent>
@@ -105,7 +129,9 @@ function StatTile({
     );
 }
 
-function statusVariant(status: string): 'default' | 'secondary' | 'destructive' {
+function statusVariant(
+    status: string,
+): 'default' | 'secondary' | 'destructive' {
     if (status === 'approved') return 'default';
     if (status === 'rejected') return 'destructive';
     return 'secondary';
@@ -135,7 +161,14 @@ export default function FieldAgentDashboard({
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Field Agent Dashboard" />
 
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4, p: { xs: 2, md: 3 } }}>
+            <Box
+                sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 4,
+                    p: { xs: 2, md: 3 },
+                }}
+            >
                 {/* Header */}
                 <Box
                     sx={{
@@ -162,7 +195,11 @@ export default function FieldAgentDashboard({
                                 variant={period === p ? 'default' : 'outline'}
                                 onClick={() => changePeriod(p)}
                             >
-                                {p === 'today' ? 'Today' : p === 'week' ? 'This Week' : 'This Month'}
+                                {p === 'today'
+                                    ? 'Today'
+                                    : p === 'week'
+                                      ? 'This Week'
+                                      : 'This Month'}
                             </Button>
                         ))}
                     </Box>
@@ -176,14 +213,49 @@ export default function FieldAgentDashboard({
                     sx={{
                         display: 'grid',
                         gap: 2.5,
-                        gridTemplateColumns: { xs: '1fr 1fr', sm: 'repeat(2, 1fr)', lg: 'repeat(5, 1fr)' },
+                        gridTemplateColumns: {
+                            xs: '1fr 1fr',
+                            sm: 'repeat(2, 1fr)',
+                            lg: 'repeat(6, 1fr)',
+                        },
                     }}
                 >
-                    <StatTile title="Total Vendors" value={vendorStats.total} icon={Users} iconBg="#3b82f6" />
-                    <StatTile title="Referral Points" value={agent.referral_points} icon={Award} iconBg="#8b5cf6" />
-                    <StatTile title="Pending" value={vendorStats.pending} icon={Clock} iconBg="#f59e0b" />
-                    <StatTile title="Approved" value={vendorStats.approved} icon={CheckCircle} iconBg="#22c55e" />
-                    <StatTile title="Rejected" value={vendorStats.rejected} icon={XCircle} iconBg="#ef4444" />
+                    <StatTile
+                        title="Total Vendors"
+                        value={vendorStats.total}
+                        icon={Users}
+                        iconBg="#3b82f6"
+                    />
+                    <StatTile
+                        title="Referral Points"
+                        value={agent.referral_points}
+                        icon={Award}
+                        iconBg="#8b5cf6"
+                    />
+                    <StatTile
+                        title="Earned Amount"
+                        value={`GHS ${agent.earned_amount.toFixed(2)}`}
+                        icon={DollarSign}
+                        iconBg="#22c55e"
+                    />
+                    <StatTile
+                        title="Pending"
+                        value={vendorStats.pending}
+                        icon={Clock}
+                        iconBg="#f59e0b"
+                    />
+                    <StatTile
+                        title="Approved"
+                        value={vendorStats.approved}
+                        icon={CheckCircle}
+                        iconBg="#22c55e"
+                    />
+                    <StatTile
+                        title="Rejected"
+                        value={vendorStats.rejected}
+                        icon={XCircle}
+                        iconBg="#ef4444"
+                    />
                 </Box>
 
                 {/* Row 2: Earnings + Target */}
@@ -191,7 +263,10 @@ export default function FieldAgentDashboard({
                     sx={{
                         display: 'grid',
                         gap: 2.5,
-                        gridTemplateColumns: { xs: '1fr', md: activeTarget ? 'repeat(2, 1fr)' : '1fr' },
+                        gridTemplateColumns: {
+                            xs: '1fr',
+                            md: activeTarget ? 'repeat(2, 1fr)' : '1fr',
+                        },
                     }}
                 >
                     <Card className="border-0 shadow-sm">
@@ -202,34 +277,90 @@ export default function FieldAgentDashboard({
                                 </div>
                                 <div>
                                     <CardTitle>Earnings</CardTitle>
-                                    <CardDescription>Your commission balance</CardDescription>
+                                    <CardDescription>
+                                        Your commission balance
+                                    </CardDescription>
                                 </div>
                             </div>
                         </CardHeader>
                         <CardContent>
-                            <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 2, mb: 3 }}>
-                                <Box sx={{ p: 2, borderRadius: 2, bgcolor: 'action.hover' }}>
-                                    <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 500 }}>
+                            <Box
+                                sx={{
+                                    display: 'grid',
+                                    gridTemplateColumns: 'repeat(3, 1fr)',
+                                    gap: 2,
+                                    mb: 3,
+                                }}
+                            >
+                                <Box
+                                    sx={{
+                                        p: 2,
+                                        borderRadius: 2,
+                                        bgcolor: 'action.hover',
+                                    }}
+                                >
+                                    <Typography
+                                        variant="caption"
+                                        color="text.secondary"
+                                        sx={{ fontWeight: 500 }}
+                                    >
                                         Total
                                     </Typography>
                                     <Typography variant="h6" fontWeight={700}>
-                                        GHS {earningsSummary.total_earnings.toFixed(2)}
+                                        GHS{' '}
+                                        {earningsSummary.total_earnings.toFixed(
+                                            2,
+                                        )}
                                     </Typography>
                                 </Box>
-                                <Box sx={{ p: 2, borderRadius: 2, bgcolor: 'action.hover' }}>
-                                    <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 500 }}>
+                                <Box
+                                    sx={{
+                                        p: 2,
+                                        borderRadius: 2,
+                                        bgcolor: 'action.hover',
+                                    }}
+                                >
+                                    <Typography
+                                        variant="caption"
+                                        color="text.secondary"
+                                        sx={{ fontWeight: 500 }}
+                                    >
                                         Pending
                                     </Typography>
-                                    <Typography variant="h6" fontWeight={700} color="warning.main">
-                                        GHS {earningsSummary.pending_earnings.toFixed(2)}
+                                    <Typography
+                                        variant="h6"
+                                        fontWeight={700}
+                                        color="warning.main"
+                                    >
+                                        GHS{' '}
+                                        {earningsSummary.pending_earnings.toFixed(
+                                            2,
+                                        )}
                                     </Typography>
                                 </Box>
-                                <Box sx={{ p: 2, borderRadius: 2, bgcolor: 'action.hover' }}>
-                                    <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 500 }}>
+                                <Box
+                                    sx={{
+                                        p: 2,
+                                        borderRadius: 2,
+                                        bgcolor: 'action.hover',
+                                    }}
+                                >
+                                    <Typography
+                                        variant="caption"
+                                        color="text.secondary"
+                                        sx={{ fontWeight: 500 }}
+                                    >
                                         Available
                                     </Typography>
-                                    <Typography variant="h6" fontWeight={700} color="success.main">
-                                        GHS {earningsSummary.approved_earnings.toFixed(2)}
+                                    <Typography
+                                        variant="h6"
+                                        fontWeight={700}
+                                        color="success.main"
+                                    >
+                                        GHS{' '}
+                                        {earningsSummary.approved_earnings.toFixed(
+                                            2,
+                                        )}
                                     </Typography>
                                 </Box>
                             </Box>
@@ -257,32 +388,61 @@ export default function FieldAgentDashboard({
                                     <div>
                                         <CardTitle>Target Progress</CardTitle>
                                         <CardDescription>
-                                            {activeTarget.current} / {activeTarget.goal}
+                                            {activeTarget.current} /{' '}
+                                            {activeTarget.goal}
                                         </CardDescription>
                                     </div>
                                 </div>
                             </CardHeader>
                             <CardContent>
                                 <Box sx={{ mb: 2 }}>
-                                    <Box sx={{ height: 12, width: '100%', borderRadius: 6, bgcolor: 'action.hover' }}>
+                                    <Box
+                                        sx={{
+                                            height: 12,
+                                            width: '100%',
+                                            borderRadius: 6,
+                                            bgcolor: 'action.hover',
+                                        }}
+                                    >
                                         <Box
                                             sx={{
                                                 height: 12,
                                                 borderRadius: 6,
-                                                bgcolor: activeTarget.completion_percentage >= 100 ? 'success.main' : 'primary.main',
+                                                bgcolor:
+                                                    activeTarget.completion_percentage >=
+                                                    100
+                                                        ? 'success.main'
+                                                        : 'primary.main',
                                                 width: `${Math.min(100, activeTarget.completion_percentage)}%`,
-                                                transition: 'width 0.5s ease-in-out',
+                                                transition:
+                                                    'width 0.5s ease-in-out',
                                             }}
                                         />
                                     </Box>
                                 </Box>
-                                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                                    <Typography variant="body2" color="text.secondary" fontWeight={500}>
-                                        {activeTarget.completion_percentage}% complete
+                                <Box
+                                    sx={{
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                    }}
+                                >
+                                    <Typography
+                                        variant="body2"
+                                        color="text.secondary"
+                                        fontWeight={500}
+                                    >
+                                        {activeTarget.completion_percentage}%
+                                        complete
                                     </Typography>
                                     {activeTarget.ends_at && (
-                                        <Typography variant="body2" color="text.secondary">
-                                            Ends {new Date(activeTarget.ends_at).toLocaleDateString()}
+                                        <Typography
+                                            variant="body2"
+                                            color="text.secondary"
+                                        >
+                                            Ends{' '}
+                                            {new Date(
+                                                activeTarget.ends_at,
+                                            ).toLocaleDateString()}
                                         </Typography>
                                     )}
                                 </Box>
@@ -295,18 +455,30 @@ export default function FieldAgentDashboard({
                 <Card className="border-0 shadow-sm">
                     <CardHeader>
                         <CardTitle>Recent vendors</CardTitle>
-                        <CardDescription>Last 5 vendors attributed to you</CardDescription>
+                        <CardDescription>
+                            Last 5 vendors attributed to you
+                        </CardDescription>
                     </CardHeader>
                     <CardContent>
                         {recentVendors.length === 0 ? (
                             <Box sx={{ textAlign: 'center', py: 4 }}>
                                 <Users className="mx-auto mb-2 h-10 w-10 text-gray-300" />
-                                <Typography variant="body2" color="text.secondary">
-                                    No vendors yet. Share your referral code with one to get started.
+                                <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                >
+                                    No vendors yet. Share your referral code
+                                    with one to get started.
                                 </Typography>
                             </Box>
                         ) : (
-                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    gap: 1.5,
+                                }}
+                            >
                                 {recentVendors.map((v) => (
                                     <Box
                                         key={v.id}
@@ -319,18 +491,28 @@ export default function FieldAgentDashboard({
                                             borderColor: 'divider',
                                             p: 2,
                                             transition: 'background-color 0.2s',
-                                            '&:hover': { bgcolor: 'action.hover' },
+                                            '&:hover': {
+                                                bgcolor: 'action.hover',
+                                            },
                                         }}
                                     >
                                         <Box>
                                             <Typography fontWeight={500}>
-                                                {v.business_name || 'Unnamed vendor'}
+                                                {v.business_name ||
+                                                    'Unnamed vendor'}
                                             </Typography>
-                                            <Typography variant="body2" color="text.secondary">
-                                                {new Date(v.created_at).toLocaleDateString()}
+                                            <Typography
+                                                variant="body2"
+                                                color="text.secondary"
+                                            >
+                                                {new Date(
+                                                    v.created_at,
+                                                ).toLocaleDateString()}
                                             </Typography>
                                         </Box>
-                                        <Badge variant={statusVariant(v.status)}>
+                                        <Badge
+                                            variant={statusVariant(v.status)}
+                                        >
                                             {v.status.replace('_', ' ')}
                                         </Badge>
                                     </Box>

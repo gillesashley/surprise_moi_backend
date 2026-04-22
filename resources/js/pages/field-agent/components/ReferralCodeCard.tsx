@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import { Copy, Check } from 'lucide-react';
+import { Check, Copy } from 'lucide-react';
 import { useState } from 'react';
 
 interface Props {
@@ -31,7 +31,11 @@ export default function ReferralCodeCard({ code }: Props) {
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                     <Typography
                         variant="h5"
-                        sx={{ fontFamily: 'monospace', fontWeight: 700, letterSpacing: '0.05em' }}
+                        sx={{
+                            fontFamily: 'monospace',
+                            fontWeight: 700,
+                            letterSpacing: '0.05em',
+                        }}
                     >
                         {code}
                     </Typography>
@@ -46,8 +50,13 @@ export default function ReferralCodeCard({ code }: Props) {
                         {copied ? 'Copied' : 'Copy'}
                     </Button>
                 </Box>
-                <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                    Share this code with a vendor at registration so they are attributed to you.
+                <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ mt: 1 }}
+                >
+                    Share this code with a vendor at registration so they are
+                    attributed to you.
                 </Typography>
             </CardContent>
         </Card>

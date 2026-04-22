@@ -13,7 +13,6 @@ use Tests\TestCase;
 
 class SmsChannelTest extends TestCase
 {
-
     protected function tearDown(): void
     {
         Mockery::close();
@@ -27,7 +26,7 @@ class SmsChannelTest extends TestCase
     {
         $provider = Mockery::mock(SmsProviderInterface::class);
         $channel = new SmsChannel($provider);
-        
+
         $this->assertInstanceOf(SmsChannel::class, $channel);
     }
 
@@ -47,7 +46,7 @@ class SmsChannelTest extends TestCase
             ]);
 
         $channel = new SmsChannel($provider);
-        
+
         $notifiable = new class
         {
             use Notifiable;
@@ -56,9 +55,9 @@ class SmsChannelTest extends TestCase
         };
 
         $notification = new OtpNotification('1234');
-        
+
         $result = $channel->send($notifiable, $notification);
-        
+
         $this->assertTrue($result['success']);
     }
 
@@ -71,7 +70,7 @@ class SmsChannelTest extends TestCase
             ->to('233559400612')
             ->content('Test message')
             ->from('TestSender');
-        
+
         $this->assertEquals('233559400612', $message->getTo());
         $this->assertEquals('Test message', $message->getContent());
         $this->assertEquals('TestSender', $message->getFrom());
@@ -83,7 +82,7 @@ class SmsChannelTest extends TestCase
     public function test_sms_message_returns_self(): void
     {
         $message = new SmsMessage;
-        
+
         $this->assertSame($message, $message->to('233559400612'));
         $this->assertSame($message, $message->content('Test'));
         $this->assertSame($message, $message->from('Sender'));
@@ -99,9 +98,9 @@ class SmsChannelTest extends TestCase
         {
             public $phone = '233559400612';
         };
-        
+
         $channels = $notification->via($notifiable);
-        
+
         $this->assertContains(SmsChannel::class, $channels);
     }
 
@@ -115,9 +114,9 @@ class SmsChannelTest extends TestCase
         {
             public $phone = '233559400612';
         };
-        
+
         $message = $notification->toSms($notifiable);
-        
+
         $this->assertInstanceOf(SmsMessage::class, $message);
         $this->assertStringContainsString('5678', $message->getContent());
     }
@@ -133,9 +132,9 @@ class SmsChannelTest extends TestCase
         {
             public $phone = '233559400612';
         };
-        
+
         $message = $notification->toSms($notifiable);
-        
+
         $this->assertStringContainsString('9999', $message->getContent());
         $this->assertStringContainsString('verification code', $message->getContent());
     }
@@ -156,7 +155,7 @@ class SmsChannelTest extends TestCase
             ]);
 
         $channel = new SmsChannel($provider);
-        
+
         $notifiable = new class
         {
             public function routeNotificationForSms(): string
@@ -169,9 +168,9 @@ class SmsChannelTest extends TestCase
         $notification->shouldReceive('toSms')->andReturn(
             (new SmsMessage)->content('Test')
         );
-        
+
         $result = $channel->send($notifiable, $notification);
-        
+
         $this->assertTrue($result['success']);
     }
 
@@ -182,7 +181,7 @@ class SmsChannelTest extends TestCase
     {
         $provider = Mockery::mock(SmsProviderInterface::class);
         $channel = new SmsChannel($provider);
-        
+
         $notifiable = new class
         {
             // No phone attribute
@@ -192,10 +191,10 @@ class SmsChannelTest extends TestCase
         $notification->shouldReceive('toSms')->andReturn(
             (new SmsMessage)->content('Test')
         );
-        
+
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('SMS notification requires a recipient phone number');
-        
+
         $channel->send($notifiable, $notification);
     }
 }

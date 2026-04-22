@@ -8,10 +8,10 @@ import {
 import AppLayout from '@/layouts/app-layout';
 import { Head, router } from '@inertiajs/react';
 import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import { ArrowRight, UserPlus, ClipboardList } from 'lucide-react';
-import Button from '@mui/material/Button';
+import { ArrowRight, ClipboardList, UserPlus } from 'lucide-react';
 
 interface VendorApplication {
     id: number;
@@ -34,8 +34,12 @@ interface Props {
 }
 
 export default function VisitsIndex({ applications }: Props) {
-    const pendingAction = applications.filter(a => a.vendor_visit?.status !== 'submitted');
-    const submitted = applications.filter(a => a.vendor_visit?.status === 'submitted');
+    const pendingAction = applications.filter(
+        (a) => a.vendor_visit?.status !== 'submitted',
+    );
+    const submitted = applications.filter(
+        (a) => a.vendor_visit?.status === 'submitted',
+    );
 
     return (
         <AppLayout
@@ -46,13 +50,27 @@ export default function VisitsIndex({ applications }: Props) {
         >
             <Head title="Vendor Onboarding" />
 
-            <Box sx={{ display: 'flex', flex: 1, flexDirection: 'column', gap: 3, p: 3 }}>
+            <Box
+                sx={{
+                    display: 'flex',
+                    flex: 1,
+                    flexDirection: 'column',
+                    gap: 3,
+                    p: 3,
+                }}
+            >
                 <Box>
                     <Typography variant="h4" fontWeight={700}>
                         Vendor Onboarding
                     </Typography>
-                    <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-                        Manage new vendors who registered using your referral code. Complete their questionnaires to get them approved.
+                    <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{ mt: 0.5 }}
+                    >
+                        Manage new vendors who registered using your referral
+                        code. Complete their questionnaires to get them
+                        approved.
                     </Typography>
                 </Box>
 
@@ -122,18 +140,24 @@ function Section({
     );
 }
 
-function VendorApplicationRow({ application }: { application: VendorApplication }) {
+function VendorApplicationRow({
+    application,
+}: {
+    application: VendorApplication;
+}) {
     const label = application.user.business_name ?? application.user.name;
     const isSubmitted = application.vendor_visit?.status === 'submitted';
     const isDraft = application.vendor_visit?.status === 'draft';
-    
+
     let secondary = 'New registration';
     if (isSubmitted) secondary = 'Questionnaire submitted';
     else if (isDraft) secondary = 'Draft questionnaire started';
 
     const handleAction = () => {
         if (application.vendor_visit) {
-            router.get(`/field-agent/visits/forms/${application.vendor_visit.id}`);
+            router.get(
+                `/field-agent/visits/forms/${application.vendor_visit.id}`,
+            );
         } else {
             router.post(`/field-agent/visits/${application.id}/start`);
         }
@@ -150,7 +174,8 @@ function VendorApplicationRow({ application }: { application: VendorApplication 
                 borderRadius: 1,
                 border: '1px solid',
                 borderColor: 'divider',
-                transition: 'background-color 120ms ease, border-color 120ms ease',
+                transition:
+                    'background-color 120ms ease, border-color 120ms ease',
                 '&:hover': {
                     backgroundColor: 'action.hover',
                     borderColor: 'text.secondary',
@@ -165,14 +190,25 @@ function VendorApplicationRow({ application }: { application: VendorApplication 
                     {secondary}
                 </Typography>
             </Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexShrink: 0 }}>
-                <Button 
-                    variant="outlined" 
-                    size="small" 
+            <Box
+                sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1,
+                    flexShrink: 0,
+                }}
+            >
+                <Button
+                    variant="outlined"
+                    size="small"
                     onClick={handleAction}
                     endIcon={!isSubmitted && <ArrowRight size={16} />}
                 >
-                    {isSubmitted ? 'View' : (isDraft ? 'Resume' : 'Start Questionnaire')}
+                    {isSubmitted
+                        ? 'View'
+                        : isDraft
+                          ? 'Resume'
+                          : 'Start Questionnaire'}
                 </Button>
             </Box>
         </Box>

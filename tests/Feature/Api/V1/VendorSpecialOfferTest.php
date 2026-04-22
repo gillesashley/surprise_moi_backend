@@ -14,7 +14,9 @@ class VendorSpecialOfferTest extends TestCase
     use RefreshDatabase;
 
     protected User $vendor;
+
     protected Shop $shop;
+
     protected Product $product;
 
     protected function setUp(): void

@@ -329,13 +329,13 @@ class ShopApiTest extends TestCase
         $shop = Shop::factory()->create(['vendor_id' => $this->vendor->id]);
 
         $serviceHours = [
-            'monday'    => ['is_open' => true,  'open' => '08:00', 'close' => '18:00'],
-            'tuesday'   => ['is_open' => true,  'open' => '08:00', 'close' => '18:00'],
+            'monday' => ['is_open' => true,  'open' => '08:00', 'close' => '18:00'],
+            'tuesday' => ['is_open' => true,  'open' => '08:00', 'close' => '18:00'],
             'wednesday' => ['is_open' => true,  'open' => '08:00', 'close' => '18:00'],
-            'thursday'  => ['is_open' => true,  'open' => '08:00', 'close' => '18:00'],
-            'friday'    => ['is_open' => true,  'open' => '08:00', 'close' => '18:00'],
-            'saturday'  => ['is_open' => true,  'open' => '09:00', 'close' => '14:00'],
-            'sunday'    => ['is_open' => false, 'open' => null,    'close' => null],
+            'thursday' => ['is_open' => true,  'open' => '08:00', 'close' => '18:00'],
+            'friday' => ['is_open' => true,  'open' => '08:00', 'close' => '18:00'],
+            'saturday' => ['is_open' => true,  'open' => '09:00', 'close' => '14:00'],
+            'sunday' => ['is_open' => false, 'open' => null,    'close' => null],
         ];
 
         $response = $this->actingAs($this->vendor, 'sanctum')
@@ -356,13 +356,13 @@ class ShopApiTest extends TestCase
     public function test_omitting_service_hours_preserves_existing(): void
     {
         $existingHours = [
-            'monday'    => ['is_open' => true,  'open' => '10:00', 'close' => '20:00'],
-            'tuesday'   => ['is_open' => true,  'open' => '10:00', 'close' => '20:00'],
+            'monday' => ['is_open' => true,  'open' => '10:00', 'close' => '20:00'],
+            'tuesday' => ['is_open' => true,  'open' => '10:00', 'close' => '20:00'],
             'wednesday' => ['is_open' => true,  'open' => '10:00', 'close' => '20:00'],
-            'thursday'  => ['is_open' => true,  'open' => '10:00', 'close' => '20:00'],
-            'friday'    => ['is_open' => true,  'open' => '10:00', 'close' => '20:00'],
-            'saturday'  => ['is_open' => false, 'open' => null,    'close' => null],
-            'sunday'    => ['is_open' => false, 'open' => null,    'close' => null],
+            'thursday' => ['is_open' => true,  'open' => '10:00', 'close' => '20:00'],
+            'friday' => ['is_open' => true,  'open' => '10:00', 'close' => '20:00'],
+            'saturday' => ['is_open' => false, 'open' => null,    'close' => null],
+            'sunday' => ['is_open' => false, 'open' => null,    'close' => null],
         ];
 
         $shop = Shop::factory()->withServiceHours($existingHours)->create([

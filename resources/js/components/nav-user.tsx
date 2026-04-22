@@ -32,7 +32,10 @@ export function NavUser() {
                             size="lg"
                             style={{
                                 ...(menuOpen
-                                    ? { backgroundColor: 'var(--mui-palette-action-hover)' }
+                                    ? {
+                                          backgroundColor:
+                                              'var(--mui-palette-action-hover)',
+                                      }
                                     : {}),
                             }}
                             data-test="sidebar-menu-button"

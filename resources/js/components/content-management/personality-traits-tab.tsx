@@ -13,9 +13,9 @@ import {
     destroy as personalityTraitDestroy,
     edit as personalityTraitEdit,
 } from '@/routes/dashboard/personality-traits';
+import { Link, router } from '@inertiajs/react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import { Link, router } from '@inertiajs/react';
 import { Pencil, Plus, Trash2 } from 'lucide-react';
 
 interface PersonalityTrait {
@@ -75,7 +75,13 @@ export function PersonalityTraitsTab({
                 {canCreate && (
                     <Button asChild>
                         <Link href={personalityTraitCreate.url()}>
-                            <Plus style={{ width: 16, height: 16, marginRight: 8 }} />
+                            <Plus
+                                style={{
+                                    width: 16,
+                                    height: 16,
+                                    marginRight: 8,
+                                }}
+                            />
                             Add Trait
                         </Link>
                     </Button>
@@ -118,17 +124,18 @@ export function PersonalityTraitsTab({
                                         gap: 1,
                                     }}
                                 >
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        asChild
-                                    >
+                                    <Button variant="ghost" size="sm" asChild>
                                         <Link
                                             href={personalityTraitEdit.url(
                                                 trait.id,
                                             )}
                                         >
-                                            <Pencil style={{ width: 16, height: 16 }} />
+                                            <Pencil
+                                                style={{
+                                                    width: 16,
+                                                    height: 16,
+                                                }}
+                                            />
                                         </Link>
                                     </Button>
                                     {canDelete && (
@@ -142,7 +149,13 @@ export function PersonalityTraitsTab({
                                                 )
                                             }
                                         >
-                                            <Trash2 style={{ width: 16, height: 16, color: 'var(--mui-palette-error-main, #d32f2f)' }} />
+                                            <Trash2
+                                                style={{
+                                                    width: 16,
+                                                    height: 16,
+                                                    color: 'var(--mui-palette-error-main, #d32f2f)',
+                                                }}
+                                            />
                                         </Button>
                                     )}
                                 </Box>

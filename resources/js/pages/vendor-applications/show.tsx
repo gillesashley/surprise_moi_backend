@@ -17,13 +17,13 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { useInactivityLock } from '@/hooks/use-inactivity-lock';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
 import Typography from '@mui/material/Typography';
-import { useInactivityLock } from '@/hooks/use-inactivity-lock';
 import {
     ArrowLeft,
     Briefcase,
@@ -196,10 +196,16 @@ const formatStatus = (status: string): string => {
     return status.charAt(0).toUpperCase() + status.slice(1);
 };
 
-export default function VendorApplicationShow({ application, vendorOrders }: Props) {
+export default function VendorApplicationShow({
+    application,
+    vendorOrders,
+}: Props) {
     useInactivityLock();
     const [showRejectDialog, setShowRejectDialog] = useState(false);
-    const [previewDoc, setPreviewDoc] = useState<{ url: string; title: string } | null>(null);
+    const [previewDoc, setPreviewDoc] = useState<{
+        url: string;
+        title: string;
+    } | null>(null);
     const { data, setData, post, processing } = useForm({
         rejection_reason: '',
     });
@@ -243,8 +249,9 @@ export default function VendorApplicationShow({ application, vendorOrders }: Pro
         );
     };
 
-    const canApproveOrReject = application.can_be_reviewed
-        && ['pending', 'under_review'].includes(application.status);
+    const canApproveOrReject =
+        application.can_be_reviewed &&
+        ['pending', 'under_review'].includes(application.status);
 
     const { auth } = usePage<SharedData>().props;
     const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -254,28 +261,47 @@ export default function VendorApplicationShow({ application, vendorOrders }: Pro
     const handleDelete = () => {
         if (deleteConfirmation !== 'DELETE') return;
         setIsDeleting(true);
-        router.delete(
-            `/dashboard/vendor-applications/${application.id}`,
-            {
-                data: { confirmation: deleteConfirmation },
-                onFinish: () => {
-                    setIsDeleting(false);
-                    setShowDeleteDialog(false);
-                    setDeleteConfirmation('');
-                },
+        router.delete(`/dashboard/vendor-applications/${application.id}`, {
+            data: { confirmation: deleteConfirmation },
+            onFinish: () => {
+                setIsDeleting(false);
+                setShowDeleteDialog(false);
+                setDeleteConfirmation('');
             },
-        );
+        });
     };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={`Vendor Application - ${application.user.name}`} />
-            <Box sx={{ display: 'flex', height: '100%', flex: 1, flexDirection: 'column', gap: 2, overflow: 'auto', p: 2 }}>
+            <Box
+                sx={{
+                    display: 'flex',
+                    height: '100%',
+                    flex: 1,
+                    flexDirection: 'column',
+                    gap: 2,
+                    overflow: 'auto',
+                    p: 2,
+                }}
+            >
                 {/* Header with actions */}
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <Box
+                    sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                    }}
+                >
                     <Button variant="ghost" size="sm" asChild>
                         <Link href="/dashboard/vendor-applications">
-                            <ArrowLeft style={{ marginRight: 8, width: 16, height: 16 }} />
+                            <ArrowLeft
+                                style={{
+                                    marginRight: 8,
+                                    width: 16,
+                                    height: 16,
+                                }}
+                            />
                             Back to Applications
                         </Link>
                     </Button>
@@ -295,7 +321,13 @@ export default function VendorApplicationShow({ application, vendorOrders }: Pro
                                 size="sm"
                                 onClick={() => setShowRejectDialog(true)}
                             >
-                                <XCircle style={{ marginRight: 8, width: 16, height: 16 }} />
+                                <XCircle
+                                    style={{
+                                        marginRight: 8,
+                                        width: 16,
+                                        height: 16,
+                                    }}
+                                />
                                 Reject
                             </Button>
                             <Button
@@ -303,39 +335,79 @@ export default function VendorApplicationShow({ application, vendorOrders }: Pro
                                 size="sm"
                                 onClick={handleApprove}
                             >
-                                <CheckCircle style={{ marginRight: 8, width: 16, height: 16 }} />
+                                <CheckCircle
+                                    style={{
+                                        marginRight: 8,
+                                        width: 16,
+                                        height: 16,
+                                    }}
+                                />
                                 Approve
                             </Button>
                         </Box>
                     )}
-                    {!application.can_be_reviewed && ['pending', 'under_review'].includes(application.status) && (
-                        <Box sx={{ bgcolor: 'warning.light', color: 'warning.dark', borderRadius: 2, p: 1.5, fontSize: '0.875rem' }}>
-                            <Typography sx={{ fontWeight: 600, fontSize: '0.875rem', mb: 0.5 }}>
-                                Application Not Ready for Review
-                            </Typography>
-                            <Box component="ul" sx={{ m: 0, pl: 2 }}>
-                                {application.completed_step < 4 && (
-                                    <li>Steps incomplete: {application.completed_step}/4 completed</li>
-                                )}
-                                {application.payment_required && !application.payment_completed && (
-                                    <li>Payment not completed</li>
-                                )}
-                                {!application.submitted_at && (
-                                    <li>Application not submitted</li>
-                                )}
+                    {!application.can_be_reviewed &&
+                        ['pending', 'under_review'].includes(
+                            application.status,
+                        ) && (
+                            <Box
+                                sx={{
+                                    bgcolor: 'warning.light',
+                                    color: 'warning.dark',
+                                    borderRadius: 2,
+                                    p: 1.5,
+                                    fontSize: '0.875rem',
+                                }}
+                            >
+                                <Typography
+                                    sx={{
+                                        fontWeight: 600,
+                                        fontSize: '0.875rem',
+                                        mb: 0.5,
+                                    }}
+                                >
+                                    Application Not Ready for Review
+                                </Typography>
+                                <Box component="ul" sx={{ m: 0, pl: 2 }}>
+                                    {application.completed_step < 4 && (
+                                        <li>
+                                            Steps incomplete:{' '}
+                                            {application.completed_step}/4
+                                            completed
+                                        </li>
+                                    )}
+                                    {application.payment_required &&
+                                        !application.payment_completed && (
+                                            <li>Payment not completed</li>
+                                        )}
+                                    {!application.submitted_at && (
+                                        <li>Application not submitted</li>
+                                    )}
+                                </Box>
                             </Box>
-                        </Box>
-                    )}
+                        )}
                 </Box>
 
                 {auth.isSuperAdmin && (
-                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: -1 }}>
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            justifyContent: 'flex-end',
+                            mt: -1,
+                        }}
+                    >
                         <Button
                             variant="destructive"
                             size="sm"
                             onClick={() => setShowDeleteDialog(true)}
                         >
-                            <Trash2 style={{ marginRight: 8, width: 16, height: 16 }} />
+                            <Trash2
+                                style={{
+                                    marginRight: 8,
+                                    width: 16,
+                                    height: 16,
+                                }}
+                            />
                             Delete Application
                         </Button>
                     </Box>
@@ -344,7 +416,13 @@ export default function VendorApplicationShow({ application, vendorOrders }: Pro
                 {/* Application Summary */}
                 <Card>
                     <CardHeader>
-                        <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                alignItems: 'flex-start',
+                                justifyContent: 'space-between',
+                            }}
+                        >
                             <Box>
                                 <CardTitle>{application.user.name}</CardTitle>
                                 <CardDescription>
@@ -354,7 +432,14 @@ export default function VendorApplicationShow({ application, vendorOrders }: Pro
                                     )}
                                 </CardDescription>
                             </Box>
-                            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 1 }}>
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'flex-end',
+                                    gap: 1,
+                                }}
+                            >
                                 {getStatusBadge(application.status)}
                                 <Badge variant="outline">
                                     {application.is_registered_vendor
@@ -365,17 +450,38 @@ export default function VendorApplicationShow({ application, vendorOrders }: Pro
                         </Box>
                     </CardHeader>
                     <CardContent>
-                        <Box sx={{ display: 'grid', gap: 2, gridTemplateColumns: { md: 'repeat(3, 1fr)' } }}>
+                        <Box
+                            sx={{
+                                display: 'grid',
+                                gap: 2,
+                                gridTemplateColumns: { md: 'repeat(3, 1fr)' },
+                            }}
+                        >
                             <Box>
-                                <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
+                                <Typography
+                                    sx={{
+                                        fontSize: '0.875rem',
+                                        color: 'text.secondary',
+                                    }}
+                                >
                                     Current Role
                                 </Typography>
-                                <Typography sx={{ fontWeight: 500, textTransform: 'capitalize' }}>
+                                <Typography
+                                    sx={{
+                                        fontWeight: 500,
+                                        textTransform: 'capitalize',
+                                    }}
+                                >
                                     {application.user.role}
                                 </Typography>
                             </Box>
                             <Box>
-                                <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
+                                <Typography
+                                    sx={{
+                                        fontSize: '0.875rem',
+                                        color: 'text.secondary',
+                                    }}
+                                >
                                     Progress
                                 </Typography>
                                 <Typography sx={{ fontWeight: 500 }}>
@@ -384,7 +490,12 @@ export default function VendorApplicationShow({ application, vendorOrders }: Pro
                                 </Typography>
                             </Box>
                             <Box>
-                                <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
+                                <Typography
+                                    sx={{
+                                        fontSize: '0.875rem',
+                                        color: 'text.secondary',
+                                    }}
+                                >
                                     Submitted
                                 </Typography>
                                 <Typography sx={{ fontWeight: 500 }}>
@@ -397,8 +508,20 @@ export default function VendorApplicationShow({ application, vendorOrders }: Pro
                             </Box>
                         </Box>
                         {application.reviewed_at && (
-                            <Box sx={{ mt: 2, borderRadius: 2, bgcolor: 'action.hover', p: 1.5 }}>
-                                <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
+                            <Box
+                                sx={{
+                                    mt: 2,
+                                    borderRadius: 2,
+                                    bgcolor: 'action.hover',
+                                    p: 1.5,
+                                }}
+                            >
+                                <Typography
+                                    sx={{
+                                        fontSize: '0.875rem',
+                                        color: 'text.secondary',
+                                    }}
+                                >
                                     Reviewed by {application.reviewed_by?.name}{' '}
                                     on{' '}
                                     {new Date(
@@ -408,11 +531,32 @@ export default function VendorApplicationShow({ application, vendorOrders }: Pro
                             </Box>
                         )}
                         {application.rejection_reason && (
-                            <Box sx={{ mt: 2, borderRadius: 2, bgcolor: 'error.light', opacity: 0.1, p: 1.5 }}>
-                                <Typography sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'error.main' }}>
+                            <Box
+                                sx={{
+                                    mt: 2,
+                                    borderRadius: 2,
+                                    bgcolor: 'error.light',
+                                    opacity: 0.1,
+                                    p: 1.5,
+                                }}
+                            >
+                                <Typography
+                                    sx={{
+                                        fontSize: '0.875rem',
+                                        fontWeight: 500,
+                                        color: 'error.main',
+                                    }}
+                                >
                                     Rejection Reason:
                                 </Typography>
-                                <Typography sx={{ mt: 0.5, fontSize: '0.875rem', color: 'error.main', opacity: 0.8 }}>
+                                <Typography
+                                    sx={{
+                                        mt: 0.5,
+                                        fontSize: '0.875rem',
+                                        color: 'error.main',
+                                        opacity: 0.8,
+                                    }}
+                                >
                                     {application.rejection_reason}
                                 </Typography>
                             </Box>
@@ -421,81 +565,188 @@ export default function VendorApplicationShow({ application, vendorOrders }: Pro
                 </Card>
 
                 {/* Field Agent Questionnaire */}
-                {application.questionnaire && application.questionnaire.status === 'submitted' && (
-                    <Card>
-                        <CardHeader>
-                            <CardTitle style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '1.125rem' }}>
-                                <CheckCircle style={{ width: 20, height: 20 }} />
-                                Field Agent Questionnaire
-                            </CardTitle>
-                            <CardDescription>
-                                Details verified in person by {application.questionnaire.field_agent?.name || 'a field agent'}
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-                                <Box sx={{ display: 'grid', gap: 2, gridTemplateColumns: { md: 'repeat(2, 1fr)' } }}>
-                                    <Box>
-                                        <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
-                                            Verified Ghana Card
-                                        </Typography>
-                                        <Typography sx={{ fontWeight: 500 }}>
-                                            {application.questionnaire.ghana_card_number}
-                                        </Typography>
+                {application.questionnaire &&
+                    application.questionnaire.status === 'submitted' && (
+                        <Card>
+                            <CardHeader>
+                                <CardTitle
+                                    style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 8,
+                                        fontSize: '1.125rem',
+                                    }}
+                                >
+                                    <CheckCircle
+                                        style={{ width: 20, height: 20 }}
+                                    />
+                                    Field Agent Questionnaire
+                                </CardTitle>
+                                <CardDescription>
+                                    Details verified in person by{' '}
+                                    {application.questionnaire.field_agent
+                                        ?.name || 'a field agent'}
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <Box
+                                    sx={{
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        gap: 3,
+                                    }}
+                                >
+                                    <Box
+                                        sx={{
+                                            display: 'grid',
+                                            gap: 2,
+                                            gridTemplateColumns: {
+                                                md: 'repeat(2, 1fr)',
+                                            },
+                                        }}
+                                    >
+                                        <Box>
+                                            <Typography
+                                                sx={{
+                                                    fontSize: '0.875rem',
+                                                    color: 'text.secondary',
+                                                }}
+                                            >
+                                                Verified Ghana Card
+                                            </Typography>
+                                            <Typography
+                                                sx={{ fontWeight: 500 }}
+                                            >
+                                                {
+                                                    application.questionnaire
+                                                        .ghana_card_number
+                                                }
+                                            </Typography>
+                                        </Box>
+                                        <Box>
+                                            <Typography
+                                                sx={{
+                                                    fontSize: '0.875rem',
+                                                    color: 'text.secondary',
+                                                }}
+                                            >
+                                                Verified TIN
+                                            </Typography>
+                                            <Typography
+                                                sx={{ fontWeight: 500 }}
+                                            >
+                                                {application.questionnaire
+                                                    .tin_number || 'N/A'}
+                                            </Typography>
+                                        </Box>
                                     </Box>
-                                    <Box>
-                                        <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
-                                            Verified TIN
-                                        </Typography>
-                                        <Typography sx={{ fontWeight: 500 }}>
-                                            {application.questionnaire.tin_number || 'N/A'}
-                                        </Typography>
-                                    </Box>
-                                </Box>
 
-                                <Box>
-                                    <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary', mb: 1 }}>
-                                        Physical Location
-                                    </Typography>
-                                    {application.questionnaire.has_shop ? (
-                                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                                            <Typography sx={{ fontWeight: 500 }}>
-                                                Has Shop: Yes
-                                            </Typography>
-                                            <Typography sx={{ fontWeight: 500 }}>
-                                                Location: {application.questionnaire.shop_location}
-                                            </Typography>
-                                            {application.questionnaire.storefront_photo && (
-                                                <Box sx={{ mt: 1, overflow: 'hidden', borderRadius: 2, border: 1, borderColor: 'divider', maxWidth: 300 }}>
+                                    <Box>
+                                        <Typography
+                                            sx={{
+                                                fontSize: '0.875rem',
+                                                color: 'text.secondary',
+                                                mb: 1,
+                                            }}
+                                        >
+                                            Physical Location
+                                        </Typography>
+                                        {application.questionnaire.has_shop ? (
+                                            <Box
+                                                sx={{
+                                                    display: 'flex',
+                                                    flexDirection: 'column',
+                                                    gap: 1,
+                                                }}
+                                            >
+                                                <Typography
+                                                    sx={{ fontWeight: 500 }}
+                                                >
+                                                    Has Shop: Yes
+                                                </Typography>
+                                                <Typography
+                                                    sx={{ fontWeight: 500 }}
+                                                >
+                                                    Location:{' '}
+                                                    {
+                                                        application
+                                                            .questionnaire
+                                                            .shop_location
+                                                    }
+                                                </Typography>
+                                                {application.questionnaire
+                                                    .storefront_photo && (
                                                     <Box
-                                                        component="img"
-                                                        src={application.questionnaire.storefront_photo}
-                                                        alt="Storefront Photo"
-                                                        sx={{ height: 'auto', width: '100%', objectFit: 'cover' }}
-                                                    />
-                                                </Box>
-                                            )}
-                                        </Box>
-                                    ) : (
-                                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                                            <Typography sx={{ fontWeight: 500 }}>
-                                                Has Shop: No
-                                            </Typography>
-                                            <Typography sx={{ fontWeight: 500 }}>
-                                                Primary Address: {application.questionnaire.primary_business_address}
-                                            </Typography>
-                                        </Box>
-                                    )}
+                                                        sx={{
+                                                            mt: 1,
+                                                            overflow: 'hidden',
+                                                            borderRadius: 2,
+                                                            border: 1,
+                                                            borderColor:
+                                                                'divider',
+                                                            maxWidth: 300,
+                                                        }}
+                                                    >
+                                                        <Box
+                                                            component="img"
+                                                            src={
+                                                                application
+                                                                    .questionnaire
+                                                                    .storefront_photo
+                                                            }
+                                                            alt="Storefront Photo"
+                                                            sx={{
+                                                                height: 'auto',
+                                                                width: '100%',
+                                                                objectFit:
+                                                                    'cover',
+                                                            }}
+                                                        />
+                                                    </Box>
+                                                )}
+                                            </Box>
+                                        ) : (
+                                            <Box
+                                                sx={{
+                                                    display: 'flex',
+                                                    flexDirection: 'column',
+                                                    gap: 1,
+                                                }}
+                                            >
+                                                <Typography
+                                                    sx={{ fontWeight: 500 }}
+                                                >
+                                                    Has Shop: No
+                                                </Typography>
+                                                <Typography
+                                                    sx={{ fontWeight: 500 }}
+                                                >
+                                                    Primary Address:{' '}
+                                                    {
+                                                        application
+                                                            .questionnaire
+                                                            .primary_business_address
+                                                    }
+                                                </Typography>
+                                            </Box>
+                                        )}
+                                    </Box>
                                 </Box>
-                            </Box>
-                        </CardContent>
-                    </Card>
-                )}
+                            </CardContent>
+                        </Card>
+                    )}
 
                 {/* Payment Information */}
                 <Card>
                     <CardHeader>
-                        <CardTitle style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '1.125rem' }}>
+                        <CardTitle
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 8,
+                                fontSize: '1.125rem',
+                            }}
+                        >
                             <CreditCard style={{ width: 20, height: 20 }} />
                             Payment Information
                         </CardTitle>
@@ -505,82 +756,195 @@ export default function VendorApplicationShow({ application, vendorOrders }: Pro
                     </CardHeader>
                     <CardContent>
                         {!application.payment_required ? (
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                <Chip label="Not Required" color="info" size="small" variant="outlined" />
-                                <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 1,
+                                }}
+                            >
+                                <Chip
+                                    label="Not Required"
+                                    color="info"
+                                    size="small"
+                                    variant="outlined"
+                                />
+                                <Typography
+                                    sx={{
+                                        fontSize: '0.875rem',
+                                        color: 'text.secondary',
+                                    }}
+                                >
                                     Payment is not required for this application
                                 </Typography>
                             </Box>
                         ) : application.payment ? (
-                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                                <Box sx={{ display: 'grid', gap: 2, gridTemplateColumns: { md: 'repeat(3, 1fr)' } }}>
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    gap: 2,
+                                }}
+                            >
+                                <Box
+                                    sx={{
+                                        display: 'grid',
+                                        gap: 2,
+                                        gridTemplateColumns: {
+                                            md: 'repeat(3, 1fr)',
+                                        },
+                                    }}
+                                >
                                     <Box>
-                                        <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
+                                        <Typography
+                                            sx={{
+                                                fontSize: '0.875rem',
+                                                color: 'text.secondary',
+                                            }}
+                                        >
                                             Status
                                         </Typography>
                                         <Box sx={{ mt: 0.5 }}>
                                             <Chip
-                                                label={application.payment.status.charAt(0).toUpperCase() + application.payment.status.slice(1)}
+                                                label={
+                                                    application.payment.status
+                                                        .charAt(0)
+                                                        .toUpperCase() +
+                                                    application.payment.status.slice(
+                                                        1,
+                                                    )
+                                                }
                                                 color={
-                                                    application.payment.status === 'success' ? 'success'
-                                                    : application.payment.status === 'failed' ? 'error'
-                                                    : application.payment.status === 'pending' ? 'warning'
-                                                    : 'default'
+                                                    application.payment
+                                                        .status === 'success'
+                                                        ? 'success'
+                                                        : application.payment
+                                                                .status ===
+                                                            'failed'
+                                                          ? 'error'
+                                                          : application.payment
+                                                                  .status ===
+                                                              'pending'
+                                                            ? 'warning'
+                                                            : 'default'
                                                 }
                                                 size="small"
                                             />
                                         </Box>
                                     </Box>
                                     <Box>
-                                        <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
+                                        <Typography
+                                            sx={{
+                                                fontSize: '0.875rem',
+                                                color: 'text.secondary',
+                                            }}
+                                        >
                                             Amount
                                         </Typography>
                                         <Typography sx={{ fontWeight: 500 }}>
-                                            {application.payment.currency} {Number(application.payment.amount).toFixed(2)}
+                                            {application.payment.currency}{' '}
+                                            {Number(
+                                                application.payment.amount,
+                                            ).toFixed(2)}
                                         </Typography>
                                     </Box>
                                     <Box>
-                                        <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
+                                        <Typography
+                                            sx={{
+                                                fontSize: '0.875rem',
+                                                color: 'text.secondary',
+                                            }}
+                                        >
                                             Date Paid
                                         </Typography>
                                         <Typography sx={{ fontWeight: 500 }}>
                                             {application.payment.paid_at
-                                                ? new Date(application.payment.paid_at).toLocaleDateString()
+                                                ? new Date(
+                                                      application.payment.paid_at,
+                                                  ).toLocaleDateString()
                                                 : 'Not yet paid'}
                                         </Typography>
                                     </Box>
                                 </Box>
-                                <Box sx={{ display: 'grid', gap: 2, gridTemplateColumns: { md: 'repeat(3, 1fr)' } }}>
+                                <Box
+                                    sx={{
+                                        display: 'grid',
+                                        gap: 2,
+                                        gridTemplateColumns: {
+                                            md: 'repeat(3, 1fr)',
+                                        },
+                                    }}
+                                >
                                     <Box>
-                                        <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
+                                        <Typography
+                                            sx={{
+                                                fontSize: '0.875rem',
+                                                color: 'text.secondary',
+                                            }}
+                                        >
                                             Payment Method
                                         </Typography>
-                                        <Typography sx={{ fontWeight: 500, textTransform: 'capitalize' }}>
+                                        <Typography
+                                            sx={{
+                                                fontWeight: 500,
+                                                textTransform: 'capitalize',
+                                            }}
+                                        >
                                             {application.payment.channel
-                                                ? application.payment.channel.replace('_', ' ')
+                                                ? application.payment.channel.replace(
+                                                      '_',
+                                                      ' ',
+                                                  )
                                                 : 'N/A'}
                                         </Typography>
                                     </Box>
                                     {application.payment.card_last4 && (
                                         <Box>
-                                            <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
+                                            <Typography
+                                                sx={{
+                                                    fontSize: '0.875rem',
+                                                    color: 'text.secondary',
+                                                }}
+                                            >
                                                 Card
                                             </Typography>
-                                            <Typography sx={{ fontWeight: 500 }}>
-                                                **** {application.payment.card_last4}
-                                                {application.payment.card_bank && ` (${application.payment.card_bank})`}
+                                            <Typography
+                                                sx={{ fontWeight: 500 }}
+                                            >
+                                                ****{' '}
+                                                {application.payment.card_last4}
+                                                {application.payment
+                                                    .card_bank &&
+                                                    ` (${application.payment.card_bank})`}
                                             </Typography>
                                         </Box>
                                     )}
-                                    {application.payment.mobile_money_number && (
+                                    {application.payment
+                                        .mobile_money_number && (
                                         <Box>
-                                            <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
+                                            <Typography
+                                                sx={{
+                                                    fontSize: '0.875rem',
+                                                    color: 'text.secondary',
+                                                }}
+                                            >
                                                 Mobile Money
                                             </Typography>
-                                            <Typography sx={{ fontWeight: 500 }}>
-                                                {application.payment.mobile_money_number}
-                                                {application.payment.mobile_money_provider && (
-                                                    <Badge variant="outline" style={{ marginLeft: 8 }}>
+                                            <Typography
+                                                sx={{ fontWeight: 500 }}
+                                            >
+                                                {
+                                                    application.payment
+                                                        .mobile_money_number
+                                                }
+                                                {application.payment
+                                                    .mobile_money_provider && (
+                                                    <Badge
+                                                        variant="outline"
+                                                        style={{
+                                                            marginLeft: 8,
+                                                        }}
+                                                    >
                                                         {application.payment.mobile_money_provider.toUpperCase()}
                                                     </Badge>
                                                 )}
@@ -588,35 +952,95 @@ export default function VendorApplicationShow({ application, vendorOrders }: Pro
                                         </Box>
                                     )}
                                     <Box>
-                                        <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
+                                        <Typography
+                                            sx={{
+                                                fontSize: '0.875rem',
+                                                color: 'text.secondary',
+                                            }}
+                                        >
                                             Reference
                                         </Typography>
-                                        <Typography sx={{ fontWeight: 500, fontFamily: 'monospace', fontSize: '0.8rem' }}>
+                                        <Typography
+                                            sx={{
+                                                fontWeight: 500,
+                                                fontFamily: 'monospace',
+                                                fontSize: '0.8rem',
+                                            }}
+                                        >
                                             {application.payment.reference}
                                         </Typography>
                                     </Box>
                                 </Box>
                                 {application.payment.failure_reason && (
-                                    <Box sx={{ borderRadius: 2, bgcolor: 'error.light', opacity: 0.1, p: 1.5 }}>
-                                        <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
-                                            Failure Reason: {application.payment.failure_reason}
+                                    <Box
+                                        sx={{
+                                            borderRadius: 2,
+                                            bgcolor: 'error.light',
+                                            opacity: 0.1,
+                                            p: 1.5,
+                                        }}
+                                    >
+                                        <Typography
+                                            sx={{
+                                                fontSize: '0.875rem',
+                                                color: 'error.main',
+                                            }}
+                                        >
+                                            Failure Reason:{' '}
+                                            {application.payment.failure_reason}
                                         </Typography>
                                     </Box>
                                 )}
-                                {application.discount_amount && Number(application.discount_amount) > 0 && (
-                                    <Box sx={{ borderRadius: 2, bgcolor: 'action.hover', p: 1.5 }}>
-                                        <Typography sx={{ fontSize: '0.875rem' }}>
-                                            Original Fee: {application.payment.currency} {Number(application.onboarding_fee).toFixed(2)}
-                                            {' · '}Discount: -{application.payment.currency} {Number(application.discount_amount).toFixed(2)}
-                                            {' · '}Final: {application.payment.currency} {Number(application.final_amount).toFixed(2)}
-                                        </Typography>
-                                    </Box>
-                                )}
+                                {application.discount_amount &&
+                                    Number(application.discount_amount) > 0 && (
+                                        <Box
+                                            sx={{
+                                                borderRadius: 2,
+                                                bgcolor: 'action.hover',
+                                                p: 1.5,
+                                            }}
+                                        >
+                                            <Typography
+                                                sx={{ fontSize: '0.875rem' }}
+                                            >
+                                                Original Fee:{' '}
+                                                {application.payment.currency}{' '}
+                                                {Number(
+                                                    application.onboarding_fee,
+                                                ).toFixed(2)}
+                                                {' · '}Discount: -
+                                                {application.payment.currency}{' '}
+                                                {Number(
+                                                    application.discount_amount,
+                                                ).toFixed(2)}
+                                                {' · '}Final:{' '}
+                                                {application.payment.currency}{' '}
+                                                {Number(
+                                                    application.final_amount,
+                                                ).toFixed(2)}
+                                            </Typography>
+                                        </Box>
+                                    )}
                             </Box>
                         ) : (
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                <Chip label="Unpaid" color="warning" size="small" />
-                                <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 1,
+                                }}
+                            >
+                                <Chip
+                                    label="Unpaid"
+                                    color="warning"
+                                    size="small"
+                                />
+                                <Typography
+                                    sx={{
+                                        fontSize: '0.875rem',
+                                        color: 'text.secondary',
+                                    }}
+                                >
                                     No payment has been made yet
                                 </Typography>
                             </Box>
@@ -629,7 +1053,14 @@ export default function VendorApplicationShow({ application, vendorOrders }: Pro
                     application.ghana_card_back) && (
                     <Card>
                         <CardHeader>
-                            <CardTitle style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '1.125rem' }}>
+                            <CardTitle
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 8,
+                                    fontSize: '1.125rem',
+                                }}
+                            >
                                 <IdCard style={{ width: 20, height: 20 }} />
                                 Ghana Card
                             </CardTitle>
@@ -638,37 +1069,91 @@ export default function VendorApplicationShow({ application, vendorOrders }: Pro
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <Box sx={{ display: 'grid', gap: 2, gridTemplateColumns: { md: 'repeat(2, 1fr)' } }}>
+                            <Box
+                                sx={{
+                                    display: 'grid',
+                                    gap: 2,
+                                    gridTemplateColumns: {
+                                        md: 'repeat(2, 1fr)',
+                                    },
+                                }}
+                            >
                                 {application.ghana_card_front && (
-                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                                        <Typography variant="h6" sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                                    <Box
+                                        sx={{
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            gap: 1,
+                                        }}
+                                    >
+                                        <Typography
+                                            variant="h6"
+                                            sx={{
+                                                fontSize: '0.875rem',
+                                                fontWeight: 500,
+                                            }}
+                                        >
                                             Front of Ghana Card
                                         </Typography>
-                                        <Box sx={{ overflow: 'hidden', borderRadius: 2, border: 1, borderColor: 'divider' }}>
+                                        <Box
+                                            sx={{
+                                                overflow: 'hidden',
+                                                borderRadius: 2,
+                                                border: 1,
+                                                borderColor: 'divider',
+                                            }}
+                                        >
                                             <Box
                                                 component="img"
                                                 src={
                                                     application.ghana_card_front
                                                 }
                                                 alt="Ghana Card Front"
-                                                sx={{ height: 'auto', width: '100%', objectFit: 'cover' }}
+                                                sx={{
+                                                    height: 'auto',
+                                                    width: '100%',
+                                                    objectFit: 'cover',
+                                                }}
                                             />
                                         </Box>
                                     </Box>
                                 )}
                                 {application.ghana_card_back && (
-                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                                        <Typography variant="h6" sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                                    <Box
+                                        sx={{
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            gap: 1,
+                                        }}
+                                    >
+                                        <Typography
+                                            variant="h6"
+                                            sx={{
+                                                fontSize: '0.875rem',
+                                                fontWeight: 500,
+                                            }}
+                                        >
                                             Back of Ghana Card
                                         </Typography>
-                                        <Box sx={{ overflow: 'hidden', borderRadius: 2, border: 1, borderColor: 'divider' }}>
+                                        <Box
+                                            sx={{
+                                                overflow: 'hidden',
+                                                borderRadius: 2,
+                                                border: 1,
+                                                borderColor: 'divider',
+                                            }}
+                                        >
                                             <Box
                                                 component="img"
                                                 src={
                                                     application.ghana_card_back
                                                 }
                                                 alt="Ghana Card Back"
-                                                sx={{ height: 'auto', width: '100%', objectFit: 'cover' }}
+                                                sx={{
+                                                    height: 'auto',
+                                                    width: '100%',
+                                                    objectFit: 'cover',
+                                                }}
                                             />
                                         </Box>
                                     </Box>
@@ -684,8 +1169,17 @@ export default function VendorApplicationShow({ application, vendorOrders }: Pro
                         application.tin_document) && (
                         <Card>
                             <CardHeader>
-                                <CardTitle style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '1.125rem' }}>
-                                    <Briefcase style={{ width: 20, height: 20 }} />
+                                <CardTitle
+                                    style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 8,
+                                        fontSize: '1.125rem',
+                                    }}
+                                >
+                                    <Briefcase
+                                        style={{ width: 20, height: 20 }}
+                                    />
                                     Business Documents
                                 </CardTitle>
                                 <CardDescription>
@@ -693,36 +1187,132 @@ export default function VendorApplicationShow({ application, vendorOrders }: Pro
                                 </CardDescription>
                             </CardHeader>
                             <CardContent>
-                                <Box sx={{ display: 'grid', gap: 2, gridTemplateColumns: { md: 'repeat(2, 1fr)' } }}>
+                                <Box
+                                    sx={{
+                                        display: 'grid',
+                                        gap: 2,
+                                        gridTemplateColumns: {
+                                            md: 'repeat(2, 1fr)',
+                                        },
+                                    }}
+                                >
                                     {application.business_certificate_document && (
-                                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                                            <Typography variant="h6" sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                                        <Box
+                                            sx={{
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                gap: 1,
+                                            }}
+                                        >
+                                            <Typography
+                                                variant="h6"
+                                                sx={{
+                                                    fontSize: '0.875rem',
+                                                    fontWeight: 500,
+                                                }}
+                                            >
                                                 Business Certificate
                                             </Typography>
-                                            <Box sx={{ overflow: 'hidden', borderRadius: 2, border: 1, borderColor: 'divider', p: 2 }}>
+                                            <Box
+                                                sx={{
+                                                    overflow: 'hidden',
+                                                    borderRadius: 2,
+                                                    border: 1,
+                                                    borderColor: 'divider',
+                                                    p: 2,
+                                                }}
+                                            >
                                                 <Box
                                                     component="button"
-                                                    onClick={() => setPreviewDoc({ url: application.business_certificate_document!, title: 'Business Certificate' })}
-                                                    sx={{ display: 'flex', alignItems: 'center', gap: 1, fontSize: '0.875rem', color: 'primary.main', bgcolor: 'transparent', border: 'none', cursor: 'pointer', p: 0, '&:hover': { textDecoration: 'underline' } }}
+                                                    onClick={() =>
+                                                        setPreviewDoc({
+                                                            url: application.business_certificate_document!,
+                                                            title: 'Business Certificate',
+                                                        })
+                                                    }
+                                                    sx={{
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: 1,
+                                                        fontSize: '0.875rem',
+                                                        color: 'primary.main',
+                                                        bgcolor: 'transparent',
+                                                        border: 'none',
+                                                        cursor: 'pointer',
+                                                        p: 0,
+                                                        '&:hover': {
+                                                            textDecoration:
+                                                                'underline',
+                                                        },
+                                                    }}
                                                 >
-                                                    <Eye style={{ width: 16, height: 16 }} />
+                                                    <Eye
+                                                        style={{
+                                                            width: 16,
+                                                            height: 16,
+                                                        }}
+                                                    />
                                                     View Business Certificate
                                                 </Box>
                                             </Box>
                                         </Box>
                                     )}
                                     {application.tin_document && (
-                                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                                            <Typography variant="h6" sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                                        <Box
+                                            sx={{
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                gap: 1,
+                                            }}
+                                        >
+                                            <Typography
+                                                variant="h6"
+                                                sx={{
+                                                    fontSize: '0.875rem',
+                                                    fontWeight: 500,
+                                                }}
+                                            >
                                                 TIN Document
                                             </Typography>
-                                            <Box sx={{ overflow: 'hidden', borderRadius: 2, border: 1, borderColor: 'divider', p: 2 }}>
+                                            <Box
+                                                sx={{
+                                                    overflow: 'hidden',
+                                                    borderRadius: 2,
+                                                    border: 1,
+                                                    borderColor: 'divider',
+                                                    p: 2,
+                                                }}
+                                            >
                                                 <Box
                                                     component="button"
-                                                    onClick={() => setPreviewDoc({ url: application.tin_document!, title: 'TIN Document' })}
-                                                    sx={{ display: 'flex', alignItems: 'center', gap: 1, fontSize: '0.875rem', color: 'primary.main', bgcolor: 'transparent', border: 'none', cursor: 'pointer', p: 0, '&:hover': { textDecoration: 'underline' } }}
+                                                    onClick={() =>
+                                                        setPreviewDoc({
+                                                            url: application.tin_document!,
+                                                            title: 'TIN Document',
+                                                        })
+                                                    }
+                                                    sx={{
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: 1,
+                                                        fontSize: '0.875rem',
+                                                        color: 'primary.main',
+                                                        bgcolor: 'transparent',
+                                                        border: 'none',
+                                                        cursor: 'pointer',
+                                                        p: 0,
+                                                        '&:hover': {
+                                                            textDecoration:
+                                                                'underline',
+                                                        },
+                                                    }}
                                                 >
-                                                    <Eye style={{ width: 16, height: 16 }} />
+                                                    <Eye
+                                                        style={{
+                                                            width: 16,
+                                                            height: 16,
+                                                        }}
+                                                    />
                                                     View TIN Document
                                                 </Box>
                                             </Box>
@@ -740,8 +1330,17 @@ export default function VendorApplicationShow({ application, vendorOrders }: Pro
                         application.mobile_money_number) && (
                         <Card>
                             <CardHeader>
-                                <CardTitle style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '1.125rem' }}>
-                                    <UserIcon style={{ width: 20, height: 20 }} />
+                                <CardTitle
+                                    style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 8,
+                                        fontSize: '1.125rem',
+                                    }}
+                                >
+                                    <UserIcon
+                                        style={{ width: 20, height: 20 }}
+                                    />
                                     Individual Vendor Verification
                                 </CardTitle>
                                 <CardDescription>
@@ -749,50 +1348,159 @@ export default function VendorApplicationShow({ application, vendorOrders }: Pro
                                 </CardDescription>
                             </CardHeader>
                             <CardContent>
-                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                                <Box
+                                    sx={{
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        gap: 2,
+                                    }}
+                                >
                                     {application.selfie_image && (
-                                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                                            <Typography variant="h6" sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                                        <Box
+                                            sx={{
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                gap: 1,
+                                            }}
+                                        >
+                                            <Typography
+                                                variant="h6"
+                                                sx={{
+                                                    fontSize: '0.875rem',
+                                                    fontWeight: 500,
+                                                }}
+                                            >
                                                 Selfie Verification
                                             </Typography>
-                                            <Box sx={{ overflow: 'hidden', borderRadius: 2, border: 1, borderColor: 'divider' }}>
+                                            <Box
+                                                sx={{
+                                                    overflow: 'hidden',
+                                                    borderRadius: 2,
+                                                    border: 1,
+                                                    borderColor: 'divider',
+                                                }}
+                                            >
                                                 <Box
                                                     component="img"
                                                     src={
                                                         application.selfie_image
                                                     }
                                                     alt="Vendor Selfie"
-                                                    sx={{ height: 'auto', maxWidth: 384, objectFit: 'cover' }}
+                                                    sx={{
+                                                        height: 'auto',
+                                                        maxWidth: 384,
+                                                        objectFit: 'cover',
+                                                    }}
                                                 />
                                             </Box>
                                         </Box>
                                     )}
                                     {application.proof_of_business && (
-                                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                                            <Typography variant="h6" sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                                        <Box
+                                            sx={{
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                gap: 1,
+                                            }}
+                                        >
+                                            <Typography
+                                                variant="h6"
+                                                sx={{
+                                                    fontSize: '0.875rem',
+                                                    fontWeight: 500,
+                                                }}
+                                            >
                                                 Proof of Business
                                             </Typography>
-                                            <Box sx={{ overflow: 'hidden', borderRadius: 2, border: 1, borderColor: 'divider', p: 2 }}>
+                                            <Box
+                                                sx={{
+                                                    overflow: 'hidden',
+                                                    borderRadius: 2,
+                                                    border: 1,
+                                                    borderColor: 'divider',
+                                                    p: 2,
+                                                }}
+                                            >
                                                 <Box
                                                     component="button"
-                                                    onClick={() => setPreviewDoc({ url: application.proof_of_business!, title: 'Proof of Business' })}
-                                                    sx={{ display: 'flex', alignItems: 'center', gap: 1, fontSize: '0.875rem', color: 'primary.main', bgcolor: 'transparent', border: 'none', cursor: 'pointer', p: 0, '&:hover': { textDecoration: 'underline' } }}
+                                                    onClick={() =>
+                                                        setPreviewDoc({
+                                                            url: application.proof_of_business!,
+                                                            title: 'Proof of Business',
+                                                        })
+                                                    }
+                                                    sx={{
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: 1,
+                                                        fontSize: '0.875rem',
+                                                        color: 'primary.main',
+                                                        bgcolor: 'transparent',
+                                                        border: 'none',
+                                                        cursor: 'pointer',
+                                                        p: 0,
+                                                        '&:hover': {
+                                                            textDecoration:
+                                                                'underline',
+                                                        },
+                                                    }}
                                                 >
-                                                    <Eye style={{ width: 16, height: 16 }} />
+                                                    <Eye
+                                                        style={{
+                                                            width: 16,
+                                                            height: 16,
+                                                        }}
+                                                    />
                                                     View Proof of Business
                                                 </Box>
                                             </Box>
                                         </Box>
                                     )}
                                     {application.mobile_money_number && (
-                                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                                            <Typography variant="h6" sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                                        <Box
+                                            sx={{
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                gap: 1,
+                                            }}
+                                        >
+                                            <Typography
+                                                variant="h6"
+                                                sx={{
+                                                    fontSize: '0.875rem',
+                                                    fontWeight: 500,
+                                                }}
+                                            >
                                                 Mobile Money Details
                                             </Typography>
-                                            <Box sx={{ overflow: 'hidden', borderRadius: 2, border: 1, borderColor: 'divider', p: 2 }}>
-                                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                                                    <Typography sx={{ fontSize: '0.875rem' }}>
-                                                        <Box component="span" sx={{ fontWeight: 500 }}>
+                                            <Box
+                                                sx={{
+                                                    overflow: 'hidden',
+                                                    borderRadius: 2,
+                                                    border: 1,
+                                                    borderColor: 'divider',
+                                                    p: 2,
+                                                }}
+                                            >
+                                                <Box
+                                                    sx={{
+                                                        display: 'flex',
+                                                        flexDirection: 'column',
+                                                        gap: 0.5,
+                                                    }}
+                                                >
+                                                    <Typography
+                                                        sx={{
+                                                            fontSize:
+                                                                '0.875rem',
+                                                        }}
+                                                    >
+                                                        <Box
+                                                            component="span"
+                                                            sx={{
+                                                                fontWeight: 500,
+                                                            }}
+                                                        >
                                                             Number:
                                                         </Box>{' '}
                                                         {
@@ -800,8 +1508,18 @@ export default function VendorApplicationShow({ application, vendorOrders }: Pro
                                                         }
                                                     </Typography>
                                                     {application.mobile_money_provider && (
-                                                        <Typography sx={{ fontSize: '0.875rem' }}>
-                                                            <Box component="span" sx={{ fontWeight: 500 }}>
+                                                        <Typography
+                                                            sx={{
+                                                                fontSize:
+                                                                    '0.875rem',
+                                                            }}
+                                                        >
+                                                            <Box
+                                                                component="span"
+                                                                sx={{
+                                                                    fontWeight: 500,
+                                                                }}
+                                                            >
                                                                 Provider:
                                                             </Box>{' '}
                                                             <Badge variant="outline">
@@ -824,7 +1542,14 @@ export default function VendorApplicationShow({ application, vendorOrders }: Pro
                     application.twitter_handle) && (
                     <Card>
                         <CardHeader>
-                            <CardTitle style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '1.125rem' }}>
+                            <CardTitle
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 8,
+                                    fontSize: '1.125rem',
+                                }}
+                            >
                                 <Users style={{ width: 20, height: 20 }} />
                                 Social Media
                             </CardTitle>
@@ -833,33 +1558,92 @@ export default function VendorApplicationShow({ application, vendorOrders }: Pro
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <Box sx={{ display: 'grid', gap: 1.5, gridTemplateColumns: { md: 'repeat(3, 1fr)' } }}>
+                            <Box
+                                sx={{
+                                    display: 'grid',
+                                    gap: 1.5,
+                                    gridTemplateColumns: {
+                                        md: 'repeat(3, 1fr)',
+                                    },
+                                }}
+                            >
                                 {application.facebook_handle && (
-                                    <Box sx={{ borderRadius: 2, border: 1, borderColor: 'divider', p: 1.5 }}>
-                                        <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
+                                    <Box
+                                        sx={{
+                                            borderRadius: 2,
+                                            border: 1,
+                                            borderColor: 'divider',
+                                            p: 1.5,
+                                        }}
+                                    >
+                                        <Typography
+                                            sx={{
+                                                fontSize: '0.75rem',
+                                                color: 'text.secondary',
+                                            }}
+                                        >
                                             Facebook
                                         </Typography>
-                                        <Typography sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                                        <Typography
+                                            sx={{
+                                                fontSize: '0.875rem',
+                                                fontWeight: 500,
+                                            }}
+                                        >
                                             {application.facebook_handle}
                                         </Typography>
                                     </Box>
                                 )}
                                 {application.instagram_handle && (
-                                    <Box sx={{ borderRadius: 2, border: 1, borderColor: 'divider', p: 1.5 }}>
-                                        <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
+                                    <Box
+                                        sx={{
+                                            borderRadius: 2,
+                                            border: 1,
+                                            borderColor: 'divider',
+                                            p: 1.5,
+                                        }}
+                                    >
+                                        <Typography
+                                            sx={{
+                                                fontSize: '0.75rem',
+                                                color: 'text.secondary',
+                                            }}
+                                        >
                                             Instagram
                                         </Typography>
-                                        <Typography sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                                        <Typography
+                                            sx={{
+                                                fontSize: '0.875rem',
+                                                fontWeight: 500,
+                                            }}
+                                        >
                                             {application.instagram_handle}
                                         </Typography>
                                     </Box>
                                 )}
                                 {application.twitter_handle && (
-                                    <Box sx={{ borderRadius: 2, border: 1, borderColor: 'divider', p: 1.5 }}>
-                                        <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
+                                    <Box
+                                        sx={{
+                                            borderRadius: 2,
+                                            border: 1,
+                                            borderColor: 'divider',
+                                            p: 1.5,
+                                        }}
+                                    >
+                                        <Typography
+                                            sx={{
+                                                fontSize: '0.75rem',
+                                                color: 'text.secondary',
+                                            }}
+                                        >
                                             Twitter/X
                                         </Typography>
-                                        <Typography sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                                        <Typography
+                                            sx={{
+                                                fontSize: '0.875rem',
+                                                fontWeight: 500,
+                                            }}
+                                        >
                                             {application.twitter_handle}
                                         </Typography>
                                     </Box>
@@ -873,7 +1657,14 @@ export default function VendorApplicationShow({ application, vendorOrders }: Pro
                 {application.bespoke_services.length > 0 && (
                     <Card>
                         <CardHeader>
-                            <CardTitle style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '1.125rem' }}>
+                            <CardTitle
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 8,
+                                    fontSize: '1.125rem',
+                                }}
+                            >
                                 <Package style={{ width: 20, height: 20 }} />
                                 Selected Bespoke Services
                             </CardTitle>
@@ -882,17 +1673,36 @@ export default function VendorApplicationShow({ application, vendorOrders }: Pro
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <Box sx={{ display: 'grid', gap: 1, gridTemplateColumns: { md: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' } }}>
+                            <Box
+                                sx={{
+                                    display: 'grid',
+                                    gap: 1,
+                                    gridTemplateColumns: {
+                                        md: 'repeat(2, 1fr)',
+                                        lg: 'repeat(3, 1fr)',
+                                    },
+                                }}
+                            >
                                 {application.bespoke_services.map((service) => (
                                     <Box
                                         key={service.id}
-                                        sx={{ borderRadius: 2, border: 1, borderColor: 'divider', p: 1.5 }}
+                                        sx={{
+                                            borderRadius: 2,
+                                            border: 1,
+                                            borderColor: 'divider',
+                                            p: 1.5,
+                                        }}
                                     >
                                         <Typography sx={{ fontWeight: 500 }}>
                                             {service.name}
                                         </Typography>
                                         {service.description && (
-                                            <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
+                                            <Typography
+                                                sx={{
+                                                    fontSize: '0.875rem',
+                                                    color: 'text.secondary',
+                                                }}
+                                            >
                                                 {service.description}
                                             </Typography>
                                         )}
@@ -907,8 +1717,17 @@ export default function VendorApplicationShow({ application, vendorOrders }: Pro
                 {vendorOrders && (
                     <Card>
                         <CardHeader>
-                            <CardTitle style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '1.125rem' }}>
-                                <ShoppingBag style={{ width: 20, height: 20 }} />
+                            <CardTitle
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 8,
+                                    fontSize: '1.125rem',
+                                }}
+                            >
+                                <ShoppingBag
+                                    style={{ width: 20, height: 20 }}
+                                />
                                 Vendor Orders
                             </CardTitle>
                             <CardDescription>
@@ -917,57 +1736,192 @@ export default function VendorApplicationShow({ application, vendorOrders }: Pro
                         </CardHeader>
                         <CardContent>
                             {/* Order Stats */}
-                            <Box sx={{ display: 'grid', gap: 1.5, gridTemplateColumns: { xs: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, mb: 3 }}>
-                                <Box sx={{ borderRadius: 2, border: 1, borderColor: 'divider', p: 1.5, textAlign: 'center' }}>
-                                    <Typography sx={{ fontSize: '1.5rem', fontWeight: 700 }}>
+                            <Box
+                                sx={{
+                                    display: 'grid',
+                                    gap: 1.5,
+                                    gridTemplateColumns: {
+                                        xs: 'repeat(2, 1fr)',
+                                        md: 'repeat(4, 1fr)',
+                                    },
+                                    mb: 3,
+                                }}
+                            >
+                                <Box
+                                    sx={{
+                                        borderRadius: 2,
+                                        border: 1,
+                                        borderColor: 'divider',
+                                        p: 1.5,
+                                        textAlign: 'center',
+                                    }}
+                                >
+                                    <Typography
+                                        sx={{
+                                            fontSize: '1.5rem',
+                                            fontWeight: 700,
+                                        }}
+                                    >
                                         {vendorOrders.stats.total}
                                     </Typography>
-                                    <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
+                                    <Typography
+                                        sx={{
+                                            fontSize: '0.75rem',
+                                            color: 'text.secondary',
+                                        }}
+                                    >
                                         Total Orders
                                     </Typography>
                                 </Box>
-                                <Box sx={{ borderRadius: 2, border: 1, borderColor: 'divider', p: 1.5, textAlign: 'center' }}>
-                                    <Typography sx={{ fontSize: '1.5rem', fontWeight: 700, color: '#065F46' }}>
+                                <Box
+                                    sx={{
+                                        borderRadius: 2,
+                                        border: 1,
+                                        borderColor: 'divider',
+                                        p: 1.5,
+                                        textAlign: 'center',
+                                    }}
+                                >
+                                    <Typography
+                                        sx={{
+                                            fontSize: '1.5rem',
+                                            fontWeight: 700,
+                                            color: '#065F46',
+                                        }}
+                                    >
                                         {vendorOrders.stats.delivered}
                                     </Typography>
-                                    <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
+                                    <Typography
+                                        sx={{
+                                            fontSize: '0.75rem',
+                                            color: 'text.secondary',
+                                        }}
+                                    >
                                         Delivered
                                     </Typography>
                                 </Box>
-                                <Box sx={{ borderRadius: 2, border: 1, borderColor: 'divider', p: 1.5, textAlign: 'center' }}>
-                                    <Typography sx={{ fontSize: '1.5rem', fontWeight: 700, color: '#6B21A8' }}>
-                                        {vendorOrders.stats.processing + vendorOrders.stats.confirmed}
+                                <Box
+                                    sx={{
+                                        borderRadius: 2,
+                                        border: 1,
+                                        borderColor: 'divider',
+                                        p: 1.5,
+                                        textAlign: 'center',
+                                    }}
+                                >
+                                    <Typography
+                                        sx={{
+                                            fontSize: '1.5rem',
+                                            fontWeight: 700,
+                                            color: '#6B21A8',
+                                        }}
+                                    >
+                                        {vendorOrders.stats.processing +
+                                            vendorOrders.stats.confirmed}
                                     </Typography>
-                                    <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
+                                    <Typography
+                                        sx={{
+                                            fontSize: '0.75rem',
+                                            color: 'text.secondary',
+                                        }}
+                                    >
                                         In Progress
                                     </Typography>
                                 </Box>
-                                <Box sx={{ borderRadius: 2, border: 1, borderColor: 'divider', p: 1.5, textAlign: 'center' }}>
-                                    <Typography sx={{ fontSize: '1.5rem', fontWeight: 700, color: '#92400E' }}>
+                                <Box
+                                    sx={{
+                                        borderRadius: 2,
+                                        border: 1,
+                                        borderColor: 'divider',
+                                        p: 1.5,
+                                        textAlign: 'center',
+                                    }}
+                                >
+                                    <Typography
+                                        sx={{
+                                            fontSize: '1.5rem',
+                                            fontWeight: 700,
+                                            color: '#92400E',
+                                        }}
+                                    >
                                         {vendorOrders.stats.pending}
                                     </Typography>
-                                    <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
+                                    <Typography
+                                        sx={{
+                                            fontSize: '0.75rem',
+                                            color: 'text.secondary',
+                                        }}
+                                    >
                                         Pending
                                     </Typography>
                                 </Box>
                             </Box>
 
                             {/* Revenue Summary */}
-                            <Box sx={{ display: 'grid', gap: 1.5, gridTemplateColumns: { md: 'repeat(2, 1fr)' }, mb: 3 }}>
-                                <Box sx={{ borderRadius: 2, bgcolor: '#D1FAE5', p: 1.5 }}>
-                                    <Typography sx={{ fontSize: '0.75rem', color: '#065F46' }}>
+                            <Box
+                                sx={{
+                                    display: 'grid',
+                                    gap: 1.5,
+                                    gridTemplateColumns: {
+                                        md: 'repeat(2, 1fr)',
+                                    },
+                                    mb: 3,
+                                }}
+                            >
+                                <Box
+                                    sx={{
+                                        borderRadius: 2,
+                                        bgcolor: '#D1FAE5',
+                                        p: 1.5,
+                                    }}
+                                >
+                                    <Typography
+                                        sx={{
+                                            fontSize: '0.75rem',
+                                            color: '#065F46',
+                                        }}
+                                    >
                                         Total Revenue
                                     </Typography>
-                                    <Typography sx={{ fontSize: '1.25rem', fontWeight: 700, color: '#065F46' }}>
-                                        GHS {parseFloat(vendorOrders.stats.total_revenue).toFixed(2)}
+                                    <Typography
+                                        sx={{
+                                            fontSize: '1.25rem',
+                                            fontWeight: 700,
+                                            color: '#065F46',
+                                        }}
+                                    >
+                                        GHS{' '}
+                                        {parseFloat(
+                                            vendorOrders.stats.total_revenue,
+                                        ).toFixed(2)}
                                     </Typography>
                                 </Box>
-                                <Box sx={{ borderRadius: 2, bgcolor: '#DBEAFE', p: 1.5 }}>
-                                    <Typography sx={{ fontSize: '0.75rem', color: '#1E40AF' }}>
+                                <Box
+                                    sx={{
+                                        borderRadius: 2,
+                                        bgcolor: '#DBEAFE',
+                                        p: 1.5,
+                                    }}
+                                >
+                                    <Typography
+                                        sx={{
+                                            fontSize: '0.75rem',
+                                            color: '#1E40AF',
+                                        }}
+                                    >
                                         Vendor Payout
                                     </Typography>
-                                    <Typography sx={{ fontSize: '1.25rem', fontWeight: 700, color: '#1E40AF' }}>
-                                        GHS {parseFloat(vendorOrders.stats.total_payout).toFixed(2)}
+                                    <Typography
+                                        sx={{
+                                            fontSize: '1.25rem',
+                                            fontWeight: 700,
+                                            color: '#1E40AF',
+                                        }}
+                                    >
+                                        GHS{' '}
+                                        {parseFloat(
+                                            vendorOrders.stats.total_payout,
+                                        ).toFixed(2)}
                                     </Typography>
                                 </Box>
                             </Box>
@@ -976,128 +1930,338 @@ export default function VendorApplicationShow({ application, vendorOrders }: Pro
                             {vendorOrders.orders.data.length > 0 ? (
                                 <>
                                     <Box sx={{ overflowX: 'auto' }}>
-                                        <Box component="table" sx={{ width: '100%' }}>
+                                        <Box
+                                            component="table"
+                                            sx={{ width: '100%' }}
+                                        >
                                             <thead>
-                                                <Box component="tr" sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                                                    <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
+                                                <Box
+                                                    component="tr"
+                                                    sx={{
+                                                        borderBottom: 1,
+                                                        borderColor: 'divider',
+                                                    }}
+                                                >
+                                                    <Box
+                                                        component="th"
+                                                        sx={{
+                                                            p: 1,
+                                                            textAlign: 'left',
+                                                            fontSize:
+                                                                '0.875rem',
+                                                            fontWeight: 500,
+                                                        }}
+                                                    >
                                                         Order #
                                                     </Box>
-                                                    <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
+                                                    <Box
+                                                        component="th"
+                                                        sx={{
+                                                            p: 1,
+                                                            textAlign: 'left',
+                                                            fontSize:
+                                                                '0.875rem',
+                                                            fontWeight: 500,
+                                                        }}
+                                                    >
                                                         Customer
                                                     </Box>
-                                                    <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
+                                                    <Box
+                                                        component="th"
+                                                        sx={{
+                                                            p: 1,
+                                                            textAlign: 'left',
+                                                            fontSize:
+                                                                '0.875rem',
+                                                            fontWeight: 500,
+                                                        }}
+                                                    >
                                                         Total
                                                     </Box>
-                                                    <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
+                                                    <Box
+                                                        component="th"
+                                                        sx={{
+                                                            p: 1,
+                                                            textAlign: 'left',
+                                                            fontSize:
+                                                                '0.875rem',
+                                                            fontWeight: 500,
+                                                        }}
+                                                    >
                                                         Status
                                                     </Box>
-                                                    <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
+                                                    <Box
+                                                        component="th"
+                                                        sx={{
+                                                            p: 1,
+                                                            textAlign: 'left',
+                                                            fontSize:
+                                                                '0.875rem',
+                                                            fontWeight: 500,
+                                                        }}
+                                                    >
                                                         Payment
                                                     </Box>
-                                                    <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
+                                                    <Box
+                                                        component="th"
+                                                        sx={{
+                                                            p: 1,
+                                                            textAlign: 'left',
+                                                            fontSize:
+                                                                '0.875rem',
+                                                            fontWeight: 500,
+                                                        }}
+                                                    >
                                                         Date
                                                     </Box>
                                                 </Box>
                                             </thead>
                                             <tbody>
-                                                {vendorOrders.orders.data.map((order) => {
-                                                    const sColors = statusBadgeColors[order.status] || { bg: '#F3F4F6', text: '#374151' };
-                                                    const pColors = paymentBadgeColors[order.payment_status] || { bg: '#F3F4F6', text: '#374151' };
+                                                {vendorOrders.orders.data.map(
+                                                    (order) => {
+                                                        const sColors =
+                                                            statusBadgeColors[
+                                                                order.status
+                                                            ] || {
+                                                                bg: '#F3F4F6',
+                                                                text: '#374151',
+                                                            };
+                                                        const pColors =
+                                                            paymentBadgeColors[
+                                                                order
+                                                                    .payment_status
+                                                            ] || {
+                                                                bg: '#F3F4F6',
+                                                                text: '#374151',
+                                                            };
 
-                                                    return (
-                                                        <Box
-                                                            component="tr"
-                                                            key={order.id}
-                                                            onClick={() => router.visit(`/dashboard/orders/${order.id}`)}
-                                                            sx={{
-                                                                borderBottom: 1,
-                                                                borderColor: 'divider',
-                                                                cursor: 'pointer',
-                                                                '&:last-child': { border: 0 },
-                                                                '&:hover': { bgcolor: 'action.hover' },
-                                                            }}
-                                                        >
-                                                            <Box component="td" sx={{ p: 1, fontSize: '0.875rem', fontFamily: 'monospace' }}>
-                                                                {order.order_number}
-                                                            </Box>
-                                                            <Box component="td" sx={{ p: 1, fontSize: '0.875rem' }}>
-                                                                {order.customer?.name || 'Guest'}
-                                                            </Box>
-                                                            <Box component="td" sx={{ p: 1, fontSize: '0.875rem' }}>
-                                                                {order.currency} {parseFloat(order.total).toFixed(2)}
-                                                            </Box>
-                                                            <Box component="td" sx={{ p: 1 }}>
+                                                        return (
+                                                            <Box
+                                                                component="tr"
+                                                                key={order.id}
+                                                                onClick={() =>
+                                                                    router.visit(
+                                                                        `/dashboard/orders/${order.id}`,
+                                                                    )
+                                                                }
+                                                                sx={{
+                                                                    borderBottom: 1,
+                                                                    borderColor:
+                                                                        'divider',
+                                                                    cursor: 'pointer',
+                                                                    '&:last-child':
+                                                                        {
+                                                                            border: 0,
+                                                                        },
+                                                                    '&:hover': {
+                                                                        bgcolor:
+                                                                            'action.hover',
+                                                                    },
+                                                                }}
+                                                            >
                                                                 <Box
-                                                                    component="span"
+                                                                    component="td"
                                                                     sx={{
-                                                                        display: 'inline-block',
-                                                                        px: 1,
-                                                                        py: 0.25,
-                                                                        borderRadius: '9999px',
-                                                                        fontSize: '0.75rem',
-                                                                        fontWeight: 500,
-                                                                        bgcolor: sColors.bg,
-                                                                        color: sColors.text,
+                                                                        p: 1,
+                                                                        fontSize:
+                                                                            '0.875rem',
+                                                                        fontFamily:
+                                                                            'monospace',
                                                                     }}
                                                                 >
-                                                                    {formatStatus(order.status)}
+                                                                    {
+                                                                        order.order_number
+                                                                    }
                                                                 </Box>
-                                                            </Box>
-                                                            <Box component="td" sx={{ p: 1 }}>
                                                                 <Box
-                                                                    component="span"
+                                                                    component="td"
                                                                     sx={{
-                                                                        display: 'inline-block',
-                                                                        px: 1,
-                                                                        py: 0.25,
-                                                                        borderRadius: '9999px',
-                                                                        fontSize: '0.75rem',
-                                                                        fontWeight: 500,
-                                                                        bgcolor: pColors.bg,
-                                                                        color: pColors.text,
+                                                                        p: 1,
+                                                                        fontSize:
+                                                                            '0.875rem',
                                                                     }}
                                                                 >
-                                                                    {formatStatus(order.payment_status)}
+                                                                    {order
+                                                                        .customer
+                                                                        ?.name ||
+                                                                        'Guest'}
+                                                                </Box>
+                                                                <Box
+                                                                    component="td"
+                                                                    sx={{
+                                                                        p: 1,
+                                                                        fontSize:
+                                                                            '0.875rem',
+                                                                    }}
+                                                                >
+                                                                    {
+                                                                        order.currency
+                                                                    }{' '}
+                                                                    {parseFloat(
+                                                                        order.total,
+                                                                    ).toFixed(
+                                                                        2,
+                                                                    )}
+                                                                </Box>
+                                                                <Box
+                                                                    component="td"
+                                                                    sx={{
+                                                                        p: 1,
+                                                                    }}
+                                                                >
+                                                                    <Box
+                                                                        component="span"
+                                                                        sx={{
+                                                                            display:
+                                                                                'inline-block',
+                                                                            px: 1,
+                                                                            py: 0.25,
+                                                                            borderRadius:
+                                                                                '9999px',
+                                                                            fontSize:
+                                                                                '0.75rem',
+                                                                            fontWeight: 500,
+                                                                            bgcolor:
+                                                                                sColors.bg,
+                                                                            color: sColors.text,
+                                                                        }}
+                                                                    >
+                                                                        {formatStatus(
+                                                                            order.status,
+                                                                        )}
+                                                                    </Box>
+                                                                </Box>
+                                                                <Box
+                                                                    component="td"
+                                                                    sx={{
+                                                                        p: 1,
+                                                                    }}
+                                                                >
+                                                                    <Box
+                                                                        component="span"
+                                                                        sx={{
+                                                                            display:
+                                                                                'inline-block',
+                                                                            px: 1,
+                                                                            py: 0.25,
+                                                                            borderRadius:
+                                                                                '9999px',
+                                                                            fontSize:
+                                                                                '0.75rem',
+                                                                            fontWeight: 500,
+                                                                            bgcolor:
+                                                                                pColors.bg,
+                                                                            color: pColors.text,
+                                                                        }}
+                                                                    >
+                                                                        {formatStatus(
+                                                                            order.payment_status,
+                                                                        )}
+                                                                    </Box>
+                                                                </Box>
+                                                                <Box
+                                                                    component="td"
+                                                                    sx={{
+                                                                        p: 1,
+                                                                        fontSize:
+                                                                            '0.875rem',
+                                                                    }}
+                                                                >
+                                                                    {new Date(
+                                                                        order.created_at,
+                                                                    ).toLocaleDateString()}
                                                                 </Box>
                                                             </Box>
-                                                            <Box component="td" sx={{ p: 1, fontSize: '0.875rem' }}>
-                                                                {new Date(order.created_at).toLocaleDateString()}
-                                                            </Box>
-                                                        </Box>
-                                                    );
-                                                })}
+                                                        );
+                                                    },
+                                                )}
                                             </tbody>
                                         </Box>
                                     </Box>
 
                                     {/* Pagination */}
                                     {vendorOrders.orders.last_page > 1 && (
-                                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 2, pt: 2, borderTop: 1, borderColor: 'divider' }}>
-                                            <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
-                                                Page {vendorOrders.orders.current_page} of {vendorOrders.orders.last_page} ({vendorOrders.orders.total} orders)
+                                        <Box
+                                            sx={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'space-between',
+                                                mt: 2,
+                                                pt: 2,
+                                                borderTop: 1,
+                                                borderColor: 'divider',
+                                            }}
+                                        >
+                                            <Typography
+                                                sx={{
+                                                    fontSize: '0.875rem',
+                                                    color: 'text.secondary',
+                                                }}
+                                            >
+                                                Page{' '}
+                                                {
+                                                    vendorOrders.orders
+                                                        .current_page
+                                                }{' '}
+                                                of{' '}
+                                                {vendorOrders.orders.last_page}{' '}
+                                                ({vendorOrders.orders.total}{' '}
+                                                orders)
                                             </Typography>
-                                            <Box sx={{ display: 'flex', gap: 1 }}>
+                                            <Box
+                                                sx={{ display: 'flex', gap: 1 }}
+                                            >
                                                 <Button
                                                     variant="outline"
                                                     size="sm"
-                                                    disabled={vendorOrders.orders.current_page <= 1}
-                                                    onClick={() => router.get(
-                                                        `/dashboard/vendor-applications/${application.id}`,
-                                                        { orders_page: vendorOrders.orders.current_page - 1 },
-                                                        { preserveState: true, preserveScroll: true },
-                                                    )}
+                                                    disabled={
+                                                        vendorOrders.orders
+                                                            .current_page <= 1
+                                                    }
+                                                    onClick={() =>
+                                                        router.get(
+                                                            `/dashboard/vendor-applications/${application.id}`,
+                                                            {
+                                                                orders_page:
+                                                                    vendorOrders
+                                                                        .orders
+                                                                        .current_page -
+                                                                    1,
+                                                            },
+                                                            {
+                                                                preserveState: true,
+                                                                preserveScroll: true,
+                                                            },
+                                                        )
+                                                    }
                                                 >
                                                     Previous
                                                 </Button>
                                                 <Button
                                                     variant="outline"
                                                     size="sm"
-                                                    disabled={vendorOrders.orders.current_page >= vendorOrders.orders.last_page}
-                                                    onClick={() => router.get(
-                                                        `/dashboard/vendor-applications/${application.id}`,
-                                                        { orders_page: vendorOrders.orders.current_page + 1 },
-                                                        { preserveState: true, preserveScroll: true },
-                                                    )}
+                                                    disabled={
+                                                        vendorOrders.orders
+                                                            .current_page >=
+                                                        vendorOrders.orders
+                                                            .last_page
+                                                    }
+                                                    onClick={() =>
+                                                        router.get(
+                                                            `/dashboard/vendor-applications/${application.id}`,
+                                                            {
+                                                                orders_page:
+                                                                    vendorOrders
+                                                                        .orders
+                                                                        .current_page +
+                                                                    1,
+                                                            },
+                                                            {
+                                                                preserveState: true,
+                                                                preserveScroll: true,
+                                                            },
+                                                        )
+                                                    }
                                                 >
                                                     Next
                                                 </Button>
@@ -1106,9 +2270,16 @@ export default function VendorApplicationShow({ application, vendorOrders }: Pro
                                     )}
                                 </>
                             ) : (
-                                <Box sx={{ textAlign: 'center', py: 3, color: 'text.secondary' }}>
+                                <Box
+                                    sx={{
+                                        textAlign: 'center',
+                                        py: 3,
+                                        color: 'text.secondary',
+                                    }}
+                                >
                                     <Typography sx={{ fontSize: '0.875rem' }}>
-                                        This vendor has not received any orders yet.
+                                        This vendor has not received any orders
+                                        yet.
                                     </Typography>
                                 </Box>
                             )}
@@ -1118,7 +2289,14 @@ export default function VendorApplicationShow({ application, vendorOrders }: Pro
             </Box>
 
             {/* Document Preview Dialog */}
-            <Dialog open={!!previewDoc} onOpenChange={(open) => { if (!open) { setPreviewDoc(null); } }}>
+            <Dialog
+                open={!!previewDoc}
+                onOpenChange={(open) => {
+                    if (!open) {
+                        setPreviewDoc(null);
+                    }
+                }}
+            >
                 <DialogContent style={{ maxWidth: 900, width: '90vw' }}>
                     <DialogHeader>
                         <DialogTitle>{previewDoc?.title}</DialogTitle>
@@ -1127,31 +2305,72 @@ export default function VendorApplicationShow({ application, vendorOrders }: Pro
                         </DialogDescription>
                     </DialogHeader>
                     {previewDoc && (
-                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                            <Box sx={{ overflow: 'auto', borderRadius: 2, border: 1, borderColor: 'divider', bgcolor: 'action.hover', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 300, maxHeight: '60vh' }}>
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: 2,
+                            }}
+                        >
+                            <Box
+                                sx={{
+                                    overflow: 'auto',
+                                    borderRadius: 2,
+                                    border: 1,
+                                    borderColor: 'divider',
+                                    bgcolor: 'action.hover',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    minHeight: 300,
+                                    maxHeight: '60vh',
+                                }}
+                            >
                                 {isImageUrl(previewDoc.url) ? (
                                     <Box
                                         component="img"
                                         src={previewDoc.url}
                                         alt={previewDoc.title}
-                                        sx={{ maxWidth: '100%', maxHeight: '60vh', objectFit: 'contain' }}
+                                        sx={{
+                                            maxWidth: '100%',
+                                            maxHeight: '60vh',
+                                            objectFit: 'contain',
+                                        }}
                                     />
                                 ) : (
                                     <Box
                                         component="iframe"
                                         src={previewDoc.url}
                                         title={previewDoc.title}
-                                        sx={{ width: '100%', height: '60vh', border: 'none' }}
+                                        sx={{
+                                            width: '100%',
+                                            height: '60vh',
+                                            border: 'none',
+                                        }}
                                     />
                                 )}
                             </Box>
                             <DialogFooter>
-                                <Button variant="outline" onClick={() => setPreviewDoc(null)}>
+                                <Button
+                                    variant="outline"
+                                    onClick={() => setPreviewDoc(null)}
+                                >
                                     Close
                                 </Button>
                                 <Button asChild>
-                                    <a href={previewDoc.url} download target="_blank" rel="noopener noreferrer">
-                                        <Download style={{ marginRight: 8, width: 16, height: 16 }} />
+                                    <a
+                                        href={previewDoc.url}
+                                        download
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                    >
+                                        <Download
+                                            style={{
+                                                marginRight: 8,
+                                                width: 16,
+                                                height: 16,
+                                            }}
+                                        />
                                         Download
                                     </a>
                                 </Button>
@@ -1184,7 +2403,13 @@ export default function VendorApplicationShow({ application, vendorOrders }: Pro
                         />
                         {data.rejection_reason &&
                             data.rejection_reason.length < 10 && (
-                                <Typography sx={{ mt: 1, fontSize: '0.875rem', color: 'error.main' }}>
+                                <Typography
+                                    sx={{
+                                        mt: 1,
+                                        fontSize: '0.875rem',
+                                        color: 'error.main',
+                                    }}
+                                >
                                     Please provide at least 10 characters
                                 </Typography>
                             )}
@@ -1211,27 +2436,46 @@ export default function VendorApplicationShow({ application, vendorOrders }: Pro
             </Dialog>
 
             {/* Delete Confirmation Dialog */}
-            <Dialog open={showDeleteDialog} onOpenChange={(open) => {
-                if (!open) {
-                    setShowDeleteDialog(false);
-                    setDeleteConfirmation('');
-                }
-            }}>
+            <Dialog
+                open={showDeleteDialog}
+                onOpenChange={(open) => {
+                    if (!open) {
+                        setShowDeleteDialog(false);
+                        setDeleteConfirmation('');
+                    }
+                }}
+            >
                 <DialogContent>
                     <DialogHeader>
                         <DialogTitle>Delete Vendor Application</DialogTitle>
                         <DialogDescription>
-                            This will permanently delete this vendor application and all
-                            associated documents (Ghana Card, selfie, proof of business,
-                            etc.). This action cannot be undone.
+                            This will permanently delete this vendor application
+                            and all associated documents (Ghana Card, selfie,
+                            proof of business, etc.). This action cannot be
+                            undone.
                         </DialogDescription>
                     </DialogHeader>
-                    <Box sx={{ py: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    <Box
+                        sx={{
+                            py: 2,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: 2,
+                        }}
+                    >
                         {application.status === 'approved' && (
-                            <Box sx={{ bgcolor: 'warning.light', color: 'warning.dark', borderRadius: 2, p: 1.5, fontSize: '0.875rem' }}>
-                                This vendor has been approved. Deleting this application
-                                will revoke their vendor status and revert their role to
-                                regular user.
+                            <Box
+                                sx={{
+                                    bgcolor: 'warning.light',
+                                    color: 'warning.dark',
+                                    borderRadius: 2,
+                                    p: 1.5,
+                                    fontSize: '0.875rem',
+                                }}
+                            >
+                                This vendor has been approved. Deleting this
+                                application will revoke their vendor status and
+                                revert their role to regular user.
                             </Box>
                         )}
                         <Box>
@@ -1240,7 +2484,9 @@ export default function VendorApplicationShow({ application, vendorOrders }: Pro
                             </Typography>
                             <Input
                                 value={deleteConfirmation}
-                                onChange={(e) => setDeleteConfirmation(e.target.value)}
+                                onChange={(e) =>
+                                    setDeleteConfirmation(e.target.value)
+                                }
                                 placeholder='Type "DELETE" to confirm'
                                 autoComplete="off"
                             />
@@ -1260,7 +2506,9 @@ export default function VendorApplicationShow({ application, vendorOrders }: Pro
                         <Button
                             variant="destructive"
                             onClick={handleDelete}
-                            disabled={deleteConfirmation !== 'DELETE' || isDeleting}
+                            disabled={
+                                deleteConfirmation !== 'DELETE' || isDeleting
+                            }
                         >
                             {isDeleting ? 'Deleting...' : 'Permanently Delete'}
                         </Button>

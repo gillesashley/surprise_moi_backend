@@ -66,13 +66,16 @@ const formatDate = (dateString: string) => {
     });
 };
 
-const getStatusChipColor = (status: string): 'success' | 'info' | 'default' | 'error' => {
-    const statusMap: Record<string, 'success' | 'info' | 'default' | 'error'> = {
-        active: 'success',
-        completed: 'info',
-        expired: 'default',
-        cancelled: 'error',
-    };
+const getStatusChipColor = (
+    status: string,
+): 'success' | 'info' | 'default' | 'error' => {
+    const statusMap: Record<string, 'success' | 'info' | 'default' | 'error'> =
+        {
+            active: 'success',
+            completed: 'info',
+            expired: 'default',
+            cancelled: 'error',
+        };
     return statusMap[status] || 'default';
 };
 
@@ -97,13 +100,36 @@ export default function TargetShow({ target }: Props) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={`Target #${target.id}`} />
 
-            <Box sx={{ display: 'flex', height: '100%', flex: 1, flexDirection: 'column', gap: 2, p: 2 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <Typography variant="h4" sx={{ fontWeight: 700 }}>Target Details</Typography>
+            <Box
+                sx={{
+                    display: 'flex',
+                    height: '100%',
+                    flex: 1,
+                    flexDirection: 'column',
+                    gap: 2,
+                    p: 2,
+                }}
+            >
+                <Box
+                    sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                    }}
+                >
+                    <Typography variant="h4" sx={{ fontWeight: 700 }}>
+                        Target Details
+                    </Typography>
                     <Box sx={{ display: 'flex', gap: 1.5 }}>
                         <Button variant="outline" asChild>
                             <Link href="/dashboard/targets">
-                                <ArrowLeft style={{ marginRight: 8, width: 16, height: 16 }} />
+                                <ArrowLeft
+                                    style={{
+                                        marginRight: 8,
+                                        width: 16,
+                                        height: 16,
+                                    }}
+                                />
                                 Back to Targets
                             </Link>
                         </Button>
@@ -115,7 +141,13 @@ export default function TargetShow({ target }: Props) {
                     </Box>
                 </Box>
 
-                <Box sx={{ display: 'grid', gap: 3, gridTemplateColumns: { md: 'repeat(2, 1fr)' } }}>
+                <Box
+                    sx={{
+                        display: 'grid',
+                        gap: 3,
+                        gridTemplateColumns: { md: 'repeat(2, 1fr)' },
+                    }}
+                >
                     <Card>
                         <CardHeader>
                             <CardTitle>Target Information</CardTitle>
@@ -124,41 +156,98 @@ export default function TargetShow({ target }: Props) {
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    gap: 2,
+                                }}
+                            >
                                 <Box>
-                                    <Typography component="label" sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'text.secondary' }}>
+                                    <Typography
+                                        component="label"
+                                        sx={{
+                                            fontSize: '0.875rem',
+                                            fontWeight: 500,
+                                            color: 'text.secondary',
+                                        }}
+                                    >
                                         Target ID
                                     </Typography>
-                                    <Typography sx={{ fontSize: '1.125rem', fontWeight: 600 }}>
+                                    <Typography
+                                        sx={{
+                                            fontSize: '1.125rem',
+                                            fontWeight: 600,
+                                        }}
+                                    >
                                         #{target.id}
                                     </Typography>
                                 </Box>
                                 <Box>
-                                    <Typography component="label" sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'text.secondary' }}>
+                                    <Typography
+                                        component="label"
+                                        sx={{
+                                            fontSize: '0.875rem',
+                                            fontWeight: 500,
+                                            color: 'text.secondary',
+                                        }}
+                                    >
                                         Status
                                     </Typography>
                                     <Box sx={{ mt: 0.5 }}>
                                         <Chip
-                                            label={target.status.charAt(0).toUpperCase() + target.status.slice(1)}
-                                            color={getStatusChipColor(target.status)}
+                                            label={
+                                                target.status
+                                                    .charAt(0)
+                                                    .toUpperCase() +
+                                                target.status.slice(1)
+                                            }
+                                            color={getStatusChipColor(
+                                                target.status,
+                                            )}
                                             size="small"
                                             variant="outlined"
                                         />
                                     </Box>
                                 </Box>
                                 <Box>
-                                    <Typography component="label" sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'text.secondary' }}>
+                                    <Typography
+                                        component="label"
+                                        sx={{
+                                            fontSize: '0.875rem',
+                                            fontWeight: 500,
+                                            color: 'text.secondary',
+                                        }}
+                                    >
                                         Target Type
                                     </Typography>
-                                    <Typography sx={{ fontSize: '1.125rem', fontWeight: 600 }}>
+                                    <Typography
+                                        sx={{
+                                            fontSize: '1.125rem',
+                                            fontWeight: 600,
+                                        }}
+                                    >
                                         {formatTargetType(target.target_type)}
                                     </Typography>
                                 </Box>
                                 <Box>
-                                    <Typography component="label" sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'text.secondary' }}>
+                                    <Typography
+                                        component="label"
+                                        sx={{
+                                            fontSize: '0.875rem',
+                                            fontWeight: 500,
+                                            color: 'text.secondary',
+                                        }}
+                                    >
                                         Period Type
                                     </Typography>
-                                    <Typography sx={{ fontSize: '1.125rem', fontWeight: 600, textTransform: 'capitalize' }}>
+                                    <Typography
+                                        sx={{
+                                            fontSize: '1.125rem',
+                                            fontWeight: 600,
+                                            textTransform: 'capitalize',
+                                        }}
+                                    >
                                         {target.period_type}
                                     </Typography>
                                 </Box>
@@ -174,36 +263,90 @@ export default function TargetShow({ target }: Props) {
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    gap: 2,
+                                }}
+                            >
                                 <Box>
-                                    <Typography component="label" sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'text.secondary' }}>
+                                    <Typography
+                                        component="label"
+                                        sx={{
+                                            fontSize: '0.875rem',
+                                            fontWeight: 500,
+                                            color: 'text.secondary',
+                                        }}
+                                    >
                                         Assigned To
                                     </Typography>
-                                    <Typography sx={{ fontSize: '1.125rem', fontWeight: 600 }}>
+                                    <Typography
+                                        sx={{
+                                            fontSize: '1.125rem',
+                                            fontWeight: 600,
+                                        }}
+                                    >
                                         {target.user.name}
                                     </Typography>
-                                    <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
+                                    <Typography
+                                        sx={{
+                                            fontSize: '0.875rem',
+                                            color: 'text.secondary',
+                                        }}
+                                    >
                                         {target.user.email}
                                     </Typography>
-                                    <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary', textTransform: 'capitalize' }}>
-                                        Role: {target.user.role.replace('_', ' ')}
+                                    <Typography
+                                        sx={{
+                                            fontSize: '0.875rem',
+                                            color: 'text.secondary',
+                                            textTransform: 'capitalize',
+                                        }}
+                                    >
+                                        Role:{' '}
+                                        {target.user.role.replace('_', ' ')}
                                     </Typography>
                                 </Box>
                                 {target.assignedBy && (
                                     <Box>
-                                        <Typography component="label" sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'text.secondary' }}>
+                                        <Typography
+                                            component="label"
+                                            sx={{
+                                                fontSize: '0.875rem',
+                                                fontWeight: 500,
+                                                color: 'text.secondary',
+                                            }}
+                                        >
                                             Assigned By
                                         </Typography>
-                                        <Typography sx={{ fontSize: '1.125rem', fontWeight: 600 }}>
+                                        <Typography
+                                            sx={{
+                                                fontSize: '1.125rem',
+                                                fontWeight: 600,
+                                            }}
+                                        >
                                             {target.assignedBy.name}
                                         </Typography>
-                                        <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
+                                        <Typography
+                                            sx={{
+                                                fontSize: '0.875rem',
+                                                color: 'text.secondary',
+                                            }}
+                                        >
                                             {target.assignedBy.email}
                                         </Typography>
                                     </Box>
                                 )}
                                 <Box>
-                                    <Typography component="label" sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'text.secondary' }}>
+                                    <Typography
+                                        component="label"
+                                        sx={{
+                                            fontSize: '0.875rem',
+                                            fontWeight: 500,
+                                            color: 'text.secondary',
+                                        }}
+                                    >
                                         Created
                                     </Typography>
                                     <Typography sx={{ fontSize: '0.875rem' }}>
@@ -222,44 +365,117 @@ export default function TargetShow({ target }: Props) {
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    gap: 2,
+                                }}
+                            >
                                 <Box>
-                                    <Typography component="label" sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'text.secondary' }}>
+                                    <Typography
+                                        component="label"
+                                        sx={{
+                                            fontSize: '0.875rem',
+                                            fontWeight: 500,
+                                            color: 'text.secondary',
+                                        }}
+                                    >
                                         Target Value
                                     </Typography>
-                                    <Typography sx={{ fontSize: '1.5rem', fontWeight: 700 }}>
-                                        {target.target_type === 'revenue_generated'
-                                            ? formatCurrency(target.target_value)
+                                    <Typography
+                                        sx={{
+                                            fontSize: '1.5rem',
+                                            fontWeight: 700,
+                                        }}
+                                    >
+                                        {target.target_type ===
+                                        'revenue_generated'
+                                            ? formatCurrency(
+                                                  target.target_value,
+                                              )
                                             : `${target.target_value} signups`}
                                     </Typography>
                                 </Box>
                                 <Box>
-                                    <Typography component="label" sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'text.secondary' }}>
+                                    <Typography
+                                        component="label"
+                                        sx={{
+                                            fontSize: '0.875rem',
+                                            fontWeight: 500,
+                                            color: 'text.secondary',
+                                        }}
+                                    >
                                         Current Value
                                     </Typography>
-                                    <Typography sx={{ fontSize: '1.5rem', fontWeight: 700 }}>
-                                        {target.target_type === 'revenue_generated'
-                                            ? formatCurrency(target.current_value)
+                                    <Typography
+                                        sx={{
+                                            fontSize: '1.5rem',
+                                            fontWeight: 700,
+                                        }}
+                                    >
+                                        {target.target_type ===
+                                        'revenue_generated'
+                                            ? formatCurrency(
+                                                  target.current_value,
+                                              )
                                             : `${target.current_value} signups`}
                                     </Typography>
                                 </Box>
                                 <Box>
-                                    <Typography component="label" sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'text.secondary' }}>
+                                    <Typography
+                                        component="label"
+                                        sx={{
+                                            fontSize: '0.875rem',
+                                            fontWeight: 500,
+                                            color: 'text.secondary',
+                                        }}
+                                    >
                                         Progress
                                     </Typography>
-                                    <Box sx={{ mt: 0.5, display: 'flex', flexDirection: 'column', gap: 1 }}>
-                                        <Box sx={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem' }}>
-                                            <Box component="span" sx={{ fontWeight: 500 }}>
+                                    <Box
+                                        sx={{
+                                            mt: 0.5,
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            gap: 1,
+                                        }}
+                                    >
+                                        <Box
+                                            sx={{
+                                                display: 'flex',
+                                                justifyContent: 'space-between',
+                                                fontSize: '0.875rem',
+                                            }}
+                                        >
+                                            <Box
+                                                component="span"
+                                                sx={{ fontWeight: 500 }}
+                                            >
                                                 {progressPercentage.toFixed(1)}%
                                             </Box>
-                                            <Box component="span" sx={{ color: 'text.secondary' }}>
+                                            <Box
+                                                component="span"
+                                                sx={{ color: 'text.secondary' }}
+                                            >
                                                 {target.current_value} /{' '}
                                                 {target.target_value}
                                             </Box>
                                         </Box>
-                                        <Box sx={{ height: 8, overflow: 'hidden', borderRadius: 4, bgcolor: 'action.hover' }}>
+                                        <Box
+                                            sx={{
+                                                height: 8,
+                                                overflow: 'hidden',
+                                                borderRadius: 4,
+                                                bgcolor: 'action.hover',
+                                            }}
+                                        >
                                             <Box
-                                                sx={{ height: '100%', bgcolor: 'primary.main', transition: 'all 0.3s' }}
+                                                sx={{
+                                                    height: '100%',
+                                                    bgcolor: 'primary.main',
+                                                    transition: 'all 0.3s',
+                                                }}
                                                 style={{
                                                     width: `${progressPercentage}%`,
                                                 }}
@@ -279,25 +495,62 @@ export default function TargetShow({ target }: Props) {
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    gap: 2,
+                                }}
+                            >
                                 <Box>
-                                    <Typography component="label" sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'text.secondary' }}>
+                                    <Typography
+                                        component="label"
+                                        sx={{
+                                            fontSize: '0.875rem',
+                                            fontWeight: 500,
+                                            color: 'text.secondary',
+                                        }}
+                                    >
                                         Bonus Amount
                                     </Typography>
-                                    <Typography sx={{ fontSize: '1.5rem', fontWeight: 700 }}>
+                                    <Typography
+                                        sx={{
+                                            fontSize: '1.5rem',
+                                            fontWeight: 700,
+                                        }}
+                                    >
                                         {formatCurrency(target.bonus_amount)}
                                     </Typography>
                                 </Box>
                                 <Box>
-                                    <Typography component="label" sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'text.secondary' }}>
+                                    <Typography
+                                        component="label"
+                                        sx={{
+                                            fontSize: '0.875rem',
+                                            fontWeight: 500,
+                                            color: 'text.secondary',
+                                        }}
+                                    >
                                         Overachievement Rate
                                     </Typography>
-                                    <Typography sx={{ fontSize: '1.125rem', fontWeight: 600 }}>
+                                    <Typography
+                                        sx={{
+                                            fontSize: '1.125rem',
+                                            fontWeight: 600,
+                                        }}
+                                    >
                                         {target.overachievement_rate}%
                                     </Typography>
                                 </Box>
                                 <Box>
-                                    <Typography component="label" sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'text.secondary' }}>
+                                    <Typography
+                                        component="label"
+                                        sx={{
+                                            fontSize: '0.875rem',
+                                            fontWeight: 500,
+                                            color: 'text.secondary',
+                                        }}
+                                    >
                                         Start Date
                                     </Typography>
                                     <Typography sx={{ fontSize: '0.875rem' }}>
@@ -305,7 +558,14 @@ export default function TargetShow({ target }: Props) {
                                     </Typography>
                                 </Box>
                                 <Box>
-                                    <Typography component="label" sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'text.secondary' }}>
+                                    <Typography
+                                        component="label"
+                                        sx={{
+                                            fontSize: '0.875rem',
+                                            fontWeight: 500,
+                                            color: 'text.secondary',
+                                        }}
+                                    >
                                         End Date
                                     </Typography>
                                     <Typography sx={{ fontSize: '0.875rem' }}>
@@ -322,7 +582,12 @@ export default function TargetShow({ target }: Props) {
                                 <CardTitle>Notes</CardTitle>
                             </CardHeader>
                             <CardContent>
-                                <Typography sx={{ fontSize: '0.875rem', whiteSpace: 'pre-wrap' }}>
+                                <Typography
+                                    sx={{
+                                        fontSize: '0.875rem',
+                                        whiteSpace: 'pre-wrap',
+                                    }}
+                                >
                                     {target.notes}
                                 </Typography>
                             </CardContent>

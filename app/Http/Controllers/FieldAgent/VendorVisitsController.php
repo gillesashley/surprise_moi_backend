@@ -67,7 +67,7 @@ class VendorVisitsController extends Controller
         $this->authorizeAgent($request, $visit);
 
         if ($visit->status->isTerminal()) {
-            return redirect("/field-agent/visits");
+            return redirect('/field-agent/visits');
         }
 
         $validated = $request->validate([
@@ -96,7 +96,7 @@ class VendorVisitsController extends Controller
 
         $visit->update($updates);
 
-        return redirect("/field-agent/visits")->with('success', 'Questionnaire submitted successfully.');
+        return redirect('/field-agent/visits')->with('success', 'Questionnaire submitted successfully.');
     }
 
     private function authorizeAgent(Request $request, VendorVisit $visit): void

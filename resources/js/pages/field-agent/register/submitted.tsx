@@ -30,19 +30,40 @@ export default function FieldAgentRegisterSubmitted() {
                             p: { xs: 3, md: 4 },
                         }}
                     >
-                        <Stack spacing={2} sx={{ alignItems: 'center', textAlign: 'center' }}>
-                            <Link href={home()} style={{ color: 'inherit', textDecoration: 'none' }}>
-                                <AppLogoIcon style={{ width: 40, height: 40 }} />
+                        <Stack
+                            spacing={2}
+                            sx={{ alignItems: 'center', textAlign: 'center' }}
+                        >
+                            <Link
+                                href={home()}
+                                style={{
+                                    color: 'inherit',
+                                    textDecoration: 'none',
+                                }}
+                            >
+                                <AppLogoIcon
+                                    style={{ width: 40, height: 40 }}
+                                />
                             </Link>
                             <Typography variant="h5" sx={{ fontWeight: 600 }}>
                                 Application received
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
-                                Thank you for applying to become a Surprise Moi field agent. Our team will review your
-                                submission and contact you by email and SMS once the review is complete.
+                                Thank you for applying to become a Surprise Moi
+                                field agent. Our team will review your
+                                submission and contact you by email and SMS once
+                                the review is complete.
                             </Typography>
-                            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} sx={{ pt: 1, width: '100%' }}>
-                                <Button asChild variant="outline" sx={{ flex: 1 }}>
+                            <Stack
+                                direction={{ xs: 'column', sm: 'row' }}
+                                spacing={1.5}
+                                sx={{ pt: 1, width: '100%' }}
+                            >
+                                <Button
+                                    asChild
+                                    variant="outline"
+                                    sx={{ flex: 1 }}
+                                >
                                     <Link href={home()}>Back to home</Link>
                                 </Button>
                                 <Button asChild sx={{ flex: 1 }}>

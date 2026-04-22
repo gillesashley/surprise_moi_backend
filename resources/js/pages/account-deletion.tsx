@@ -1,11 +1,11 @@
 import { submit } from '@/actions/App/Http/Controllers/AccountDeletionController';
 import { type SharedData } from '@/types';
+import { Head, useForm, usePage } from '@inertiajs/react';
 import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
 import MuiButton from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
-import { Head, useForm, usePage } from '@inertiajs/react';
 import { AlertTriangle, Gift, Shield, Trash2 } from 'lucide-react';
 
 export default function AccountDeletion() {
@@ -50,7 +50,13 @@ export default function AccountDeletion() {
                             px: 2,
                         }}
                     >
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 1,
+                            }}
+                        >
                             <Gift style={{ width: 24, height: 24 }} />
                             <Typography variant="h6" fontWeight={700}>
                                 SurpriseMoi
@@ -59,7 +65,10 @@ export default function AccountDeletion() {
                     </Box>
                 </Box>
 
-                <Box component="main" sx={{ maxWidth: 1200, mx: 'auto', px: 2, py: 6 }}>
+                <Box
+                    component="main"
+                    sx={{ maxWidth: 1200, mx: 'auto', px: 2, py: 6 }}
+                >
                     <Box sx={{ mx: 'auto', maxWidth: 512 }}>
                         <Box sx={{ mb: 4, textAlign: 'center' }}>
                             <Box
@@ -79,7 +88,11 @@ export default function AccountDeletion() {
                             >
                                 <Trash2 style={{ width: 32, height: 32 }} />
                             </Box>
-                            <Typography variant="h4" fontWeight={700} sx={{ mb: 1 }}>
+                            <Typography
+                                variant="h4"
+                                fontWeight={700}
+                                sx={{ mb: 1 }}
+                            >
                                 Request Account Deletion
                             </Typography>
                             <Typography color="text.secondary">
@@ -105,7 +118,13 @@ export default function AccountDeletion() {
                                 boxShadow: 1,
                             }}
                         >
-                            <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5 }}>
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    alignItems: 'flex-start',
+                                    gap: 1.5,
+                                }}
+                            >
                                 <AlertTriangle
                                     style={{
                                         width: 20,
@@ -156,14 +175,20 @@ export default function AccountDeletion() {
                         <Box
                             component="form"
                             onSubmit={handleSubmit}
-                            sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}
+                            sx={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: 2,
+                            }}
                         >
                             <TextField
                                 type="email"
                                 id="email"
                                 label="Email Address"
                                 value={data.email}
-                                onChange={(e) => setData('email', e.target.value)}
+                                onChange={(e) =>
+                                    setData('email', e.target.value)
+                                }
                                 placeholder="Enter your registered email"
                                 required
                                 fullWidth
@@ -207,7 +232,10 @@ export default function AccountDeletion() {
                                 <Typography variant="body2" fontWeight={500}>
                                     Your Privacy Matters
                                 </Typography>
-                                <Typography variant="body2" color="text.secondary">
+                                <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                >
                                     We take your privacy seriously. Your data
                                     will be permanently removed from our systems
                                     in accordance with our privacy policy.

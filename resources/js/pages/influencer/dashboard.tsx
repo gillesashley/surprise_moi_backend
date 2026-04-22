@@ -103,12 +103,26 @@ function StatCard({
                 bgcolor: 'background.paper',
             }}
         >
-            <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+            <Box
+                sx={{
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    justifyContent: 'space-between',
+                }}
+            >
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                    <Typography variant="body2" fontWeight={500} color="text.secondary">
+                    <Typography
+                        variant="body2"
+                        fontWeight={500}
+                        color="text.secondary"
+                    >
                         {title}
                     </Typography>
-                    <Typography variant="h4" fontWeight={700} sx={{ letterSpacing: '-0.02em' }}>
+                    <Typography
+                        variant="h4"
+                        fontWeight={700}
+                        sx={{ letterSpacing: '-0.02em' }}
+                    >
                         {value}
                     </Typography>
                 </Box>
@@ -191,7 +205,17 @@ export default function InfluencerDashboard({
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Influencer Dashboard" />
 
-            <Box sx={{ display: 'flex', height: '100%', flex: 1, flexDirection: 'column', gap: 3, overflowX: 'auto', p: 3 }}>
+            <Box
+                sx={{
+                    display: 'flex',
+                    height: '100%',
+                    flex: 1,
+                    flexDirection: 'column',
+                    gap: 3,
+                    overflowX: 'auto',
+                    p: 3,
+                }}
+            >
                 {/* Welcome Section */}
                 <Box
                     sx={{
@@ -209,7 +233,9 @@ export default function InfluencerDashboard({
                         <Typography variant="h5" fontWeight={700}>
                             Welcome back, {auth.user?.name}!
                         </Typography>
-                        <Typography sx={{ mt: 1, color: 'rgba(255,255,255,0.8)' }}>
+                        <Typography
+                            sx={{ mt: 1, color: 'rgba(255,255,255,0.8)' }}
+                        >
                             Track your referrals, earnings, and grow your
                             income.
                         </Typography>
@@ -265,7 +291,13 @@ export default function InfluencerDashboard({
                     />
                 </Box>
 
-                <Box sx={{ display: 'grid', gap: 3, gridTemplateColumns: { lg: 'repeat(2, 1fr)' } }}>
+                <Box
+                    sx={{
+                        display: 'grid',
+                        gap: 3,
+                        gridTemplateColumns: { lg: 'repeat(2, 1fr)' },
+                    }}
+                >
                     {/* Referral Codes */}
                     <Card>
                         <CardHeader>
@@ -275,9 +307,18 @@ export default function InfluencerDashboard({
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    gap: 2,
+                                }}
+                            >
                                 {referral_codes.length === 0 ? (
-                                    <Typography variant="body2" color="text.secondary">
+                                    <Typography
+                                        variant="body2"
+                                        color="text.secondary"
+                                    >
                                         No referral codes yet. Create one to get
                                         started!
                                     </Typography>
@@ -295,13 +336,33 @@ export default function InfluencerDashboard({
                                                 p: 2,
                                             }}
                                         >
-                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                                                <Code style={{ width: 20, height: 20 }} />
+                                            <Box
+                                                sx={{
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: 1.5,
+                                                }}
+                                            >
+                                                <Code
+                                                    style={{
+                                                        width: 20,
+                                                        height: 20,
+                                                    }}
+                                                />
                                                 <Box>
-                                                    <Typography fontWeight={700} sx={{ fontFamily: 'monospace' }}>
+                                                    <Typography
+                                                        fontWeight={700}
+                                                        sx={{
+                                                            fontFamily:
+                                                                'monospace',
+                                                        }}
+                                                    >
                                                         {code.code}
                                                     </Typography>
-                                                    <Typography variant="body2" color="text.secondary">
+                                                    <Typography
+                                                        variant="body2"
+                                                        color="text.secondary"
+                                                    >
                                                         Used: {code.usage_count}
                                                         {code.max_uses &&
                                                             ` / ${code.max_uses}`}
@@ -333,22 +394,38 @@ export default function InfluencerDashboard({
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    gap: 2,
+                                }}
+                            >
                                 {recent_referrals.length === 0 ? (
-                                    <Typography variant="body2" color="text.secondary">
+                                    <Typography
+                                        variant="body2"
+                                        color="text.secondary"
+                                    >
                                         No referrals yet
                                     </Typography>
                                 ) : (
                                     recent_referrals.map((referral) => (
                                         <Box
                                             key={referral.id}
-                                            sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
+                                            sx={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'space-between',
+                                            }}
                                         >
                                             <Box>
                                                 <Typography fontWeight={500}>
                                                     {referral.vendor.name}
                                                 </Typography>
-                                                <Typography variant="body2" color="text.secondary">
+                                                <Typography
+                                                    variant="body2"
+                                                    color="text.secondary"
+                                                >
                                                     {referral.vendor.email}
                                                 </Typography>
                                             </Box>
@@ -370,23 +447,39 @@ export default function InfluencerDashboard({
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: 2,
+                            }}
+                        >
                             {recent_earnings.length === 0 ? (
-                                <Typography variant="body2" color="text.secondary">
+                                <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                >
                                     No earnings yet
                                 </Typography>
                             ) : (
                                 recent_earnings.map((earning) => (
                                     <Box
                                         key={earning.id}
-                                        sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
+                                        sx={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'space-between',
+                                        }}
                                     >
                                         <Box>
                                             <Typography fontWeight={500}>
                                                 {earning.currency}{' '}
                                                 {earning.amount.toFixed(2)}
                                             </Typography>
-                                            <Typography variant="body2" color="text.secondary">
+                                            <Typography
+                                                variant="body2"
+                                                color="text.secondary"
+                                            >
                                                 {earning.earning_type.replace(
                                                     '_',
                                                     ' ',

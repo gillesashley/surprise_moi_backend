@@ -13,10 +13,10 @@ import {
     destroy as categoryDestroy,
     edit as categoryEdit,
 } from '@/routes/dashboard/categories';
+import { Link, router } from '@inertiajs/react';
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
 import Typography from '@mui/material/Typography';
-import { Link, router } from '@inertiajs/react';
 import { Eye, Pencil, Plus, Trash2 } from 'lucide-react';
 
 interface Category {
@@ -84,7 +84,13 @@ export function CategoriesTab({
                 {canCreate && (
                     <Button asChild>
                         <Link href={categoryCreate.url()}>
-                            <Plus style={{ width: 16, height: 16, marginRight: 8 }} />
+                            <Plus
+                                style={{
+                                    width: 16,
+                                    height: 16,
+                                    marginRight: 8,
+                                }}
+                            />
                             Add Category
                         </Link>
                     </Button>
@@ -170,23 +176,22 @@ export function CategoriesTab({
                                     <Button
                                         variant="ghost"
                                         size="sm"
-                                        onClick={() =>
-                                            onViewCategory(category)
-                                        }
+                                        onClick={() => onViewCategory(category)}
                                     >
-                                        <Eye style={{ width: 16, height: 16 }} />
+                                        <Eye
+                                            style={{ width: 16, height: 16 }}
+                                        />
                                     </Button>
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        asChild
-                                    >
+                                    <Button variant="ghost" size="sm" asChild>
                                         <Link
-                                            href={categoryEdit.url(
-                                                category.id,
-                                            )}
+                                            href={categoryEdit.url(category.id)}
                                         >
-                                            <Pencil style={{ width: 16, height: 16 }} />
+                                            <Pencil
+                                                style={{
+                                                    width: 16,
+                                                    height: 16,
+                                                }}
+                                            />
                                         </Link>
                                     </Button>
                                     {canDelete && (
@@ -200,7 +205,13 @@ export function CategoriesTab({
                                                 )
                                             }
                                         >
-                                            <Trash2 style={{ width: 16, height: 16, color: 'var(--mui-palette-error-main, #d32f2f)' }} />
+                                            <Trash2
+                                                style={{
+                                                    width: 16,
+                                                    height: 16,
+                                                    color: 'var(--mui-palette-error-main, #d32f2f)',
+                                                }}
+                                            />
                                         </Button>
                                     )}
                                 </Box>

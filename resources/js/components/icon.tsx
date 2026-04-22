@@ -16,5 +16,7 @@ export function Icon({
         ? { ...style }
         : { width: 16, height: 16, ...style };
 
-    return <IconComponent className={className} style={defaultStyle} {...props} />;
+    return (
+        <IconComponent className={className} style={defaultStyle} {...props} />
+    );
 }

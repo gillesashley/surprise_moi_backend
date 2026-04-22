@@ -16,9 +16,9 @@ import {
 } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
+import { Head } from '@inertiajs/react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import { Head } from '@inertiajs/react';
 import { Calendar, DollarSign } from 'lucide-react';
 
 interface PayoutRequest {
@@ -99,26 +99,62 @@ export default function FieldAgentPayouts({ payoutRequests }: Props) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Payouts" />
 
-            <Box sx={{ display: 'flex', flex: 1, flexDirection: 'column', gap: 3, overflowX: 'auto', p: 3 }}>
+            <Box
+                sx={{
+                    display: 'flex',
+                    flex: 1,
+                    flexDirection: 'column',
+                    gap: 3,
+                    overflowX: 'auto',
+                    p: 3,
+                }}
+            >
                 <Box>
                     <Typography variant="h4" fontWeight={700}>
                         Payout Requests
                     </Typography>
-                    <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                    <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{ mt: 0.5 }}
+                    >
                         Manage your withdrawal requests
                     </Typography>
                 </Box>
 
-                <Box sx={{ display: 'grid', gap: 2, gridTemplateColumns: { md: 'repeat(3, 1fr)' } }}>
+                <Box
+                    sx={{
+                        display: 'grid',
+                        gap: 2,
+                        gridTemplateColumns: { md: 'repeat(3, 1fr)' },
+                    }}
+                >
                     <Card>
                         <CardHeader style={{ paddingBottom: 12 }}>
-                            <CardTitle style={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                            <CardTitle
+                                style={{
+                                    fontSize: '0.875rem',
+                                    fontWeight: 500,
+                                }}
+                            >
                                 Total Requested
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                <DollarSign style={{ width: 20, height: 20, color: 'gray' }} />
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 1,
+                                }}
+                            >
+                                <DollarSign
+                                    style={{
+                                        width: 20,
+                                        height: 20,
+                                        color: 'gray',
+                                    }}
+                                />
                                 <Typography variant="h5" fontWeight={700}>
                                     GHS {totalRequested.toFixed(2)}
                                 </Typography>
@@ -127,14 +163,35 @@ export default function FieldAgentPayouts({ payoutRequests }: Props) {
                     </Card>
                     <Card>
                         <CardHeader style={{ paddingBottom: 12 }}>
-                            <CardTitle style={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                            <CardTitle
+                                style={{
+                                    fontSize: '0.875rem',
+                                    fontWeight: 500,
+                                }}
+                            >
                                 Total Paid
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                <DollarSign style={{ width: 20, height: 20, color: '#16a34a' }} />
-                                <Typography variant="h5" fontWeight={700} sx={{ color: '#16a34a' }}>
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 1,
+                                }}
+                            >
+                                <DollarSign
+                                    style={{
+                                        width: 20,
+                                        height: 20,
+                                        color: '#16a34a',
+                                    }}
+                                />
+                                <Typography
+                                    variant="h5"
+                                    fontWeight={700}
+                                    sx={{ color: '#16a34a' }}
+                                >
                                     GHS {totalPaid.toFixed(2)}
                                 </Typography>
                             </Box>
@@ -142,12 +199,21 @@ export default function FieldAgentPayouts({ payoutRequests }: Props) {
                     </Card>
                     <Card>
                         <CardHeader style={{ paddingBottom: 12 }}>
-                            <CardTitle style={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                            <CardTitle
+                                style={{
+                                    fontSize: '0.875rem',
+                                    fontWeight: 500,
+                                }}
+                            >
                                 Pending Requests
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <Typography variant="h5" fontWeight={700} sx={{ color: '#ea580c' }}>
+                            <Typography
+                                variant="h5"
+                                fontWeight={700}
+                                sx={{ color: '#ea580c' }}
+                            >
                                 {
                                     payoutRequests.data.filter(
                                         (p) => p.status === 'pending',
@@ -188,7 +254,9 @@ export default function FieldAgentPayouts({ payoutRequests }: Props) {
                                 <TableBody>
                                     {payoutRequests.data.map((payout) => (
                                         <TableRow key={payout.id}>
-                                            <TableCell style={{ fontWeight: 600 }}>
+                                            <TableCell
+                                                style={{ fontWeight: 600 }}
+                                            >
                                                 {formatCurrency(
                                                     payout.amount,
                                                     payout.currency,
@@ -203,8 +271,20 @@ export default function FieldAgentPayouts({ payoutRequests }: Props) {
                                                 {getStatusBadge(payout.status)}
                                             </TableCell>
                                             <TableCell>
-                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                                    <Calendar style={{ width: 16, height: 16, color: 'gray' }} />
+                                                <Box
+                                                    sx={{
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: 1,
+                                                    }}
+                                                >
+                                                    <Calendar
+                                                        style={{
+                                                            width: 16,
+                                                            height: 16,
+                                                            color: 'gray',
+                                                        }}
+                                                    />
                                                     {formatDate(
                                                         payout.created_at,
                                                     )}

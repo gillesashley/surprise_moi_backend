@@ -13,10 +13,10 @@ import {
     destroy as bespokeServiceDestroy,
     edit as bespokeServiceEdit,
 } from '@/routes/dashboard/bespoke-services';
+import { Link, router } from '@inertiajs/react';
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
 import Typography from '@mui/material/Typography';
-import { Link, router } from '@inertiajs/react';
 import { Pencil, Plus, Trash2 } from 'lucide-react';
 
 interface BespokeService {
@@ -81,7 +81,13 @@ export function BespokeServicesTab({
                 {canCreate && (
                     <Button asChild>
                         <Link href={bespokeServiceCreate.url()}>
-                            <Plus style={{ width: 16, height: 16, marginRight: 8 }} />
+                            <Plus
+                                style={{
+                                    width: 16,
+                                    height: 16,
+                                    marginRight: 8,
+                                }}
+                            />
                             Add Service
                         </Link>
                     </Button>
@@ -150,17 +156,18 @@ export function BespokeServicesTab({
                                         gap: 1,
                                     }}
                                 >
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        asChild
-                                    >
+                                    <Button variant="ghost" size="sm" asChild>
                                         <Link
                                             href={bespokeServiceEdit.url(
                                                 service.id,
                                             )}
                                         >
-                                            <Pencil style={{ width: 16, height: 16 }} />
+                                            <Pencil
+                                                style={{
+                                                    width: 16,
+                                                    height: 16,
+                                                }}
+                                            />
                                         </Link>
                                     </Button>
                                     {canDelete && (
@@ -174,7 +181,13 @@ export function BespokeServicesTab({
                                                 )
                                             }
                                         >
-                                            <Trash2 style={{ width: 16, height: 16, color: 'var(--mui-palette-error-main, #d32f2f)' }} />
+                                            <Trash2
+                                                style={{
+                                                    width: 16,
+                                                    height: 16,
+                                                    color: 'var(--mui-palette-error-main, #d32f2f)',
+                                                }}
+                                            />
                                         </Button>
                                     )}
                                 </Box>

@@ -413,7 +413,6 @@ class VendorOnboardingPaymentService
                 $application->refresh();
                 $autoSubmitted = $application->canSubmit() ? $application->submit() : false;
 
-
                 return [
                     'application' => $application,
                     'auto_submitted' => $autoSubmitted,

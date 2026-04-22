@@ -92,15 +92,36 @@ export default function ReferralCodeShow({ code }: Props) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={`Referral Code: ${code.code}`} />
 
-            <Box sx={{ display: 'flex', height: '100%', flex: 1, flexDirection: 'column', gap: 2, p: 2 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <Box
+                sx={{
+                    display: 'flex',
+                    height: '100%',
+                    flex: 1,
+                    flexDirection: 'column',
+                    gap: 2,
+                    p: 2,
+                }}
+            >
+                <Box
+                    sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                    }}
+                >
                     <Typography variant="h4" sx={{ fontWeight: 700 }}>
                         Referral Code Details
                     </Typography>
                     <Box sx={{ display: 'flex', gap: 1.5 }}>
                         <Button variant="outline" asChild>
                             <Link href="/dashboard/referral-codes">
-                                <ArrowLeft style={{ marginRight: 8, width: 16, height: 16 }} />
+                                <ArrowLeft
+                                    style={{
+                                        marginRight: 8,
+                                        width: 16,
+                                        height: 16,
+                                    }}
+                                />
                                 Back to Referral Codes
                             </Link>
                         </Button>
@@ -114,7 +135,13 @@ export default function ReferralCodeShow({ code }: Props) {
                     </Box>
                 </Box>
 
-                <Box sx={{ display: 'grid', gap: 3, gridTemplateColumns: { md: 'repeat(2, 1fr)' } }}>
+                <Box
+                    sx={{
+                        display: 'grid',
+                        gap: 3,
+                        gridTemplateColumns: { md: 'repeat(2, 1fr)' },
+                    }}
+                >
                     <Card>
                         <CardHeader>
                             <CardTitle>Code Information</CardTitle>
@@ -123,15 +150,43 @@ export default function ReferralCodeShow({ code }: Props) {
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    gap: 2,
+                                }}
+                            >
                                 <Box>
-                                    <Typography component="label" sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'text.secondary' }}>
+                                    <Typography
+                                        component="label"
+                                        sx={{
+                                            fontSize: '0.875rem',
+                                            fontWeight: 500,
+                                            color: 'text.secondary',
+                                        }}
+                                    >
                                         Referral Code
                                     </Typography>
-                                    <Box sx={{ mt: 0.5, display: 'flex', alignItems: 'center', gap: 1 }}>
+                                    <Box
+                                        sx={{
+                                            mt: 0.5,
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: 1,
+                                        }}
+                                    >
                                         <Box
                                             component="code"
-                                            sx={{ borderRadius: 1, bgcolor: 'action.hover', px: 1.5, py: 1, fontFamily: 'monospace', fontSize: '1.25rem', fontWeight: 700 }}
+                                            sx={{
+                                                borderRadius: 1,
+                                                bgcolor: 'action.hover',
+                                                px: 1.5,
+                                                py: 1,
+                                                fontFamily: 'monospace',
+                                                fontSize: '1.25rem',
+                                                fontWeight: 700,
+                                            }}
                                         >
                                             {code.code}
                                         </Box>
@@ -140,31 +195,81 @@ export default function ReferralCodeShow({ code }: Props) {
                                             size="icon"
                                             onClick={copyToClipboard}
                                         >
-                                            <Copy style={{ width: 16, height: 16 }} />
+                                            <Copy
+                                                style={{
+                                                    width: 16,
+                                                    height: 16,
+                                                }}
+                                            />
                                         </Button>
                                         {copied && (
-                                            <Box component="span" sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'success.main' }}>
+                                            <Box
+                                                component="span"
+                                                sx={{
+                                                    fontSize: '0.875rem',
+                                                    fontWeight: 500,
+                                                    color: 'success.main',
+                                                }}
+                                            >
                                                 Copied!
                                             </Box>
                                         )}
                                     </Box>
                                 </Box>
                                 <Box>
-                                    <Typography component="label" sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'text.secondary' }}>
+                                    <Typography
+                                        component="label"
+                                        sx={{
+                                            fontSize: '0.875rem',
+                                            fontWeight: 500,
+                                            color: 'text.secondary',
+                                        }}
+                                    >
                                         Status
                                     </Typography>
-                                    <Box sx={{ mt: 0.5, display: 'flex', alignItems: 'center', gap: 1 }}>
+                                    <Box
+                                        sx={{
+                                            mt: 0.5,
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: 1,
+                                        }}
+                                    >
                                         {code.is_active ? (
                                             <>
-                                                <CheckCircle style={{ width: 20, height: 20, color: '#16a34a' }} />
-                                                <Box component="span" sx={{ fontWeight: 600, color: 'success.main' }}>
+                                                <CheckCircle
+                                                    style={{
+                                                        width: 20,
+                                                        height: 20,
+                                                        color: '#16a34a',
+                                                    }}
+                                                />
+                                                <Box
+                                                    component="span"
+                                                    sx={{
+                                                        fontWeight: 600,
+                                                        color: 'success.main',
+                                                    }}
+                                                >
                                                     Active
                                                 </Box>
                                             </>
                                         ) : (
                                             <>
-                                                <XCircle style={{ width: 20, height: 20, color: '#6b7280' }} />
-                                                <Box component="span" sx={{ fontWeight: 600, color: 'text.secondary' }}>
+                                                <XCircle
+                                                    style={{
+                                                        width: 20,
+                                                        height: 20,
+                                                        color: '#6b7280',
+                                                    }}
+                                                />
+                                                <Box
+                                                    component="span"
+                                                    sx={{
+                                                        fontWeight: 600,
+                                                        color: 'text.secondary',
+                                                    }}
+                                                >
                                                     Inactive
                                                 </Box>
                                             </>
@@ -173,19 +278,40 @@ export default function ReferralCodeShow({ code }: Props) {
                                 </Box>
                                 {code.description && (
                                     <Box>
-                                        <Typography component="label" sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'text.secondary' }}>
+                                        <Typography
+                                            component="label"
+                                            sx={{
+                                                fontSize: '0.875rem',
+                                                fontWeight: 500,
+                                                color: 'text.secondary',
+                                            }}
+                                        >
                                             Description
                                         </Typography>
-                                        <Typography sx={{ mt: 0.5, fontSize: '0.875rem' }}>
+                                        <Typography
+                                            sx={{
+                                                mt: 0.5,
+                                                fontSize: '0.875rem',
+                                            }}
+                                        >
                                             {code.description}
                                         </Typography>
                                     </Box>
                                 )}
                                 <Box>
-                                    <Typography component="label" sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'text.secondary' }}>
+                                    <Typography
+                                        component="label"
+                                        sx={{
+                                            fontSize: '0.875rem',
+                                            fontWeight: 500,
+                                            color: 'text.secondary',
+                                        }}
+                                    >
                                         Created
                                     </Typography>
-                                    <Typography sx={{ mt: 0.5, fontSize: '0.875rem' }}>
+                                    <Typography
+                                        sx={{ mt: 0.5, fontSize: '0.875rem' }}
+                                    >
                                         {formatDate(code.created_at)}
                                     </Typography>
                                 </Box>
@@ -201,20 +327,48 @@ export default function ReferralCodeShow({ code }: Props) {
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    gap: 2,
+                                }}
+                            >
                                 <Box>
-                                    <Typography component="label" sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'text.secondary' }}>
+                                    <Typography
+                                        component="label"
+                                        sx={{
+                                            fontSize: '0.875rem',
+                                            fontWeight: 500,
+                                            color: 'text.secondary',
+                                        }}
+                                    >
                                         Name
                                     </Typography>
-                                    <Typography sx={{ mt: 0.5, fontSize: '1.125rem', fontWeight: 600 }}>
+                                    <Typography
+                                        sx={{
+                                            mt: 0.5,
+                                            fontSize: '1.125rem',
+                                            fontWeight: 600,
+                                        }}
+                                    >
                                         {code.influencer.name}
                                     </Typography>
                                 </Box>
                                 <Box>
-                                    <Typography component="label" sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'text.secondary' }}>
+                                    <Typography
+                                        component="label"
+                                        sx={{
+                                            fontSize: '0.875rem',
+                                            fontWeight: 500,
+                                            color: 'text.secondary',
+                                        }}
+                                    >
                                         Email
                                     </Typography>
-                                    <Typography sx={{ mt: 0.5, fontSize: '0.875rem' }}>
+                                    <Typography
+                                        sx={{ mt: 0.5, fontSize: '0.875rem' }}
+                                    >
                                         {code.influencer.email}
                                     </Typography>
                                 </Box>
@@ -230,13 +384,34 @@ export default function ReferralCodeShow({ code }: Props) {
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    gap: 2,
+                                }}
+                            >
                                 <Box>
-                                    <Typography component="label" sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'text.secondary' }}>
+                                    <Typography
+                                        component="label"
+                                        sx={{
+                                            fontSize: '0.875rem',
+                                            fontWeight: 500,
+                                            color: 'text.secondary',
+                                        }}
+                                    >
                                         Registration Bonus
                                     </Typography>
-                                    <Typography sx={{ mt: 0.5, fontSize: '1.5rem', fontWeight: 700 }}>
-                                        {formatCurrency(code.registration_bonus)}
+                                    <Typography
+                                        sx={{
+                                            mt: 0.5,
+                                            fontSize: '1.5rem',
+                                            fontWeight: 700,
+                                        }}
+                                    >
+                                        {formatCurrency(
+                                            code.registration_bonus,
+                                        )}
                                     </Typography>
                                 </Box>
                             </Box>
@@ -251,29 +426,71 @@ export default function ReferralCodeShow({ code }: Props) {
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    gap: 2,
+                                }}
+                            >
                                 <Box>
-                                    <Typography component="label" sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'text.secondary' }}>
+                                    <Typography
+                                        component="label"
+                                        sx={{
+                                            fontSize: '0.875rem',
+                                            fontWeight: 500,
+                                            color: 'text.secondary',
+                                        }}
+                                    >
                                         Usage Count
                                     </Typography>
-                                    <Typography sx={{ mt: 0.5, fontSize: '1.5rem', fontWeight: 700 }}>
+                                    <Typography
+                                        sx={{
+                                            mt: 0.5,
+                                            fontSize: '1.5rem',
+                                            fontWeight: 700,
+                                        }}
+                                    >
                                         {code.usage_count}
-                                        {code.max_usages && ` / ${code.max_usages}`}
+                                        {code.max_usages &&
+                                            ` / ${code.max_usages}`}
                                     </Typography>
                                 </Box>
                                 <Box>
-                                    <Typography component="label" sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'text.secondary' }}>
+                                    <Typography
+                                        component="label"
+                                        sx={{
+                                            fontSize: '0.875rem',
+                                            fontWeight: 500,
+                                            color: 'text.secondary',
+                                        }}
+                                    >
                                         Maximum Usages
                                     </Typography>
-                                    <Typography sx={{ mt: 0.5, fontSize: '1.125rem', fontWeight: 600 }}>
+                                    <Typography
+                                        sx={{
+                                            mt: 0.5,
+                                            fontSize: '1.125rem',
+                                            fontWeight: 600,
+                                        }}
+                                    >
                                         {code.max_usages || 'Unlimited'}
                                     </Typography>
                                 </Box>
                                 <Box>
-                                    <Typography component="label" sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'text.secondary' }}>
+                                    <Typography
+                                        component="label"
+                                        sx={{
+                                            fontSize: '0.875rem',
+                                            fontWeight: 500,
+                                            color: 'text.secondary',
+                                        }}
+                                    >
                                         Expiration Date
                                     </Typography>
-                                    <Typography sx={{ mt: 0.5, fontSize: '0.875rem' }}>
+                                    <Typography
+                                        sx={{ mt: 0.5, fontSize: '0.875rem' }}
+                                    >
                                         {code.expires_at
                                             ? formatDate(code.expires_at)
                                             : 'No expiration'}
@@ -306,7 +523,9 @@ export default function ReferralCodeShow({ code }: Props) {
                                     {code.referrals.map((referral) => (
                                         <TableRow key={referral.id}>
                                             <TableCell>
-                                                <Typography sx={{ fontWeight: 500 }}>
+                                                <Typography
+                                                    sx={{ fontWeight: 500 }}
+                                                >
                                                     {referral.vendor.name}
                                                 </Typography>
                                             </TableCell>
@@ -314,7 +533,13 @@ export default function ReferralCodeShow({ code }: Props) {
                                                 {referral.vendor.email}
                                             </TableCell>
                                             <TableCell>
-                                                <Box component="span" sx={{ textTransform: 'capitalize' }}>
+                                                <Box
+                                                    component="span"
+                                                    sx={{
+                                                        textTransform:
+                                                            'capitalize',
+                                                    }}
+                                                >
                                                     {referral.status}
                                                 </Box>
                                             </TableCell>

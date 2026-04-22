@@ -122,7 +122,9 @@ export default function ImageUpload({
                     }}
                 >
                     <Box sx={{ color: 'text.secondary' }}>
-                        <Upload style={{ width: 24, height: 24, color: 'inherit' }} />
+                        <Upload
+                            style={{ width: 24, height: 24, color: 'inherit' }}
+                        />
                     </Box>
                     <Box sx={{ textAlign: 'center' }}>
                         <Typography

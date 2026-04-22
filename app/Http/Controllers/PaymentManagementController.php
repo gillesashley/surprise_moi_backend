@@ -298,7 +298,7 @@ class PaymentManagementController extends Controller
                 'vendor_onboarding_payments.channel',
                 'vendor_onboarding_payments.paid_at',
                 'vendor_onboarding_payments.created_at',
-                DB::raw("NULL as related_reference"),
+                DB::raw('NULL as related_reference'),
             ]);
     }
 

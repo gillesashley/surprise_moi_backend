@@ -57,7 +57,10 @@ interface Props {
     tierFees: { tier1: number; tier2: number };
 }
 
-export default function ReferralCodeCreate({ bonusPercentages, tierFees }: Props) {
+export default function ReferralCodeCreate({
+    bonusPercentages,
+    tierFees,
+}: Props) {
     const [selectedCategory, setSelectedCategory] = useState<string>('');
     const [selectedUserId, setSelectedUserId] = useState<string>('');
     const [users, setUsers] = useState<UserOption[]>([]);
@@ -83,10 +86,13 @@ export default function ReferralCodeCreate({ bonusPercentages, tierFees }: Props
                 params.set('q', searchTerm.trim());
             }
 
-            fetch(`/dashboard/referral-codes/users-by-role?${params.toString()}`, {
-                signal: controller.signal,
-                headers: { Accept: 'application/json' },
-            })
+            fetch(
+                `/dashboard/referral-codes/users-by-role?${params.toString()}`,
+                {
+                    signal: controller.signal,
+                    headers: { Accept: 'application/json' },
+                },
+            )
                 .then((res) => res.json())
                 .then((json) => {
                     setUsers(json.data || []);
@@ -115,11 +121,22 @@ export default function ReferralCodeCreate({ bonusPercentages, tierFees }: Props
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Create Referral Code" />
 
-            <Box sx={{ mb: 3, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <Typography variant="h4" sx={{ fontWeight: 700 }}>Create Referral Code</Typography>
+            <Box
+                sx={{
+                    mb: 3,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                }}
+            >
+                <Typography variant="h4" sx={{ fontWeight: 700 }}>
+                    Create Referral Code
+                </Typography>
                 <Button variant="outline" asChild>
                     <Link href="/dashboard/referral-codes">
-                        <ArrowLeft style={{ marginRight: 8, width: 16, height: 16 }} />
+                        <ArrowLeft
+                            style={{ marginRight: 8, width: 16, height: 16 }}
+                        />
                         Back to Referral Codes
                     </Link>
                 </Button>
@@ -133,14 +150,31 @@ export default function ReferralCodeCreate({ bonusPercentages, tierFees }: Props
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <Form
-                        action="/dashboard/referral-codes"
-                        method="post"
-                    >
+                    <Form action="/dashboard/referral-codes" method="post">
                         {({ errors, processing }) => (
-                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-                                <Box sx={{ display: 'grid', gap: 3, gridTemplateColumns: { md: 'repeat(2, 1fr)' } }}>
-                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    gap: 3,
+                                }}
+                            >
+                                <Box
+                                    sx={{
+                                        display: 'grid',
+                                        gap: 3,
+                                        gridTemplateColumns: {
+                                            md: 'repeat(2, 1fr)',
+                                        },
+                                    }}
+                                >
+                                    <Box
+                                        sx={{
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            gap: 1,
+                                        }}
+                                    >
                                         <Label htmlFor="user_category">
                                             User Category *
                                         </Label>
@@ -153,7 +187,10 @@ export default function ReferralCodeCreate({ bonusPercentages, tierFees }: Props
                                             </SelectTrigger>
                                             <SelectContent>
                                                 {USER_CATEGORIES.map((cat) => (
-                                                    <SelectItem key={cat.value} value={cat.value}>
+                                                    <SelectItem
+                                                        key={cat.value}
+                                                        value={cat.value}
+                                                    >
                                                         {cat.label}
                                                     </SelectItem>
                                                 ))}
@@ -161,7 +198,13 @@ export default function ReferralCodeCreate({ bonusPercentages, tierFees }: Props
                                         </Select>
                                     </Box>
 
-                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                    <Box
+                                        sx={{
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            gap: 1,
+                                        }}
+                                    >
                                         <Label htmlFor="influencer_id">
                                             User *
                                         </Label>
@@ -185,13 +228,20 @@ export default function ReferralCodeCreate({ bonusPercentages, tierFees }: Props
                                             </SelectTrigger>
                                             <SelectContent>
                                                 <Box sx={{ p: 1 }}>
-                                                    <Box sx={{ position: 'relative' }}>
+                                                    <Box
+                                                        sx={{
+                                                            position:
+                                                                'relative',
+                                                        }}
+                                                    >
                                                         <Search
                                                             style={{
-                                                                position: 'absolute',
+                                                                position:
+                                                                    'absolute',
                                                                 left: 8,
                                                                 top: '50%',
-                                                                transform: 'translateY(-50%)',
+                                                                transform:
+                                                                    'translateY(-50%)',
                                                                 width: 16,
                                                                 height: 16,
                                                                 color: '#9ca3af',
@@ -200,35 +250,72 @@ export default function ReferralCodeCreate({ bonusPercentages, tierFees }: Props
                                                         <Input
                                                             placeholder="Search name or email..."
                                                             value={searchTerm}
-                                                            onChange={(e) => setSearchTerm(e.target.value)}
-                                                            onKeyDown={(e) => e.stopPropagation()}
-                                                            onMouseDown={(e) => e.stopPropagation()}
-                                                            onClick={(e) => e.stopPropagation()}
-                                                            style={{ paddingLeft: 32 }}
+                                                            onChange={(e) =>
+                                                                setSearchTerm(
+                                                                    e.target
+                                                                        .value,
+                                                                )
+                                                            }
+                                                            onKeyDown={(e) =>
+                                                                e.stopPropagation()
+                                                            }
+                                                            onMouseDown={(e) =>
+                                                                e.stopPropagation()
+                                                            }
+                                                            onClick={(e) =>
+                                                                e.stopPropagation()
+                                                            }
+                                                            style={{
+                                                                paddingLeft: 32,
+                                                            }}
                                                         />
                                                     </Box>
                                                 </Box>
-                                                {users.length === 0 && !loadingUsers && (
-                                                    <Box sx={{ px: 2, py: 1.5, fontSize: '0.875rem', color: 'text.secondary' }}>
-                                                        No users found
-                                                    </Box>
-                                                )}
+                                                {users.length === 0 &&
+                                                    !loadingUsers && (
+                                                        <Box
+                                                            sx={{
+                                                                px: 2,
+                                                                py: 1.5,
+                                                                fontSize:
+                                                                    '0.875rem',
+                                                                color: 'text.secondary',
+                                                            }}
+                                                        >
+                                                            No users found
+                                                        </Box>
+                                                    )}
                                                 {users.map((user) => (
-                                                    <SelectItem key={user.id} value={user.id.toString()}>
-                                                        {user.name} ({user.email})
+                                                    <SelectItem
+                                                        key={user.id}
+                                                        value={user.id.toString()}
+                                                    >
+                                                        {user.name} (
+                                                        {user.email})
                                                     </SelectItem>
                                                 ))}
                                             </SelectContent>
                                         </Select>
                                         {errors.influencer_id && (
-                                            <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
+                                            <Typography
+                                                sx={{
+                                                    fontSize: '0.875rem',
+                                                    color: 'error.main',
+                                                }}
+                                            >
                                                 {errors.influencer_id}
                                             </Typography>
                                         )}
                                     </Box>
                                 </Box>
 
-                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                <Box
+                                    sx={{
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        gap: 1,
+                                    }}
+                                >
                                     <Label htmlFor="description">
                                         Description
                                     </Label>
@@ -239,7 +326,12 @@ export default function ReferralCodeCreate({ bonusPercentages, tierFees }: Props
                                         placeholder="Optional description for this referral code..."
                                     />
                                     {errors.description && (
-                                        <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
+                                        <Typography
+                                            sx={{
+                                                fontSize: '0.875rem',
+                                                color: 'error.main',
+                                            }}
+                                        >
                                             {errors.description}
                                         </Typography>
                                     )}
@@ -256,21 +348,52 @@ export default function ReferralCodeCreate({ bonusPercentages, tierFees }: Props
                                             gap: 0.5,
                                         }}
                                     >
-                                        <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                                        <Typography
+                                            variant="body2"
+                                            sx={{ fontWeight: 500 }}
+                                        >
                                             Registration Bonus (auto-calculated)
                                         </Typography>
-                                        <Typography variant="body2" color="text.secondary">
-                                            Tier 1: GH₵{tier1Bonus} | Tier 2: GH₵{tier2Bonus}
+                                        <Typography
+                                            variant="body2"
+                                            color="text.secondary"
+                                        >
+                                            Tier 1: GH₵{tier1Bonus} | Tier 2:
+                                            GH₵{tier2Bonus}
                                         </Typography>
-                                        <Typography variant="caption" color="text.secondary">
-                                            Based on {selectedPct}% of onboarding fee for{' '}
-                                            {USER_CATEGORIES.find((c) => c.value === selectedCategory)?.label}
+                                        <Typography
+                                            variant="caption"
+                                            color="text.secondary"
+                                        >
+                                            Based on {selectedPct}% of
+                                            onboarding fee for{' '}
+                                            {
+                                                USER_CATEGORIES.find(
+                                                    (c) =>
+                                                        c.value ===
+                                                        selectedCategory,
+                                                )?.label
+                                            }
                                         </Typography>
                                     </Box>
                                 )}
 
-                                <Box sx={{ display: 'grid', gap: 3, gridTemplateColumns: { md: 'repeat(2, 1fr)' } }}>
-                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                <Box
+                                    sx={{
+                                        display: 'grid',
+                                        gap: 3,
+                                        gridTemplateColumns: {
+                                            md: 'repeat(2, 1fr)',
+                                        },
+                                    }}
+                                >
+                                    <Box
+                                        sx={{
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            gap: 1,
+                                        }}
+                                    >
                                         <Label htmlFor="max_usages">
                                             Maximum Usages
                                         </Label>
@@ -281,17 +404,33 @@ export default function ReferralCodeCreate({ bonusPercentages, tierFees }: Props
                                             min="1"
                                             placeholder="Unlimited"
                                         />
-                                        <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
+                                        <Typography
+                                            sx={{
+                                                fontSize: '0.875rem',
+                                                color: 'text.secondary',
+                                            }}
+                                        >
                                             Leave empty for unlimited usage
                                         </Typography>
                                         {errors.max_usages && (
-                                            <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
+                                            <Typography
+                                                sx={{
+                                                    fontSize: '0.875rem',
+                                                    color: 'error.main',
+                                                }}
+                                            >
                                                 {errors.max_usages}
                                             </Typography>
                                         )}
                                     </Box>
 
-                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                    <Box
+                                        sx={{
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            gap: 1,
+                                        }}
+                                    >
                                         <Label htmlFor="expires_at">
                                             Expiration Date
                                         </Label>
@@ -305,18 +444,34 @@ export default function ReferralCodeCreate({ bonusPercentages, tierFees }: Props
                                                     .split('T')[0]
                                             }
                                         />
-                                        <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
+                                        <Typography
+                                            sx={{
+                                                fontSize: '0.875rem',
+                                                color: 'text.secondary',
+                                            }}
+                                        >
                                             Leave empty for no expiration
                                         </Typography>
                                         {errors.expires_at && (
-                                            <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
+                                            <Typography
+                                                sx={{
+                                                    fontSize: '0.875rem',
+                                                    color: 'error.main',
+                                                }}
+                                            >
                                                 {errors.expires_at}
                                             </Typography>
                                         )}
                                     </Box>
                                 </Box>
 
-                                <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1.5 }}>
+                                <Box
+                                    sx={{
+                                        display: 'flex',
+                                        justifyContent: 'flex-end',
+                                        gap: 1.5,
+                                    }}
+                                >
                                     <Button
                                         variant="outline"
                                         type="button"

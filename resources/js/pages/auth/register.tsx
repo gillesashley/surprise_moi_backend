@@ -100,7 +100,11 @@ export default function Register() {
                             </Button>
                         </Box>
 
-                        <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center' }}>
+                        <Typography
+                            variant="body2"
+                            color="text.secondary"
+                            sx={{ textAlign: 'center' }}
+                        >
                             Already have an account?{' '}
                             <TextLink href={login()} tabIndex={6}>
                                 Log in

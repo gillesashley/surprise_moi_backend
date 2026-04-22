@@ -197,7 +197,10 @@ export default function UserShow({ user, canDelete }: Props) {
     const [showDeleteDialog, setShowDeleteDialog] = useState(false);
     const [deleteConfirmation, setDeleteConfirmation] = useState('');
     const [isDeleting, setIsDeleting] = useState(false);
-    const [previewDoc, setPreviewDoc] = useState<{ url: string; title: string } | null>(null);
+    const [previewDoc, setPreviewDoc] = useState<{
+        url: string;
+        title: string;
+    } | null>(null);
     const { data, setData, post, processing } = useForm({
         rejection_reason: '',
     });
@@ -249,18 +252,46 @@ export default function UserShow({ user, canDelete }: Props) {
     return (
         <AppLayout breadcrumbs={breadcrumbs(user)}>
             <Head title={`User: ${user.name}`} />
-            <Box sx={{ display: 'flex', height: '100%', flex: 1, flexDirection: 'column', gap: 2, overflow: 'auto', p: 2 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <Box
+                sx={{
+                    display: 'flex',
+                    height: '100%',
+                    flex: 1,
+                    flexDirection: 'column',
+                    gap: 2,
+                    overflow: 'auto',
+                    p: 2,
+                }}
+            >
+                <Box
+                    sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                    }}
+                >
                     <Button variant="ghost" size="sm" asChild>
                         <Link href={usersIndex.url()}>
-                            <ArrowLeft style={{ marginRight: 8, width: 16, height: 16 }} />
+                            <ArrowLeft
+                                style={{
+                                    marginRight: 8,
+                                    width: 16,
+                                    height: 16,
+                                }}
+                            />
                             Back to Users
                         </Link>
                     </Button>
                     <Box sx={{ display: 'flex', gap: 1 }}>
                         <Button variant="outline" size="sm" asChild>
                             <Link href={userEdit.url(user.id)}>
-                                <Pencil style={{ marginRight: 8, width: 16, height: 16 }} />
+                                <Pencil
+                                    style={{
+                                        marginRight: 8,
+                                        width: 16,
+                                        height: 16,
+                                    }}
+                                />
                                 Edit
                             </Link>
                         </Button>
@@ -270,7 +301,13 @@ export default function UserShow({ user, canDelete }: Props) {
                                 size="sm"
                                 onClick={() => setShowDeleteDialog(true)}
                             >
-                                <Trash2 style={{ marginRight: 8, width: 16, height: 16 }} />
+                                <Trash2
+                                    style={{
+                                        marginRight: 8,
+                                        width: 16,
+                                        height: 16,
+                                    }}
+                                />
                                 Delete
                             </Button>
                         )}
@@ -280,21 +317,51 @@ export default function UserShow({ user, canDelete }: Props) {
                 {/* User Profile Header */}
                 <Card>
                     <CardHeader style={{ paddingBottom: 16 }}>
-                        <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                alignItems: 'flex-start',
+                                gap: 2,
+                            }}
+                        >
                             {user.avatar ? (
                                 <Box
                                     component="img"
                                     src={user.avatar}
                                     alt={user.name}
-                                    sx={{ width: 64, height: 64, borderRadius: '50%', objectFit: 'cover' }}
+                                    sx={{
+                                        width: 64,
+                                        height: 64,
+                                        borderRadius: '50%',
+                                        objectFit: 'cover',
+                                    }}
                                 />
                             ) : (
-                                <Box sx={{ display: 'flex', width: 64, height: 64, alignItems: 'center', justifyContent: 'center', borderRadius: '50%', bgcolor: 'primary.light', color: 'primary.main' }}>
-                                    <UserIcon style={{ width: 32, height: 32 }} />
+                                <Box
+                                    sx={{
+                                        display: 'flex',
+                                        width: 64,
+                                        height: 64,
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        borderRadius: '50%',
+                                        bgcolor: 'primary.light',
+                                        color: 'primary.main',
+                                    }}
+                                >
+                                    <UserIcon
+                                        style={{ width: 32, height: 32 }}
+                                    />
                                 </Box>
                             )}
                             <Box sx={{ flex: 1 }}>
-                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <Box
+                                    sx={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 1,
+                                    }}
+                                >
                                     <CardTitle>{user.name}</CardTitle>
                                     <Badge
                                         variant={
@@ -313,7 +380,13 @@ export default function UserShow({ user, canDelete }: Props) {
                                             variant="outline"
                                             style={{ gap: 4 }}
                                         >
-                                            <Heart style={{ width: 12, height: 12, fill: 'currentColor' }} />
+                                            <Heart
+                                                style={{
+                                                    width: 12,
+                                                    height: 12,
+                                                    fill: 'currentColor',
+                                                }}
+                                            />
                                             Popular
                                         </Badge>
                                     )}
@@ -334,64 +407,172 @@ export default function UserShow({ user, canDelete }: Props) {
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <Box sx={{ display: 'grid', gap: 2, gridTemplateColumns: { md: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' } }}>
-                            <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5 }}>
-                                <Mail style={{ marginTop: 2, width: 16, height: 16, color: 'var(--muted-foreground)' }} />
+                        <Box
+                            sx={{
+                                display: 'grid',
+                                gap: 2,
+                                gridTemplateColumns: {
+                                    md: 'repeat(2, 1fr)',
+                                    lg: 'repeat(3, 1fr)',
+                                },
+                            }}
+                        >
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    alignItems: 'flex-start',
+                                    gap: 1.5,
+                                }}
+                            >
+                                <Mail
+                                    style={{
+                                        marginTop: 2,
+                                        width: 16,
+                                        height: 16,
+                                        color: 'var(--muted-foreground)',
+                                    }}
+                                />
                                 <Box>
-                                    <Typography variant="h6" sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                                    <Typography
+                                        variant="h6"
+                                        sx={{
+                                            fontSize: '0.875rem',
+                                            fontWeight: 500,
+                                        }}
+                                    >
                                         Email
                                     </Typography>
-                                    <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
+                                    <Typography
+                                        sx={{
+                                            fontSize: '0.875rem',
+                                            color: 'text.secondary',
+                                        }}
+                                    >
                                         {user.email}
                                     </Typography>
                                     {user.email_verified_at ? (
                                         <Badge
                                             variant="outline"
-                                            style={{ marginTop: 4, gap: 4, fontSize: '0.75rem' }}
+                                            style={{
+                                                marginTop: 4,
+                                                gap: 4,
+                                                fontSize: '0.75rem',
+                                            }}
                                         >
-                                            <CheckCircle style={{ width: 12, height: 12 }} />{' '}
+                                            <CheckCircle
+                                                style={{
+                                                    width: 12,
+                                                    height: 12,
+                                                }}
+                                            />{' '}
                                             Verified
                                         </Badge>
                                     ) : (
                                         <Badge
                                             variant="secondary"
-                                            style={{ marginTop: 4, gap: 4, fontSize: '0.75rem' }}
+                                            style={{
+                                                marginTop: 4,
+                                                gap: 4,
+                                                fontSize: '0.75rem',
+                                            }}
                                         >
-                                            <XCircle style={{ width: 12, height: 12 }} /> Not
-                                            Verified
+                                            <XCircle
+                                                style={{
+                                                    width: 12,
+                                                    height: 12,
+                                                }}
+                                            />{' '}
+                                            Not Verified
                                         </Badge>
                                     )}
                                 </Box>
                             </Box>
 
-                            <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5 }}>
-                                <Phone style={{ marginTop: 2, width: 16, height: 16, color: 'var(--muted-foreground)' }} />
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    alignItems: 'flex-start',
+                                    gap: 1.5,
+                                }}
+                            >
+                                <Phone
+                                    style={{
+                                        marginTop: 2,
+                                        width: 16,
+                                        height: 16,
+                                        color: 'var(--muted-foreground)',
+                                    }}
+                                />
                                 <Box>
-                                    <Typography variant="h6" sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                                    <Typography
+                                        variant="h6"
+                                        sx={{
+                                            fontSize: '0.875rem',
+                                            fontWeight: 500,
+                                        }}
+                                    >
                                         Phone
                                     </Typography>
-                                    <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
+                                    <Typography
+                                        sx={{
+                                            fontSize: '0.875rem',
+                                            color: 'text.secondary',
+                                        }}
+                                    >
                                         {user.phone || 'Not provided'}
                                     </Typography>
                                     {user.phone && user.phone_verified_at && (
                                         <Badge
                                             variant="outline"
-                                            style={{ marginTop: 4, gap: 4, fontSize: '0.75rem' }}
+                                            style={{
+                                                marginTop: 4,
+                                                gap: 4,
+                                                fontSize: '0.75rem',
+                                            }}
                                         >
-                                            <CheckCircle style={{ width: 12, height: 12 }} />{' '}
+                                            <CheckCircle
+                                                style={{
+                                                    width: 12,
+                                                    height: 12,
+                                                }}
+                                            />{' '}
                                             Verified
                                         </Badge>
                                     )}
                                 </Box>
                             </Box>
 
-                            <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5 }}>
-                                <Calendar style={{ marginTop: 2, width: 16, height: 16, color: 'var(--muted-foreground)' }} />
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    alignItems: 'flex-start',
+                                    gap: 1.5,
+                                }}
+                            >
+                                <Calendar
+                                    style={{
+                                        marginTop: 2,
+                                        width: 16,
+                                        height: 16,
+                                        color: 'var(--muted-foreground)',
+                                    }}
+                                />
                                 <Box>
-                                    <Typography variant="h6" sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                                    <Typography
+                                        variant="h6"
+                                        sx={{
+                                            fontSize: '0.875rem',
+                                            fontWeight: 500,
+                                        }}
+                                    >
                                         Date of Birth
                                     </Typography>
-                                    <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
+                                    <Typography
+                                        sx={{
+                                            fontSize: '0.875rem',
+                                            color: 'text.secondary',
+                                        }}
+                                    >
                                         {user.date_of_birth
                                             ? new Date(
                                                   user.date_of_birth,
@@ -401,34 +582,97 @@ export default function UserShow({ user, canDelete }: Props) {
                                 </Box>
                             </Box>
 
-                            <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5 }}>
-                                <UserIcon style={{ marginTop: 2, width: 16, height: 16, color: 'var(--muted-foreground)' }} />
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    alignItems: 'flex-start',
+                                    gap: 1.5,
+                                }}
+                            >
+                                <UserIcon
+                                    style={{
+                                        marginTop: 2,
+                                        width: 16,
+                                        height: 16,
+                                        color: 'var(--muted-foreground)',
+                                    }}
+                                />
                                 <Box>
-                                    <Typography variant="h6" sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                                    <Typography
+                                        variant="h6"
+                                        sx={{
+                                            fontSize: '0.875rem',
+                                            fontWeight: 500,
+                                        }}
+                                    >
                                         Gender
                                     </Typography>
-                                    <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary', textTransform: 'capitalize' }}>
+                                    <Typography
+                                        sx={{
+                                            fontSize: '0.875rem',
+                                            color: 'text.secondary',
+                                            textTransform: 'capitalize',
+                                        }}
+                                    >
                                         {user.gender || 'Not provided'}
                                     </Typography>
                                 </Box>
                             </Box>
 
                             {user.favorite_color && (
-                                <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5 }}>
-                                    <Palette style={{ marginTop: 2, width: 16, height: 16, color: 'var(--muted-foreground)' }} />
+                                <Box
+                                    sx={{
+                                        display: 'flex',
+                                        alignItems: 'flex-start',
+                                        gap: 1.5,
+                                    }}
+                                >
+                                    <Palette
+                                        style={{
+                                            marginTop: 2,
+                                            width: 16,
+                                            height: 16,
+                                            color: 'var(--muted-foreground)',
+                                        }}
+                                    />
                                     <Box>
-                                        <Typography variant="h6" sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                                        <Typography
+                                            variant="h6"
+                                            sx={{
+                                                fontSize: '0.875rem',
+                                                fontWeight: 500,
+                                            }}
+                                        >
                                             Favorite Color
                                         </Typography>
-                                        <Box sx={{ mt: 0.5, display: 'flex', alignItems: 'center', gap: 1 }}>
+                                        <Box
+                                            sx={{
+                                                mt: 0.5,
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: 1,
+                                            }}
+                                        >
                                             <Box
-                                                sx={{ width: 16, height: 16, borderRadius: 1, border: 1, borderColor: 'divider' }}
+                                                sx={{
+                                                    width: 16,
+                                                    height: 16,
+                                                    borderRadius: 1,
+                                                    border: 1,
+                                                    borderColor: 'divider',
+                                                }}
                                                 style={{
                                                     backgroundColor:
                                                         user.favorite_color,
                                                 }}
                                             />
-                                            <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary', textTransform: 'capitalize' }}>
+                                            <Typography
+                                                sx={{
+                                                    fontSize: '0.875rem',
+                                                    color: 'text.secondary',
+                                                    textTransform: 'capitalize',
+                                                }}
+                                            >
                                                 {user.favorite_color}
                                             </Typography>
                                         </Box>
@@ -437,26 +681,75 @@ export default function UserShow({ user, canDelete }: Props) {
                             )}
 
                             {user.favorite_music_genre && (
-                                <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5 }}>
-                                    <Music style={{ marginTop: 2, width: 16, height: 16, color: 'var(--muted-foreground)' }} />
+                                <Box
+                                    sx={{
+                                        display: 'flex',
+                                        alignItems: 'flex-start',
+                                        gap: 1.5,
+                                    }}
+                                >
+                                    <Music
+                                        style={{
+                                            marginTop: 2,
+                                            width: 16,
+                                            height: 16,
+                                            color: 'var(--muted-foreground)',
+                                        }}
+                                    />
                                     <Box>
-                                        <Typography variant="h6" sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                                        <Typography
+                                            variant="h6"
+                                            sx={{
+                                                fontSize: '0.875rem',
+                                                fontWeight: 500,
+                                            }}
+                                        >
                                             Favorite Music Genre
                                         </Typography>
-                                        <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary', textTransform: 'capitalize' }}>
+                                        <Typography
+                                            sx={{
+                                                fontSize: '0.875rem',
+                                                color: 'text.secondary',
+                                                textTransform: 'capitalize',
+                                            }}
+                                        >
                                             {user.favorite_music_genre}
                                         </Typography>
                                     </Box>
                                 </Box>
                             )}
 
-                            <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5 }}>
-                                <Calendar style={{ marginTop: 2, width: 16, height: 16, color: 'var(--muted-foreground)' }} />
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    alignItems: 'flex-start',
+                                    gap: 1.5,
+                                }}
+                            >
+                                <Calendar
+                                    style={{
+                                        marginTop: 2,
+                                        width: 16,
+                                        height: 16,
+                                        color: 'var(--muted-foreground)',
+                                    }}
+                                />
                                 <Box>
-                                    <Typography variant="h6" sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                                    <Typography
+                                        variant="h6"
+                                        sx={{
+                                            fontSize: '0.875rem',
+                                            fontWeight: 500,
+                                        }}
+                                    >
                                         Joined
                                     </Typography>
-                                    <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
+                                    <Typography
+                                        sx={{
+                                            fontSize: '0.875rem',
+                                            color: 'text.secondary',
+                                        }}
+                                    >
                                         {new Date(
                                             user.created_at,
                                         ).toLocaleDateString()}
@@ -464,26 +757,63 @@ export default function UserShow({ user, canDelete }: Props) {
                                 </Box>
                             </Box>
 
-                            <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5 }}>
-                                <Heart style={{ marginTop: 2, width: 16, height: 16, color: 'var(--muted-foreground)' }} />
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    alignItems: 'flex-start',
+                                    gap: 1.5,
+                                }}
+                            >
+                                <Heart
+                                    style={{
+                                        marginTop: 2,
+                                        width: 16,
+                                        height: 16,
+                                        color: 'var(--muted-foreground)',
+                                    }}
+                                />
                                 <Box>
-                                    <Typography variant="h6" sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                                    <Typography
+                                        variant="h6"
+                                        sx={{
+                                            fontSize: '0.875rem',
+                                            fontWeight: 500,
+                                        }}
+                                    >
                                         Popular
                                     </Typography>
                                     {user.is_popular ? (
                                         <Badge
                                             variant="outline"
-                                            style={{ marginTop: 4, gap: 4, fontSize: '0.75rem' }}
+                                            style={{
+                                                marginTop: 4,
+                                                gap: 4,
+                                                fontSize: '0.75rem',
+                                            }}
                                         >
-                                            <CheckCircle style={{ width: 12, height: 12 }} />
+                                            <CheckCircle
+                                                style={{
+                                                    width: 12,
+                                                    height: 12,
+                                                }}
+                                            />
                                             Yes
                                         </Badge>
                                     ) : (
                                         <Badge
                                             variant="secondary"
-                                            style={{ marginTop: 4, gap: 4, fontSize: '0.75rem' }}
+                                            style={{
+                                                marginTop: 4,
+                                                gap: 4,
+                                                fontSize: '0.75rem',
+                                            }}
                                         >
-                                            <XCircle style={{ width: 12, height: 12 }} />
+                                            <XCircle
+                                                style={{
+                                                    width: 12,
+                                                    height: 12,
+                                                }}
+                                            />
                                             No
                                         </Badge>
                                     )}
@@ -491,13 +821,38 @@ export default function UserShow({ user, canDelete }: Props) {
                             </Box>
 
                             {user.provider && (
-                                <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5 }}>
-                                    <Globe style={{ marginTop: 2, width: 16, height: 16, color: 'var(--muted-foreground)' }} />
+                                <Box
+                                    sx={{
+                                        display: 'flex',
+                                        alignItems: 'flex-start',
+                                        gap: 1.5,
+                                    }}
+                                >
+                                    <Globe
+                                        style={{
+                                            marginTop: 2,
+                                            width: 16,
+                                            height: 16,
+                                            color: 'var(--muted-foreground)',
+                                        }}
+                                    />
                                     <Box>
-                                        <Typography variant="h6" sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                                        <Typography
+                                            variant="h6"
+                                            sx={{
+                                                fontSize: '0.875rem',
+                                                fontWeight: 500,
+                                            }}
+                                        >
                                             Sign-in Provider
                                         </Typography>
-                                        <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary', textTransform: 'capitalize' }}>
+                                        <Typography
+                                            sx={{
+                                                fontSize: '0.875rem',
+                                                color: 'text.secondary',
+                                                textTransform: 'capitalize',
+                                            }}
+                                        >
                                             Signed in via {user.provider}
                                         </Typography>
                                     </Box>
@@ -506,11 +861,30 @@ export default function UserShow({ user, canDelete }: Props) {
                         </Box>
 
                         {user.bio && (
-                            <Box sx={{ mt: 2, borderTop: 1, borderColor: 'divider', pt: 2 }}>
-                                <Typography variant="h6" sx={{ mb: 1, fontSize: '0.875rem', fontWeight: 500 }}>
+                            <Box
+                                sx={{
+                                    mt: 2,
+                                    borderTop: 1,
+                                    borderColor: 'divider',
+                                    pt: 2,
+                                }}
+                            >
+                                <Typography
+                                    variant="h6"
+                                    sx={{
+                                        mb: 1,
+                                        fontSize: '0.875rem',
+                                        fontWeight: 500,
+                                    }}
+                                >
                                     Bio
                                 </Typography>
-                                <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
+                                <Typography
+                                    sx={{
+                                        fontSize: '0.875rem',
+                                        color: 'text.secondary',
+                                    }}
+                                >
                                     {user.bio}
                                 </Typography>
                             </Box>
@@ -522,17 +896,38 @@ export default function UserShow({ user, canDelete }: Props) {
                 {(user.interests && user.interests.length > 0) ||
                 (user.personality_traits &&
                     user.personality_traits.length > 0) ? (
-                    <Box sx={{ display: 'grid', gap: 2, gridTemplateColumns: { md: 'repeat(2, 1fr)' } }}>
+                    <Box
+                        sx={{
+                            display: 'grid',
+                            gap: 2,
+                            gridTemplateColumns: { md: 'repeat(2, 1fr)' },
+                        }}
+                    >
                         {user.interests && user.interests.length > 0 && (
                             <Card>
                                 <CardHeader>
-                                    <CardTitle style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '1.125rem' }}>
-                                        <Heart style={{ width: 20, height: 20 }} />
+                                    <CardTitle
+                                        style={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: 8,
+                                            fontSize: '1.125rem',
+                                        }}
+                                    >
+                                        <Heart
+                                            style={{ width: 20, height: 20 }}
+                                        />
                                         Interests
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent>
-                                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                                    <Box
+                                        sx={{
+                                            display: 'flex',
+                                            flexWrap: 'wrap',
+                                            gap: 1,
+                                        }}
+                                    >
                                         {user.interests.map((interest) => (
                                             <Badge
                                                 key={interest.id}
@@ -554,13 +949,31 @@ export default function UserShow({ user, canDelete }: Props) {
                             user.personality_traits.length > 0 && (
                                 <Card>
                                     <CardHeader>
-                                        <CardTitle style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '1.125rem' }}>
-                                            <UserIcon style={{ width: 20, height: 20 }} />
+                                        <CardTitle
+                                            style={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: 8,
+                                                fontSize: '1.125rem',
+                                            }}
+                                        >
+                                            <UserIcon
+                                                style={{
+                                                    width: 20,
+                                                    height: 20,
+                                                }}
+                                            />
                                             Personality Traits
                                         </CardTitle>
                                     </CardHeader>
                                     <CardContent>
-                                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                                        <Box
+                                            sx={{
+                                                display: 'flex',
+                                                flexWrap: 'wrap',
+                                                gap: 1,
+                                            }}
+                                        >
                                             {user.personality_traits.map(
                                                 (trait) => (
                                                     <Badge
@@ -585,45 +998,172 @@ export default function UserShow({ user, canDelete }: Props) {
                 ) : null}
 
                 {/* Activity Summary */}
-                {(user.orders_count !== undefined || user.reviews_count !== undefined || user.wishlists_count !== undefined) && (
+                {(user.orders_count !== undefined ||
+                    user.reviews_count !== undefined ||
+                    user.wishlists_count !== undefined) && (
                     <Card>
                         <CardHeader>
-                            <CardTitle style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '1.125rem' }}>
-                                <ShoppingCart style={{ width: 20, height: 20 }} />
+                            <CardTitle
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 8,
+                                    fontSize: '1.125rem',
+                                }}
+                            >
+                                <ShoppingCart
+                                    style={{ width: 20, height: 20 }}
+                                />
                                 Activity Summary
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <Box sx={{ display: 'grid', gap: 2, gridTemplateColumns: { xs: 'repeat(2, 1fr)', md: 'repeat(5, 1fr)' } }}>
-                                <Box sx={{ textAlign: 'center', borderRadius: 2, border: 1, borderColor: 'divider', p: 2 }}>
-                                    <Box component="span" sx={{ fontSize: '1.5rem', fontWeight: 700 }}>
+                            <Box
+                                sx={{
+                                    display: 'grid',
+                                    gap: 2,
+                                    gridTemplateColumns: {
+                                        xs: 'repeat(2, 1fr)',
+                                        md: 'repeat(5, 1fr)',
+                                    },
+                                }}
+                            >
+                                <Box
+                                    sx={{
+                                        textAlign: 'center',
+                                        borderRadius: 2,
+                                        border: 1,
+                                        borderColor: 'divider',
+                                        p: 2,
+                                    }}
+                                >
+                                    <Box
+                                        component="span"
+                                        sx={{
+                                            fontSize: '1.5rem',
+                                            fontWeight: 700,
+                                        }}
+                                    >
                                         {user.orders_count ?? 0}
                                     </Box>
-                                    <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>Orders</Typography>
+                                    <Typography
+                                        sx={{
+                                            fontSize: '0.75rem',
+                                            color: 'text.secondary',
+                                        }}
+                                    >
+                                        Orders
+                                    </Typography>
                                 </Box>
-                                <Box sx={{ textAlign: 'center', borderRadius: 2, border: 1, borderColor: 'divider', p: 2 }}>
-                                    <Box component="span" sx={{ fontSize: '1.5rem', fontWeight: 700 }}>
+                                <Box
+                                    sx={{
+                                        textAlign: 'center',
+                                        borderRadius: 2,
+                                        border: 1,
+                                        borderColor: 'divider',
+                                        p: 2,
+                                    }}
+                                >
+                                    <Box
+                                        component="span"
+                                        sx={{
+                                            fontSize: '1.5rem',
+                                            fontWeight: 700,
+                                        }}
+                                    >
                                         GHS {(user.total_spent ?? 0).toFixed(2)}
                                     </Box>
-                                    <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>Total Spent</Typography>
+                                    <Typography
+                                        sx={{
+                                            fontSize: '0.75rem',
+                                            color: 'text.secondary',
+                                        }}
+                                    >
+                                        Total Spent
+                                    </Typography>
                                 </Box>
-                                <Box sx={{ textAlign: 'center', borderRadius: 2, border: 1, borderColor: 'divider', p: 2 }}>
-                                    <Box component="span" sx={{ fontSize: '1.5rem', fontWeight: 700 }}>
+                                <Box
+                                    sx={{
+                                        textAlign: 'center',
+                                        borderRadius: 2,
+                                        border: 1,
+                                        borderColor: 'divider',
+                                        p: 2,
+                                    }}
+                                >
+                                    <Box
+                                        component="span"
+                                        sx={{
+                                            fontSize: '1.5rem',
+                                            fontWeight: 700,
+                                        }}
+                                    >
                                         {user.reviews_count ?? 0}
                                     </Box>
-                                    <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>Reviews</Typography>
+                                    <Typography
+                                        sx={{
+                                            fontSize: '0.75rem',
+                                            color: 'text.secondary',
+                                        }}
+                                    >
+                                        Reviews
+                                    </Typography>
                                 </Box>
-                                <Box sx={{ textAlign: 'center', borderRadius: 2, border: 1, borderColor: 'divider', p: 2 }}>
-                                    <Box component="span" sx={{ fontSize: '1.5rem', fontWeight: 700 }}>
-                                        {user.avg_rating ? `${user.avg_rating}/5` : 'N/A'}
+                                <Box
+                                    sx={{
+                                        textAlign: 'center',
+                                        borderRadius: 2,
+                                        border: 1,
+                                        borderColor: 'divider',
+                                        p: 2,
+                                    }}
+                                >
+                                    <Box
+                                        component="span"
+                                        sx={{
+                                            fontSize: '1.5rem',
+                                            fontWeight: 700,
+                                        }}
+                                    >
+                                        {user.avg_rating
+                                            ? `${user.avg_rating}/5`
+                                            : 'N/A'}
                                     </Box>
-                                    <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>Avg Rating</Typography>
+                                    <Typography
+                                        sx={{
+                                            fontSize: '0.75rem',
+                                            color: 'text.secondary',
+                                        }}
+                                    >
+                                        Avg Rating
+                                    </Typography>
                                 </Box>
-                                <Box sx={{ textAlign: 'center', borderRadius: 2, border: 1, borderColor: 'divider', p: 2 }}>
-                                    <Box component="span" sx={{ fontSize: '1.5rem', fontWeight: 700 }}>
+                                <Box
+                                    sx={{
+                                        textAlign: 'center',
+                                        borderRadius: 2,
+                                        border: 1,
+                                        borderColor: 'divider',
+                                        p: 2,
+                                    }}
+                                >
+                                    <Box
+                                        component="span"
+                                        sx={{
+                                            fontSize: '1.5rem',
+                                            fontWeight: 700,
+                                        }}
+                                    >
                                         {user.wishlists_count ?? 0}
                                     </Box>
-                                    <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>Wishlist</Typography>
+                                    <Typography
+                                        sx={{
+                                            fontSize: '0.75rem',
+                                            color: 'text.secondary',
+                                        }}
+                                    >
+                                        Wishlist
+                                    </Typography>
                                 </Box>
                             </Box>
                         </CardContent>
@@ -634,15 +1174,32 @@ export default function UserShow({ user, canDelete }: Props) {
                 {user.music_genres && user.music_genres.length > 0 && (
                     <Card>
                         <CardHeader>
-                            <CardTitle style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '1.125rem' }}>
+                            <CardTitle
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 8,
+                                    fontSize: '1.125rem',
+                                }}
+                            >
                                 <Music style={{ width: 20, height: 20 }} />
                                 Music Genres
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    flexWrap: 'wrap',
+                                    gap: 1,
+                                }}
+                            >
                                 {user.music_genres.map((genre) => (
-                                    <Badge key={genre.id} variant="secondary" style={{ gap: 4 }}>
+                                    <Badge
+                                        key={genre.id}
+                                        variant="secondary"
+                                        style={{ gap: 4 }}
+                                    >
                                         {genre.name}
                                     </Badge>
                                 ))}
@@ -655,28 +1212,80 @@ export default function UserShow({ user, canDelete }: Props) {
                 {user.addresses && user.addresses.length > 0 && (
                     <Card>
                         <CardHeader>
-                            <CardTitle style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '1.125rem' }}>
+                            <CardTitle
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 8,
+                                    fontSize: '1.125rem',
+                                }}
+                            >
                                 <MapPin style={{ width: 20, height: 20 }} />
                                 Saved Addresses
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    gap: 1.5,
+                                }}
+                            >
                                 {user.addresses.map((address) => (
-                                    <Box key={address.id} sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', borderRadius: 2, border: 1, borderColor: 'divider', p: 2 }}>
+                                    <Box
+                                        key={address.id}
+                                        sx={{
+                                            display: 'flex',
+                                            alignItems: 'flex-start',
+                                            justifyContent: 'space-between',
+                                            borderRadius: 2,
+                                            border: 1,
+                                            borderColor: 'divider',
+                                            p: 2,
+                                        }}
+                                    >
                                         <Box>
                                             {address.label && (
-                                                <Typography variant="h6" sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                                                <Typography
+                                                    variant="h6"
+                                                    sx={{
+                                                        fontSize: '0.875rem',
+                                                        fontWeight: 500,
+                                                    }}
+                                                >
                                                     {address.label}
                                                 </Typography>
                                             )}
-                                            <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
-                                                {[address.name, address.address_line_1, address.city, address.state, address.postal_code, address.country].filter(Boolean).join(', ')}
+                                            <Typography
+                                                sx={{
+                                                    fontSize: '0.875rem',
+                                                    color: 'text.secondary',
+                                                }}
+                                            >
+                                                {[
+                                                    address.name,
+                                                    address.address_line_1,
+                                                    address.city,
+                                                    address.state,
+                                                    address.postal_code,
+                                                    address.country,
+                                                ]
+                                                    .filter(Boolean)
+                                                    .join(', ')}
                                             </Typography>
                                         </Box>
                                         {address.is_default && (
-                                            <Badge variant="outline" style={{ gap: 4 }}>
-                                                <CheckCircle style={{ width: 12, height: 12 }} />
+                                            <Badge
+                                                variant="outline"
+                                                style={{ gap: 4 }}
+                                            >
+                                                <CheckCircle
+                                                    style={{
+                                                        width: 12,
+                                                        height: 12,
+                                                    }}
+                                                />
                                                 Default
                                             </Badge>
                                         )}
@@ -691,36 +1300,130 @@ export default function UserShow({ user, canDelete }: Props) {
                 {user.recent_orders && user.recent_orders.length > 0 && (
                     <Card>
                         <CardHeader>
-                            <CardTitle style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '1.125rem' }}>
-                                <ShoppingCart style={{ width: 20, height: 20 }} />
+                            <CardTitle
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 8,
+                                    fontSize: '1.125rem',
+                                }}
+                            >
+                                <ShoppingCart
+                                    style={{ width: 20, height: 20 }}
+                                />
                                 Recent Orders
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
                             <Box sx={{ overflowX: 'auto' }}>
-                                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
+                                <table
+                                    style={{
+                                        width: '100%',
+                                        borderCollapse: 'collapse',
+                                        fontSize: '0.875rem',
+                                    }}
+                                >
                                     <thead>
-                                        <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                                            <th style={{ textAlign: 'left', padding: '8px 12px', fontWeight: 500 }}>Order #</th>
-                                            <th style={{ textAlign: 'left', padding: '8px 12px', fontWeight: 500 }}>Status</th>
-                                            <th style={{ textAlign: 'right', padding: '8px 12px', fontWeight: 500 }}>Total</th>
-                                            <th style={{ textAlign: 'right', padding: '8px 12px', fontWeight: 500 }}>Date</th>
+                                        <tr
+                                            style={{
+                                                borderBottom:
+                                                    '1px solid var(--border)',
+                                            }}
+                                        >
+                                            <th
+                                                style={{
+                                                    textAlign: 'left',
+                                                    padding: '8px 12px',
+                                                    fontWeight: 500,
+                                                }}
+                                            >
+                                                Order #
+                                            </th>
+                                            <th
+                                                style={{
+                                                    textAlign: 'left',
+                                                    padding: '8px 12px',
+                                                    fontWeight: 500,
+                                                }}
+                                            >
+                                                Status
+                                            </th>
+                                            <th
+                                                style={{
+                                                    textAlign: 'right',
+                                                    padding: '8px 12px',
+                                                    fontWeight: 500,
+                                                }}
+                                            >
+                                                Total
+                                            </th>
+                                            <th
+                                                style={{
+                                                    textAlign: 'right',
+                                                    padding: '8px 12px',
+                                                    fontWeight: 500,
+                                                }}
+                                            >
+                                                Date
+                                            </th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {user.recent_orders.map((order) => (
-                                            <tr key={order.id} style={{ borderBottom: '1px solid var(--border)' }}>
-                                                <td style={{ padding: '8px 12px' }}>{order.order_number}</td>
-                                                <td style={{ padding: '8px 12px' }}>
-                                                    <Badge variant={order.status === 'delivered' ? 'default' : order.status === 'pending' ? 'outline' : 'secondary'}>
+                                            <tr
+                                                key={order.id}
+                                                style={{
+                                                    borderBottom:
+                                                        '1px solid var(--border)',
+                                                }}
+                                            >
+                                                <td
+                                                    style={{
+                                                        padding: '8px 12px',
+                                                    }}
+                                                >
+                                                    {order.order_number}
+                                                </td>
+                                                <td
+                                                    style={{
+                                                        padding: '8px 12px',
+                                                    }}
+                                                >
+                                                    <Badge
+                                                        variant={
+                                                            order.status ===
+                                                            'delivered'
+                                                                ? 'default'
+                                                                : order.status ===
+                                                                    'pending'
+                                                                  ? 'outline'
+                                                                  : 'secondary'
+                                                        }
+                                                    >
                                                         {order.status}
                                                     </Badge>
                                                 </td>
-                                                <td style={{ padding: '8px 12px', textAlign: 'right' }}>
-                                                    {order.currency} {Number(order.total).toFixed(2)}
+                                                <td
+                                                    style={{
+                                                        padding: '8px 12px',
+                                                        textAlign: 'right',
+                                                    }}
+                                                >
+                                                    {order.currency}{' '}
+                                                    {Number(
+                                                        order.total,
+                                                    ).toFixed(2)}
                                                 </td>
-                                                <td style={{ padding: '8px 12px', textAlign: 'right', color: 'var(--muted-foreground)' }}>
-                                                    {new Date(order.created_at).toLocaleDateString()}
+                                                <td
+                                                    style={{
+                                                        padding: '8px 12px',
+                                                        textAlign: 'right',
+                                                        color: 'var(--muted-foreground)',
+                                                    }}
+                                                >
+                                                    {new Date(
+                                                        order.created_at,
+                                                    ).toLocaleDateString()}
                                                 </td>
                                             </tr>
                                         ))}
@@ -735,39 +1438,104 @@ export default function UserShow({ user, canDelete }: Props) {
                 {user.recent_reviews && user.recent_reviews.length > 0 && (
                     <Card>
                         <CardHeader>
-                            <CardTitle style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '1.125rem' }}>
+                            <CardTitle
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 8,
+                                    fontSize: '1.125rem',
+                                }}
+                            >
                                 <Star style={{ width: 20, height: 20 }} />
                                 Recent Reviews
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    gap: 1.5,
+                                }}
+                            >
                                 {user.recent_reviews.map((review) => (
-                                    <Box key={review.id} sx={{ borderRadius: 2, border: 1, borderColor: 'divider', p: 2 }}>
-                                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.5 }}>
-                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                                {Array.from({ length: 5 }, (_, i) => (
-                                                    <Star
-                                                        key={i}
-                                                        style={{
-                                                            width: 14,
-                                                            height: 14,
-                                                            fill: i < review.rating ? 'var(--warning, #f59e0b)' : 'none',
-                                                            color: i < review.rating ? 'var(--warning, #f59e0b)' : 'var(--muted-foreground)',
-                                                        }}
-                                                    />
-                                                ))}
-                                                <Typography sx={{ ml: 0.5, fontSize: '0.875rem', fontWeight: 500 }}>
+                                    <Box
+                                        key={review.id}
+                                        sx={{
+                                            borderRadius: 2,
+                                            border: 1,
+                                            borderColor: 'divider',
+                                            p: 2,
+                                        }}
+                                    >
+                                        <Box
+                                            sx={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'space-between',
+                                                mb: 0.5,
+                                            }}
+                                        >
+                                            <Box
+                                                sx={{
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: 0.5,
+                                                }}
+                                            >
+                                                {Array.from(
+                                                    { length: 5 },
+                                                    (_, i) => (
+                                                        <Star
+                                                            key={i}
+                                                            style={{
+                                                                width: 14,
+                                                                height: 14,
+                                                                fill:
+                                                                    i <
+                                                                    review.rating
+                                                                        ? 'var(--warning, #f59e0b)'
+                                                                        : 'none',
+                                                                color:
+                                                                    i <
+                                                                    review.rating
+                                                                        ? 'var(--warning, #f59e0b)'
+                                                                        : 'var(--muted-foreground)',
+                                                            }}
+                                                        />
+                                                    ),
+                                                )}
+                                                <Typography
+                                                    sx={{
+                                                        ml: 0.5,
+                                                        fontSize: '0.875rem',
+                                                        fontWeight: 500,
+                                                    }}
+                                                >
                                                     {review.rating}/5
                                                 </Typography>
                                             </Box>
-                                            <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
-                                                {new Date(review.created_at).toLocaleDateString()}
+                                            <Typography
+                                                sx={{
+                                                    fontSize: '0.75rem',
+                                                    color: 'text.secondary',
+                                                }}
+                                            >
+                                                {new Date(
+                                                    review.created_at,
+                                                ).toLocaleDateString()}
                                             </Typography>
                                         </Box>
                                         {review.comment && (
-                                            <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
-                                                {review.comment.length > 150 ? `${review.comment.slice(0, 150)}...` : review.comment}
+                                            <Typography
+                                                sx={{
+                                                    fontSize: '0.875rem',
+                                                    color: 'text.secondary',
+                                                }}
+                                            >
+                                                {review.comment.length > 150
+                                                    ? `${review.comment.slice(0, 150)}...`
+                                                    : review.comment}
                                             </Typography>
                                         )}
                                     </Box>
@@ -782,8 +1550,17 @@ export default function UserShow({ user, canDelete }: Props) {
                     user.vendor_application?.ghana_card_back && (
                         <Card>
                             <CardHeader>
-                                <CardTitle style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '1.125rem' }}>
-                                    <UserIcon style={{ width: 20, height: 20 }} />
+                                <CardTitle
+                                    style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 8,
+                                        fontSize: '1.125rem',
+                                    }}
+                                >
+                                    <UserIcon
+                                        style={{ width: 20, height: 20 }}
+                                    />
                                     Ghana Card Images
                                 </CardTitle>
                                 <CardDescription>
@@ -802,13 +1579,45 @@ export default function UserShow({ user, canDelete }: Props) {
                             </CardHeader>
                             <CardContent>
                                 {/* Application Status Banner */}
-                                <Box sx={{ mb: 2, borderRadius: 2, border: 1, borderColor: 'divider', p: 2 }}>
-                                    <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
-                                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                                            <Typography variant="h6" sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                                <Box
+                                    sx={{
+                                        mb: 2,
+                                        borderRadius: 2,
+                                        border: 1,
+                                        borderColor: 'divider',
+                                        p: 2,
+                                    }}
+                                >
+                                    <Box
+                                        sx={{
+                                            display: 'flex',
+                                            alignItems: 'flex-start',
+                                            justifyContent: 'space-between',
+                                        }}
+                                    >
+                                        <Box
+                                            sx={{
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                gap: 0.5,
+                                            }}
+                                        >
+                                            <Typography
+                                                variant="h6"
+                                                sx={{
+                                                    fontSize: '0.875rem',
+                                                    fontWeight: 500,
+                                                }}
+                                            >
                                                 Application Status
                                             </Typography>
-                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                            <Box
+                                                sx={{
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: 1,
+                                                }}
+                                            >
                                                 <Badge
                                                     variant={
                                                         user.vendor_application
@@ -832,7 +1641,13 @@ export default function UserShow({ user, canDelete }: Props) {
                                                         .replace(/_/g, ' ')
                                                         .toUpperCase()}
                                                 </Badge>
-                                                <Box component="span" sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
+                                                <Box
+                                                    component="span"
+                                                    sx={{
+                                                        fontSize: '0.875rem',
+                                                        color: 'text.secondary',
+                                                    }}
+                                                >
                                                     Step{' '}
                                                     {
                                                         user.vendor_application
@@ -842,10 +1657,22 @@ export default function UserShow({ user, canDelete }: Props) {
                                                 </Box>
                                             </Box>
                                         </Box>
-                                        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 1 }}>
+                                        <Box
+                                            sx={{
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                alignItems: 'flex-end',
+                                                gap: 1,
+                                            }}
+                                        >
                                             {user.vendor_application
                                                 .reviewed_at && (
-                                                <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
+                                                <Typography
+                                                    sx={{
+                                                        fontSize: '0.875rem',
+                                                        color: 'text.secondary',
+                                                    }}
+                                                >
                                                     Reviewed:{' '}
                                                     {new Date(
                                                         user.vendor_application.reviewed_at,
@@ -853,7 +1680,12 @@ export default function UserShow({ user, canDelete }: Props) {
                                                 </Typography>
                                             )}
                                             {canApproveOrReject && (
-                                                <Box sx={{ display: 'flex', gap: 1 }}>
+                                                <Box
+                                                    sx={{
+                                                        display: 'flex',
+                                                        gap: 1,
+                                                    }}
+                                                >
                                                     <Button
                                                         variant="destructive"
                                                         size="sm"
@@ -863,7 +1695,13 @@ export default function UserShow({ user, canDelete }: Props) {
                                                             )
                                                         }
                                                     >
-                                                        <XCircle style={{ marginRight: 8, width: 16, height: 16 }} />
+                                                        <XCircle
+                                                            style={{
+                                                                marginRight: 8,
+                                                                width: 16,
+                                                                height: 16,
+                                                            }}
+                                                        />
                                                         Reject
                                                     </Button>
                                                     <Button
@@ -877,7 +1715,13 @@ export default function UserShow({ user, canDelete }: Props) {
                                                             )
                                                         }
                                                     >
-                                                        <CheckCircle style={{ marginRight: 8, width: 16, height: 16 }} />
+                                                        <CheckCircle
+                                                            style={{
+                                                                marginRight: 8,
+                                                                width: 16,
+                                                                height: 16,
+                                                            }}
+                                                        />
                                                         Approve
                                                     </Button>
                                                 </Box>
@@ -886,11 +1730,32 @@ export default function UserShow({ user, canDelete }: Props) {
                                     </Box>
                                     {user.vendor_application
                                         .rejection_reason && (
-                                        <Box sx={{ mt: 1.5, borderRadius: 1.5, bgcolor: 'error.light', opacity: 0.1, p: 1.5 }}>
-                                            <Typography sx={{ fontSize: '0.875rem', fontWeight: 500, color: 'error.main' }}>
+                                        <Box
+                                            sx={{
+                                                mt: 1.5,
+                                                borderRadius: 1.5,
+                                                bgcolor: 'error.light',
+                                                opacity: 0.1,
+                                                p: 1.5,
+                                            }}
+                                        >
+                                            <Typography
+                                                sx={{
+                                                    fontSize: '0.875rem',
+                                                    fontWeight: 500,
+                                                    color: 'error.main',
+                                                }}
+                                            >
                                                 Rejection Reason:
                                             </Typography>
-                                            <Typography sx={{ mt: 0.5, fontSize: '0.875rem', color: 'error.main', opacity: 0.8 }}>
+                                            <Typography
+                                                sx={{
+                                                    mt: 0.5,
+                                                    fontSize: '0.875rem',
+                                                    color: 'error.main',
+                                                    opacity: 0.8,
+                                                }}
+                                            >
                                                 {
                                                     user.vendor_application
                                                         .rejection_reason
@@ -899,7 +1764,12 @@ export default function UserShow({ user, canDelete }: Props) {
                                         </Box>
                                     )}
                                     <Box sx={{ mt: 1.5 }}>
-                                        <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
+                                        <Typography
+                                            sx={{
+                                                fontSize: '0.75rem',
+                                                color: 'text.secondary',
+                                            }}
+                                        >
                                             Vendor Type:{' '}
                                             <Badge variant="outline">
                                                 {user.vendor_application
@@ -911,12 +1781,39 @@ export default function UserShow({ user, canDelete }: Props) {
                                     </Box>
                                 </Box>
 
-                                <Box sx={{ display: 'grid', gap: 2, gridTemplateColumns: { md: 'repeat(2, 1fr)' } }}>
-                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                                        <Typography variant="h6" sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                                <Box
+                                    sx={{
+                                        display: 'grid',
+                                        gap: 2,
+                                        gridTemplateColumns: {
+                                            md: 'repeat(2, 1fr)',
+                                        },
+                                    }}
+                                >
+                                    <Box
+                                        sx={{
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            gap: 1,
+                                        }}
+                                    >
+                                        <Typography
+                                            variant="h6"
+                                            sx={{
+                                                fontSize: '0.875rem',
+                                                fontWeight: 500,
+                                            }}
+                                        >
                                             Front of Ghana Card
                                         </Typography>
-                                        <Box sx={{ overflow: 'hidden', borderRadius: 2, border: 1, borderColor: 'divider' }}>
+                                        <Box
+                                            sx={{
+                                                overflow: 'hidden',
+                                                borderRadius: 2,
+                                                border: 1,
+                                                borderColor: 'divider',
+                                            }}
+                                        >
                                             <Box
                                                 component="img"
                                                 src={
@@ -924,15 +1821,38 @@ export default function UserShow({ user, canDelete }: Props) {
                                                         .ghana_card_front
                                                 }
                                                 alt="Ghana Card Front"
-                                                sx={{ height: 'auto', width: '100%', objectFit: 'cover' }}
+                                                sx={{
+                                                    height: 'auto',
+                                                    width: '100%',
+                                                    objectFit: 'cover',
+                                                }}
                                             />
                                         </Box>
                                     </Box>
-                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                                        <Typography variant="h6" sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                                    <Box
+                                        sx={{
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            gap: 1,
+                                        }}
+                                    >
+                                        <Typography
+                                            variant="h6"
+                                            sx={{
+                                                fontSize: '0.875rem',
+                                                fontWeight: 500,
+                                            }}
+                                        >
                                             Back of Ghana Card
                                         </Typography>
-                                        <Box sx={{ overflow: 'hidden', borderRadius: 2, border: 1, borderColor: 'divider' }}>
+                                        <Box
+                                            sx={{
+                                                overflow: 'hidden',
+                                                borderRadius: 2,
+                                                border: 1,
+                                                borderColor: 'divider',
+                                            }}
+                                        >
                                             <Box
                                                 component="img"
                                                 src={
@@ -940,7 +1860,11 @@ export default function UserShow({ user, canDelete }: Props) {
                                                         .ghana_card_back
                                                 }
                                                 alt="Ghana Card Back"
-                                                sx={{ height: 'auto', width: '100%', objectFit: 'cover' }}
+                                                sx={{
+                                                    height: 'auto',
+                                                    width: '100%',
+                                                    objectFit: 'cover',
+                                                }}
                                             />
                                         </Box>
                                     </Box>
@@ -955,8 +1879,17 @@ export default function UserShow({ user, canDelete }: Props) {
                         user.vendor_application.tin_document) && (
                         <Card>
                             <CardHeader>
-                                <CardTitle style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '1.125rem' }}>
-                                    <Briefcase style={{ width: 20, height: 20 }} />
+                                <CardTitle
+                                    style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 8,
+                                        fontSize: '1.125rem',
+                                    }}
+                                >
+                                    <Briefcase
+                                        style={{ width: 20, height: 20 }}
+                                    />
                                     Business Documents
                                 </CardTitle>
                                 <CardDescription>
@@ -964,37 +1897,137 @@ export default function UserShow({ user, canDelete }: Props) {
                                 </CardDescription>
                             </CardHeader>
                             <CardContent>
-                                <Box sx={{ display: 'grid', gap: 2, gridTemplateColumns: { md: 'repeat(2, 1fr)' } }}>
+                                <Box
+                                    sx={{
+                                        display: 'grid',
+                                        gap: 2,
+                                        gridTemplateColumns: {
+                                            md: 'repeat(2, 1fr)',
+                                        },
+                                    }}
+                                >
                                     {user.vendor_application
                                         .business_certificate_document && (
-                                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                                            <Typography variant="h6" sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                                        <Box
+                                            sx={{
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                gap: 1,
+                                            }}
+                                        >
+                                            <Typography
+                                                variant="h6"
+                                                sx={{
+                                                    fontSize: '0.875rem',
+                                                    fontWeight: 500,
+                                                }}
+                                            >
                                                 Business Certificate
                                             </Typography>
-                                            <Box sx={{ overflow: 'hidden', borderRadius: 2, border: 1, borderColor: 'divider', p: 2 }}>
+                                            <Box
+                                                sx={{
+                                                    overflow: 'hidden',
+                                                    borderRadius: 2,
+                                                    border: 1,
+                                                    borderColor: 'divider',
+                                                    p: 2,
+                                                }}
+                                            >
                                                 <Box
                                                     component="button"
-                                                    onClick={() => setPreviewDoc({ url: user.vendor_application!.business_certificate_document!, title: 'Business Certificate' })}
-                                                    sx={{ display: 'flex', alignItems: 'center', gap: 1, fontSize: '0.875rem', color: 'primary.main', bgcolor: 'transparent', border: 'none', cursor: 'pointer', p: 0, '&:hover': { textDecoration: 'underline' } }}
+                                                    onClick={() =>
+                                                        setPreviewDoc({
+                                                            url: user
+                                                                .vendor_application!
+                                                                .business_certificate_document!,
+                                                            title: 'Business Certificate',
+                                                        })
+                                                    }
+                                                    sx={{
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: 1,
+                                                        fontSize: '0.875rem',
+                                                        color: 'primary.main',
+                                                        bgcolor: 'transparent',
+                                                        border: 'none',
+                                                        cursor: 'pointer',
+                                                        p: 0,
+                                                        '&:hover': {
+                                                            textDecoration:
+                                                                'underline',
+                                                        },
+                                                    }}
                                                 >
-                                                    <Eye style={{ width: 16, height: 16 }} />
+                                                    <Eye
+                                                        style={{
+                                                            width: 16,
+                                                            height: 16,
+                                                        }}
+                                                    />
                                                     View Business Certificate
                                                 </Box>
                                             </Box>
                                         </Box>
                                     )}
                                     {user.vendor_application.tin_document && (
-                                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                                            <Typography variant="h6" sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                                        <Box
+                                            sx={{
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                gap: 1,
+                                            }}
+                                        >
+                                            <Typography
+                                                variant="h6"
+                                                sx={{
+                                                    fontSize: '0.875rem',
+                                                    fontWeight: 500,
+                                                }}
+                                            >
                                                 TIN Document
                                             </Typography>
-                                            <Box sx={{ overflow: 'hidden', borderRadius: 2, border: 1, borderColor: 'divider', p: 2 }}>
+                                            <Box
+                                                sx={{
+                                                    overflow: 'hidden',
+                                                    borderRadius: 2,
+                                                    border: 1,
+                                                    borderColor: 'divider',
+                                                    p: 2,
+                                                }}
+                                            >
                                                 <Box
                                                     component="button"
-                                                    onClick={() => setPreviewDoc({ url: user.vendor_application!.tin_document!, title: 'TIN Document' })}
-                                                    sx={{ display: 'flex', alignItems: 'center', gap: 1, fontSize: '0.875rem', color: 'primary.main', bgcolor: 'transparent', border: 'none', cursor: 'pointer', p: 0, '&:hover': { textDecoration: 'underline' } }}
+                                                    onClick={() =>
+                                                        setPreviewDoc({
+                                                            url: user
+                                                                .vendor_application!
+                                                                .tin_document!,
+                                                            title: 'TIN Document',
+                                                        })
+                                                    }
+                                                    sx={{
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: 1,
+                                                        fontSize: '0.875rem',
+                                                        color: 'primary.main',
+                                                        bgcolor: 'transparent',
+                                                        border: 'none',
+                                                        cursor: 'pointer',
+                                                        p: 0,
+                                                        '&:hover': {
+                                                            textDecoration:
+                                                                'underline',
+                                                        },
+                                                    }}
                                                 >
-                                                    <Eye style={{ width: 16, height: 16 }} />
+                                                    <Eye
+                                                        style={{
+                                                            width: 16,
+                                                            height: 16,
+                                                        }}
+                                                    />
                                                     View TIN Document
                                                 </Box>
                                             </Box>
@@ -1013,8 +2046,17 @@ export default function UserShow({ user, canDelete }: Props) {
                         user.vendor_application.mobile_money_number) && (
                         <Card>
                             <CardHeader>
-                                <CardTitle style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '1.125rem' }}>
-                                    <UserIcon style={{ width: 20, height: 20 }} />
+                                <CardTitle
+                                    style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 8,
+                                        fontSize: '1.125rem',
+                                    }}
+                                >
+                                    <UserIcon
+                                        style={{ width: 20, height: 20 }}
+                                    />
                                     Unregistered Vendor Verification
                                 </CardTitle>
                                 <CardDescription>
@@ -1023,14 +2065,39 @@ export default function UserShow({ user, canDelete }: Props) {
                                 </CardDescription>
                             </CardHeader>
                             <CardContent>
-                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                                <Box
+                                    sx={{
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        gap: 2,
+                                    }}
+                                >
                                     {/* Selfie Image */}
                                     {user.vendor_application.selfie_image && (
-                                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                                            <Typography variant="h6" sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                                        <Box
+                                            sx={{
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                gap: 1,
+                                            }}
+                                        >
+                                            <Typography
+                                                variant="h6"
+                                                sx={{
+                                                    fontSize: '0.875rem',
+                                                    fontWeight: 500,
+                                                }}
+                                            >
                                                 Selfie Verification
                                             </Typography>
-                                            <Box sx={{ overflow: 'hidden', borderRadius: 2, border: 1, borderColor: 'divider' }}>
+                                            <Box
+                                                sx={{
+                                                    overflow: 'hidden',
+                                                    borderRadius: 2,
+                                                    border: 1,
+                                                    borderColor: 'divider',
+                                                }}
+                                            >
                                                 <Box
                                                     component="img"
                                                     src={
@@ -1038,7 +2105,11 @@ export default function UserShow({ user, canDelete }: Props) {
                                                             .selfie_image
                                                     }
                                                     alt="Vendor Selfie"
-                                                    sx={{ height: 'auto', maxWidth: 384, objectFit: 'cover' }}
+                                                    sx={{
+                                                        height: 'auto',
+                                                        maxWidth: 384,
+                                                        objectFit: 'cover',
+                                                    }}
                                                 />
                                             </Box>
                                         </Box>
@@ -1047,17 +2118,63 @@ export default function UserShow({ user, canDelete }: Props) {
                                     {/* Proof of Business */}
                                     {user.vendor_application
                                         .proof_of_business && (
-                                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                                            <Typography variant="h6" sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                                        <Box
+                                            sx={{
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                gap: 1,
+                                            }}
+                                        >
+                                            <Typography
+                                                variant="h6"
+                                                sx={{
+                                                    fontSize: '0.875rem',
+                                                    fontWeight: 500,
+                                                }}
+                                            >
                                                 Proof of Business
                                             </Typography>
-                                            <Box sx={{ overflow: 'hidden', borderRadius: 2, border: 1, borderColor: 'divider', p: 2 }}>
+                                            <Box
+                                                sx={{
+                                                    overflow: 'hidden',
+                                                    borderRadius: 2,
+                                                    border: 1,
+                                                    borderColor: 'divider',
+                                                    p: 2,
+                                                }}
+                                            >
                                                 <Box
                                                     component="button"
-                                                    onClick={() => setPreviewDoc({ url: user.vendor_application!.proof_of_business!, title: 'Proof of Business' })}
-                                                    sx={{ display: 'flex', alignItems: 'center', gap: 1, fontSize: '0.875rem', color: 'primary.main', bgcolor: 'transparent', border: 'none', cursor: 'pointer', p: 0, '&:hover': { textDecoration: 'underline' } }}
+                                                    onClick={() =>
+                                                        setPreviewDoc({
+                                                            url: user
+                                                                .vendor_application!
+                                                                .proof_of_business!,
+                                                            title: 'Proof of Business',
+                                                        })
+                                                    }
+                                                    sx={{
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: 1,
+                                                        fontSize: '0.875rem',
+                                                        color: 'primary.main',
+                                                        bgcolor: 'transparent',
+                                                        border: 'none',
+                                                        cursor: 'pointer',
+                                                        p: 0,
+                                                        '&:hover': {
+                                                            textDecoration:
+                                                                'underline',
+                                                        },
+                                                    }}
                                                 >
-                                                    <Eye style={{ width: 16, height: 16 }} />
+                                                    <Eye
+                                                        style={{
+                                                            width: 16,
+                                                            height: 16,
+                                                        }}
+                                                    />
                                                     View Proof of Business
                                                 </Box>
                                             </Box>
@@ -1067,14 +2184,50 @@ export default function UserShow({ user, canDelete }: Props) {
                                     {/* Mobile Money Details */}
                                     {user.vendor_application
                                         .mobile_money_number && (
-                                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                                            <Typography variant="h6" sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                                        <Box
+                                            sx={{
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                gap: 1,
+                                            }}
+                                        >
+                                            <Typography
+                                                variant="h6"
+                                                sx={{
+                                                    fontSize: '0.875rem',
+                                                    fontWeight: 500,
+                                                }}
+                                            >
                                                 Mobile Money Details
                                             </Typography>
-                                            <Box sx={{ overflow: 'hidden', borderRadius: 2, border: 1, borderColor: 'divider', p: 2 }}>
-                                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                                                    <Typography sx={{ fontSize: '0.875rem' }}>
-                                                        <Box component="span" sx={{ fontWeight: 500 }}>
+                                            <Box
+                                                sx={{
+                                                    overflow: 'hidden',
+                                                    borderRadius: 2,
+                                                    border: 1,
+                                                    borderColor: 'divider',
+                                                    p: 2,
+                                                }}
+                                            >
+                                                <Box
+                                                    sx={{
+                                                        display: 'flex',
+                                                        flexDirection: 'column',
+                                                        gap: 0.5,
+                                                    }}
+                                                >
+                                                    <Typography
+                                                        sx={{
+                                                            fontSize:
+                                                                '0.875rem',
+                                                        }}
+                                                    >
+                                                        <Box
+                                                            component="span"
+                                                            sx={{
+                                                                fontWeight: 500,
+                                                            }}
+                                                        >
                                                             Number:
                                                         </Box>{' '}
                                                         {
@@ -1085,8 +2238,18 @@ export default function UserShow({ user, canDelete }: Props) {
                                                     </Typography>
                                                     {user.vendor_application
                                                         .mobile_money_provider && (
-                                                        <Typography sx={{ fontSize: '0.875rem' }}>
-                                                            <Box component="span" sx={{ fontWeight: 500 }}>
+                                                        <Typography
+                                                            sx={{
+                                                                fontSize:
+                                                                    '0.875rem',
+                                                            }}
+                                                        >
+                                                            <Box
+                                                                component="span"
+                                                                sx={{
+                                                                    fontWeight: 500,
+                                                                }}
+                                                            >
                                                                 Provider:
                                                             </Box>{' '}
                                                             <Badge variant="outline">
@@ -1110,7 +2273,14 @@ export default function UserShow({ user, canDelete }: Props) {
                         user.vendor_application.twitter_handle) && (
                         <Card>
                             <CardHeader>
-                                <CardTitle style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '1.125rem' }}>
+                                <CardTitle
+                                    style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 8,
+                                        fontSize: '1.125rem',
+                                    }}
+                                >
                                     <Users style={{ width: 20, height: 20 }} />
                                     Social Media
                                 </CardTitle>
@@ -1119,16 +2289,51 @@ export default function UserShow({ user, canDelete }: Props) {
                                 </CardDescription>
                             </CardHeader>
                             <CardContent>
-                                <Box sx={{ display: 'grid', gap: 1.5, gridTemplateColumns: { md: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' } }}>
+                                <Box
+                                    sx={{
+                                        display: 'grid',
+                                        gap: 1.5,
+                                        gridTemplateColumns: {
+                                            md: 'repeat(2, 1fr)',
+                                            lg: 'repeat(3, 1fr)',
+                                        },
+                                    }}
+                                >
                                     {user.vendor_application
                                         .facebook_handle && (
-                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, borderRadius: 2, border: 1, borderColor: 'divider', p: 1.5 }}>
-                                            <Package style={{ width: 16, height: 16, color: 'var(--primary)' }} />
+                                        <Box
+                                            sx={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: 1,
+                                                borderRadius: 2,
+                                                border: 1,
+                                                borderColor: 'divider',
+                                                p: 1.5,
+                                            }}
+                                        >
+                                            <Package
+                                                style={{
+                                                    width: 16,
+                                                    height: 16,
+                                                    color: 'var(--primary)',
+                                                }}
+                                            />
                                             <Box>
-                                                <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
+                                                <Typography
+                                                    sx={{
+                                                        fontSize: '0.75rem',
+                                                        color: 'text.secondary',
+                                                    }}
+                                                >
                                                     Facebook
                                                 </Typography>
-                                                <Typography sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                                                <Typography
+                                                    sx={{
+                                                        fontSize: '0.875rem',
+                                                        fontWeight: 500,
+                                                    }}
+                                                >
                                                     {
                                                         user.vendor_application
                                                             .facebook_handle
@@ -1139,13 +2344,39 @@ export default function UserShow({ user, canDelete }: Props) {
                                     )}
                                     {user.vendor_application
                                         .instagram_handle && (
-                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, borderRadius: 2, border: 1, borderColor: 'divider', p: 1.5 }}>
-                                            <Package style={{ width: 16, height: 16, color: 'var(--accent)' }} />
+                                        <Box
+                                            sx={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: 1,
+                                                borderRadius: 2,
+                                                border: 1,
+                                                borderColor: 'divider',
+                                                p: 1.5,
+                                            }}
+                                        >
+                                            <Package
+                                                style={{
+                                                    width: 16,
+                                                    height: 16,
+                                                    color: 'var(--accent)',
+                                                }}
+                                            />
                                             <Box>
-                                                <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
+                                                <Typography
+                                                    sx={{
+                                                        fontSize: '0.75rem',
+                                                        color: 'text.secondary',
+                                                    }}
+                                                >
                                                     Instagram
                                                 </Typography>
-                                                <Typography sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                                                <Typography
+                                                    sx={{
+                                                        fontSize: '0.875rem',
+                                                        fontWeight: 500,
+                                                    }}
+                                                >
                                                     {
                                                         user.vendor_application
                                                             .instagram_handle
@@ -1155,13 +2386,39 @@ export default function UserShow({ user, canDelete }: Props) {
                                         </Box>
                                     )}
                                     {user.vendor_application.twitter_handle && (
-                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, borderRadius: 2, border: 1, borderColor: 'divider', p: 1.5 }}>
-                                            <Package style={{ width: 16, height: 16, color: 'var(--success)' }} />
+                                        <Box
+                                            sx={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: 1,
+                                                borderRadius: 2,
+                                                border: 1,
+                                                borderColor: 'divider',
+                                                p: 1.5,
+                                            }}
+                                        >
+                                            <Package
+                                                style={{
+                                                    width: 16,
+                                                    height: 16,
+                                                    color: 'var(--success)',
+                                                }}
+                                            />
                                             <Box>
-                                                <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
+                                                <Typography
+                                                    sx={{
+                                                        fontSize: '0.75rem',
+                                                        color: 'text.secondary',
+                                                    }}
+                                                >
                                                     Twitter/X
                                                 </Typography>
-                                                <Typography sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                                                <Typography
+                                                    sx={{
+                                                        fontSize: '0.875rem',
+                                                        fontWeight: 500,
+                                                    }}
+                                                >
                                                     {
                                                         user.vendor_application
                                                             .twitter_handle
@@ -1179,17 +2436,47 @@ export default function UserShow({ user, canDelete }: Props) {
                 {user.role === 'vendor' && (
                     <Box sx={{ display: 'grid', gap: 2 }}>
                         {/* Stats Overview */}
-                        <Box sx={{ display: 'grid', gap: 2, gridTemplateColumns: { md: 'repeat(3, 1fr)' } }}>
+                        <Box
+                            sx={{
+                                display: 'grid',
+                                gap: 2,
+                                gridTemplateColumns: { md: 'repeat(3, 1fr)' },
+                            }}
+                        >
                             <Card>
                                 <CardHeader style={{ paddingBottom: 12 }}>
-                                    <CardTitle style={{ fontSize: '0.875rem', fontWeight: 500, color: 'gray' }}>
+                                    <CardTitle
+                                        style={{
+                                            fontSize: '0.875rem',
+                                            fontWeight: 500,
+                                            color: 'gray',
+                                        }}
+                                    >
                                         Total Shops
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent>
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                        <Store style={{ width: 20, height: 20, color: 'var(--primary)' }} />
-                                        <Box component="span" sx={{ fontSize: '1.5rem', fontWeight: 700 }}>
+                                    <Box
+                                        sx={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: 1,
+                                        }}
+                                    >
+                                        <Store
+                                            style={{
+                                                width: 20,
+                                                height: 20,
+                                                color: 'var(--primary)',
+                                            }}
+                                        />
+                                        <Box
+                                            component="span"
+                                            sx={{
+                                                fontSize: '1.5rem',
+                                                fontWeight: 700,
+                                            }}
+                                        >
                                             {user.shops?.length || 0}
                                         </Box>
                                     </Box>
@@ -1198,14 +2485,38 @@ export default function UserShow({ user, canDelete }: Props) {
 
                             <Card>
                                 <CardHeader style={{ paddingBottom: 12 }}>
-                                    <CardTitle style={{ fontSize: '0.875rem', fontWeight: 500, color: 'gray' }}>
+                                    <CardTitle
+                                        style={{
+                                            fontSize: '0.875rem',
+                                            fontWeight: 500,
+                                            color: 'gray',
+                                        }}
+                                    >
                                         Total Products
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent>
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                        <Package style={{ width: 20, height: 20, color: 'var(--accent)' }} />
-                                        <Box component="span" sx={{ fontSize: '1.5rem', fontWeight: 700 }}>
+                                    <Box
+                                        sx={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: 1,
+                                        }}
+                                    >
+                                        <Package
+                                            style={{
+                                                width: 20,
+                                                height: 20,
+                                                color: 'var(--accent)',
+                                            }}
+                                        />
+                                        <Box
+                                            component="span"
+                                            sx={{
+                                                fontSize: '1.5rem',
+                                                fontWeight: 700,
+                                            }}
+                                        >
                                             {user.products_count || 0}
                                         </Box>
                                     </Box>
@@ -1214,14 +2525,38 @@ export default function UserShow({ user, canDelete }: Props) {
 
                             <Card>
                                 <CardHeader style={{ paddingBottom: 12 }}>
-                                    <CardTitle style={{ fontSize: '0.875rem', fontWeight: 500, color: 'gray' }}>
+                                    <CardTitle
+                                        style={{
+                                            fontSize: '0.875rem',
+                                            fontWeight: 500,
+                                            color: 'gray',
+                                        }}
+                                    >
                                         Total Services
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent>
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                        <Briefcase style={{ width: 20, height: 20, color: 'var(--success)' }} />
-                                        <Box component="span" sx={{ fontSize: '1.5rem', fontWeight: 700 }}>
+                                    <Box
+                                        sx={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: 1,
+                                        }}
+                                    >
+                                        <Briefcase
+                                            style={{
+                                                width: 20,
+                                                height: 20,
+                                                color: 'var(--success)',
+                                            }}
+                                        />
+                                        <Box
+                                            component="span"
+                                            sx={{
+                                                fontSize: '1.5rem',
+                                                fontWeight: 700,
+                                            }}
+                                        >
                                             {user.services_count || 0}
                                         </Box>
                                     </Box>
@@ -1233,8 +2568,16 @@ export default function UserShow({ user, canDelete }: Props) {
                         {user.shops && user.shops.length > 0 && (
                             <Card>
                                 <CardHeader>
-                                    <CardTitle style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                        <Store style={{ width: 20, height: 20 }} />
+                                    <CardTitle
+                                        style={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: 8,
+                                        }}
+                                    >
+                                        <Store
+                                            style={{ width: 20, height: 20 }}
+                                        />
                                         Shops
                                     </CardTitle>
                                     <CardDescription>
@@ -1242,15 +2585,42 @@ export default function UserShow({ user, canDelete }: Props) {
                                     </CardDescription>
                                 </CardHeader>
                                 <CardContent>
-                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                                    <Box
+                                        sx={{
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            gap: 1.5,
+                                        }}
+                                    >
                                         {user.shops.map((shop) => (
                                             <Box
                                                 key={shop.id}
-                                                sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderRadius: 2, border: 1, borderColor: 'divider', p: 2 }}
+                                                sx={{
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent:
+                                                        'space-between',
+                                                    borderRadius: 2,
+                                                    border: 1,
+                                                    borderColor: 'divider',
+                                                    p: 2,
+                                                }}
                                             >
                                                 <Box sx={{ flex: 1 }}>
-                                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                                        <Typography variant="h6" sx={{ fontWeight: 500 }}>
+                                                    <Box
+                                                        sx={{
+                                                            display: 'flex',
+                                                            alignItems:
+                                                                'center',
+                                                            gap: 1,
+                                                        }}
+                                                    >
+                                                        <Typography
+                                                            variant="h6"
+                                                            sx={{
+                                                                fontWeight: 500,
+                                                            }}
+                                                        >
                                                             {shop.name}
                                                         </Typography>
                                                         <Badge
@@ -1266,21 +2636,72 @@ export default function UserShow({ user, canDelete }: Props) {
                                                         </Badge>
                                                     </Box>
                                                     {shop.location && (
-                                                        <Typography sx={{ mt: 0.5, display: 'flex', alignItems: 'center', gap: 0.5, fontSize: '0.875rem', color: 'text.secondary' }}>
-                                                            <MapPin style={{ width: 12, height: 12 }} />
+                                                        <Typography
+                                                            sx={{
+                                                                mt: 0.5,
+                                                                display: 'flex',
+                                                                alignItems:
+                                                                    'center',
+                                                                gap: 0.5,
+                                                                fontSize:
+                                                                    '0.875rem',
+                                                                color: 'text.secondary',
+                                                            }}
+                                                        >
+                                                            <MapPin
+                                                                style={{
+                                                                    width: 12,
+                                                                    height: 12,
+                                                                }}
+                                                            />
                                                             {shop.location}
                                                         </Typography>
                                                     )}
-                                                    <Box sx={{ mt: 1, display: 'flex', gap: 2, fontSize: '0.875rem', color: 'text.secondary' }}>
-                                                        <Box component="span" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                                            <Package style={{ width: 12, height: 12 }} />
+                                                    <Box
+                                                        sx={{
+                                                            mt: 1,
+                                                            display: 'flex',
+                                                            gap: 2,
+                                                            fontSize:
+                                                                '0.875rem',
+                                                            color: 'text.secondary',
+                                                        }}
+                                                    >
+                                                        <Box
+                                                            component="span"
+                                                            sx={{
+                                                                display: 'flex',
+                                                                alignItems:
+                                                                    'center',
+                                                                gap: 0.5,
+                                                            }}
+                                                        >
+                                                            <Package
+                                                                style={{
+                                                                    width: 12,
+                                                                    height: 12,
+                                                                }}
+                                                            />
                                                             {
                                                                 shop.products_count
                                                             }{' '}
                                                             products
                                                         </Box>
-                                                        <Box component="span" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                                            <Briefcase style={{ width: 12, height: 12 }} />
+                                                        <Box
+                                                            component="span"
+                                                            sx={{
+                                                                display: 'flex',
+                                                                alignItems:
+                                                                    'center',
+                                                                gap: 0.5,
+                                                            }}
+                                                        >
+                                                            <Briefcase
+                                                                style={{
+                                                                    width: 12,
+                                                                    height: 12,
+                                                                }}
+                                                            />
                                                             {
                                                                 shop.services_count
                                                             }{' '}
@@ -1299,53 +2720,151 @@ export default function UserShow({ user, canDelete }: Props) {
                         {user.fieldVerification && (
                             <Card>
                                 <CardHeader>
-                                    <CardTitle style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                        <CheckCircle style={{ width: 20, height: 20 }} />
+                                    <CardTitle
+                                        style={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: 8,
+                                        }}
+                                    >
+                                        <CheckCircle
+                                            style={{ width: 20, height: 20 }}
+                                        />
                                         Field Verification
                                     </CardTitle>
                                     <CardDescription>
-                                        Post-approval on-site verification status
+                                        Post-approval on-site verification
+                                        status
                                     </CardDescription>
                                 </CardHeader>
                                 <CardContent>
-                                    <Box sx={{ mb: 3, borderRadius: 2, border: 1, borderColor: user.fieldVerification.is_verified ? 'success.main' : 'divider', p: 2, bgcolor: user.fieldVerification.is_verified ? 'success.light' : 'transparent', opacity: user.fieldVerification.is_verified ? 0.1 : 1 }}>
-                                        <Typography variant="h6" sx={{ fontSize: '0.875rem', fontWeight: 600 }}>
-                                            Current Status: {user.fieldVerification.is_verified ? 'VERIFIED' : 'NOT VERIFIED'}
+                                    <Box
+                                        sx={{
+                                            mb: 3,
+                                            borderRadius: 2,
+                                            border: 1,
+                                            borderColor: user.fieldVerification
+                                                .is_verified
+                                                ? 'success.main'
+                                                : 'divider',
+                                            p: 2,
+                                            bgcolor: user.fieldVerification
+                                                .is_verified
+                                                ? 'success.light'
+                                                : 'transparent',
+                                            opacity: user.fieldVerification
+                                                .is_verified
+                                                ? 0.1
+                                                : 1,
+                                        }}
+                                    >
+                                        <Typography
+                                            variant="h6"
+                                            sx={{
+                                                fontSize: '0.875rem',
+                                                fontWeight: 600,
+                                            }}
+                                        >
+                                            Current Status:{' '}
+                                            {user.fieldVerification.is_verified
+                                                ? 'VERIFIED'
+                                                : 'NOT VERIFIED'}
                                         </Typography>
                                         {user.fieldVerification.is_verified && (
-                                            <Typography sx={{ fontSize: '0.875rem' }}>
-                                                Badge active until: {new Date(user.fieldVerification.verified_until!).toLocaleDateString()}
+                                            <Typography
+                                                sx={{ fontSize: '0.875rem' }}
+                                            >
+                                                Badge active until:{' '}
+                                                {new Date(
+                                                    user.fieldVerification.verified_until!,
+                                                ).toLocaleDateString()}
                                             </Typography>
                                         )}
                                     </Box>
 
-                                    <Typography variant="h6" sx={{ mb: 1, fontSize: '0.875rem', fontWeight: 500 }}>
+                                    <Typography
+                                        variant="h6"
+                                        sx={{
+                                            mb: 1,
+                                            fontSize: '0.875rem',
+                                            fontWeight: 500,
+                                        }}
+                                    >
                                         Recent Visits
                                     </Typography>
-                                    {user.fieldVerification.recent_visits.length === 0 ? (
-                                        <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
+                                    {user.fieldVerification.recent_visits
+                                        .length === 0 ? (
+                                        <Typography
+                                            sx={{
+                                                fontSize: '0.875rem',
+                                                color: 'text.secondary',
+                                            }}
+                                        >
                                             No field visits recorded yet.
                                         </Typography>
                                     ) : (
-                                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                                            {user.fieldVerification.recent_visits.map((v) => (
-                                                <Box key={v.id} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderRadius: 1.5, border: 1, borderColor: 'divider', p: 1.5 }}>
-                                                    <Box>
-                                                        <Typography sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
-                                                            {new Date(v.started_at).toLocaleDateString()}
-                                                        </Typography>
-                                                        <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
-                                                            {v.status.toUpperCase()}
-                                                            {v.badge_expires_at && ` · Expires ${new Date(v.badge_expires_at).toLocaleDateString()}`}
-                                                        </Typography>
+                                        <Box
+                                            sx={{
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                gap: 1,
+                                            }}
+                                        >
+                                            {user.fieldVerification.recent_visits.map(
+                                                (v) => (
+                                                    <Box
+                                                        key={v.id}
+                                                        sx={{
+                                                            display: 'flex',
+                                                            alignItems:
+                                                                'center',
+                                                            justifyContent:
+                                                                'space-between',
+                                                            borderRadius: 1.5,
+                                                            border: 1,
+                                                            borderColor:
+                                                                'divider',
+                                                            p: 1.5,
+                                                        }}
+                                                    >
+                                                        <Box>
+                                                            <Typography
+                                                                sx={{
+                                                                    fontSize:
+                                                                        '0.875rem',
+                                                                    fontWeight: 500,
+                                                                }}
+                                                            >
+                                                                {new Date(
+                                                                    v.started_at,
+                                                                ).toLocaleDateString()}
+                                                            </Typography>
+                                                            <Typography
+                                                                sx={{
+                                                                    fontSize:
+                                                                        '0.75rem',
+                                                                    color: 'text.secondary',
+                                                                }}
+                                                            >
+                                                                {v.status.toUpperCase()}
+                                                                {v.badge_expires_at &&
+                                                                    ` · Expires ${new Date(v.badge_expires_at).toLocaleDateString()}`}
+                                                            </Typography>
+                                                        </Box>
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            asChild
+                                                        >
+                                                            <Link
+                                                                href={`/dashboard/vendor-visits/${v.id}`}
+                                                            >
+                                                                Details →
+                                                            </Link>
+                                                        </Button>
                                                     </Box>
-                                                    <Button variant="ghost" size="sm" asChild>
-                                                        <Link href={`/dashboard/vendor-visits/${v.id}`}>
-                                                            Details →
-                                                        </Link>
-                                                    </Button>
-                                                </Box>
-                                            ))}
+                                                ),
+                                            )}
                                         </Box>
                                     )}
                                 </CardContent>
@@ -1356,7 +2875,14 @@ export default function UserShow({ user, canDelete }: Props) {
             </Box>
 
             {/* Document Preview Dialog */}
-            <Dialog open={!!previewDoc} onOpenChange={(open) => { if (!open) { setPreviewDoc(null); } }}>
+            <Dialog
+                open={!!previewDoc}
+                onOpenChange={(open) => {
+                    if (!open) {
+                        setPreviewDoc(null);
+                    }
+                }}
+            >
                 <DialogContent style={{ maxWidth: 900, width: '90vw' }}>
                     <DialogHeader>
                         <DialogTitle>{previewDoc?.title}</DialogTitle>
@@ -1365,31 +2891,72 @@ export default function UserShow({ user, canDelete }: Props) {
                         </DialogDescription>
                     </DialogHeader>
                     {previewDoc && (
-                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                            <Box sx={{ overflow: 'auto', borderRadius: 2, border: 1, borderColor: 'divider', bgcolor: 'action.hover', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 300, maxHeight: '60vh' }}>
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: 2,
+                            }}
+                        >
+                            <Box
+                                sx={{
+                                    overflow: 'auto',
+                                    borderRadius: 2,
+                                    border: 1,
+                                    borderColor: 'divider',
+                                    bgcolor: 'action.hover',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    minHeight: 300,
+                                    maxHeight: '60vh',
+                                }}
+                            >
                                 {isImageUrl(previewDoc.url) ? (
                                     <Box
                                         component="img"
                                         src={previewDoc.url}
                                         alt={previewDoc.title}
-                                        sx={{ maxWidth: '100%', maxHeight: '60vh', objectFit: 'contain' }}
+                                        sx={{
+                                            maxWidth: '100%',
+                                            maxHeight: '60vh',
+                                            objectFit: 'contain',
+                                        }}
                                     />
                                 ) : (
                                     <Box
                                         component="iframe"
                                         src={previewDoc.url}
                                         title={previewDoc.title}
-                                        sx={{ width: '100%', height: '60vh', border: 'none' }}
+                                        sx={{
+                                            width: '100%',
+                                            height: '60vh',
+                                            border: 'none',
+                                        }}
                                     />
                                 )}
                             </Box>
                             <DialogFooter>
-                                <Button variant="outline" onClick={() => setPreviewDoc(null)}>
+                                <Button
+                                    variant="outline"
+                                    onClick={() => setPreviewDoc(null)}
+                                >
                                     Close
                                 </Button>
                                 <Button asChild>
-                                    <a href={previewDoc.url} download target="_blank" rel="noopener noreferrer">
-                                        <Download style={{ marginRight: 8, width: 16, height: 16 }} />
+                                    <a
+                                        href={previewDoc.url}
+                                        download
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                    >
+                                        <Download
+                                            style={{
+                                                marginRight: 8,
+                                                width: 16,
+                                                height: 16,
+                                            }}
+                                        />
                                         Download
                                     </a>
                                 </Button>
@@ -1400,28 +2967,40 @@ export default function UserShow({ user, canDelete }: Props) {
             </Dialog>
 
             {/* Delete Confirmation Dialog */}
-            <Dialog open={showDeleteDialog} onOpenChange={(open) => {
-                if (!open) {
-                    setShowDeleteDialog(false);
-                    setDeleteConfirmation('');
-                }
-            }}>
+            <Dialog
+                open={showDeleteDialog}
+                onOpenChange={(open) => {
+                    if (!open) {
+                        setShowDeleteDialog(false);
+                        setDeleteConfirmation('');
+                    }
+                }}
+            >
                 <DialogContent>
                     <DialogHeader>
                         <DialogTitle>Delete User</DialogTitle>
                         <DialogDescription>
-                            This will permanently delete {user.name} and all their associated data.
-                            This action cannot be undone.
+                            This will permanently delete {user.name} and all
+                            their associated data. This action cannot be undone.
                         </DialogDescription>
                     </DialogHeader>
-                    <Box sx={{ py: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    <Box
+                        sx={{
+                            py: 2,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: 2,
+                        }}
+                    >
                         <Box>
                             <Typography sx={{ fontSize: '0.875rem', mb: 1 }}>
                                 Type <strong>DELETE</strong> to confirm:
                             </Typography>
                             <Input
                                 value={deleteConfirmation}
-                                onChange={(e) => setDeleteConfirmation(e.target.value)}
+                                onChange={(e) =>
+                                    setDeleteConfirmation(e.target.value)
+                                }
                                 placeholder='Type "DELETE" to confirm'
                                 autoComplete="off"
                             />
@@ -1441,7 +3020,9 @@ export default function UserShow({ user, canDelete }: Props) {
                         <Button
                             variant="destructive"
                             onClick={handleDelete}
-                            disabled={deleteConfirmation !== 'DELETE' || isDeleting}
+                            disabled={
+                                deleteConfirmation !== 'DELETE' || isDeleting
+                            }
                         >
                             {isDeleting ? 'Deleting...' : 'Permanently Delete'}
                         </Button>
@@ -1476,7 +3057,13 @@ export default function UserShow({ user, canDelete }: Props) {
                             />
                             {data.rejection_reason &&
                                 data.rejection_reason.length < 10 && (
-                                    <Typography sx={{ mt: 1, fontSize: '0.875rem', color: 'error.main' }}>
+                                    <Typography
+                                        sx={{
+                                            mt: 1,
+                                            fontSize: '0.875rem',
+                                            color: 'error.main',
+                                        }}
+                                    >
                                         Please provide at least 10 characters
                                     </Typography>
                                 )}

@@ -15,8 +15,8 @@ import {
 import { useClipboard } from '@/hooks/use-clipboard';
 import { OTP_MAX_LENGTH } from '@/hooks/use-two-factor-auth';
 import { confirm } from '@/routes/two-factor';
-import Box from '@mui/material/Box';
 import { Form } from '@inertiajs/react';
+import Box from '@mui/material/Box';
 import { REGEXP_ONLY_DIGITS } from 'input-otp';
 import { Check, Copy, ScanLine } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -169,10 +169,7 @@ function TwoFactorSetupStep({
                             gap: 2.5,
                         }}
                     >
-                        <Button
-                            onClick={onNextStep}
-                            style={{ width: '100%' }}
-                        >
+                        <Button onClick={onNextStep} style={{ width: '100%' }}>
                             {buttonText}
                         </Button>
                     </Box>
@@ -278,9 +275,7 @@ function TwoFactorSetupStep({
                                             },
                                         }}
                                     >
-                                        <IconComponent
-                                            style={{ width: 16 }}
-                                        />
+                                        <IconComponent style={{ width: 16 }} />
                                     </Box>
                                 </>
                             )}

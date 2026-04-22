@@ -9,9 +9,9 @@ import AuthLayout from '@/layouts/auth-layout';
 import { register } from '@/routes';
 import { store } from '@/routes/login';
 import { request } from '@/routes/password';
+import { Form, Head } from '@inertiajs/react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import { Form, Head } from '@inertiajs/react';
 
 interface LoginProps {
     status?: string;
@@ -55,12 +55,20 @@ export default function Login({
                             </Box>
 
                             <Box sx={{ display: 'grid', gap: 1 }}>
-                                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                <Box
+                                    sx={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                    }}
+                                >
                                     <Label htmlFor="password">Password</Label>
                                     {canResetPassword && (
                                         <TextLink
                                             href={request()}
-                                            style={{ marginLeft: 'auto', fontSize: '0.875rem' }}
+                                            style={{
+                                                marginLeft: 'auto',
+                                                fontSize: '0.875rem',
+                                            }}
                                             tabIndex={5}
                                         >
                                             Forgot password?
@@ -79,7 +87,13 @@ export default function Login({
                                 <InputError message={errors.password} />
                             </Box>
 
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 1.5,
+                                }}
+                            >
                                 <Checkbox
                                     id="remember"
                                     name="remember"
@@ -101,7 +115,11 @@ export default function Login({
                         </Box>
 
                         {canRegister && (
-                            <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center' }}>
+                            <Typography
+                                variant="body2"
+                                color="text.secondary"
+                                sx={{ textAlign: 'center' }}
+                            >
                                 Don't have an account?{' '}
                                 <TextLink href={register()} tabIndex={5}>
                                     Sign up
@@ -113,7 +131,11 @@ export default function Login({
             </Form>
 
             {status && (
-                <Typography variant="body2" color="success.main" sx={{ textAlign: 'center', fontWeight: 500 }}>
+                <Typography
+                    variant="body2"
+                    color="success.main"
+                    sx={{ textAlign: 'center', fontWeight: 500 }}
+                >
                     {status}
                 </Typography>
             )}

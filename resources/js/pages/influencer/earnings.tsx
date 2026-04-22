@@ -91,24 +91,56 @@ export default function InfluencerEarnings({ earnings }: Props) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="My Earnings" />
 
-            <Box sx={{ display: 'flex', height: '100%', flex: 1, flexDirection: 'column', gap: 3, overflowX: 'auto', p: 3 }}>
+            <Box
+                sx={{
+                    display: 'flex',
+                    height: '100%',
+                    flex: 1,
+                    flexDirection: 'column',
+                    gap: 3,
+                    overflowX: 'auto',
+                    p: 3,
+                }}
+            >
                 <Box>
-                    <Typography variant="h4" fontWeight={700}>My Earnings</Typography>
+                    <Typography variant="h4" fontWeight={700}>
+                        My Earnings
+                    </Typography>
                     <Typography color="text.secondary" sx={{ mt: 0.5 }}>
                         Track your commissions and bonuses
                     </Typography>
                 </Box>
 
-                <Box sx={{ display: 'grid', gap: 2, gridTemplateColumns: { md: 'repeat(3, 1fr)' } }}>
+                <Box
+                    sx={{
+                        display: 'grid',
+                        gap: 2,
+                        gridTemplateColumns: { md: 'repeat(3, 1fr)' },
+                    }}
+                >
                     <Card>
                         <CardHeader sx={{ pb: 1.5 }}>
-                            <CardTitle sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                            <CardTitle
+                                sx={{ fontSize: '0.875rem', fontWeight: 500 }}
+                            >
                                 Total Earnings
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                <DollarSign style={{ width: 20, height: 20, color: 'gray' }} />
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 1,
+                                }}
+                            >
+                                <DollarSign
+                                    style={{
+                                        width: 20,
+                                        height: 20,
+                                        color: 'gray',
+                                    }}
+                                />
                                 <Typography variant="h5" fontWeight={700}>
                                     GHS {totalEarnings.toFixed(2)}
                                 </Typography>
@@ -117,12 +149,18 @@ export default function InfluencerEarnings({ earnings }: Props) {
                     </Card>
                     <Card>
                         <CardHeader sx={{ pb: 1.5 }}>
-                            <CardTitle sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                            <CardTitle
+                                sx={{ fontSize: '0.875rem', fontWeight: 500 }}
+                            >
                                 Approved
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <Typography variant="h5" fontWeight={700} color="success.main">
+                            <Typography
+                                variant="h5"
+                                fontWeight={700}
+                                color="success.main"
+                            >
                                 {
                                     earnings.data.filter(
                                         (e) => e.status === 'approved',
@@ -133,12 +171,18 @@ export default function InfluencerEarnings({ earnings }: Props) {
                     </Card>
                     <Card>
                         <CardHeader sx={{ pb: 1.5 }}>
-                            <CardTitle sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                            <CardTitle
+                                sx={{ fontSize: '0.875rem', fontWeight: 500 }}
+                            >
                                 Pending
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <Typography variant="h5" fontWeight={700} color="warning.main">
+                            <Typography
+                                variant="h5"
+                                fontWeight={700}
+                                color="warning.main"
+                            >
                                 {
                                     earnings.data.filter(
                                         (e) => e.status === 'pending',
@@ -193,8 +237,20 @@ export default function InfluencerEarnings({ earnings }: Props) {
                                                 {getStatusBadge(earning.status)}
                                             </TableCell>
                                             <TableCell>
-                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                                    <Calendar style={{ width: 16, height: 16, color: 'gray' }} />
+                                                <Box
+                                                    sx={{
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: 1,
+                                                    }}
+                                                >
+                                                    <Calendar
+                                                        style={{
+                                                            width: 16,
+                                                            height: 16,
+                                                            color: 'gray',
+                                                        }}
+                                                    />
                                                     {formatDate(
                                                         earning.earned_at,
                                                     )}

@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Order;
 use App\Models\VendorApplication;
-use App\Services\ReferralService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -255,6 +254,7 @@ class VendorApplicationController extends Controller
         // Check if application is complete and ready for review
         if (! $vendorApplication->canBeReviewed()) {
             dump($vendorApplication->completed_step, $vendorApplication->payment_required, $vendorApplication->payment_completed, $vendorApplication->submitted_at, $vendorApplication->isStep3Complete());
+
             return back()->with('error', 'This application cannot be reviewed. Ensure all steps are completed, payment is made, and the application has been submitted.');
         }
 

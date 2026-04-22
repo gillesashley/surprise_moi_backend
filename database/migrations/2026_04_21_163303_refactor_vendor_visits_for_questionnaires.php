@@ -15,7 +15,7 @@ return new class extends Migration
 
         Schema::table('vendor_visits', function (Blueprint $table) {
             $table->foreignId('vendor_application_id')->nullable()->constrained('vendor_applications')->cascadeOnDelete();
-            
+
             // New Questionnaire Fields
             $table->string('ghana_card_number')->nullable();
             $table->string('tin_number')->nullable();
@@ -30,7 +30,7 @@ return new class extends Migration
                 'notes',
                 'escalated',
                 'badge_issued_at',
-                'badge_expires_at'
+                'badge_expires_at',
             ]);
         });
     }
@@ -48,7 +48,7 @@ return new class extends Migration
                 'tin_number',
                 'has_shop',
                 'shop_location',
-                'primary_business_address'
+                'primary_business_address',
             ]);
 
             $table->decimal('visit_latitude', 10, 7)->nullable();

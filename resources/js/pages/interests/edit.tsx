@@ -42,15 +42,36 @@ export default function InterestEdit({ interest }: Props) {
     return (
         <AppLayout breadcrumbs={breadcrumbs(interest)}>
             <Head title={`Edit: ${interest.name}`} />
-            <Box sx={{ display: 'flex', height: '100%', flex: 1, flexDirection: 'column', gap: 2, p: 2 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <Box
+                sx={{
+                    display: 'flex',
+                    height: '100%',
+                    flex: 1,
+                    flexDirection: 'column',
+                    gap: 2,
+                    p: 2,
+                }}
+            >
+                <Box
+                    sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                    }}
+                >
                     <Button variant="ghost" size="sm" asChild>
                         <Link
                             href={ContentManagementController.index.url({
                                 query: { tab: 'interests' },
                             })}
                         >
-                            <ArrowLeft style={{ marginRight: 8, width: 16, height: 16 }} />
+                            <ArrowLeft
+                                style={{
+                                    marginRight: 8,
+                                    width: 16,
+                                    height: 16,
+                                }}
+                            />
                             Back to Content Management
                         </Link>
                     </Button>
@@ -69,8 +90,20 @@ export default function InterestEdit({ interest }: Props) {
                             method="put"
                         >
                             {({ errors, processing, wasSuccessful }) => (
-                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                <Box
+                                    sx={{
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        gap: 2,
+                                    }}
+                                >
+                                    <Box
+                                        sx={{
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            gap: 1,
+                                        }}
+                                    >
                                         <Label htmlFor="name">Name</Label>
                                         <Input
                                             id="name"
@@ -79,13 +112,24 @@ export default function InterestEdit({ interest }: Props) {
                                             required
                                         />
                                         {errors.name && (
-                                            <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
+                                            <Typography
+                                                sx={{
+                                                    fontSize: '0.875rem',
+                                                    color: 'error.main',
+                                                }}
+                                            >
                                                 {errors.name}
                                             </Typography>
                                         )}
                                     </Box>
 
-                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                    <Box
+                                        sx={{
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            gap: 1,
+                                        }}
+                                    >
                                         <Label htmlFor="icon">
                                             Icon (emoji)
                                         </Label>
@@ -95,14 +139,24 @@ export default function InterestEdit({ interest }: Props) {
                                             defaultValue={interest.icon || ''}
                                         />
                                         {errors.icon && (
-                                            <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
+                                            <Typography
+                                                sx={{
+                                                    fontSize: '0.875rem',
+                                                    color: 'error.main',
+                                                }}
+                                            >
                                                 {errors.icon}
                                             </Typography>
                                         )}
                                     </Box>
 
                                     {wasSuccessful && (
-                                        <Typography sx={{ fontSize: '0.875rem', color: 'success.main' }}>
+                                        <Typography
+                                            sx={{
+                                                fontSize: '0.875rem',
+                                                color: 'success.main',
+                                            }}
+                                        >
                                             Interest updated successfully!
                                         </Typography>
                                     )}

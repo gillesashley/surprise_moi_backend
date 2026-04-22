@@ -69,6 +69,7 @@ class MigrateStorageToR2Command extends Command
         $r2Config = config('filesystems.disks.r2');
         if (empty($r2Config['key']) || empty($r2Config['secret'])) {
             $this->error('❌ R2 credentials not configured! Check CLOUDFLARE_R2_ACCESS_KEY_ID and CLOUDFLARE_R2_SECRET_ACCESS_KEY');
+
             return;
         }
 

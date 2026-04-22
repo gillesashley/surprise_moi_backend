@@ -63,12 +63,35 @@ export default function ReferralCodeEdit({ code }: Props) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={`Edit Referral Code: ${code.code}`} />
 
-            <Box sx={{ display: 'flex', height: '100%', flex: 1, flexDirection: 'column', gap: 2, p: 2 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <Typography variant="h4" sx={{ fontWeight: 700 }}>Edit Referral Code</Typography>
+            <Box
+                sx={{
+                    display: 'flex',
+                    height: '100%',
+                    flex: 1,
+                    flexDirection: 'column',
+                    gap: 2,
+                    p: 2,
+                }}
+            >
+                <Box
+                    sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                    }}
+                >
+                    <Typography variant="h4" sx={{ fontWeight: 700 }}>
+                        Edit Referral Code
+                    </Typography>
                     <Button variant="outline" asChild>
                         <Link href={`/dashboard/referral-codes/${code.id}`}>
-                            <ArrowLeft style={{ marginRight: 8, width: 16, height: 16 }} />
+                            <ArrowLeft
+                                style={{
+                                    marginRight: 8,
+                                    width: 16,
+                                    height: 16,
+                                }}
+                            />
                             Back to Details
                         </Link>
                     </Button>
@@ -78,8 +101,8 @@ export default function ReferralCodeEdit({ code }: Props) {
                     <CardHeader>
                         <CardTitle>Referral Code Details</CardTitle>
                         <CardDescription>
-                            Update the referral code. Note: Code and user
-                            cannot be changed.
+                            Update the referral code. Note: Code and user cannot
+                            be changed.
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -88,32 +111,63 @@ export default function ReferralCodeEdit({ code }: Props) {
                             method="put"
                         >
                             {({ errors, processing }) => (
-                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                <Box
+                                    sx={{
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        gap: 3,
+                                    }}
+                                >
+                                    <Box
+                                        sx={{
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            gap: 1,
+                                        }}
+                                    >
                                         <Label>Referral Code</Label>
-                                        <Input
-                                            value={code.code}
-                                            disabled
-                                        />
-                                        <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
+                                        <Input value={code.code} disabled />
+                                        <Typography
+                                            sx={{
+                                                fontSize: '0.875rem',
+                                                color: 'text.secondary',
+                                            }}
+                                        >
                                             Code cannot be changed after
                                             creation
                                         </Typography>
                                     </Box>
 
-                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                    <Box
+                                        sx={{
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            gap: 1,
+                                        }}
+                                    >
                                         <Label>User</Label>
                                         <Input
                                             value={`${code.influencer.name} (${code.influencer.email})`}
                                             disabled
                                         />
-                                        <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
-                                            User assignment cannot be
-                                            changed after creation
+                                        <Typography
+                                            sx={{
+                                                fontSize: '0.875rem',
+                                                color: 'text.secondary',
+                                            }}
+                                        >
+                                            User assignment cannot be changed
+                                            after creation
                                         </Typography>
                                     </Box>
 
-                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                    <Box
+                                        sx={{
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            gap: 1,
+                                        }}
+                                    >
                                         <Label htmlFor="description">
                                             Description
                                         </Label>
@@ -127,25 +181,56 @@ export default function ReferralCodeEdit({ code }: Props) {
                                             placeholder="Optional description for this referral code..."
                                         />
                                         {errors.description && (
-                                            <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
+                                            <Typography
+                                                sx={{
+                                                    fontSize: '0.875rem',
+                                                    color: 'error.main',
+                                                }}
+                                            >
                                                 {errors.description}
                                             </Typography>
                                         )}
                                     </Box>
 
-                                    <Box sx={{ p: 2, borderRadius: 1, bgcolor: 'action.hover' }}>
-                                        <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                                    <Box
+                                        sx={{
+                                            p: 2,
+                                            borderRadius: 1,
+                                            bgcolor: 'action.hover',
+                                        }}
+                                    >
+                                        <Typography
+                                            variant="body2"
+                                            sx={{ fontWeight: 500 }}
+                                        >
                                             Registration Bonus
                                         </Typography>
-                                        <Typography variant="body2" color="text.secondary">
+                                        <Typography
+                                            variant="body2"
+                                            color="text.secondary"
+                                        >
                                             {Number(code.registration_bonus) > 0
                                                 ? `GH₵${code.registration_bonus} (legacy fixed amount)`
                                                 : 'Dynamically calculated from category percentage'}
                                         </Typography>
                                     </Box>
 
-                                    <Box sx={{ display: 'grid', gap: 3, gridTemplateColumns: { md: 'repeat(2, 1fr)' } }}>
-                                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                    <Box
+                                        sx={{
+                                            display: 'grid',
+                                            gap: 3,
+                                            gridTemplateColumns: {
+                                                md: 'repeat(2, 1fr)',
+                                            },
+                                        }}
+                                    >
+                                        <Box
+                                            sx={{
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                gap: 1,
+                                            }}
+                                        >
                                             <Label htmlFor="max_usages">
                                                 Maximum Usages
                                             </Label>
@@ -159,17 +244,33 @@ export default function ReferralCodeEdit({ code }: Props) {
                                                 }
                                                 placeholder="Unlimited"
                                             />
-                                            <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
+                                            <Typography
+                                                sx={{
+                                                    fontSize: '0.875rem',
+                                                    color: 'text.secondary',
+                                                }}
+                                            >
                                                 Leave empty for unlimited usage
                                             </Typography>
                                             {errors.max_usages && (
-                                                <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
+                                                <Typography
+                                                    sx={{
+                                                        fontSize: '0.875rem',
+                                                        color: 'error.main',
+                                                    }}
+                                                >
                                                     {errors.max_usages}
                                                 </Typography>
                                             )}
                                         </Box>
 
-                                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                        <Box
+                                            sx={{
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                gap: 1,
+                                            }}
+                                        >
                                             <Label htmlFor="expires_at">
                                                 Expiration Date
                                             </Label>
@@ -179,22 +280,40 @@ export default function ReferralCodeEdit({ code }: Props) {
                                                 type="date"
                                                 defaultValue={
                                                     code.expires_at
-                                                        ? code.expires_at.split('T')[0]
+                                                        ? code.expires_at.split(
+                                                              'T',
+                                                          )[0]
                                                         : ''
                                                 }
                                             />
-                                            <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
+                                            <Typography
+                                                sx={{
+                                                    fontSize: '0.875rem',
+                                                    color: 'text.secondary',
+                                                }}
+                                            >
                                                 Leave empty for no expiration
                                             </Typography>
                                             {errors.expires_at && (
-                                                <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
+                                                <Typography
+                                                    sx={{
+                                                        fontSize: '0.875rem',
+                                                        color: 'error.main',
+                                                    }}
+                                                >
                                                     {errors.expires_at}
                                                 </Typography>
                                             )}
                                         </Box>
                                     </Box>
 
-                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                    <Box
+                                        sx={{
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            gap: 1,
+                                        }}
+                                    >
                                         <Label htmlFor="is_active">
                                             Status *
                                         </Label>
@@ -218,13 +337,24 @@ export default function ReferralCodeEdit({ code }: Props) {
                                             </SelectContent>
                                         </Select>
                                         {errors.is_active && (
-                                            <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
+                                            <Typography
+                                                sx={{
+                                                    fontSize: '0.875rem',
+                                                    color: 'error.main',
+                                                }}
+                                            >
                                                 {errors.is_active}
                                             </Typography>
                                         )}
                                     </Box>
 
-                                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1.5 }}>
+                                    <Box
+                                        sx={{
+                                            display: 'flex',
+                                            justifyContent: 'flex-end',
+                                            gap: 1.5,
+                                        }}
+                                    >
                                         <Button
                                             variant="outline"
                                             type="button"

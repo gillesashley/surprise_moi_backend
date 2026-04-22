@@ -13,10 +13,10 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Form } from '@inertiajs/react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { alpha } from '@mui/material/styles';
-import { Form } from '@inertiajs/react';
 import { useRef } from 'react';
 
 export default function DeleteUser() {
@@ -36,8 +36,7 @@ export default function DeleteUser() {
                     borderRadius: 2,
                     border: 1,
                     borderColor: 'error.light',
-                    bgcolor: (theme) =>
-                        alpha(theme.palette.error.main, 0.05),
+                    bgcolor: (theme) => alpha(theme.palette.error.main, 0.05),
                     p: 2,
                 }}
             >

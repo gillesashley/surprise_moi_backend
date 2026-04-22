@@ -16,10 +16,10 @@ import {
 } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
+import { Head } from '@inertiajs/react';
 import Box from '@mui/material/Box';
 import LinearProgress from '@mui/material/LinearProgress';
 import Typography from '@mui/material/Typography';
-import { Head } from '@inertiajs/react';
 import { Calendar, Target } from 'lucide-react';
 
 interface TargetItem {
@@ -89,12 +89,25 @@ export default function FieldAgentTargets({ targets }: Props) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="My Targets" />
 
-            <Box sx={{ display: 'flex', flex: 1, flexDirection: 'column', gap: 3, overflowX: 'auto', p: 3 }}>
+            <Box
+                sx={{
+                    display: 'flex',
+                    flex: 1,
+                    flexDirection: 'column',
+                    gap: 3,
+                    overflowX: 'auto',
+                    p: 3,
+                }}
+            >
                 <Box>
                     <Typography variant="h4" fontWeight={700}>
                         My Targets
                     </Typography>
-                    <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                    <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{ mt: 0.5 }}
+                    >
                         Track your assigned targets and progress
                     </Typography>
                 </Box>
@@ -134,25 +147,62 @@ export default function FieldAgentTargets({ targets }: Props) {
                                         );
                                         return (
                                             <TableRow key={target.id}>
-                                                <TableCell style={{ fontWeight: 500 }}>
+                                                <TableCell
+                                                    style={{ fontWeight: 500 }}
+                                                >
                                                     {formatTargetType(
                                                         target.target_type,
                                                     )}
                                                 </TableCell>
                                                 <TableCell>
-                                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                                            <Target style={{ width: 16, height: 16, color: 'gray' }} />
-                                                            <Typography variant="body2" fontWeight={500}>
-                                                                {target.current_value} / {target.target_value}
+                                                    <Box
+                                                        sx={{
+                                                            display: 'flex',
+                                                            flexDirection:
+                                                                'column',
+                                                            gap: 0.5,
+                                                        }}
+                                                    >
+                                                        <Box
+                                                            sx={{
+                                                                display: 'flex',
+                                                                alignItems:
+                                                                    'center',
+                                                                gap: 1,
+                                                            }}
+                                                        >
+                                                            <Target
+                                                                style={{
+                                                                    width: 16,
+                                                                    height: 16,
+                                                                    color: 'gray',
+                                                                }}
+                                                            />
+                                                            <Typography
+                                                                variant="body2"
+                                                                fontWeight={500}
+                                                            >
+                                                                {
+                                                                    target.current_value
+                                                                }{' '}
+                                                                /{' '}
+                                                                {
+                                                                    target.target_value
+                                                                }
                                                             </Typography>
                                                         </Box>
                                                         <LinearProgress
                                                             variant="determinate"
                                                             value={progress}
-                                                            sx={{ borderRadius: 1, height: 8 }}
+                                                            sx={{
+                                                                borderRadius: 1,
+                                                                height: 8,
+                                                            }}
                                                         />
-                                                        <Typography variant="caption" color="text.secondary">
+                                                        <Typography
+                                                            variant="caption"
+                                                            color="text.secondary"
+                                                        >
                                                             {progress}%
                                                         </Typography>
                                                     </Box>
@@ -166,15 +216,43 @@ export default function FieldAgentTargets({ targets }: Props) {
                                                     )}
                                                 </TableCell>
                                                 <TableCell>
-                                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                                            <Calendar style={{ width: 12, height: 12, color: 'gray' }} />
+                                                    <Box
+                                                        sx={{
+                                                            display: 'flex',
+                                                            flexDirection:
+                                                                'column',
+                                                            gap: 0.5,
+                                                        }}
+                                                    >
+                                                        <Box
+                                                            sx={{
+                                                                display: 'flex',
+                                                                alignItems:
+                                                                    'center',
+                                                                gap: 1,
+                                                            }}
+                                                        >
+                                                            <Calendar
+                                                                style={{
+                                                                    width: 12,
+                                                                    height: 12,
+                                                                    color: 'gray',
+                                                                }}
+                                                            />
                                                             <Typography variant="body2">
-                                                                {formatDate(target.start_date)}
+                                                                {formatDate(
+                                                                    target.start_date,
+                                                                )}
                                                             </Typography>
                                                         </Box>
-                                                        <Typography variant="body2" color="text.secondary">
-                                                            to {formatDate(target.end_date)}
+                                                        <Typography
+                                                            variant="body2"
+                                                            color="text.secondary"
+                                                        >
+                                                            to{' '}
+                                                            {formatDate(
+                                                                target.end_date,
+                                                            )}
                                                         </Typography>
                                                     </Box>
                                                 </TableCell>

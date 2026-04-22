@@ -31,12 +31,21 @@ interface Props {
 export function CategoryDetailsModal({ category, onClose }: Props) {
     return (
         <Dialog open={!!category} onOpenChange={(open) => !open && onClose()}>
-            <DialogContent style={{ maxWidth: 672 }} aria-describedby={undefined}>
+            <DialogContent
+                style={{ maxWidth: 672 }}
+                aria-describedby={undefined}
+            >
                 <DialogHeader>
                     <DialogTitle>Category Details</DialogTitle>
                 </DialogHeader>
                 {category && (
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: 2,
+                        }}
+                    >
                         <Box
                             sx={{
                                 display: 'grid',
@@ -196,7 +205,9 @@ export function CategoryDetailsModal({ category, onClose }: Props) {
                                                 width: 48,
                                                 objectFit: 'contain',
                                             }}
-                                            onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
+                                            onError={(
+                                                e: React.SyntheticEvent<HTMLImageElement>,
+                                            ) => {
                                                 e.currentTarget.style.display =
                                                     'none';
                                             }}
@@ -237,7 +248,9 @@ export function CategoryDetailsModal({ category, onClose }: Props) {
                                         borderColor: 'divider',
                                         objectFit: 'cover',
                                     }}
-                                    onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
+                                    onError={(
+                                        e: React.SyntheticEvent<HTMLImageElement>,
+                                    ) => {
                                         e.currentTarget.src =
                                             '/placeholder-image.png';
                                     }}

@@ -89,10 +89,28 @@ export default function AdvertisementsIndex({ advertisements }: Props) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Advertisements" />
 
-            <Box sx={{ display: 'flex', height: '100%', flex: 1, flexDirection: 'column', gap: 2, p: 2 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <Box
+                sx={{
+                    display: 'flex',
+                    height: '100%',
+                    flex: 1,
+                    flexDirection: 'column',
+                    gap: 2,
+                    p: 2,
+                }}
+            >
+                <Box
+                    sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                    }}
+                >
                     <Box>
-                        <Typography variant="h4" sx={{ fontWeight: 700, letterSpacing: '-0.025em' }}>
+                        <Typography
+                            variant="h4"
+                            sx={{ fontWeight: 700, letterSpacing: '-0.025em' }}
+                        >
                             Advertisements
                         </Typography>
                         <Typography sx={{ color: 'text.secondary' }}>
@@ -101,7 +119,13 @@ export default function AdvertisementsIndex({ advertisements }: Props) {
                     </Box>
                     <Link href="/dashboard/advertisements/create">
                         <Button>
-                            <Plus style={{ marginRight: 8, width: 16, height: 16 }} />
+                            <Plus
+                                style={{
+                                    marginRight: 8,
+                                    width: 16,
+                                    height: 16,
+                                }}
+                            />
                             Create Advertisement
                         </Button>
                     </Link>
@@ -115,10 +139,27 @@ export default function AdvertisementsIndex({ advertisements }: Props) {
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: 2,
+                            }}
+                        >
                             {advertisements.data.length === 0 ? (
-                                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', py: 6, textAlign: 'center' }}>
-                                    <Typography sx={{ color: 'text.secondary' }}>
+                                <Box
+                                    sx={{
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        py: 6,
+                                        textAlign: 'center',
+                                    }}
+                                >
+                                    <Typography
+                                        sx={{ color: 'text.secondary' }}
+                                    >
                                         No advertisements found
                                     </Typography>
                                     <Link href="/dashboard/advertisements/create">
@@ -126,13 +167,25 @@ export default function AdvertisementsIndex({ advertisements }: Props) {
                                             style={{ marginTop: 16 }}
                                             variant="outline"
                                         >
-                                            <Plus style={{ marginRight: 8, width: 16, height: 16 }} />
+                                            <Plus
+                                                style={{
+                                                    marginRight: 8,
+                                                    width: 16,
+                                                    height: 16,
+                                                }}
+                                            />
                                             Create your first advertisement
                                         </Button>
                                     </Link>
                                 </Box>
                             ) : (
-                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                                <Box
+                                    sx={{
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        gap: 1.5,
+                                    }}
+                                >
                                     {advertisements.data.map((ad) => (
                                         <Card
                                             key={ad.id}
@@ -143,120 +196,232 @@ export default function AdvertisementsIndex({ advertisements }: Props) {
                                             }
                                         >
                                             <CardContent>
-                                                <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2, p: 2 }}>
-                                                {ad.image_path && (
-                                                    <Box
-                                                        component="img"
-                                                        src={`/storage/${ad.image_path}`}
-                                                        alt={ad.title}
-                                                        sx={{ height: 96, width: 96, borderRadius: 1, objectFit: 'cover' }}
-                                                    />
-                                                )}
-                                                <Box sx={{ flex: 1 }}>
-                                                    <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
-                                                        <Box>
-                                                            <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                                                                {ad.title}
-                                                            </Typography>
-                                                            {ad.description && (
-                                                                <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
-                                                                    {
-                                                                        ad.description
-                                                                    }
-                                                                </Typography>
-                                                            )}
-                                                        </Box>
-                                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                                            {getStatusBadge(
-                                                                ad.status,
-                                                            )}
-                                                            {ad.deleted_at && (
-                                                                <Badge variant="destructive">
-                                                                    Deleted
-                                                                </Badge>
-                                                            )}
-                                                        </Box>
-                                                    </Box>
-
-                                                    <Box sx={{ mt: 1, display: 'flex', flexWrap: 'wrap', gap: 2, fontSize: '0.875rem', color: 'text.secondary' }}>
-                                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                                            <Eye style={{ width: 16, height: 16 }} />
-                                                            {ad.impressions.toLocaleString()}{' '}
-                                                            impressions
-                                                        </Box>
-                                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                                            <MousePointer style={{ width: 16, height: 16 }} />
-                                                            {ad.clicks.toLocaleString()}{' '}
-                                                            clicks
-                                                        </Box>
-                                                        <Chip
-                                                            variant="outlined"
-                                                            size="small"
-                                                            label={ad.placement
-                                                                .split('_')
-                                                                .map(
-                                                                    (word) =>
-                                                                        word
-                                                                            .charAt(
-                                                                                0,
-                                                                            )
-                                                                            .toUpperCase() +
-                                                                        word.slice(
-                                                                            1,
-                                                                        ),
-                                                                )
-                                                                .join(' ')}
+                                                <Box
+                                                    sx={{
+                                                        display: 'flex',
+                                                        alignItems:
+                                                            'flex-start',
+                                                        gap: 2,
+                                                        p: 2,
+                                                    }}
+                                                >
+                                                    {ad.image_path && (
+                                                        <Box
+                                                            component="img"
+                                                            src={`/storage/${ad.image_path}`}
+                                                            alt={ad.title}
+                                                            sx={{
+                                                                height: 96,
+                                                                width: 96,
+                                                                borderRadius: 1,
+                                                                objectFit:
+                                                                    'cover',
+                                                            }}
                                                         />
-                                                        <Box component="span">
-                                                            Order:{' '}
-                                                            {ad.display_order}
-                                                        </Box>
-                                                    </Box>
-
-                                                    {ad.link_url && (
-                                                        <Box sx={{ mt: 1 }}>
+                                                    )}
+                                                    <Box sx={{ flex: 1 }}>
+                                                        <Box
+                                                            sx={{
+                                                                display: 'flex',
+                                                                alignItems:
+                                                                    'flex-start',
+                                                                justifyContent:
+                                                                    'space-between',
+                                                            }}
+                                                        >
+                                                            <Box>
+                                                                <Typography
+                                                                    variant="h6"
+                                                                    sx={{
+                                                                        fontWeight: 600,
+                                                                    }}
+                                                                >
+                                                                    {ad.title}
+                                                                </Typography>
+                                                                {ad.description && (
+                                                                    <Typography
+                                                                        sx={{
+                                                                            fontSize:
+                                                                                '0.875rem',
+                                                                            color: 'text.secondary',
+                                                                        }}
+                                                                    >
+                                                                        {
+                                                                            ad.description
+                                                                        }
+                                                                    </Typography>
+                                                                )}
+                                                            </Box>
                                                             <Box
-                                                                component="a"
-                                                                href={
-                                                                    ad.link_url
-                                                                }
-                                                                target="_blank"
-                                                                rel="noopener noreferrer"
-                                                                sx={{ fontSize: '0.75rem', color: 'info.main', '&:hover': { textDecoration: 'underline' } }}
+                                                                sx={{
+                                                                    display:
+                                                                        'flex',
+                                                                    alignItems:
+                                                                        'center',
+                                                                    gap: 1,
+                                                                }}
                                                             >
-                                                                {ad.link_url}
+                                                                {getStatusBadge(
+                                                                    ad.status,
+                                                                )}
+                                                                {ad.deleted_at && (
+                                                                    <Badge variant="destructive">
+                                                                        Deleted
+                                                                    </Badge>
+                                                                )}
                                                             </Box>
                                                         </Box>
-                                                    )}
 
-                                                    {!ad.deleted_at && (
-                                                        <Box sx={{ mt: 2, display: 'flex', gap: 1 }}>
-                                                            <Link
-                                                                href={`/dashboard/advertisements/${ad.id}/edit`}
+                                                        <Box
+                                                            sx={{
+                                                                mt: 1,
+                                                                display: 'flex',
+                                                                flexWrap:
+                                                                    'wrap',
+                                                                gap: 2,
+                                                                fontSize:
+                                                                    '0.875rem',
+                                                                color: 'text.secondary',
+                                                            }}
+                                                        >
+                                                            <Box
+                                                                sx={{
+                                                                    display:
+                                                                        'flex',
+                                                                    alignItems:
+                                                                        'center',
+                                                                    gap: 0.5,
+                                                                }}
                                                             >
+                                                                <Eye
+                                                                    style={{
+                                                                        width: 16,
+                                                                        height: 16,
+                                                                    }}
+                                                                />
+                                                                {ad.impressions.toLocaleString()}{' '}
+                                                                impressions
+                                                            </Box>
+                                                            <Box
+                                                                sx={{
+                                                                    display:
+                                                                        'flex',
+                                                                    alignItems:
+                                                                        'center',
+                                                                    gap: 0.5,
+                                                                }}
+                                                            >
+                                                                <MousePointer
+                                                                    style={{
+                                                                        width: 16,
+                                                                        height: 16,
+                                                                    }}
+                                                                />
+                                                                {ad.clicks.toLocaleString()}{' '}
+                                                                clicks
+                                                            </Box>
+                                                            <Chip
+                                                                variant="outlined"
+                                                                size="small"
+                                                                label={ad.placement
+                                                                    .split('_')
+                                                                    .map(
+                                                                        (
+                                                                            word,
+                                                                        ) =>
+                                                                            word
+                                                                                .charAt(
+                                                                                    0,
+                                                                                )
+                                                                                .toUpperCase() +
+                                                                            word.slice(
+                                                                                1,
+                                                                            ),
+                                                                    )
+                                                                    .join(' ')}
+                                                            />
+                                                            <Box component="span">
+                                                                Order:{' '}
+                                                                {
+                                                                    ad.display_order
+                                                                }
+                                                            </Box>
+                                                        </Box>
+
+                                                        {ad.link_url && (
+                                                            <Box sx={{ mt: 1 }}>
+                                                                <Box
+                                                                    component="a"
+                                                                    href={
+                                                                        ad.link_url
+                                                                    }
+                                                                    target="_blank"
+                                                                    rel="noopener noreferrer"
+                                                                    sx={{
+                                                                        fontSize:
+                                                                            '0.75rem',
+                                                                        color: 'info.main',
+                                                                        '&:hover':
+                                                                            {
+                                                                                textDecoration:
+                                                                                    'underline',
+                                                                            },
+                                                                    }}
+                                                                >
+                                                                    {
+                                                                        ad.link_url
+                                                                    }
+                                                                </Box>
+                                                            </Box>
+                                                        )}
+
+                                                        {!ad.deleted_at && (
+                                                            <Box
+                                                                sx={{
+                                                                    mt: 2,
+                                                                    display:
+                                                                        'flex',
+                                                                    gap: 1,
+                                                                }}
+                                                            >
+                                                                <Link
+                                                                    href={`/dashboard/advertisements/${ad.id}/edit`}
+                                                                >
+                                                                    <Button
+                                                                        size="sm"
+                                                                        variant="outline"
+                                                                    >
+                                                                        <Pencil
+                                                                            style={{
+                                                                                marginRight: 8,
+                                                                                width: 12,
+                                                                                height: 12,
+                                                                            }}
+                                                                        />
+                                                                        Edit
+                                                                    </Button>
+                                                                </Link>
                                                                 <Button
                                                                     size="sm"
-                                                                    variant="outline"
+                                                                    variant="destructive"
+                                                                    onClick={() =>
+                                                                        handleDelete(
+                                                                            ad.id,
+                                                                        )
+                                                                    }
                                                                 >
-                                                                    <Pencil style={{ marginRight: 8, width: 12, height: 12 }} />
-                                                                    Edit
+                                                                    <Trash2
+                                                                        style={{
+                                                                            marginRight: 8,
+                                                                            width: 12,
+                                                                            height: 12,
+                                                                        }}
+                                                                    />
+                                                                    Delete
                                                                 </Button>
-                                                            </Link>
-                                                            <Button
-                                                                size="sm"
-                                                                variant="destructive"
-                                                                onClick={() =>
-                                                                    handleDelete(
-                                                                        ad.id,
-                                                                    )
-                                                                }
-                                                            >
-                                                                <Trash2 style={{ marginRight: 8, width: 12, height: 12 }} />
-                                                                Delete
-                                                            </Button>
-                                                        </Box>
-                                                    )}
-                                                </Box>
+                                                            </Box>
+                                                        )}
+                                                    </Box>
                                                 </Box>
                                             </CardContent>
                                         </Card>
@@ -265,7 +430,15 @@ export default function AdvertisementsIndex({ advertisements }: Props) {
                             )}
 
                             {advertisements.last_page > 1 && (
-                                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, pt: 2 }}>
+                                <Box
+                                    sx={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        gap: 1,
+                                        pt: 2,
+                                    }}
+                                >
                                     {Array.from(
                                         { length: advertisements.last_page },
                                         (_, i) => i + 1,

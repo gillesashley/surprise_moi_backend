@@ -1,8 +1,8 @@
-import Box from '@mui/material/Box';
-import { alpha } from '@mui/material/styles';
 import { Breadcrumbs } from '@/components/breadcrumbs';
 import { SidebarTrigger, useSidebar } from '@/components/ui/sidebar';
 import { type BreadcrumbItem as BreadcrumbItemType } from '@/types';
+import Box from '@mui/material/Box';
+import { alpha } from '@mui/material/styles';
 
 export function AppSidebarHeader({
     breadcrumbs = [],

@@ -79,41 +79,101 @@ export default function MusicGenresIndex({
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Music Genres" />
-            <Box sx={{ display: 'flex', height: '100%', flex: 1, flexDirection: 'column', gap: 2, p: 2 }}>
+            <Box
+                sx={{
+                    display: 'flex',
+                    height: '100%',
+                    flex: 1,
+                    flexDirection: 'column',
+                    gap: 2,
+                    p: 2,
+                }}
+            >
                 <Card>
                     <CardHeader>
-                        <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <Box>
-                            <CardTitle>Music Genres</CardTitle>
-                            <CardDescription>
-                                Manage music genres for user personalization
-                            </CardDescription>
-                        </Box>
-                        {canCreate && (
-                            <Button asChild>
-                                <Link href={musicGenreCreate.url()}>
-                                    <Plus style={{ marginRight: 8, width: 16, height: 16 }} />
-                                    Add Genre
-                                </Link>
-                            </Button>
-                        )}
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                            }}
+                        >
+                            <Box>
+                                <CardTitle>Music Genres</CardTitle>
+                                <CardDescription>
+                                    Manage music genres for user personalization
+                                </CardDescription>
+                            </Box>
+                            {canCreate && (
+                                <Button asChild>
+                                    <Link href={musicGenreCreate.url()}>
+                                        <Plus
+                                            style={{
+                                                marginRight: 8,
+                                                width: 16,
+                                                height: 16,
+                                            }}
+                                        />
+                                        Add Genre
+                                    </Link>
+                                </Button>
+                            )}
                         </Box>
                     </CardHeader>
                     <CardContent>
                         <Box sx={{ overflowX: 'auto' }}>
                             <Box component="table" sx={{ width: '100%' }}>
                                 <Box component="thead">
-                                    <Box component="tr" sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                                        <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
+                                    <Box
+                                        component="tr"
+                                        sx={{
+                                            borderBottom: 1,
+                                            borderColor: 'divider',
+                                        }}
+                                    >
+                                        <Box
+                                            component="th"
+                                            sx={{
+                                                p: 1,
+                                                textAlign: 'left',
+                                                fontSize: '0.875rem',
+                                                fontWeight: 500,
+                                            }}
+                                        >
                                             Name
                                         </Box>
-                                        <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
+                                        <Box
+                                            component="th"
+                                            sx={{
+                                                p: 1,
+                                                textAlign: 'left',
+                                                fontSize: '0.875rem',
+                                                fontWeight: 500,
+                                            }}
+                                        >
                                             Icon
                                         </Box>
-                                        <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
+                                        <Box
+                                            component="th"
+                                            sx={{
+                                                p: 1,
+                                                textAlign: 'left',
+                                                fontSize: '0.875rem',
+                                                fontWeight: 500,
+                                            }}
+                                        >
                                             Users
                                         </Box>
-                                        <Box component="th" sx={{ p: 1, textAlign: 'right', fontSize: '0.875rem', fontWeight: 500 }}>
+                                        <Box
+                                            component="th"
+                                            sx={{
+                                                p: 1,
+                                                textAlign: 'right',
+                                                fontSize: '0.875rem',
+                                                fontWeight: 500,
+                                            }}
+                                        >
                                             Actions
                                         </Box>
                                     </Box>
@@ -123,19 +183,54 @@ export default function MusicGenresIndex({
                                         <Box
                                             component="tr"
                                             key={genre.id}
-                                            sx={{ borderBottom: 1, borderColor: 'divider', '&:last-child': { borderBottom: 0 }, '&:hover': { bgcolor: 'action.hover' } }}
+                                            sx={{
+                                                borderBottom: 1,
+                                                borderColor: 'divider',
+                                                '&:last-child': {
+                                                    borderBottom: 0,
+                                                },
+                                                '&:hover': {
+                                                    bgcolor: 'action.hover',
+                                                },
+                                            }}
                                         >
-                                            <Box component="td" sx={{ p: 1, fontSize: '0.875rem', fontWeight: 500 }}>
+                                            <Box
+                                                component="td"
+                                                sx={{
+                                                    p: 1,
+                                                    fontSize: '0.875rem',
+                                                    fontWeight: 500,
+                                                }}
+                                            >
                                                 {genre.name}
                                             </Box>
-                                            <Box component="td" sx={{ p: 1, fontSize: '0.875rem' }}>
+                                            <Box
+                                                component="td"
+                                                sx={{
+                                                    p: 1,
+                                                    fontSize: '0.875rem',
+                                                }}
+                                            >
                                                 {genre.icon || '-'}
                                             </Box>
-                                            <Box component="td" sx={{ p: 1, fontSize: '0.875rem' }}>
+                                            <Box
+                                                component="td"
+                                                sx={{
+                                                    p: 1,
+                                                    fontSize: '0.875rem',
+                                                }}
+                                            >
                                                 {genre.users_count}
                                             </Box>
                                             <Box component="td" sx={{ p: 1 }}>
-                                                <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
+                                                <Box
+                                                    sx={{
+                                                        display: 'flex',
+                                                        justifyContent:
+                                                            'flex-end',
+                                                        gap: 1,
+                                                    }}
+                                                >
                                                     <Button
                                                         variant="ghost"
                                                         size="sm"
@@ -146,7 +241,12 @@ export default function MusicGenresIndex({
                                                                 genre.id,
                                                             )}
                                                         >
-                                                            <Pencil style={{ width: 16, height: 16 }} />
+                                                            <Pencil
+                                                                style={{
+                                                                    width: 16,
+                                                                    height: 16,
+                                                                }}
+                                                            />
                                                         </Link>
                                                     </Button>
                                                     {canDelete && (
@@ -160,7 +260,13 @@ export default function MusicGenresIndex({
                                                                 )
                                                             }
                                                         >
-                                                            <Trash2 style={{ width: 16, height: 16, color: 'var(--destructive)' }} />
+                                                            <Trash2
+                                                                style={{
+                                                                    width: 16,
+                                                                    height: 16,
+                                                                    color: 'var(--destructive)',
+                                                                }}
+                                                            />
                                                         </Button>
                                                     )}
                                                 </Box>
@@ -173,8 +279,20 @@ export default function MusicGenresIndex({
 
                         {/* Pagination */}
                         {musicGenres.last_page > 1 && (
-                            <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
+                            <Box
+                                sx={{
+                                    mt: 2,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                }}
+                            >
+                                <Typography
+                                    sx={{
+                                        fontSize: '0.875rem',
+                                        color: 'text.secondary',
+                                    }}
+                                >
                                     Showing {musicGenres.data.length} of{' '}
                                     {musicGenres.total} genres
                                 </Typography>
@@ -193,7 +311,15 @@ export default function MusicGenresIndex({
                                     >
                                         Previous
                                     </Button>
-                                    <Box component="span" sx={{ display: 'flex', alignItems: 'center', px: 1, fontSize: '0.875rem' }}>
+                                    <Box
+                                        component="span"
+                                        sx={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            px: 1,
+                                            fontSize: '0.875rem',
+                                        }}
+                                    >
                                         Page {musicGenres.current_page} of{' '}
                                         {musicGenres.last_page}
                                     </Box>

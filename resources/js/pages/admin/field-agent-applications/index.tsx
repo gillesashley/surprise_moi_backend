@@ -7,14 +7,20 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
+import { useInactivityLock } from '@/hooks/use-inactivity-lock';
 import AppLayout from '@/layouts/app-layout';
 import { Head, Link, router } from '@inertiajs/react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
+import { Eye } from 'lucide-react';
 import { useState } from 'react';
-import { useInactivityLock } from '@/hooks/use-inactivity-lock';
-import { Eye, Search } from 'lucide-react';
 
 type Application = {
     id: number;
@@ -47,7 +53,11 @@ const statusClasses: Record<string, string> = {
     rejected: 'bg-red-100 text-red-800',
 };
 
-export default function FieldAgentApplicationsIndex({ applications, filters, statuses }: Props) {
+export default function FieldAgentApplicationsIndex({
+    applications,
+    filters,
+    statuses,
+}: Props) {
     useInactivityLock();
     const [status, setStatus] = useState(filters.status ?? '');
 
@@ -70,25 +80,52 @@ export default function FieldAgentApplicationsIndex({ applications, filters, sta
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Field Agent Applications" />
-            <Box sx={{ display: 'flex', height: '100%', flex: 1, flexDirection: 'column', gap: 2, p: 2 }}>
+            <Box
+                sx={{
+                    display: 'flex',
+                    height: '100%',
+                    flex: 1,
+                    flexDirection: 'column',
+                    gap: 2,
+                    p: 2,
+                }}
+            >
                 <Card>
                     <CardHeader>
                         <CardTitle>Field Agent Applications</CardTitle>
                         <CardDescription>
-                            Review and manage applications from potential field agents.
+                            Review and manage applications from potential field
+                            agents.
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
                         {/* Filters */}
-                        <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 2 }}>
-                            <Select value={status || 'all'} onValueChange={(v) => applyFilter(v === 'all' ? '' : v)}>
+                        <Box
+                            sx={{
+                                mb: 2,
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 2,
+                            }}
+                        >
+                            <Select
+                                value={status || 'all'}
+                                onValueChange={(v) =>
+                                    applyFilter(v === 'all' ? '' : v)
+                                }
+                            >
                                 <SelectTrigger className="w-48">
                                     <SelectValue placeholder="All statuses" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="all">All Statuses</SelectItem>
+                                    <SelectItem value="all">
+                                        All Statuses
+                                    </SelectItem>
                                     {statuses.map((s) => (
-                                        <SelectItem key={s.value} value={s.value}>
+                                        <SelectItem
+                                            key={s.value}
+                                            value={s.value}
+                                        >
                                             {s.label}
                                         </SelectItem>
                                     ))}
@@ -99,13 +136,79 @@ export default function FieldAgentApplicationsIndex({ applications, filters, sta
                         <Box sx={{ overflowX: 'auto' }}>
                             <Box component="table" sx={{ width: '100%' }}>
                                 <thead>
-                                    <Box component="tr" sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                                        <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>Name</Box>
-                                        <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>Email</Box>
-                                        <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>Region</Box>
-                                        <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>Status</Box>
-                                        <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>Applied</Box>
-                                        <Box component="th" sx={{ p: 1, textAlign: 'right', fontSize: '0.875rem', fontWeight: 500 }}>Actions</Box>
+                                    <Box
+                                        component="tr"
+                                        sx={{
+                                            borderBottom: 1,
+                                            borderColor: 'divider',
+                                        }}
+                                    >
+                                        <Box
+                                            component="th"
+                                            sx={{
+                                                p: 1,
+                                                textAlign: 'left',
+                                                fontSize: '0.875rem',
+                                                fontWeight: 500,
+                                            }}
+                                        >
+                                            Name
+                                        </Box>
+                                        <Box
+                                            component="th"
+                                            sx={{
+                                                p: 1,
+                                                textAlign: 'left',
+                                                fontSize: '0.875rem',
+                                                fontWeight: 500,
+                                            }}
+                                        >
+                                            Email
+                                        </Box>
+                                        <Box
+                                            component="th"
+                                            sx={{
+                                                p: 1,
+                                                textAlign: 'left',
+                                                fontSize: '0.875rem',
+                                                fontWeight: 500,
+                                            }}
+                                        >
+                                            Region
+                                        </Box>
+                                        <Box
+                                            component="th"
+                                            sx={{
+                                                p: 1,
+                                                textAlign: 'left',
+                                                fontSize: '0.875rem',
+                                                fontWeight: 500,
+                                            }}
+                                        >
+                                            Status
+                                        </Box>
+                                        <Box
+                                            component="th"
+                                            sx={{
+                                                p: 1,
+                                                textAlign: 'left',
+                                                fontSize: '0.875rem',
+                                                fontWeight: 500,
+                                            }}
+                                        >
+                                            Applied
+                                        </Box>
+                                        <Box
+                                            component="th"
+                                            sx={{
+                                                p: 1,
+                                                textAlign: 'right',
+                                                fontSize: '0.875rem',
+                                                fontWeight: 500,
+                                            }}
+                                        >
+                                            Actions
+                                        </Box>
                                     </Box>
                                 </thead>
                                 <tbody>
@@ -113,28 +216,92 @@ export default function FieldAgentApplicationsIndex({ applications, filters, sta
                                         <Box
                                             component="tr"
                                             key={a.id}
-                                            sx={{ borderBottom: 1, borderColor: 'divider', '&:last-child': { border: 0 }, '&:hover': { bgcolor: 'action.hover' } }}
+                                            sx={{
+                                                borderBottom: 1,
+                                                borderColor: 'divider',
+                                                '&:last-child': { border: 0 },
+                                                '&:hover': {
+                                                    bgcolor: 'action.hover',
+                                                },
+                                            }}
                                         >
-                                            <Box component="td" sx={{ p: 1, fontSize: '0.875rem' }}>
+                                            <Box
+                                                component="td"
+                                                sx={{
+                                                    p: 1,
+                                                    fontSize: '0.875rem',
+                                                }}
+                                            >
                                                 {a.first_name} {a.last_name}
                                             </Box>
-                                            <Box component="td" sx={{ p: 1, fontSize: '0.875rem' }}>
+                                            <Box
+                                                component="td"
+                                                sx={{
+                                                    p: 1,
+                                                    fontSize: '0.875rem',
+                                                }}
+                                            >
                                                 {a.email}
                                             </Box>
-                                            <Box component="td" sx={{ p: 1, fontSize: '0.875rem' }}>
+                                            <Box
+                                                component="td"
+                                                sx={{
+                                                    p: 1,
+                                                    fontSize: '0.875rem',
+                                                }}
+                                            >
                                                 {a.region?.name ?? '—'}
                                             </Box>
-                                            <Box component="td" sx={{ p: 1, fontSize: '0.875rem' }}>
-                                                <Badge className={statusClasses[a.status] ?? ''}>{a.status}</Badge>
+                                            <Box
+                                                component="td"
+                                                sx={{
+                                                    p: 1,
+                                                    fontSize: '0.875rem',
+                                                }}
+                                            >
+                                                <Badge
+                                                    className={
+                                                        statusClasses[
+                                                            a.status
+                                                        ] ?? ''
+                                                    }
+                                                >
+                                                    {a.status}
+                                                </Badge>
                                             </Box>
-                                            <Box component="td" sx={{ p: 1, fontSize: '0.875rem' }}>
-                                                {new Date(a.created_at).toLocaleDateString()}
+                                            <Box
+                                                component="td"
+                                                sx={{
+                                                    p: 1,
+                                                    fontSize: '0.875rem',
+                                                }}
+                                            >
+                                                {new Date(
+                                                    a.created_at,
+                                                ).toLocaleDateString()}
                                             </Box>
                                             <Box component="td" sx={{ p: 1 }}>
-                                                <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                                                    <Button variant="ghost" size="sm" asChild>
-                                                        <Link href={`/dashboard/field-agent-applications/${a.id}`}>
-                                                            <Eye style={{ width: 16, height: 16 }} />
+                                                <Box
+                                                    sx={{
+                                                        display: 'flex',
+                                                        justifyContent:
+                                                            'flex-end',
+                                                    }}
+                                                >
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        asChild
+                                                    >
+                                                        <Link
+                                                            href={`/dashboard/field-agent-applications/${a.id}`}
+                                                        >
+                                                            <Eye
+                                                                style={{
+                                                                    width: 16,
+                                                                    height: 16,
+                                                                }}
+                                                            />
                                                         </Link>
                                                     </Button>
                                                 </Box>
@@ -143,7 +310,15 @@ export default function FieldAgentApplicationsIndex({ applications, filters, sta
                                     ))}
                                     {applications.data.length === 0 && (
                                         <Box component="tr">
-                                            <Box component="td" colSpan={6} sx={{ p: 4, textAlign: 'center', color: 'text.secondary' }}>
+                                            <Box
+                                                component="td"
+                                                colSpan={6}
+                                                sx={{
+                                                    p: 4,
+                                                    textAlign: 'center',
+                                                    color: 'text.secondary',
+                                                }}
+                                            >
                                                 No applications yet.
                                             </Box>
                                         </Box>
@@ -154,27 +329,52 @@ export default function FieldAgentApplicationsIndex({ applications, filters, sta
 
                         {/* Pagination */}
                         {applications.last_page > 1 && (
-                            <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
-                                    Showing {applications.data.length} of {applications.total} applications
+                            <Box
+                                sx={{
+                                    mt: 2,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                }}
+                            >
+                                <Typography
+                                    sx={{
+                                        fontSize: '0.875rem',
+                                        color: 'text.secondary',
+                                    }}
+                                >
+                                    Showing {applications.data.length} of{' '}
+                                    {applications.total} applications
                                 </Typography>
                                 <Box sx={{ display: 'flex', gap: 1 }}>
                                     {applications.links.map((l, i) => {
                                         // Filter out "Next" and "Previous" labels if they contain HTML
-                                        const isPrev = l.label.includes('Previous');
+                                        const isPrev =
+                                            l.label.includes('Previous');
                                         const isNext = l.label.includes('Next');
-                                        
-                                        if (!l.url && (isPrev || isNext)) return null;
+
+                                        if (!l.url && (isPrev || isNext))
+                                            return null;
 
                                         return (
                                             <Button
                                                 key={i}
-                                                variant={l.active ? 'default' : 'outline'}
+                                                variant={
+                                                    l.active
+                                                        ? 'default'
+                                                        : 'outline'
+                                                }
                                                 size="sm"
                                                 disabled={!l.url}
-                                                onClick={() => l.url && router.get(l.url)}
+                                                onClick={() =>
+                                                    l.url && router.get(l.url)
+                                                }
                                             >
-                                                <span dangerouslySetInnerHTML={{ __html: l.label }} />
+                                                <span
+                                                    dangerouslySetInnerHTML={{
+                                                        __html: l.label,
+                                                    }}
+                                                />
                                             </Button>
                                         );
                                     })}

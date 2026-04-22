@@ -83,7 +83,10 @@ const calculateProgress = (current: number, target: number) => {
     return Math.min(100, Math.round((current / target) * 100));
 };
 
-const getQuarterFromPeriod = (period: string | undefined | null, startDate?: string): string => {
+const getQuarterFromPeriod = (
+    period: string | undefined | null,
+    startDate?: string,
+): string => {
     if (!period) return '';
     const match = period.match(/Q(\d)/);
     if (match) return `Q${match[1]}`;
@@ -102,9 +105,21 @@ export default function MarketerTargets({ targets }: Props) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="My Targets" />
 
-            <Box sx={{ display: 'flex', height: '100%', flex: 1, flexDirection: 'column', gap: 3, overflowX: 'auto', p: 3 }}>
+            <Box
+                sx={{
+                    display: 'flex',
+                    height: '100%',
+                    flex: 1,
+                    flexDirection: 'column',
+                    gap: 3,
+                    overflowX: 'auto',
+                    p: 3,
+                }}
+            >
                 <Box>
-                    <Typography variant="h4" fontWeight={700}>My Quarterly Targets</Typography>
+                    <Typography variant="h4" fontWeight={700}>
+                        My Quarterly Targets
+                    </Typography>
                     <Typography color="text.secondary" sx={{ mt: 0.5 }}>
                         Track your quarterly targets and progress
                     </Typography>
@@ -146,9 +161,25 @@ export default function MarketerTargets({ targets }: Props) {
                                         return (
                                             <TableRow key={target.id}>
                                                 <TableCell>
-                                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                                        <TrendingUp style={{ width: 16, height: 16, color: 'gray' }} />
-                                                        <Typography component="span" fontWeight={500}>
+                                                    <Box
+                                                        sx={{
+                                                            display: 'flex',
+                                                            alignItems:
+                                                                'center',
+                                                            gap: 1,
+                                                        }}
+                                                    >
+                                                        <TrendingUp
+                                                            style={{
+                                                                width: 16,
+                                                                height: 16,
+                                                                color: 'gray',
+                                                            }}
+                                                        />
+                                                        <Typography
+                                                            component="span"
+                                                            fontWeight={500}
+                                                        >
                                                             {getQuarterFromPeriod(
                                                                 target.period_type,
                                                                 target.start_date,
@@ -156,16 +187,41 @@ export default function MarketerTargets({ targets }: Props) {
                                                         </Typography>
                                                     </Box>
                                                 </TableCell>
-                                                <TableCell sx={{ fontWeight: 500 }}>
+                                                <TableCell
+                                                    sx={{ fontWeight: 500 }}
+                                                >
                                                     {formatTargetType(
                                                         target.target_type,
                                                     )}
                                                 </TableCell>
                                                 <TableCell>
-                                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                                            <Target style={{ width: 16, height: 16, color: 'gray' }} />
-                                                            <Typography variant="body2" fontWeight={500}>
+                                                    <Box
+                                                        sx={{
+                                                            display: 'flex',
+                                                            flexDirection:
+                                                                'column',
+                                                            gap: 0.5,
+                                                        }}
+                                                    >
+                                                        <Box
+                                                            sx={{
+                                                                display: 'flex',
+                                                                alignItems:
+                                                                    'center',
+                                                                gap: 1,
+                                                            }}
+                                                        >
+                                                            <Target
+                                                                style={{
+                                                                    width: 16,
+                                                                    height: 16,
+                                                                    color: 'gray',
+                                                                }}
+                                                            />
+                                                            <Typography
+                                                                variant="body2"
+                                                                fontWeight={500}
+                                                            >
                                                                 {
                                                                     target.current_value
                                                                 }{' '}
@@ -179,23 +235,30 @@ export default function MarketerTargets({ targets }: Props) {
                                                             sx={{
                                                                 height: 8,
                                                                 width: '100%',
-                                                                overflow: 'hidden',
+                                                                overflow:
+                                                                    'hidden',
                                                                 borderRadius: 4,
-                                                                bgcolor: 'secondary.main',
+                                                                bgcolor:
+                                                                    'secondary.main',
                                                             }}
                                                         >
                                                             <Box
                                                                 sx={{
                                                                     height: '100%',
-                                                                    bgcolor: 'primary.main',
-                                                                    transition: 'all 0.2s',
+                                                                    bgcolor:
+                                                                        'primary.main',
+                                                                    transition:
+                                                                        'all 0.2s',
                                                                 }}
                                                                 style={{
                                                                     width: `${progress}%`,
                                                                 }}
                                                             />
                                                         </Box>
-                                                        <Typography variant="caption" color="text.secondary">
+                                                        <Typography
+                                                            variant="caption"
+                                                            color="text.secondary"
+                                                        >
                                                             {progress}%
                                                         </Typography>
                                                     </Box>
@@ -206,14 +269,39 @@ export default function MarketerTargets({ targets }: Props) {
                                                     )}
                                                 </TableCell>
                                                 <TableCell>
-                                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, fontSize: '0.875rem' }}>
-                                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                                            <Calendar style={{ width: 12, height: 12, color: 'gray' }} />
+                                                    <Box
+                                                        sx={{
+                                                            display: 'flex',
+                                                            flexDirection:
+                                                                'column',
+                                                            gap: 0.5,
+                                                            fontSize:
+                                                                '0.875rem',
+                                                        }}
+                                                    >
+                                                        <Box
+                                                            sx={{
+                                                                display: 'flex',
+                                                                alignItems:
+                                                                    'center',
+                                                                gap: 1,
+                                                            }}
+                                                        >
+                                                            <Calendar
+                                                                style={{
+                                                                    width: 12,
+                                                                    height: 12,
+                                                                    color: 'gray',
+                                                                }}
+                                                            />
                                                             {formatDate(
                                                                 target.start_date,
                                                             )}
                                                         </Box>
-                                                        <Typography variant="body2" color="text.secondary">
+                                                        <Typography
+                                                            variant="body2"
+                                                            color="text.secondary"
+                                                        >
                                                             to{' '}
                                                             {formatDate(
                                                                 target.end_date,

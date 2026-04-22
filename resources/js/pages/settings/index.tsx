@@ -10,9 +10,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
+import { Form, Head } from '@inertiajs/react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import { Form, Head } from '@inertiajs/react';
 
 interface Settings {
     vendor_onboarding_fee: {
@@ -38,9 +38,20 @@ export default function SettingsIndex({ settings }: Props) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="System Settings" />
 
-            <Box sx={{ display: 'flex', height: '100%', flex: 1, flexDirection: 'column', gap: 2, p: 2 }}>
+            <Box
+                sx={{
+                    display: 'flex',
+                    height: '100%',
+                    flex: 1,
+                    flexDirection: 'column',
+                    gap: 2,
+                    p: 2,
+                }}
+            >
                 <Box>
-                    <Typography variant="h4" fontWeight={700}>System Settings</Typography>
+                    <Typography variant="h4" fontWeight={700}>
+                        System Settings
+                    </Typography>
                     <Typography variant="body2" color="text.secondary">
                         Manage application-wide settings
                     </Typography>
@@ -57,11 +68,21 @@ export default function SettingsIndex({ settings }: Props) {
                         <Form
                             action="/dashboard/settings"
                             method="post"
-                            style={{ display: 'flex', flexDirection: 'column', gap: 24 }}
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: 24,
+                            }}
                         >
                             {({ errors, processing }) => (
                                 <>
-                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                    <Box
+                                        sx={{
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            gap: 1,
+                                        }}
+                                    >
                                         <Label htmlFor="vendor_onboarding_fee">
                                             Vendor Onboarding Fee (GHS) *
                                         </Label>
@@ -77,20 +98,31 @@ export default function SettingsIndex({ settings }: Props) {
                                             }
                                             required
                                         />
-                                        <Typography variant="body2" color="text.secondary">
+                                        <Typography
+                                            variant="body2"
+                                            color="text.secondary"
+                                        >
                                             {
                                                 settings.vendor_onboarding_fee
                                                     .description
                                             }
                                         </Typography>
                                         {errors.vendor_onboarding_fee && (
-                                            <Typography variant="body2" color="error.main">
+                                            <Typography
+                                                variant="body2"
+                                                color="error.main"
+                                            >
                                                 {errors.vendor_onboarding_fee}
                                             </Typography>
                                         )}
                                     </Box>
 
-                                    <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                                    <Box
+                                        sx={{
+                                            display: 'flex',
+                                            justifyContent: 'flex-end',
+                                        }}
+                                    >
                                         <Button
                                             type="submit"
                                             disabled={processing}

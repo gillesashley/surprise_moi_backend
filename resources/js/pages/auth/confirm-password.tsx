@@ -5,8 +5,8 @@ import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import AuthLayout from '@/layouts/auth-layout';
 import { store } from '@/routes/password/confirm/index';
-import Box from '@mui/material/Box';
 import { Form, Head } from '@inertiajs/react';
+import Box from '@mui/material/Box';
 
 export default function ConfirmPassword() {
     return (
@@ -18,7 +18,13 @@ export default function ConfirmPassword() {
 
             <Form {...store.form()} resetOnSuccess={['password']}>
                 {({ processing, errors }) => (
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: 3,
+                        }}
+                    >
                         <Box sx={{ display: 'grid', gap: 1 }}>
                             <Label htmlFor="password">Password</Label>
                             <Input

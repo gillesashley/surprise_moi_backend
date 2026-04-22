@@ -25,11 +25,12 @@ import {
     Footprints,
     Gift,
     Headphones,
-    LayoutGrid,
     Landmark,
+    LayoutGrid,
     List,
     Megaphone,
     MonitorPlay,
+    Receipt,
     Settings2,
     ShieldCheck,
     ShoppingBag,
@@ -40,7 +41,6 @@ import {
     Ticket,
     UserCheck,
     Users,
-    Receipt,
     Wallet,
 } from 'lucide-react';
 import AppLogo from './app-logo';

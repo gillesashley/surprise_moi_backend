@@ -1,10 +1,5 @@
 import { Button } from '@/components/ui/button';
-import {
-    Card,
-    CardContent,
-    CardHeader,
-    CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
     Dialog,
     DialogContent,
@@ -57,7 +52,12 @@ interface PaymentData {
     paid_at: string | null;
     verified_at: string | null;
     created_at: string;
-    user: { id: number; name: string; email: string; phone: string | null } | null;
+    user: {
+        id: number;
+        name: string;
+        email: string;
+        phone: string | null;
+    } | null;
     related: {
         order_number?: string;
         order_status?: string;
@@ -106,7 +106,10 @@ export default function PaymentShow({ payment }: Props) {
         { title: payment.reference, href: '#' },
     ];
 
-    const statusColors = statusBadgeColors[payment.status] || { bg: '#F3F4F6', text: '#374151' };
+    const statusColors = statusBadgeColors[payment.status] || {
+        bg: '#F3F4F6',
+        text: '#374151',
+    };
 
     const handleVerify = async () => {
         setVerifying(true);
@@ -114,20 +117,28 @@ export default function PaymentShow({ payment }: Props) {
         setPaystackData(null);
 
         try {
-            const response = await fetch(`/dashboard/payments/${typeSlug}/${payment.id}/verify`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content ?? '',
-                    'Accept': 'application/json',
+            const response = await fetch(
+                `/dashboard/payments/${typeSlug}/${payment.id}/verify`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN':
+                            document.querySelector<HTMLMetaElement>(
+                                'meta[name="csrf-token"]',
+                            )?.content ?? '',
+                        Accept: 'application/json',
+                    },
                 },
-            });
+            );
             const data = await response.json();
             if (!response.ok) {
                 throw new Error(data.message ?? 'Verification failed');
             }
             setPaystackData(data);
         } catch (error: any) {
-            setVerifyError(error.message ?? 'Could not reach Paystack. Try again later.');
+            setVerifyError(
+                error.message ?? 'Could not reach Paystack. Try again later.',
+            );
         } finally {
             setVerifying(false);
         }
@@ -154,9 +165,12 @@ export default function PaymentShow({ payment }: Props) {
         if (payment.channel === 'mobile_money') {
             return (
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Smartphone style={{ width: 16, height: 16, color: '#6B7280' }} />
+                    <Smartphone
+                        style={{ width: 16, height: 16, color: '#6B7280' }}
+                    />
                     <Typography sx={{ fontSize: '0.875rem' }}>
-                        Mobile Money — {payment.mobile_money_provider}, {payment.mobile_money_number}
+                        Mobile Money — {payment.mobile_money_provider},{' '}
+                        {payment.mobile_money_number}
                     </Typography>
                 </Box>
             );
@@ -165,9 +179,12 @@ export default function PaymentShow({ payment }: Props) {
         if (payment.channel === 'card') {
             return (
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <CreditCard style={{ width: 16, height: 16, color: '#6B7280' }} />
+                    <CreditCard
+                        style={{ width: 16, height: 16, color: '#6B7280' }}
+                    />
                     <Typography sx={{ fontSize: '0.875rem' }}>
-                        Card — {payment.card_type} ****{payment.card_last4}, {payment.card_bank}
+                        Card — {payment.card_type} ****{payment.card_last4},{' '}
+                        {payment.card_bank}
                     </Typography>
                 </Box>
             );
@@ -183,7 +200,16 @@ export default function PaymentShow({ payment }: Props) {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={`Payment ${payment.reference}`} />
-            <Box sx={{ display: 'flex', height: '100%', flex: 1, flexDirection: 'column', gap: 2, p: 2 }}>
+            <Box
+                sx={{
+                    display: 'flex',
+                    height: '100%',
+                    flex: 1,
+                    flexDirection: 'column',
+                    gap: 2,
+                    p: 2,
+                }}
+            >
                 <Box
                     sx={{
                         display: 'grid',
@@ -192,14 +218,33 @@ export default function PaymentShow({ payment }: Props) {
                     }}
                 >
                     {/* Left Column */}
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: 2,
+                        }}
+                    >
                         {/* Card 1: Payment Overview */}
                         <Card>
                             <CardHeader>
-                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                                <Box
+                                    sx={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 1,
+                                        mb: 1,
+                                    }}
+                                >
                                     <Link href="/dashboard/payments">
                                         <Button variant="ghost" size="sm">
-                                            <ArrowLeft style={{ width: 16, height: 16, marginRight: 4 }} />
+                                            <ArrowLeft
+                                                style={{
+                                                    width: 16,
+                                                    height: 16,
+                                                    marginRight: 4,
+                                                }}
+                                            />
                                             Back
                                         </Button>
                                     </Link>
@@ -207,10 +252,30 @@ export default function PaymentShow({ payment }: Props) {
                                 <CardTitle>Payment Overview</CardTitle>
                             </CardHeader>
                             <CardContent>
-                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                                <Box
+                                    sx={{
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        gap: 2,
+                                    }}
+                                >
                                     {/* Reference & Status */}
-                                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 1 }}>
-                                        <Typography sx={{ fontFamily: 'monospace', fontSize: '0.875rem', fontWeight: 500 }}>
+                                    <Box
+                                        sx={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'space-between',
+                                            flexWrap: 'wrap',
+                                            gap: 1,
+                                        }}
+                                    >
+                                        <Typography
+                                            sx={{
+                                                fontFamily: 'monospace',
+                                                fontSize: '0.875rem',
+                                                fontWeight: 500,
+                                            }}
+                                        >
                                             {payment.reference}
                                         </Typography>
                                         <Box
@@ -232,25 +297,70 @@ export default function PaymentShow({ payment }: Props) {
 
                                     {/* Amount */}
                                     <Box>
-                                        <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary', mb: 0.5 }}>Amount</Typography>
-                                        <Typography sx={{ fontSize: '1.25rem', fontWeight: 600 }}>
+                                        <Typography
+                                            sx={{
+                                                fontSize: '0.75rem',
+                                                color: 'text.secondary',
+                                                mb: 0.5,
+                                            }}
+                                        >
+                                            Amount
+                                        </Typography>
+                                        <Typography
+                                            sx={{
+                                                fontSize: '1.25rem',
+                                                fontWeight: 600,
+                                            }}
+                                        >
                                             {payment.currency} {payment.amount}
                                         </Typography>
                                     </Box>
 
                                     {/* Dates */}
-                                    <Box sx={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                                    <Box
+                                        sx={{
+                                            display: 'flex',
+                                            gap: 4,
+                                            flexWrap: 'wrap',
+                                        }}
+                                    >
                                         <Box>
-                                            <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary', mb: 0.5 }}>Created At</Typography>
-                                            <Typography sx={{ fontSize: '0.875rem' }}>
-                                                {new Date(payment.created_at).toLocaleString()}
+                                            <Typography
+                                                sx={{
+                                                    fontSize: '0.75rem',
+                                                    color: 'text.secondary',
+                                                    mb: 0.5,
+                                                }}
+                                            >
+                                                Created At
+                                            </Typography>
+                                            <Typography
+                                                sx={{ fontSize: '0.875rem' }}
+                                            >
+                                                {new Date(
+                                                    payment.created_at,
+                                                ).toLocaleString()}
                                             </Typography>
                                         </Box>
                                         {payment.paid_at && (
                                             <Box>
-                                                <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary', mb: 0.5 }}>Paid At</Typography>
-                                                <Typography sx={{ fontSize: '0.875rem' }}>
-                                                    {new Date(payment.paid_at).toLocaleString()}
+                                                <Typography
+                                                    sx={{
+                                                        fontSize: '0.75rem',
+                                                        color: 'text.secondary',
+                                                        mb: 0.5,
+                                                    }}
+                                                >
+                                                    Paid At
+                                                </Typography>
+                                                <Typography
+                                                    sx={{
+                                                        fontSize: '0.875rem',
+                                                    }}
+                                                >
+                                                    {new Date(
+                                                        payment.paid_at,
+                                                    ).toLocaleString()}
                                                 </Typography>
                                             </Box>
                                         )}
@@ -258,7 +368,15 @@ export default function PaymentShow({ payment }: Props) {
 
                                     {/* Channel & Method */}
                                     <Box>
-                                        <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary', mb: 0.5 }}>Payment Method</Typography>
+                                        <Typography
+                                            sx={{
+                                                fontSize: '0.75rem',
+                                                color: 'text.secondary',
+                                                mb: 0.5,
+                                            }}
+                                        >
+                                            Payment Method
+                                        </Typography>
                                         {renderChannelDetails()}
                                     </Box>
                                 </Box>
@@ -271,37 +389,103 @@ export default function PaymentShow({ payment }: Props) {
                                 <CardTitle>Technical Details</CardTitle>
                             </CardHeader>
                             <CardContent>
-                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                                <Box
+                                    sx={{
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        gap: 2,
+                                    }}
+                                >
                                     <Box>
-                                        <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary', mb: 0.5 }}>Gateway Response</Typography>
-                                        <Typography sx={{ fontSize: '0.875rem' }}>
-                                            {payment.gateway_response || '\u2014'}
+                                        <Typography
+                                            sx={{
+                                                fontSize: '0.75rem',
+                                                color: 'text.secondary',
+                                                mb: 0.5,
+                                            }}
+                                        >
+                                            Gateway Response
+                                        </Typography>
+                                        <Typography
+                                            sx={{ fontSize: '0.875rem' }}
+                                        >
+                                            {payment.gateway_response ||
+                                                '\u2014'}
                                         </Typography>
                                     </Box>
 
                                     {payment.failure_reason && (
                                         <Box>
-                                            <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary', mb: 0.5 }}>Failure Reason</Typography>
-                                            <Typography sx={{ fontSize: '0.875rem', color: '#991B1B' }}>
+                                            <Typography
+                                                sx={{
+                                                    fontSize: '0.75rem',
+                                                    color: 'text.secondary',
+                                                    mb: 0.5,
+                                                }}
+                                            >
+                                                Failure Reason
+                                            </Typography>
+                                            <Typography
+                                                sx={{
+                                                    fontSize: '0.875rem',
+                                                    color: '#991B1B',
+                                                }}
+                                            >
                                                 {payment.failure_reason}
                                             </Typography>
                                         </Box>
                                     )}
 
                                     <Box>
-                                        <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary', mb: 0.5 }}>IP Address</Typography>
-                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                            <Globe style={{ width: 14, height: 14, color: '#6B7280' }} />
-                                            <Typography sx={{ fontSize: '0.875rem' }}>
+                                        <Typography
+                                            sx={{
+                                                fontSize: '0.75rem',
+                                                color: 'text.secondary',
+                                                mb: 0.5,
+                                            }}
+                                        >
+                                            IP Address
+                                        </Typography>
+                                        <Box
+                                            sx={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: 1,
+                                            }}
+                                        >
+                                            <Globe
+                                                style={{
+                                                    width: 14,
+                                                    height: 14,
+                                                    color: '#6B7280',
+                                                }}
+                                            />
+                                            <Typography
+                                                sx={{ fontSize: '0.875rem' }}
+                                            >
                                                 {payment.ip_address || '\u2014'}
                                             </Typography>
                                         </Box>
                                     </Box>
 
                                     <Box>
-                                        <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary', mb: 0.5 }}>Paystack Reference</Typography>
-                                        <Typography sx={{ fontSize: '0.875rem', fontFamily: 'monospace' }}>
-                                            {payment.paystack_reference || '\u2014'}
+                                        <Typography
+                                            sx={{
+                                                fontSize: '0.75rem',
+                                                color: 'text.secondary',
+                                                mb: 0.5,
+                                            }}
+                                        >
+                                            Paystack Reference
+                                        </Typography>
+                                        <Typography
+                                            sx={{
+                                                fontSize: '0.875rem',
+                                                fontFamily: 'monospace',
+                                            }}
+                                        >
+                                            {payment.paystack_reference ||
+                                                '\u2014'}
                                         </Typography>
                                     </Box>
 
@@ -310,9 +494,13 @@ export default function PaymentShow({ payment }: Props) {
                                         <Button
                                             variant="outline"
                                             size="sm"
-                                            onClick={() => setShowMetadata(!showMetadata)}
+                                            onClick={() =>
+                                                setShowMetadata(!showMetadata)
+                                            }
                                         >
-                                            {showMetadata ? 'Hide Metadata' : 'Show Metadata'}
+                                            {showMetadata
+                                                ? 'Hide Metadata'
+                                                : 'Show Metadata'}
                                         </Button>
                                         {showMetadata && (
                                             <Box
@@ -325,8 +513,19 @@ export default function PaymentShow({ payment }: Props) {
                                                     p: 2,
                                                 }}
                                             >
-                                                <pre style={{ margin: 0, fontFamily: 'monospace', fontSize: '0.8rem', whiteSpace: 'pre-wrap' }}>
-                                                    {JSON.stringify(payment.metadata, null, 2)}
+                                                <pre
+                                                    style={{
+                                                        margin: 0,
+                                                        fontFamily: 'monospace',
+                                                        fontSize: '0.8rem',
+                                                        whiteSpace: 'pre-wrap',
+                                                    }}
+                                                >
+                                                    {JSON.stringify(
+                                                        payment.metadata,
+                                                        null,
+                                                        2,
+                                                    )}
                                                 </pre>
                                             </Box>
                                         )}
@@ -338,13 +537,31 @@ export default function PaymentShow({ payment }: Props) {
                         {/* Card 4: Paystack Verification */}
                         <Card>
                             <CardHeader>
-                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                    <Shield style={{ width: 20, height: 20, color: '#6B7280' }} />
+                                <Box
+                                    sx={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 1,
+                                    }}
+                                >
+                                    <Shield
+                                        style={{
+                                            width: 20,
+                                            height: 20,
+                                            color: '#6B7280',
+                                        }}
+                                    />
                                     <CardTitle>Paystack Verification</CardTitle>
                                 </Box>
                             </CardHeader>
                             <CardContent>
-                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                                <Box
+                                    sx={{
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        gap: 2,
+                                    }}
+                                >
                                     {/* Verify Button */}
                                     {!paystackData && !verifyError && (
                                         <Button
@@ -356,10 +573,14 @@ export default function PaymentShow({ payment }: Props) {
                                                     width: 16,
                                                     height: 16,
                                                     marginRight: 8,
-                                                    animation: verifying ? 'spin 1s linear infinite' : 'none',
+                                                    animation: verifying
+                                                        ? 'spin 1s linear infinite'
+                                                        : 'none',
                                                 }}
                                             />
-                                            {verifying ? 'Verifying...' : 'Verify on Paystack'}
+                                            {verifying
+                                                ? 'Verifying...'
+                                                : 'Verify on Paystack'}
                                         </Button>
                                     )}
 
@@ -378,8 +599,19 @@ export default function PaymentShow({ payment }: Props) {
                                                     borderRadius: 1,
                                                 }}
                                             >
-                                                <AlertTriangle style={{ width: 16, height: 16, flexShrink: 0 }} />
-                                                <Typography sx={{ fontSize: '0.875rem', flex: 1 }}>
+                                                <AlertTriangle
+                                                    style={{
+                                                        width: 16,
+                                                        height: 16,
+                                                        flexShrink: 0,
+                                                    }}
+                                                />
+                                                <Typography
+                                                    sx={{
+                                                        fontSize: '0.875rem',
+                                                        flex: 1,
+                                                    }}
+                                                >
                                                     {verifyError}
                                                 </Typography>
                                             </Box>
@@ -400,14 +632,21 @@ export default function PaymentShow({ payment }: Props) {
 
                                     {/* Paystack Data Results */}
                                     {paystackData && (
-                                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                                        <Box
+                                            sx={{
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                gap: 2,
+                                            }}
+                                        >
                                             {/* Status Mismatch or Match */}
                                             {paystackData.status_mismatch ? (
                                                 <Box>
                                                     <Box
                                                         sx={{
                                                             display: 'flex',
-                                                            alignItems: 'center',
+                                                            alignItems:
+                                                                'center',
                                                             gap: 1,
                                                             bgcolor: '#FEF3C7',
                                                             color: '#92400E',
@@ -416,16 +655,44 @@ export default function PaymentShow({ payment }: Props) {
                                                             borderRadius: 1,
                                                         }}
                                                     >
-                                                        <AlertTriangle style={{ width: 16, height: 16, flexShrink: 0 }} />
-                                                        <Typography sx={{ fontSize: '0.875rem' }}>
-                                                            Status Mismatch Detected — Paystack reports <strong>{paystackData.paystack_status}</strong> but local status is <strong>{paystackData.local_status}</strong>
+                                                        <AlertTriangle
+                                                            style={{
+                                                                width: 16,
+                                                                height: 16,
+                                                                flexShrink: 0,
+                                                            }}
+                                                        />
+                                                        <Typography
+                                                            sx={{
+                                                                fontSize:
+                                                                    '0.875rem',
+                                                            }}
+                                                        >
+                                                            Status Mismatch
+                                                            Detected — Paystack
+                                                            reports{' '}
+                                                            <strong>
+                                                                {
+                                                                    paystackData.paystack_status
+                                                                }
+                                                            </strong>{' '}
+                                                            but local status is{' '}
+                                                            <strong>
+                                                                {
+                                                                    paystackData.local_status
+                                                                }
+                                                            </strong>
                                                         </Typography>
                                                     </Box>
                                                     <Box sx={{ mt: 1 }}>
                                                         <Button
                                                             variant="outline"
                                                             size="sm"
-                                                            onClick={() => setShowSyncDialog(true)}
+                                                            onClick={() =>
+                                                                setShowSyncDialog(
+                                                                    true,
+                                                                )
+                                                            }
                                                         >
                                                             Sync Local Records
                                                         </Button>
@@ -444,9 +711,26 @@ export default function PaymentShow({ payment }: Props) {
                                                         borderRadius: 1,
                                                     }}
                                                 >
-                                                    <CheckCircle style={{ width: 16, height: 16, flexShrink: 0 }} />
-                                                    <Typography sx={{ fontSize: '0.875rem' }}>
-                                                        Paystack status matches local status: <strong>{paystackData.local_status}</strong>
+                                                    <CheckCircle
+                                                        style={{
+                                                            width: 16,
+                                                            height: 16,
+                                                            flexShrink: 0,
+                                                        }}
+                                                    />
+                                                    <Typography
+                                                        sx={{
+                                                            fontSize:
+                                                                '0.875rem',
+                                                        }}
+                                                    >
+                                                        Paystack status matches
+                                                        local status:{' '}
+                                                        <strong>
+                                                            {
+                                                                paystackData.local_status
+                                                            }
+                                                        </strong>
                                                     </Typography>
                                                 </Box>
                                             )}
@@ -456,9 +740,15 @@ export default function PaymentShow({ payment }: Props) {
                                                 <Button
                                                     variant="outline"
                                                     size="sm"
-                                                    onClick={() => setShowPaystackResponse(!showPaystackResponse)}
+                                                    onClick={() =>
+                                                        setShowPaystackResponse(
+                                                            !showPaystackResponse,
+                                                        )
+                                                    }
                                                 >
-                                                    {showPaystackResponse ? 'Hide Paystack Response' : 'Show Paystack Response'}
+                                                    {showPaystackResponse
+                                                        ? 'Hide Paystack Response'
+                                                        : 'Show Paystack Response'}
                                                 </Button>
                                                 {showPaystackResponse && (
                                                     <Box
@@ -471,8 +761,22 @@ export default function PaymentShow({ payment }: Props) {
                                                             p: 2,
                                                         }}
                                                     >
-                                                        <pre style={{ margin: 0, fontFamily: 'monospace', fontSize: '0.8rem', whiteSpace: 'pre-wrap' }}>
-                                                            {JSON.stringify(paystackData, null, 2)}
+                                                        <pre
+                                                            style={{
+                                                                margin: 0,
+                                                                fontFamily:
+                                                                    'monospace',
+                                                                fontSize:
+                                                                    '0.8rem',
+                                                                whiteSpace:
+                                                                    'pre-wrap',
+                                                            }}
+                                                        >
+                                                            {JSON.stringify(
+                                                                paystackData,
+                                                                null,
+                                                                2,
+                                                            )}
                                                         </pre>
                                                     </Box>
                                                 )}
@@ -485,34 +789,96 @@ export default function PaymentShow({ payment }: Props) {
                     </Box>
 
                     {/* Right Column */}
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: 2,
+                        }}
+                    >
                         {/* Card 2: User & Related Entity */}
                         <Card>
                             <CardHeader>
                                 <CardTitle>User & Related Entity</CardTitle>
                             </CardHeader>
                             <CardContent>
-                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                                <Box
+                                    sx={{
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        gap: 2,
+                                    }}
+                                >
                                     {/* User Info */}
                                     <Box>
-                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                                            <UserIcon style={{ width: 16, height: 16, color: '#6B7280' }} />
-                                            <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary', fontWeight: 500 }}>User</Typography>
+                                        <Box
+                                            sx={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: 1,
+                                                mb: 1,
+                                            }}
+                                        >
+                                            <UserIcon
+                                                style={{
+                                                    width: 16,
+                                                    height: 16,
+                                                    color: '#6B7280',
+                                                }}
+                                            />
+                                            <Typography
+                                                sx={{
+                                                    fontSize: '0.75rem',
+                                                    color: 'text.secondary',
+                                                    fontWeight: 500,
+                                                }}
+                                            >
+                                                User
+                                            </Typography>
                                         </Box>
                                         {payment.user ? (
-                                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, pl: 3 }}>
-                                                <Typography sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                                            <Box
+                                                sx={{
+                                                    display: 'flex',
+                                                    flexDirection: 'column',
+                                                    gap: 0.5,
+                                                    pl: 3,
+                                                }}
+                                            >
+                                                <Typography
+                                                    sx={{
+                                                        fontSize: '0.875rem',
+                                                        fontWeight: 500,
+                                                    }}
+                                                >
                                                     {payment.user.name}
                                                 </Typography>
-                                                <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
+                                                <Typography
+                                                    sx={{
+                                                        fontSize: '0.875rem',
+                                                        color: 'text.secondary',
+                                                    }}
+                                                >
                                                     {payment.user.email}
                                                 </Typography>
-                                                <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
-                                                    {payment.user.phone || '\u2014'}
+                                                <Typography
+                                                    sx={{
+                                                        fontSize: '0.875rem',
+                                                        color: 'text.secondary',
+                                                    }}
+                                                >
+                                                    {payment.user.phone ||
+                                                        '\u2014'}
                                                 </Typography>
                                             </Box>
                                         ) : (
-                                            <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary', pl: 3 }}>
+                                            <Typography
+                                                sx={{
+                                                    fontSize: '0.875rem',
+                                                    color: 'text.secondary',
+                                                    pl: 3,
+                                                }}
+                                            >
                                                 No user associated
                                             </Typography>
                                         )}
@@ -520,70 +886,172 @@ export default function PaymentShow({ payment }: Props) {
 
                                     {/* Related Entity */}
                                     <Box>
-                                        <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary', fontWeight: 500, mb: 1 }}>
+                                        <Typography
+                                            sx={{
+                                                fontSize: '0.75rem',
+                                                color: 'text.secondary',
+                                                fontWeight: 500,
+                                                mb: 1,
+                                            }}
+                                        >
                                             Related Entity
                                         </Typography>
-                                        {payment.type === 'order' && payment.related ? (
-                                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                        {payment.type === 'order' &&
+                                        payment.related ? (
+                                            <Box
+                                                sx={{
+                                                    display: 'flex',
+                                                    flexDirection: 'column',
+                                                    gap: 1,
+                                                }}
+                                            >
                                                 <Link
                                                     href={`/dashboard/orders/${payment.related.order_id}`}
-                                                    style={{ fontSize: '0.875rem', color: '#1E40AF', textDecoration: 'underline' }}
+                                                    style={{
+                                                        fontSize: '0.875rem',
+                                                        color: '#1E40AF',
+                                                        textDecoration:
+                                                            'underline',
+                                                    }}
                                                 >
-                                                    Order #{payment.related.order_number}
+                                                    Order #
+                                                    {
+                                                        payment.related
+                                                            .order_number
+                                                    }
                                                 </Link>
-                                                {payment.related.order_status && (
+                                                {payment.related
+                                                    .order_status && (
                                                     <Box
                                                         component="span"
                                                         sx={{
-                                                            display: 'inline-block',
+                                                            display:
+                                                                'inline-block',
                                                             px: 1,
                                                             py: 0.25,
-                                                            borderRadius: '9999px',
+                                                            borderRadius:
+                                                                '9999px',
                                                             fontSize: '0.75rem',
                                                             fontWeight: 500,
-                                                            bgcolor: (statusBadgeColors[payment.related.order_status] || { bg: '#F3F4F6' }).bg,
-                                                            color: (statusBadgeColors[payment.related.order_status] || { text: '#374151' }).text,
+                                                            bgcolor: (
+                                                                statusBadgeColors[
+                                                                    payment
+                                                                        .related
+                                                                        .order_status
+                                                                ] || {
+                                                                    bg: '#F3F4F6',
+                                                                }
+                                                            ).bg,
+                                                            color: (
+                                                                statusBadgeColors[
+                                                                    payment
+                                                                        .related
+                                                                        .order_status
+                                                                ] || {
+                                                                    text: '#374151',
+                                                                }
+                                                            ).text,
                                                             width: 'fit-content',
                                                         }}
                                                     >
-                                                        {formatStatus(payment.related.order_status)}
+                                                        {formatStatus(
+                                                            payment.related
+                                                                .order_status,
+                                                        )}
                                                     </Box>
                                                 )}
                                             </Box>
-                                        ) : payment.type === 'vendor_onboarding' && payment.related ? (
-                                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                        ) : payment.type ===
+                                              'vendor_onboarding' &&
+                                          payment.related ? (
+                                            <Box
+                                                sx={{
+                                                    display: 'flex',
+                                                    flexDirection: 'column',
+                                                    gap: 1,
+                                                }}
+                                            >
                                                 <Link
                                                     href={`/dashboard/vendor-applications/${payment.related.application_id}`}
-                                                    style={{ fontSize: '0.875rem', color: '#1E40AF', textDecoration: 'underline' }}
+                                                    style={{
+                                                        fontSize: '0.875rem',
+                                                        color: '#1E40AF',
+                                                        textDecoration:
+                                                            'underline',
+                                                    }}
                                                 >
-                                                    Application #{payment.related.application_id}
+                                                    Application #
+                                                    {
+                                                        payment.related
+                                                            .application_id
+                                                    }
                                                 </Link>
-                                                {payment.related.application_status && (
+                                                {payment.related
+                                                    .application_status && (
                                                     <Box
                                                         component="span"
                                                         sx={{
-                                                            display: 'inline-block',
+                                                            display:
+                                                                'inline-block',
                                                             px: 1,
                                                             py: 0.25,
-                                                            borderRadius: '9999px',
+                                                            borderRadius:
+                                                                '9999px',
                                                             fontSize: '0.75rem',
                                                             fontWeight: 500,
-                                                            bgcolor: (statusBadgeColors[payment.related.application_status] || { bg: '#F3F4F6' }).bg,
-                                                            color: (statusBadgeColors[payment.related.application_status] || { text: '#374151' }).text,
+                                                            bgcolor: (
+                                                                statusBadgeColors[
+                                                                    payment
+                                                                        .related
+                                                                        .application_status
+                                                                ] || {
+                                                                    bg: '#F3F4F6',
+                                                                }
+                                                            ).bg,
+                                                            color: (
+                                                                statusBadgeColors[
+                                                                    payment
+                                                                        .related
+                                                                        .application_status
+                                                                ] || {
+                                                                    text: '#374151',
+                                                                }
+                                                            ).text,
                                                             width: 'fit-content',
                                                         }}
                                                     >
-                                                        {formatStatus(payment.related.application_status)}
+                                                        {formatStatus(
+                                                            payment.related
+                                                                .application_status,
+                                                        )}
                                                     </Box>
                                                 )}
-                                                {payment.related.completed_step !== undefined && (
-                                                    <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
-                                                        Steps: {payment.related.completed_step} / 4 completed
+                                                {payment.related
+                                                    .completed_step !==
+                                                    undefined && (
+                                                    <Typography
+                                                        sx={{
+                                                            fontSize:
+                                                                '0.875rem',
+                                                            color: 'text.secondary',
+                                                        }}
+                                                    >
+                                                        Steps:{' '}
+                                                        {
+                                                            payment.related
+                                                                .completed_step
+                                                        }{' '}
+                                                        / 4 completed
                                                     </Typography>
                                                 )}
                                             </Box>
                                         ) : (
-                                            <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
+                                            <Typography
+                                                sx={{
+                                                    fontSize: '0.875rem',
+                                                    color: 'text.secondary',
+                                                }}
+                                            >
                                                 No related entity
                                             </Typography>
                                         )}
@@ -601,11 +1069,18 @@ export default function PaymentShow({ payment }: Props) {
                     <DialogHeader>
                         <DialogTitle>Sync Local Records</DialogTitle>
                         <DialogDescription>
-                            This will update the local payment status and related records to match Paystack. The existing verification logic will run, which may trigger notifications.
+                            This will update the local payment status and
+                            related records to match Paystack. The existing
+                            verification logic will run, which may trigger
+                            notifications.
                         </DialogDescription>
                     </DialogHeader>
                     <DialogFooter>
-                        <Button variant="outline" onClick={() => setShowSyncDialog(false)} disabled={syncing}>
+                        <Button
+                            variant="outline"
+                            onClick={() => setShowSyncDialog(false)}
+                            disabled={syncing}
+                        >
                             Cancel
                         </Button>
                         <Button onClick={handleSync} disabled={syncing}>

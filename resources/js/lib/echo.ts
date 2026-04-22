@@ -30,10 +30,7 @@ if (isDevelopment) {
         wsHost: import.meta.env.VITE_REVERB_HOST,
         wsPort: import.meta.env.VITE_REVERB_PORT,
         scheme: import.meta.env.VITE_REVERB_SCHEME,
-
-
     });
 }
 
 export default echo;
-

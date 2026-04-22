@@ -135,7 +135,16 @@ export default function OrdersIndex({ orders, statuses, filters }: Props) {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Orders" />
-            <Box sx={{ display: 'flex', height: '100%', flex: 1, flexDirection: 'column', gap: 2, p: 2 }}>
+            <Box
+                sx={{
+                    display: 'flex',
+                    height: '100%',
+                    flex: 1,
+                    flexDirection: 'column',
+                    gap: 2,
+                    p: 2,
+                }}
+            >
                 <Card>
                     <CardHeader>
                         <CardTitle>Order Management</CardTitle>
@@ -145,21 +154,41 @@ export default function OrdersIndex({ orders, statuses, filters }: Props) {
                     </CardHeader>
                     <CardContent>
                         {/* Search Bar & Status Filter */}
-                        <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Box
+                            sx={{
+                                mb: 2,
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 1,
+                            }}
+                        >
                             <Box sx={{ position: 'relative', flex: 1 }}>
-                                <Search style={{ position: 'absolute', top: 10, left: 10, width: 16, height: 16, color: 'var(--muted-foreground)' }} />
+                                <Search
+                                    style={{
+                                        position: 'absolute',
+                                        top: 10,
+                                        left: 10,
+                                        width: 16,
+                                        height: 16,
+                                        color: 'var(--muted-foreground)',
+                                    }}
+                                />
                                 <Input
                                     type="search"
                                     placeholder="Search by order number or customer name..."
                                     value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    onChange={(e) =>
+                                        setSearchTerm(e.target.value)
+                                    }
                                     style={{ paddingLeft: 36 }}
                                 />
                             </Box>
                             <Box
                                 component="select"
                                 value={filters.status || ''}
-                                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleStatusFilter(e.target.value)}
+                                onChange={(
+                                    e: React.ChangeEvent<HTMLSelectElement>,
+                                ) => handleStatusFilter(e.target.value)}
                                 sx={{
                                     height: 36,
                                     borderRadius: 1,
@@ -170,7 +199,10 @@ export default function OrdersIndex({ orders, statuses, filters }: Props) {
                                     bgcolor: 'background.paper',
                                     color: 'text.primary',
                                     cursor: 'pointer',
-                                    '&:focus': { outline: 'none', borderColor: 'primary.main' },
+                                    '&:focus': {
+                                        outline: 'none',
+                                        borderColor: 'primary.main',
+                                    },
                                 }}
                             >
                                 <option value="">All Statuses</option>
@@ -185,109 +217,261 @@ export default function OrdersIndex({ orders, statuses, filters }: Props) {
                         <Box sx={{ overflowX: 'auto' }}>
                             <Box component="table" sx={{ width: '100%' }}>
                                 <thead>
-                                    <Box component="tr" sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                                        <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
+                                    <Box
+                                        component="tr"
+                                        sx={{
+                                            borderBottom: 1,
+                                            borderColor: 'divider',
+                                        }}
+                                    >
+                                        <Box
+                                            component="th"
+                                            sx={{
+                                                p: 1,
+                                                textAlign: 'left',
+                                                fontSize: '0.875rem',
+                                                fontWeight: 500,
+                                            }}
+                                        >
                                             Order #
                                         </Box>
-                                        <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
+                                        <Box
+                                            component="th"
+                                            sx={{
+                                                p: 1,
+                                                textAlign: 'left',
+                                                fontSize: '0.875rem',
+                                                fontWeight: 500,
+                                            }}
+                                        >
                                             Customer
                                         </Box>
-                                        <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
+                                        <Box
+                                            component="th"
+                                            sx={{
+                                                p: 1,
+                                                textAlign: 'left',
+                                                fontSize: '0.875rem',
+                                                fontWeight: 500,
+                                            }}
+                                        >
                                             Vendor
                                         </Box>
-                                        <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
+                                        <Box
+                                            component="th"
+                                            sx={{
+                                                p: 1,
+                                                textAlign: 'left',
+                                                fontSize: '0.875rem',
+                                                fontWeight: 500,
+                                            }}
+                                        >
                                             Items
                                         </Box>
-                                        <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
+                                        <Box
+                                            component="th"
+                                            sx={{
+                                                p: 1,
+                                                textAlign: 'left',
+                                                fontSize: '0.875rem',
+                                                fontWeight: 500,
+                                            }}
+                                        >
                                             Total (GHS)
                                         </Box>
-                                        <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
+                                        <Box
+                                            component="th"
+                                            sx={{
+                                                p: 1,
+                                                textAlign: 'left',
+                                                fontSize: '0.875rem',
+                                                fontWeight: 500,
+                                            }}
+                                        >
                                             Status
                                         </Box>
-                                        <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
+                                        <Box
+                                            component="th"
+                                            sx={{
+                                                p: 1,
+                                                textAlign: 'left',
+                                                fontSize: '0.875rem',
+                                                fontWeight: 500,
+                                            }}
+                                        >
                                             Payment
                                         </Box>
-                                        <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
+                                        <Box
+                                            component="th"
+                                            sx={{
+                                                p: 1,
+                                                textAlign: 'left',
+                                                fontSize: '0.875rem',
+                                                fontWeight: 500,
+                                            }}
+                                        >
                                             Date
                                         </Box>
                                     </Box>
                                 </thead>
                                 <tbody>
                                     {orders.data.map((order) => {
-                                        const statusColors = statusBadgeColors[order.status] || { bg: '#F3F4F6', text: '#374151' };
-                                        const paymentColors = paymentBadgeColors[order.payment_status] || { bg: '#F3F4F6', text: '#374151' };
+                                        const statusColors = statusBadgeColors[
+                                            order.status
+                                        ] || { bg: '#F3F4F6', text: '#374151' };
+                                        const paymentColors =
+                                            paymentBadgeColors[
+                                                order.payment_status
+                                            ] || {
+                                                bg: '#F3F4F6',
+                                                text: '#374151',
+                                            };
 
                                         return (
                                             <Box
                                                 component="tr"
                                                 key={order.id}
-                                                onClick={() => handleRowClick(order.id)}
+                                                onClick={() =>
+                                                    handleRowClick(order.id)
+                                                }
                                                 sx={{
                                                     borderBottom: 1,
                                                     borderColor: 'divider',
                                                     cursor: 'pointer',
-                                                    '&:last-child': { border: 0 },
-                                                    '&:hover': { bgcolor: 'action.hover' },
+                                                    '&:last-child': {
+                                                        border: 0,
+                                                    },
+                                                    '&:hover': {
+                                                        bgcolor: 'action.hover',
+                                                    },
                                                 }}
                                             >
-                                                <Box component="td" sx={{ p: 1, fontSize: '0.875rem', fontFamily: 'monospace' }}>
+                                                <Box
+                                                    component="td"
+                                                    sx={{
+                                                        p: 1,
+                                                        fontSize: '0.875rem',
+                                                        fontFamily: 'monospace',
+                                                    }}
+                                                >
                                                     {order.order_number}
                                                 </Box>
-                                                <Box component="td" sx={{ p: 1, fontSize: '0.875rem' }}>
-                                                    {order.user?.name || 'Guest'}
+                                                <Box
+                                                    component="td"
+                                                    sx={{
+                                                        p: 1,
+                                                        fontSize: '0.875rem',
+                                                    }}
+                                                >
+                                                    {order.user?.name ||
+                                                        'Guest'}
                                                 </Box>
-                                                <Box component="td" sx={{ p: 1, fontSize: '0.875rem' }}>
-                                                    {order.vendor?.name || 'Unknown'}
+                                                <Box
+                                                    component="td"
+                                                    sx={{
+                                                        p: 1,
+                                                        fontSize: '0.875rem',
+                                                    }}
+                                                >
+                                                    {order.vendor?.name ||
+                                                        'Unknown'}
                                                 </Box>
-                                                <Box component="td" sx={{ p: 1, fontSize: '0.875rem' }}>
+                                                <Box
+                                                    component="td"
+                                                    sx={{
+                                                        p: 1,
+                                                        fontSize: '0.875rem',
+                                                    }}
+                                                >
                                                     {order.items?.length || 0}
                                                 </Box>
-                                                <Box component="td" sx={{ p: 1, fontSize: '0.875rem' }}>
-                                                    {parseFloat(order.total).toFixed(2)}
+                                                <Box
+                                                    component="td"
+                                                    sx={{
+                                                        p: 1,
+                                                        fontSize: '0.875rem',
+                                                    }}
+                                                >
+                                                    {parseFloat(
+                                                        order.total,
+                                                    ).toFixed(2)}
                                                 </Box>
-                                                <Box component="td" sx={{ p: 1 }}>
+                                                <Box
+                                                    component="td"
+                                                    sx={{ p: 1 }}
+                                                >
                                                     <Box
                                                         component="span"
                                                         sx={{
-                                                            display: 'inline-block',
+                                                            display:
+                                                                'inline-block',
                                                             px: 1,
                                                             py: 0.25,
-                                                            borderRadius: '9999px',
+                                                            borderRadius:
+                                                                '9999px',
                                                             fontSize: '0.75rem',
                                                             fontWeight: 500,
-                                                            bgcolor: statusColors.bg,
+                                                            bgcolor:
+                                                                statusColors.bg,
                                                             color: statusColors.text,
                                                         }}
                                                     >
-                                                        {formatStatus(order.status)}
+                                                        {formatStatus(
+                                                            order.status,
+                                                        )}
                                                     </Box>
                                                 </Box>
-                                                <Box component="td" sx={{ p: 1 }}>
+                                                <Box
+                                                    component="td"
+                                                    sx={{ p: 1 }}
+                                                >
                                                     <Box
                                                         component="span"
                                                         sx={{
-                                                            display: 'inline-block',
+                                                            display:
+                                                                'inline-block',
                                                             px: 1,
                                                             py: 0.25,
-                                                            borderRadius: '9999px',
+                                                            borderRadius:
+                                                                '9999px',
                                                             fontSize: '0.75rem',
                                                             fontWeight: 500,
-                                                            bgcolor: paymentColors.bg,
+                                                            bgcolor:
+                                                                paymentColors.bg,
                                                             color: paymentColors.text,
                                                         }}
                                                     >
-                                                        {formatStatus(order.payment_status)}
+                                                        {formatStatus(
+                                                            order.payment_status,
+                                                        )}
                                                     </Box>
                                                 </Box>
-                                                <Box component="td" sx={{ p: 1, fontSize: '0.875rem' }}>
-                                                    {new Date(order.created_at).toLocaleDateString()}
+                                                <Box
+                                                    component="td"
+                                                    sx={{
+                                                        p: 1,
+                                                        fontSize: '0.875rem',
+                                                    }}
+                                                >
+                                                    {new Date(
+                                                        order.created_at,
+                                                    ).toLocaleDateString()}
                                                 </Box>
                                             </Box>
                                         );
                                     })}
                                     {orders.data.length === 0 && (
                                         <Box component="tr">
-                                            <Box component="td" colSpan={8} sx={{ p: 4, textAlign: 'center', fontSize: '0.875rem', color: 'text.secondary' }}>
+                                            <Box
+                                                component="td"
+                                                colSpan={8}
+                                                sx={{
+                                                    p: 4,
+                                                    textAlign: 'center',
+                                                    fontSize: '0.875rem',
+                                                    color: 'text.secondary',
+                                                }}
+                                            >
                                                 No orders found.
                                             </Box>
                                         </Box>
@@ -298,27 +482,60 @@ export default function OrdersIndex({ orders, statuses, filters }: Props) {
 
                         {/* Pagination */}
                         {orders.last_page > 1 && (
-                            <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
-                                    Showing {orders.data.length} of {orders.total} orders
+                            <Box
+                                sx={{
+                                    mt: 2,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                }}
+                            >
+                                <Typography
+                                    sx={{
+                                        fontSize: '0.875rem',
+                                        color: 'text.secondary',
+                                    }}
+                                >
+                                    Showing {orders.data.length} of{' '}
+                                    {orders.total} orders
                                 </Typography>
                                 <Box sx={{ display: 'flex', gap: 1 }}>
                                     <Button
                                         variant="outline"
                                         size="sm"
-                                        onClick={() => handlePageChange(orders.current_page - 1)}
+                                        onClick={() =>
+                                            handlePageChange(
+                                                orders.current_page - 1,
+                                            )
+                                        }
                                         disabled={orders.current_page === 1}
                                     >
                                         Previous
                                     </Button>
-                                    <Box component="span" sx={{ display: 'flex', alignItems: 'center', px: 1, fontSize: '0.875rem' }}>
-                                        Page {orders.current_page} of {orders.last_page}
+                                    <Box
+                                        component="span"
+                                        sx={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            px: 1,
+                                            fontSize: '0.875rem',
+                                        }}
+                                    >
+                                        Page {orders.current_page} of{' '}
+                                        {orders.last_page}
                                     </Box>
                                     <Button
                                         variant="outline"
                                         size="sm"
-                                        onClick={() => handlePageChange(orders.current_page + 1)}
-                                        disabled={orders.current_page === orders.last_page}
+                                        onClick={() =>
+                                            handlePageChange(
+                                                orders.current_page + 1,
+                                            )
+                                        }
+                                        disabled={
+                                            orders.current_page ===
+                                            orders.last_page
+                                        }
                                     >
                                         Next
                                     </Button>

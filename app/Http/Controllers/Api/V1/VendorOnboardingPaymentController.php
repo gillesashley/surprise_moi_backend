@@ -54,7 +54,7 @@ class VendorOnboardingPaymentController extends Controller
         }
 
         $tier = $application->getVendorTier();
-        
+
         // Use calculateFinalAmount to account for any already applied referral code
         $referralCode = $application->referralCode;
         $amounts = $application->calculateFinalAmount($referralCode);

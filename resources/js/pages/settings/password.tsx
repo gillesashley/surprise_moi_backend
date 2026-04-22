@@ -3,10 +3,10 @@ import InputError from '@/components/input-error';
 import AppLayout from '@/layouts/app-layout';
 import SettingsLayout from '@/layouts/settings/layout';
 import { type BreadcrumbItem } from '@/types';
+import { Form, Head } from '@inertiajs/react';
+import Box from '@mui/material/Box';
 import Fade from '@mui/material/Fade';
 import Typography from '@mui/material/Typography';
-import Box from '@mui/material/Box';
-import { Form, Head } from '@inertiajs/react';
 import { useRef } from 'react';
 
 import HeadingSmall from '@/components/heading-small';
@@ -57,7 +57,11 @@ export default function Password() {
                                 currentPasswordInput.current?.focus();
                             }
                         }}
-                        style={{ display: 'flex', flexDirection: 'column', gap: 24 }}
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: 24,
+                        }}
                     >
                         {({ errors, processing, recentlySuccessful }) => (
                             <>
@@ -115,7 +119,13 @@ export default function Password() {
                                     />
                                 </Box>
 
-                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                                <Box
+                                    sx={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 2,
+                                    }}
+                                >
                                     <Button
                                         type="submit"
                                         disabled={processing}
@@ -125,7 +135,10 @@ export default function Password() {
                                     </Button>
 
                                     <Fade in={recentlySuccessful}>
-                                        <Typography variant="body2" color="text.secondary">
+                                        <Typography
+                                            variant="body2"
+                                            color="text.secondary"
+                                        >
                                             Saved
                                         </Typography>
                                     </Fade>

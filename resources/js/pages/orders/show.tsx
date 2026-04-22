@@ -1,10 +1,5 @@
 import { Button } from '@/components/ui/button';
-import {
-    Card,
-    CardContent,
-    CardHeader,
-    CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
     Dialog,
     DialogContent,
@@ -127,7 +122,10 @@ export default function OrderShow({ order, allowedTransitions }: Props) {
     const breadcrumbs: BreadcrumbItem[] = [
         { title: 'Dashboard', href: '/dashboard' },
         { title: 'Orders', href: '/dashboard/orders' },
-        { title: `Order #${order.order_number}`, href: `/dashboard/orders/${order.id}` },
+        {
+            title: `Order #${order.order_number}`,
+            href: `/dashboard/orders/${order.id}`,
+        },
     ];
 
     const handleStatusAction = (status: string) => {
@@ -160,8 +158,14 @@ export default function OrderShow({ order, allowedTransitions }: Props) {
         );
     };
 
-    const statusColors = statusBadgeColors[order.status] || { bg: '#F3F4F6', text: '#374151' };
-    const paymentColors = paymentBadgeColors[order.payment_status] || { bg: '#F3F4F6', text: '#374151' };
+    const statusColors = statusBadgeColors[order.status] || {
+        bg: '#F3F4F6',
+        text: '#374151',
+    };
+    const paymentColors = paymentBadgeColors[order.payment_status] || {
+        bg: '#F3F4F6',
+        text: '#374151',
+    };
 
     const timelineEvents: { label: string; date: string | null }[] = [
         { label: 'Created', date: order.created_at },
@@ -176,16 +180,46 @@ export default function OrderShow({ order, allowedTransitions }: Props) {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={`Order #${order.order_number}`} />
-            <Box sx={{ display: 'flex', flex: 1, flexDirection: 'column', gap: 2, p: 2, height: '100%' }}>
+            <Box
+                sx={{
+                    display: 'flex',
+                    flex: 1,
+                    flexDirection: 'column',
+                    gap: 2,
+                    p: 2,
+                    height: '100%',
+                }}
+            >
                 {/* Header */}
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 1 }}>
+                <Box
+                    sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        flexWrap: 'wrap',
+                        gap: 1,
+                    }}
+                >
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                         <Button asChild variant="ghost" size="sm">
                             <Link href="/dashboard/orders">
-                                <ArrowLeft style={{ marginRight: 4, width: 16, height: 16 }} /> Back
+                                <ArrowLeft
+                                    style={{
+                                        marginRight: 4,
+                                        width: 16,
+                                        height: 16,
+                                    }}
+                                />{' '}
+                                Back
                             </Link>
                         </Button>
-                        <Typography sx={{ fontSize: '1.5rem', fontWeight: 700, fontFamily: 'monospace' }}>
+                        <Typography
+                            sx={{
+                                fontSize: '1.5rem',
+                                fontWeight: 700,
+                                fontFamily: 'monospace',
+                            }}
+                        >
                             #{order.order_number}
                         </Typography>
                         <Box
@@ -223,29 +257,62 @@ export default function OrderShow({ order, allowedTransitions }: Props) {
                         {allowedTransitions.map((status) => (
                             <Button
                                 key={status}
-                                variant={status === 'refunded' ? 'destructive' : 'outline'}
+                                variant={
+                                    status === 'refunded'
+                                        ? 'destructive'
+                                        : 'outline'
+                                }
                                 size="sm"
                                 onClick={() => handleStatusAction(status)}
                             >
-                                {statusActionLabels[status] || formatStatus(status)}
+                                {statusActionLabels[status] ||
+                                    formatStatus(status)}
                             </Button>
                         ))}
                     </Box>
                 </Box>
 
                 {/* Two-column grid */}
-                <Box sx={{ display: 'grid', gap: 2, gridTemplateColumns: { xs: '1fr', lg: '3fr 2fr' } }}>
+                <Box
+                    sx={{
+                        display: 'grid',
+                        gap: 2,
+                        gridTemplateColumns: { xs: '1fr', lg: '3fr 2fr' },
+                    }}
+                >
                     {/* Left column */}
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: 2,
+                        }}
+                    >
                         {/* Order Items */}
                         <Card>
                             <CardHeader>
-                                <CardTitle sx={{ display: 'flex', alignItems: 'center', gap: 1, fontSize: '1rem' }}>
-                                    <ShoppingCart style={{ width: 16, height: 16 }} /> Order Items ({order.items.length})
+                                <CardTitle
+                                    sx={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 1,
+                                        fontSize: '1rem',
+                                    }}
+                                >
+                                    <ShoppingCart
+                                        style={{ width: 16, height: 16 }}
+                                    />{' '}
+                                    Order Items ({order.items.length})
                                 </CardTitle>
                             </CardHeader>
                             <CardContent>
-                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                                <Box
+                                    sx={{
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        gap: 1.5,
+                                    }}
+                                >
                                     {order.items.map((item) => (
                                         <Box
                                             key={item.id}
@@ -281,23 +348,56 @@ export default function OrderShow({ order, allowedTransitions }: Props) {
                                                         bgcolor: 'action.hover',
                                                         display: 'flex',
                                                         alignItems: 'center',
-                                                        justifyContent: 'center',
+                                                        justifyContent:
+                                                            'center',
                                                         flexShrink: 0,
                                                     }}
                                                 >
-                                                    <Package style={{ width: 20, height: 20, color: 'var(--muted-foreground)' }} />
+                                                    <Package
+                                                        style={{
+                                                            width: 20,
+                                                            height: 20,
+                                                            color: 'var(--muted-foreground)',
+                                                        }}
+                                                    />
                                                 </Box>
                                             )}
                                             <Box sx={{ flex: 1, minWidth: 0 }}>
-                                                <Typography sx={{ fontSize: '0.875rem', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                                <Typography
+                                                    sx={{
+                                                        fontSize: '0.875rem',
+                                                        fontWeight: 500,
+                                                        overflow: 'hidden',
+                                                        textOverflow:
+                                                            'ellipsis',
+                                                        whiteSpace: 'nowrap',
+                                                    }}
+                                                >
                                                     {item.name}
                                                 </Typography>
-                                                <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
-                                                    {item.quantity} x GHS {parseFloat(item.unit_price).toFixed(2)}
+                                                <Typography
+                                                    sx={{
+                                                        fontSize: '0.75rem',
+                                                        color: 'text.secondary',
+                                                    }}
+                                                >
+                                                    {item.quantity} x GHS{' '}
+                                                    {parseFloat(
+                                                        item.unit_price,
+                                                    ).toFixed(2)}
                                                 </Typography>
                                             </Box>
-                                            <Typography sx={{ fontSize: '0.875rem', fontWeight: 500, flexShrink: 0 }}>
-                                                GHS {parseFloat(item.subtotal).toFixed(2)}
+                                            <Typography
+                                                sx={{
+                                                    fontSize: '0.875rem',
+                                                    fontWeight: 500,
+                                                    flexShrink: 0,
+                                                }}
+                                            >
+                                                GHS{' '}
+                                                {parseFloat(
+                                                    item.subtotal,
+                                                ).toFixed(2)}
                                             </Typography>
                                         </Box>
                                     ))}
@@ -308,32 +408,117 @@ export default function OrderShow({ order, allowedTransitions }: Props) {
                         {/* Financial Summary */}
                         <Card>
                             <CardHeader>
-                                <CardTitle sx={{ fontSize: '1rem' }}>Financial Summary</CardTitle>
+                                <CardTitle sx={{ fontSize: '1rem' }}>
+                                    Financial Summary
+                                </CardTitle>
                             </CardHeader>
                             <CardContent>
-                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem' }}>
-                                        <Typography sx={{ color: 'text.secondary' }}>Subtotal</Typography>
-                                        <Typography>GHS {parseFloat(order.subtotal).toFixed(2)}</Typography>
+                                <Box
+                                    sx={{
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        gap: 1,
+                                    }}
+                                >
+                                    <Box
+                                        sx={{
+                                            display: 'flex',
+                                            justifyContent: 'space-between',
+                                            fontSize: '0.875rem',
+                                        }}
+                                    >
+                                        <Typography
+                                            sx={{ color: 'text.secondary' }}
+                                        >
+                                            Subtotal
+                                        </Typography>
+                                        <Typography>
+                                            GHS{' '}
+                                            {parseFloat(order.subtotal).toFixed(
+                                                2,
+                                            )}
+                                        </Typography>
                                     </Box>
                                     {parseFloat(order.discount_amount) > 0 && (
-                                        <Box sx={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem' }}>
-                                            <Typography sx={{ color: 'text.secondary' }}>Discount</Typography>
-                                            <Typography sx={{ color: 'error.main' }}>-GHS {parseFloat(order.discount_amount).toFixed(2)}</Typography>
+                                        <Box
+                                            sx={{
+                                                display: 'flex',
+                                                justifyContent: 'space-between',
+                                                fontSize: '0.875rem',
+                                            }}
+                                        >
+                                            <Typography
+                                                sx={{ color: 'text.secondary' }}
+                                            >
+                                                Discount
+                                            </Typography>
+                                            <Typography
+                                                sx={{ color: 'error.main' }}
+                                            >
+                                                -GHS{' '}
+                                                {parseFloat(
+                                                    order.discount_amount,
+                                                ).toFixed(2)}
+                                            </Typography>
                                         </Box>
                                     )}
-                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem' }}>
-                                        <Typography sx={{ color: 'text.secondary' }}>Delivery Fee</Typography>
-                                        <Typography>GHS {parseFloat(order.delivery_fee).toFixed(2)}</Typography>
+                                    <Box
+                                        sx={{
+                                            display: 'flex',
+                                            justifyContent: 'space-between',
+                                            fontSize: '0.875rem',
+                                        }}
+                                    >
+                                        <Typography
+                                            sx={{ color: 'text.secondary' }}
+                                        >
+                                            Delivery Fee
+                                        </Typography>
+                                        <Typography>
+                                            GHS{' '}
+                                            {parseFloat(
+                                                order.delivery_fee,
+                                            ).toFixed(2)}
+                                        </Typography>
                                     </Box>
-                                    <Box sx={{ borderTop: 1, borderColor: 'divider', pt: 1, display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem' }}>
-                                        <Typography sx={{ fontWeight: 600 }}>Total</Typography>
-                                        <Typography sx={{ fontWeight: 600 }}>GHS {parseFloat(order.total).toFixed(2)}</Typography>
+                                    <Box
+                                        sx={{
+                                            borderTop: 1,
+                                            borderColor: 'divider',
+                                            pt: 1,
+                                            display: 'flex',
+                                            justifyContent: 'space-between',
+                                            fontSize: '0.875rem',
+                                        }}
+                                    >
+                                        <Typography sx={{ fontWeight: 600 }}>
+                                            Total
+                                        </Typography>
+                                        <Typography sx={{ fontWeight: 600 }}>
+                                            GHS{' '}
+                                            {parseFloat(order.total).toFixed(2)}
+                                        </Typography>
                                     </Box>
                                     {commissionAmount > 0 && (
-                                        <Box sx={{ borderTop: 1, borderColor: 'divider', pt: 1, display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem' }}>
-                                            <Typography sx={{ color: 'text.secondary' }}>Platform Commission</Typography>
-                                            <Typography>GHS {commissionAmount.toFixed(2)}</Typography>
+                                        <Box
+                                            sx={{
+                                                borderTop: 1,
+                                                borderColor: 'divider',
+                                                pt: 1,
+                                                display: 'flex',
+                                                justifyContent: 'space-between',
+                                                fontSize: '0.875rem',
+                                            }}
+                                        >
+                                            <Typography
+                                                sx={{ color: 'text.secondary' }}
+                                            >
+                                                Platform Commission
+                                            </Typography>
+                                            <Typography>
+                                                GHS{' '}
+                                                {commissionAmount.toFixed(2)}
+                                            </Typography>
                                         </Box>
                                     )}
                                 </Box>
@@ -342,20 +527,63 @@ export default function OrderShow({ order, allowedTransitions }: Props) {
                     </Box>
 
                     {/* Right column */}
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: 2,
+                        }}
+                    >
                         {/* Customer */}
                         {order.customer && (
                             <Card>
                                 <CardHeader>
-                                    <CardTitle sx={{ display: 'flex', alignItems: 'center', gap: 1, fontSize: '1rem' }}>
-                                        <UserIcon style={{ width: 16, height: 16 }} /> Customer
+                                    <CardTitle
+                                        sx={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: 1,
+                                            fontSize: '1rem',
+                                        }}
+                                    >
+                                        <UserIcon
+                                            style={{ width: 16, height: 16 }}
+                                        />{' '}
+                                        Customer
                                     </CardTitle>
                                 </CardHeader>
-                                <CardContent sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                                    <Typography sx={{ fontSize: '0.875rem', fontWeight: 500 }}>{order.customer.name}</Typography>
-                                    <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>{order.customer.email}</Typography>
+                                <CardContent
+                                    sx={{
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        gap: 0.5,
+                                    }}
+                                >
+                                    <Typography
+                                        sx={{
+                                            fontSize: '0.875rem',
+                                            fontWeight: 500,
+                                        }}
+                                    >
+                                        {order.customer.name}
+                                    </Typography>
+                                    <Typography
+                                        sx={{
+                                            fontSize: '0.875rem',
+                                            color: 'text.secondary',
+                                        }}
+                                    >
+                                        {order.customer.email}
+                                    </Typography>
                                     {order.customer.phone && (
-                                        <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>{order.customer.phone}</Typography>
+                                        <Typography
+                                            sx={{
+                                                fontSize: '0.875rem',
+                                                color: 'text.secondary',
+                                            }}
+                                        >
+                                            {order.customer.phone}
+                                        </Typography>
                                     )}
                                 </CardContent>
                             </Card>
@@ -365,13 +593,43 @@ export default function OrderShow({ order, allowedTransitions }: Props) {
                         {order.vendor && (
                             <Card>
                                 <CardHeader>
-                                    <CardTitle sx={{ display: 'flex', alignItems: 'center', gap: 1, fontSize: '1rem' }}>
-                                        <Store style={{ width: 16, height: 16 }} /> Vendor
+                                    <CardTitle
+                                        sx={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: 1,
+                                            fontSize: '1rem',
+                                        }}
+                                    >
+                                        <Store
+                                            style={{ width: 16, height: 16 }}
+                                        />{' '}
+                                        Vendor
                                     </CardTitle>
                                 </CardHeader>
-                                <CardContent sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                                    <Typography sx={{ fontSize: '0.875rem', fontWeight: 500 }}>{order.vendor.name}</Typography>
-                                    <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>{order.vendor.email}</Typography>
+                                <CardContent
+                                    sx={{
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        gap: 0.5,
+                                    }}
+                                >
+                                    <Typography
+                                        sx={{
+                                            fontSize: '0.875rem',
+                                            fontWeight: 500,
+                                        }}
+                                    >
+                                        {order.vendor.name}
+                                    </Typography>
+                                    <Typography
+                                        sx={{
+                                            fontSize: '0.875rem',
+                                            color: 'text.secondary',
+                                        }}
+                                    >
+                                        {order.vendor.email}
+                                    </Typography>
                                 </CardContent>
                             </Card>
                         )}
@@ -379,47 +637,123 @@ export default function OrderShow({ order, allowedTransitions }: Props) {
                         {/* Delivery Details */}
                         <Card>
                             <CardHeader>
-                                <CardTitle sx={{ display: 'flex', alignItems: 'center', gap: 1, fontSize: '1rem' }}>
-                                    <MapPin style={{ width: 16, height: 16 }} /> Delivery Details
+                                <CardTitle
+                                    sx={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 1,
+                                        fontSize: '1rem',
+                                    }}
+                                >
+                                    <MapPin style={{ width: 16, height: 16 }} />{' '}
+                                    Delivery Details
                                 </CardTitle>
                             </CardHeader>
-                            <CardContent sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                            <CardContent
+                                sx={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    gap: 1,
+                                }}
+                            >
                                 {order.receiver_name && (
                                     <Box>
-                                        <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary', fontWeight: 500 }}>Receiver</Typography>
-                                        <Typography sx={{ fontSize: '0.875rem' }}>{order.receiver_name}</Typography>
+                                        <Typography
+                                            sx={{
+                                                fontSize: '0.75rem',
+                                                color: 'text.secondary',
+                                                fontWeight: 500,
+                                            }}
+                                        >
+                                            Receiver
+                                        </Typography>
+                                        <Typography
+                                            sx={{ fontSize: '0.875rem' }}
+                                        >
+                                            {order.receiver_name}
+                                        </Typography>
                                     </Box>
                                 )}
                                 {order.receiver_phone && (
                                     <Box>
-                                        <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary', fontWeight: 500 }}>Phone</Typography>
-                                        <Typography sx={{ fontSize: '0.875rem' }}>{order.receiver_phone}</Typography>
+                                        <Typography
+                                            sx={{
+                                                fontSize: '0.75rem',
+                                                color: 'text.secondary',
+                                                fontWeight: 500,
+                                            }}
+                                        >
+                                            Phone
+                                        </Typography>
+                                        <Typography
+                                            sx={{ fontSize: '0.875rem' }}
+                                        >
+                                            {order.receiver_phone}
+                                        </Typography>
                                     </Box>
                                 )}
                                 {order.delivery_address && (
                                     <Box>
-                                        <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary', fontWeight: 500 }}>Address</Typography>
-                                        <Typography sx={{ fontSize: '0.875rem' }}>
+                                        <Typography
+                                            sx={{
+                                                fontSize: '0.75rem',
+                                                color: 'text.secondary',
+                                                fontWeight: 500,
+                                            }}
+                                        >
+                                            Address
+                                        </Typography>
+                                        <Typography
+                                            sx={{ fontSize: '0.875rem' }}
+                                        >
                                             {[
-                                                order.delivery_address.address_line_1,
+                                                order.delivery_address
+                                                    .address_line_1,
                                                 order.delivery_address.city,
                                                 order.delivery_address.state,
-                                                order.delivery_address.postal_code,
+                                                order.delivery_address
+                                                    .postal_code,
                                                 order.delivery_address.country,
-                                            ].filter(Boolean).join(', ')}
+                                            ]
+                                                .filter(Boolean)
+                                                .join(', ')}
                                         </Typography>
                                     </Box>
                                 )}
                                 {order.special_instructions && (
                                     <Box>
-                                        <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary', fontWeight: 500 }}>Special Instructions</Typography>
-                                        <Typography sx={{ fontSize: '0.875rem' }}>{order.special_instructions}</Typography>
+                                        <Typography
+                                            sx={{
+                                                fontSize: '0.75rem',
+                                                color: 'text.secondary',
+                                                fontWeight: 500,
+                                            }}
+                                        >
+                                            Special Instructions
+                                        </Typography>
+                                        <Typography
+                                            sx={{ fontSize: '0.875rem' }}
+                                        >
+                                            {order.special_instructions}
+                                        </Typography>
                                     </Box>
                                 )}
                                 {order.occasion && (
                                     <Box>
-                                        <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary', fontWeight: 500 }}>Occasion</Typography>
-                                        <Typography sx={{ fontSize: '0.875rem' }}>{formatStatus(order.occasion)}</Typography>
+                                        <Typography
+                                            sx={{
+                                                fontSize: '0.75rem',
+                                                color: 'text.secondary',
+                                                fontWeight: 500,
+                                            }}
+                                        >
+                                            Occasion
+                                        </Typography>
+                                        <Typography
+                                            sx={{ fontSize: '0.875rem' }}
+                                        >
+                                            {formatStatus(order.occasion)}
+                                        </Typography>
                                     </Box>
                                 )}
                             </CardContent>
@@ -429,36 +763,116 @@ export default function OrderShow({ order, allowedTransitions }: Props) {
                         {order.payment && (
                             <Card>
                                 <CardHeader>
-                                    <CardTitle sx={{ display: 'flex', alignItems: 'center', gap: 1, fontSize: '1rem' }}>
-                                        <CreditCard style={{ width: 16, height: 16 }} /> Payment
+                                    <CardTitle
+                                        sx={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: 1,
+                                            fontSize: '1rem',
+                                        }}
+                                    >
+                                        <CreditCard
+                                            style={{ width: 16, height: 16 }}
+                                        />{' '}
+                                        Payment
                                     </CardTitle>
                                 </CardHeader>
-                                <CardContent sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                <CardContent
+                                    sx={{
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        gap: 1,
+                                    }}
+                                >
                                     <Box>
-                                        <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary', fontWeight: 500 }}>Reference</Typography>
-                                        <Typography sx={{ fontSize: '0.875rem', fontFamily: 'monospace' }}>{order.payment.reference}</Typography>
+                                        <Typography
+                                            sx={{
+                                                fontSize: '0.75rem',
+                                                color: 'text.secondary',
+                                                fontWeight: 500,
+                                            }}
+                                        >
+                                            Reference
+                                        </Typography>
+                                        <Typography
+                                            sx={{
+                                                fontSize: '0.875rem',
+                                                fontFamily: 'monospace',
+                                            }}
+                                        >
+                                            {order.payment.reference}
+                                        </Typography>
                                     </Box>
                                     <Box>
-                                        <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary', fontWeight: 500 }}>Status</Typography>
-                                        <Typography sx={{ fontSize: '0.875rem' }}>{formatStatus(order.payment.status)}</Typography>
+                                        <Typography
+                                            sx={{
+                                                fontSize: '0.75rem',
+                                                color: 'text.secondary',
+                                                fontWeight: 500,
+                                            }}
+                                        >
+                                            Status
+                                        </Typography>
+                                        <Typography
+                                            sx={{ fontSize: '0.875rem' }}
+                                        >
+                                            {formatStatus(order.payment.status)}
+                                        </Typography>
                                     </Box>
                                     {order.payment.channel && (
                                         <Box>
-                                            <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary', fontWeight: 500 }}>Channel</Typography>
-                                            <Typography sx={{ fontSize: '0.875rem' }}>{order.payment.channel}</Typography>
+                                            <Typography
+                                                sx={{
+                                                    fontSize: '0.75rem',
+                                                    color: 'text.secondary',
+                                                    fontWeight: 500,
+                                                }}
+                                            >
+                                                Channel
+                                            </Typography>
+                                            <Typography
+                                                sx={{ fontSize: '0.875rem' }}
+                                            >
+                                                {order.payment.channel}
+                                            </Typography>
                                         </Box>
                                     )}
                                     <Box>
-                                        <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary', fontWeight: 500 }}>Amount</Typography>
-                                        <Typography sx={{ fontSize: '0.875rem' }}>
-                                            {order.payment.currency} {parseFloat(order.payment.amount).toFixed(2)}
+                                        <Typography
+                                            sx={{
+                                                fontSize: '0.75rem',
+                                                color: 'text.secondary',
+                                                fontWeight: 500,
+                                            }}
+                                        >
+                                            Amount
+                                        </Typography>
+                                        <Typography
+                                            sx={{ fontSize: '0.875rem' }}
+                                        >
+                                            {order.payment.currency}{' '}
+                                            {parseFloat(
+                                                order.payment.amount,
+                                            ).toFixed(2)}
                                         </Typography>
                                     </Box>
                                     {order.payment.paid_at && (
                                         <Box>
-                                            <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary', fontWeight: 500 }}>Paid At</Typography>
-                                            <Typography sx={{ fontSize: '0.875rem' }}>
-                                                {new Date(order.payment.paid_at).toLocaleString()}
+                                            <Typography
+                                                sx={{
+                                                    fontSize: '0.75rem',
+                                                    color: 'text.secondary',
+                                                    fontWeight: 500,
+                                                }}
+                                            >
+                                                Paid At
+                                            </Typography>
+                                            <Typography
+                                                sx={{ fontSize: '0.875rem' }}
+                                            >
+                                                {new Date(
+                                                    order.payment.paid_at,
+                                                ).toLocaleString()}
                                             </Typography>
                                         </Box>
                                     )}
@@ -470,14 +884,37 @@ export default function OrderShow({ order, allowedTransitions }: Props) {
                         {timelineEvents.length > 0 && (
                             <Card>
                                 <CardHeader>
-                                    <CardTitle sx={{ display: 'flex', alignItems: 'center', gap: 1, fontSize: '1rem' }}>
-                                        <Calendar style={{ width: 16, height: 16 }} /> Timeline
+                                    <CardTitle
+                                        sx={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: 1,
+                                            fontSize: '1rem',
+                                        }}
+                                    >
+                                        <Calendar
+                                            style={{ width: 16, height: 16 }}
+                                        />{' '}
+                                        Timeline
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent>
-                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                                    <Box
+                                        sx={{
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            gap: 1.5,
+                                        }}
+                                    >
                                         {timelineEvents.map((event) => (
-                                            <Box key={event.label} sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                                            <Box
+                                                key={event.label}
+                                                sx={{
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: 1.5,
+                                                }}
+                                            >
                                                 <Box
                                                     sx={{
                                                         width: 8,
@@ -488,11 +925,24 @@ export default function OrderShow({ order, allowedTransitions }: Props) {
                                                     }}
                                                 />
                                                 <Box sx={{ flex: 1 }}>
-                                                    <Typography sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                                                    <Typography
+                                                        sx={{
+                                                            fontSize:
+                                                                '0.875rem',
+                                                            fontWeight: 500,
+                                                        }}
+                                                    >
                                                         {event.label}
                                                     </Typography>
-                                                    <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
-                                                        {new Date(event.date!).toLocaleString()}
+                                                    <Typography
+                                                        sx={{
+                                                            fontSize: '0.75rem',
+                                                            color: 'text.secondary',
+                                                        }}
+                                                    >
+                                                        {new Date(
+                                                            event.date!,
+                                                        ).toLocaleString()}
                                                     </Typography>
                                                 </Box>
                                             </Box>
@@ -505,20 +955,28 @@ export default function OrderShow({ order, allowedTransitions }: Props) {
                 </Box>
 
                 {/* Status Update Confirmation Dialog */}
-                <Dialog open={confirmDialogOpen} onOpenChange={(open) => {
-                    if (!open) {
-                        setConfirmDialogOpen(false);
-                        setPendingStatus(null);
-                    }
-                }}>
+                <Dialog
+                    open={confirmDialogOpen}
+                    onOpenChange={(open) => {
+                        if (!open) {
+                            setConfirmDialogOpen(false);
+                            setPendingStatus(null);
+                        }
+                    }}
+                >
                     <DialogContent>
                         <DialogHeader>
                             <DialogTitle>Confirm Status Update</DialogTitle>
                             <DialogDescription>
-                                Are you sure you want to update the order status from{' '}
+                                Are you sure you want to update the order status
+                                from{' '}
                                 <strong>{formatStatus(order.status)}</strong> to{' '}
-                                <strong>{pendingStatus ? formatStatus(pendingStatus) : ''}</strong>?
-                                This action cannot be undone.
+                                <strong>
+                                    {pendingStatus
+                                        ? formatStatus(pendingStatus)
+                                        : ''}
+                                </strong>
+                                ? This action cannot be undone.
                             </DialogDescription>
                         </DialogHeader>
                         <DialogFooter>
@@ -533,7 +991,11 @@ export default function OrderShow({ order, allowedTransitions }: Props) {
                                 Cancel
                             </Button>
                             <Button
-                                variant={pendingStatus === 'refunded' ? 'destructive' : 'default'}
+                                variant={
+                                    pendingStatus === 'refunded'
+                                        ? 'destructive'
+                                        : 'default'
+                                }
                                 onClick={confirmStatusUpdate}
                                 disabled={isUpdating}
                             >

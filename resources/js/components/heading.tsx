@@ -9,8 +9,14 @@ export default function Heading({
     description?: string;
 }) {
     return (
-        <Box sx={{ mb: 4, display: 'flex', flexDirection: 'column', gap: 0.25 }}>
-            <Typography variant="h5" fontWeight={600} sx={{ letterSpacing: '-0.01em' }}>
+        <Box
+            sx={{ mb: 4, display: 'flex', flexDirection: 'column', gap: 0.25 }}
+        >
+            <Typography
+                variant="h5"
+                fontWeight={600}
+                sx={{ letterSpacing: '-0.01em' }}
+            >
                 {title}
             </Typography>
             {description && (

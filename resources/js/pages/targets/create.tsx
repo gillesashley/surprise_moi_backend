@@ -47,11 +47,32 @@ export default function TargetCreate({
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Create Target" />
-            <Box sx={{ display: 'flex', height: '100%', flex: 1, flexDirection: 'column', gap: 2, p: 2 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <Box
+                sx={{
+                    display: 'flex',
+                    height: '100%',
+                    flex: 1,
+                    flexDirection: 'column',
+                    gap: 2,
+                    p: 2,
+                }}
+            >
+                <Box
+                    sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                    }}
+                >
                     <Button variant="ghost" size="sm" asChild>
                         <Link href="/targets">
-                            <ArrowLeft style={{ marginRight: 8, width: 16, height: 16 }} />
+                            <ArrowLeft
+                                style={{
+                                    marginRight: 8,
+                                    width: 16,
+                                    height: 16,
+                                }}
+                            />
                             Back to Targets
                         </Link>
                     </Button>
@@ -67,8 +88,20 @@ export default function TargetCreate({
                     <CardContent>
                         <Form action="/targets" method="post" resetOnSuccess>
                             {({ errors, processing }) => (
-                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                <Box
+                                    sx={{
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        gap: 2,
+                                    }}
+                                >
+                                    <Box
+                                        sx={{
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            gap: 1,
+                                        }}
+                                    >
                                         <Label htmlFor="user_id">
                                             Assign To
                                         </Label>
@@ -87,9 +120,19 @@ export default function TargetCreate({
                                                 bgcolor: 'background.paper',
                                                 px: 1.5,
                                                 py: 1,
-                                                fontSize: { xs: '1rem', md: '0.875rem' },
-                                                '&:focus-visible': { outline: 'none', ring: 2, ringColor: 'primary.main' },
-                                                '&:disabled': { cursor: 'not-allowed', opacity: 0.5 },
+                                                fontSize: {
+                                                    xs: '1rem',
+                                                    md: '0.875rem',
+                                                },
+                                                '&:focus-visible': {
+                                                    outline: 'none',
+                                                    ring: 2,
+                                                    ringColor: 'primary.main',
+                                                },
+                                                '&:disabled': {
+                                                    cursor: 'not-allowed',
+                                                    opacity: 0.5,
+                                                },
                                             }}
                                         >
                                             <option value="">
@@ -106,13 +149,24 @@ export default function TargetCreate({
                                             ))}
                                         </Box>
                                         {errors.user_id && (
-                                            <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
+                                            <Typography
+                                                sx={{
+                                                    fontSize: '0.875rem',
+                                                    color: 'error.main',
+                                                }}
+                                            >
                                                 {errors.user_id}
                                             </Typography>
                                         )}
                                     </Box>
 
-                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                    <Box
+                                        sx={{
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            gap: 1,
+                                        }}
+                                    >
                                         <Label htmlFor="target_type">
                                             Target Type
                                         </Label>
@@ -131,9 +185,19 @@ export default function TargetCreate({
                                                 bgcolor: 'background.paper',
                                                 px: 1.5,
                                                 py: 1,
-                                                fontSize: { xs: '1rem', md: '0.875rem' },
-                                                '&:focus-visible': { outline: 'none', ring: 2, ringColor: 'primary.main' },
-                                                '&:disabled': { cursor: 'not-allowed', opacity: 0.5 },
+                                                fontSize: {
+                                                    xs: '1rem',
+                                                    md: '0.875rem',
+                                                },
+                                                '&:focus-visible': {
+                                                    outline: 'none',
+                                                    ring: 2,
+                                                    ringColor: 'primary.main',
+                                                },
+                                                '&:disabled': {
+                                                    cursor: 'not-allowed',
+                                                    opacity: 0.5,
+                                                },
                                             }}
                                         >
                                             <option value="">
@@ -151,14 +215,34 @@ export default function TargetCreate({
                                             )}
                                         </Box>
                                         {errors.target_type && (
-                                            <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
+                                            <Typography
+                                                sx={{
+                                                    fontSize: '0.875rem',
+                                                    color: 'error.main',
+                                                }}
+                                            >
                                                 {errors.target_type}
                                             </Typography>
                                         )}
                                     </Box>
 
-                                    <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' }, gap: 2 }}>
-                                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                    <Box
+                                        sx={{
+                                            display: 'grid',
+                                            gridTemplateColumns: {
+                                                xs: '1fr',
+                                                md: 'repeat(2, 1fr)',
+                                            },
+                                            gap: 2,
+                                        }}
+                                    >
+                                        <Box
+                                            sx={{
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                gap: 1,
+                                            }}
+                                        >
                                             <Label htmlFor="target_value">
                                                 Target Value
                                             </Label>
@@ -171,13 +255,24 @@ export default function TargetCreate({
                                                 placeholder="e.g., 10 or 10000"
                                             />
                                             {errors.target_value && (
-                                                <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
+                                                <Typography
+                                                    sx={{
+                                                        fontSize: '0.875rem',
+                                                        color: 'error.main',
+                                                    }}
+                                                >
                                                     {errors.target_value}
                                                 </Typography>
                                             )}
                                         </Box>
 
-                                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                        <Box
+                                            sx={{
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                gap: 1,
+                                            }}
+                                        >
                                             <Label htmlFor="bonus_amount">
                                                 Bonus Amount (GH₵)
                                             </Label>
@@ -190,14 +285,25 @@ export default function TargetCreate({
                                                 placeholder="e.g., 500"
                                             />
                                             {errors.bonus_amount && (
-                                                <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
+                                                <Typography
+                                                    sx={{
+                                                        fontSize: '0.875rem',
+                                                        color: 'error.main',
+                                                    }}
+                                                >
                                                     {errors.bonus_amount}
                                                 </Typography>
                                             )}
                                         </Box>
                                     </Box>
 
-                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                    <Box
+                                        sx={{
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            gap: 1,
+                                        }}
+                                    >
                                         <Label htmlFor="overachievement_rate">
                                             Overachievement Rate (%)
                                         </Label>
@@ -210,18 +316,34 @@ export default function TargetCreate({
                                             max="100"
                                             placeholder="e.g., 10"
                                         />
-                                        <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
+                                        <Typography
+                                            sx={{
+                                                fontSize: '0.875rem',
+                                                color: 'text.secondary',
+                                            }}
+                                        >
                                             Additional bonus percentage for
                                             exceeding the target
                                         </Typography>
                                         {errors.overachievement_rate && (
-                                            <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
+                                            <Typography
+                                                sx={{
+                                                    fontSize: '0.875rem',
+                                                    color: 'error.main',
+                                                }}
+                                            >
                                                 {errors.overachievement_rate}
                                             </Typography>
                                         )}
                                     </Box>
 
-                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                    <Box
+                                        sx={{
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            gap: 1,
+                                        }}
+                                    >
                                         <Label htmlFor="period_type">
                                             Period Type
                                         </Label>
@@ -240,9 +362,19 @@ export default function TargetCreate({
                                                 bgcolor: 'background.paper',
                                                 px: 1.5,
                                                 py: 1,
-                                                fontSize: { xs: '1rem', md: '0.875rem' },
-                                                '&:focus-visible': { outline: 'none', ring: 2, ringColor: 'primary.main' },
-                                                '&:disabled': { cursor: 'not-allowed', opacity: 0.5 },
+                                                fontSize: {
+                                                    xs: '1rem',
+                                                    md: '0.875rem',
+                                                },
+                                                '&:focus-visible': {
+                                                    outline: 'none',
+                                                    ring: 2,
+                                                    ringColor: 'primary.main',
+                                                },
+                                                '&:disabled': {
+                                                    cursor: 'not-allowed',
+                                                    opacity: 0.5,
+                                                },
                                             }}
                                         >
                                             <option value="">
@@ -261,14 +393,34 @@ export default function TargetCreate({
                                             ))}
                                         </Box>
                                         {errors.period_type && (
-                                            <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
+                                            <Typography
+                                                sx={{
+                                                    fontSize: '0.875rem',
+                                                    color: 'error.main',
+                                                }}
+                                            >
                                                 {errors.period_type}
                                             </Typography>
                                         )}
                                     </Box>
 
-                                    <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' }, gap: 2 }}>
-                                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                    <Box
+                                        sx={{
+                                            display: 'grid',
+                                            gridTemplateColumns: {
+                                                xs: '1fr',
+                                                md: 'repeat(2, 1fr)',
+                                            },
+                                            gap: 2,
+                                        }}
+                                    >
+                                        <Box
+                                            sx={{
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                gap: 1,
+                                            }}
+                                        >
                                             <Label htmlFor="start_date">
                                                 Start Date
                                             </Label>
@@ -279,13 +431,24 @@ export default function TargetCreate({
                                                 required
                                             />
                                             {errors.start_date && (
-                                                <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
+                                                <Typography
+                                                    sx={{
+                                                        fontSize: '0.875rem',
+                                                        color: 'error.main',
+                                                    }}
+                                                >
                                                     {errors.start_date}
                                                 </Typography>
                                             )}
                                         </Box>
 
-                                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                        <Box
+                                            sx={{
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                gap: 1,
+                                            }}
+                                        >
                                             <Label htmlFor="end_date">
                                                 End Date
                                             </Label>
@@ -296,14 +459,25 @@ export default function TargetCreate({
                                                 required
                                             />
                                             {errors.end_date && (
-                                                <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
+                                                <Typography
+                                                    sx={{
+                                                        fontSize: '0.875rem',
+                                                        color: 'error.main',
+                                                    }}
+                                                >
                                                     {errors.end_date}
                                                 </Typography>
                                             )}
                                         </Box>
                                     </Box>
 
-                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                    <Box
+                                        sx={{
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            gap: 1,
+                                        }}
+                                    >
                                         <Label htmlFor="notes">
                                             Notes (Optional)
                                         </Label>
@@ -322,13 +496,28 @@ export default function TargetCreate({
                                                 bgcolor: 'background.paper',
                                                 px: 1.5,
                                                 py: 1,
-                                                fontSize: { xs: '1rem', md: '0.875rem' },
-                                                '&:focus-visible': { outline: 'none', ring: 2, ringColor: 'primary.main' },
-                                                '&:disabled': { cursor: 'not-allowed', opacity: 0.5 },
+                                                fontSize: {
+                                                    xs: '1rem',
+                                                    md: '0.875rem',
+                                                },
+                                                '&:focus-visible': {
+                                                    outline: 'none',
+                                                    ring: 2,
+                                                    ringColor: 'primary.main',
+                                                },
+                                                '&:disabled': {
+                                                    cursor: 'not-allowed',
+                                                    opacity: 0.5,
+                                                },
                                             }}
                                         />
                                         {errors.notes && (
-                                            <Typography sx={{ fontSize: '0.875rem', color: 'error.main' }}>
+                                            <Typography
+                                                sx={{
+                                                    fontSize: '0.875rem',
+                                                    color: 'error.main',
+                                                }}
+                                            >
                                                 {errors.notes}
                                             </Typography>
                                         )}

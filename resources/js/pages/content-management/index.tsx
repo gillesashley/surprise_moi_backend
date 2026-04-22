@@ -15,9 +15,9 @@ import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
+import { Head, router, usePage } from '@inertiajs/react';
 import Box from '@mui/material/Box';
 import InputAdornment from '@mui/material/InputAdornment';
-import { Head, router, usePage } from '@inertiajs/react';
 import { FolderKanban, Heart, Music, Search, Sparkles } from 'lucide-react';
 import * as React from 'react';
 import { toast } from 'sonner';
@@ -115,7 +115,8 @@ export default function ContentManagementIndex({
         React.useState<Category | null>(null);
     const [currentTab, setCurrentTab] = React.useState(activeTab);
     const [searchTerm, setSearchTerm] = React.useState(initialSearch);
-    const { flash } = usePage<{ flash: { success?: string; error?: string } }>().props;
+    const { flash } = usePage<{ flash: { success?: string; error?: string } }>()
+        .props;
 
     React.useEffect(() => {
         if (flash?.success) {
@@ -129,13 +130,17 @@ export default function ContentManagementIndex({
     React.useEffect(() => {
         const delay = setTimeout(() => {
             if (searchTerm !== initialSearch) {
-                router.get('/dashboard/content-management', {
-                    tab: currentTab,
-                    ...(searchTerm ? { search: searchTerm } : {}),
-                }, {
-                    preserveState: true,
-                    preserveScroll: true,
-                });
+                router.get(
+                    '/dashboard/content-management',
+                    {
+                        tab: currentTab,
+                        ...(searchTerm ? { search: searchTerm } : {}),
+                    },
+                    {
+                        preserveState: true,
+                        preserveScroll: true,
+                    },
+                );
             }
         }, 300);
         return () => clearTimeout(delay);
@@ -148,7 +153,11 @@ export default function ContentManagementIndex({
         if (searchTerm) {
             params.set('search', searchTerm);
         }
-        window.history.replaceState({}, '', `/dashboard/content-management?${params.toString()}`);
+        window.history.replaceState(
+            {},
+            '',
+            `/dashboard/content-management?${params.toString()}`,
+        );
     };
 
     const iconStyle = { width: 16, height: 16 };
@@ -156,24 +165,50 @@ export default function ContentManagementIndex({
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Content Management" />
-            <Box sx={{ display: 'flex', flex: 1, flexDirection: 'column', gap: 2, p: 2 }}>
+            <Box
+                sx={{
+                    display: 'flex',
+                    flex: 1,
+                    flexDirection: 'column',
+                    gap: 2,
+                    p: 2,
+                }}
+            >
                 <Card>
                     <CardHeader>
-                        <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 2, flexWrap: 'wrap' }}>
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                alignItems: 'flex-start',
+                                justifyContent: 'space-between',
+                                gap: 2,
+                                flexWrap: 'wrap',
+                            }}
+                        >
                             <Box>
                                 <CardTitle>Content Management</CardTitle>
                                 <CardDescription>
-                                    Manage categories, interests, personality traits,
-                                    music genres, and bespoke services
+                                    Manage categories, interests, personality
+                                    traits, music genres, and bespoke services
                                 </CardDescription>
                             </Box>
                             <Input
                                 placeholder="Search by name..."
                                 value={searchTerm}
-                                onChange={(e) => setSearchTerm((e.target as HTMLInputElement).value)}
+                                onChange={(e) =>
+                                    setSearchTerm(
+                                        (e.target as HTMLInputElement).value,
+                                    )
+                                }
                                 startAdornment={
                                     <InputAdornment position="start">
-                                        <Search style={{ width: 16, height: 16, color: '#9e9e9e' }} />
+                                        <Search
+                                            style={{
+                                                width: 16,
+                                                height: 16,
+                                                color: '#9e9e9e',
+                                            }}
+                                        />
                                     </InputAdornment>
                                 }
                                 style={{ maxWidth: 300 }}
@@ -185,49 +220,115 @@ export default function ContentManagementIndex({
                             value={currentTab}
                             onValueChange={handleTabChange}
                         >
-                            <TabsList style={{ display: 'grid', width: '100%', gridTemplateColumns: 'repeat(5, 1fr)' }}>
+                            <TabsList
+                                style={{
+                                    display: 'grid',
+                                    width: '100%',
+                                    gridTemplateColumns: 'repeat(5, 1fr)',
+                                }}
+                            >
                                 <TabsTrigger
                                     value="categories"
-                                    style={{ display: 'flex', alignItems: 'center', gap: 8 }}
+                                    style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 8,
+                                    }}
                                 >
                                     <FolderKanban style={iconStyle} />
-                                    <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
+                                    <Box
+                                        component="span"
+                                        sx={{
+                                            display: {
+                                                xs: 'none',
+                                                sm: 'inline',
+                                            },
+                                        }}
+                                    >
                                         Categories
                                     </Box>
                                 </TabsTrigger>
                                 <TabsTrigger
                                     value="interests"
-                                    style={{ display: 'flex', alignItems: 'center', gap: 8 }}
+                                    style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 8,
+                                    }}
                                 >
                                     <Heart style={iconStyle} />
-                                    <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
+                                    <Box
+                                        component="span"
+                                        sx={{
+                                            display: {
+                                                xs: 'none',
+                                                sm: 'inline',
+                                            },
+                                        }}
+                                    >
                                         Interests
                                     </Box>
                                 </TabsTrigger>
                                 <TabsTrigger
                                     value="traits"
-                                    style={{ display: 'flex', alignItems: 'center', gap: 8 }}
+                                    style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 8,
+                                    }}
                                 >
                                     <Sparkles style={iconStyle} />
-                                    <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
+                                    <Box
+                                        component="span"
+                                        sx={{
+                                            display: {
+                                                xs: 'none',
+                                                sm: 'inline',
+                                            },
+                                        }}
+                                    >
                                         Traits
                                     </Box>
                                 </TabsTrigger>
                                 <TabsTrigger
                                     value="music"
-                                    style={{ display: 'flex', alignItems: 'center', gap: 8 }}
+                                    style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 8,
+                                    }}
                                 >
                                     <Music style={iconStyle} />
-                                    <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
+                                    <Box
+                                        component="span"
+                                        sx={{
+                                            display: {
+                                                xs: 'none',
+                                                sm: 'inline',
+                                            },
+                                        }}
+                                    >
                                         Music
                                     </Box>
                                 </TabsTrigger>
                                 <TabsTrigger
                                     value="bespoke"
-                                    style={{ display: 'flex', alignItems: 'center', gap: 8 }}
+                                    style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 8,
+                                    }}
                                 >
                                     <Sparkles style={iconStyle} />
-                                    <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
+                                    <Box
+                                        component="span"
+                                        sx={{
+                                            display: {
+                                                xs: 'none',
+                                                sm: 'inline',
+                                            },
+                                        }}
+                                    >
                                         Bespoke
                                     </Box>
                                 </TabsTrigger>

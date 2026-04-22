@@ -99,24 +99,56 @@ export default function MarketerPayouts({ payoutRequests }: Props) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Payouts" />
 
-            <Box sx={{ display: 'flex', height: '100%', flex: 1, flexDirection: 'column', gap: 3, overflowX: 'auto', p: 3 }}>
+            <Box
+                sx={{
+                    display: 'flex',
+                    height: '100%',
+                    flex: 1,
+                    flexDirection: 'column',
+                    gap: 3,
+                    overflowX: 'auto',
+                    p: 3,
+                }}
+            >
                 <Box>
-                    <Typography variant="h4" fontWeight={700}>Payout Requests</Typography>
+                    <Typography variant="h4" fontWeight={700}>
+                        Payout Requests
+                    </Typography>
                     <Typography color="text.secondary" sx={{ mt: 0.5 }}>
                         Manage your withdrawal requests
                     </Typography>
                 </Box>
 
-                <Box sx={{ display: 'grid', gap: 2, gridTemplateColumns: { md: 'repeat(3, 1fr)' } }}>
+                <Box
+                    sx={{
+                        display: 'grid',
+                        gap: 2,
+                        gridTemplateColumns: { md: 'repeat(3, 1fr)' },
+                    }}
+                >
                     <Card>
                         <CardHeader sx={{ pb: 1.5 }}>
-                            <CardTitle sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                            <CardTitle
+                                sx={{ fontSize: '0.875rem', fontWeight: 500 }}
+                            >
                                 Total Requested
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                <DollarSign style={{ width: 20, height: 20, color: 'gray' }} />
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 1,
+                                }}
+                            >
+                                <DollarSign
+                                    style={{
+                                        width: 20,
+                                        height: 20,
+                                        color: 'gray',
+                                    }}
+                                />
                                 <Typography variant="h5" fontWeight={700}>
                                     GHS {totalRequested.toFixed(2)}
                                 </Typography>
@@ -125,14 +157,32 @@ export default function MarketerPayouts({ payoutRequests }: Props) {
                     </Card>
                     <Card>
                         <CardHeader sx={{ pb: 1.5 }}>
-                            <CardTitle sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                            <CardTitle
+                                sx={{ fontSize: '0.875rem', fontWeight: 500 }}
+                            >
                                 Total Paid
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                <DollarSign style={{ width: 20, height: 20, color: '#16a34a' }} />
-                                <Typography variant="h5" fontWeight={700} color="success.main">
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 1,
+                                }}
+                            >
+                                <DollarSign
+                                    style={{
+                                        width: 20,
+                                        height: 20,
+                                        color: '#16a34a',
+                                    }}
+                                />
+                                <Typography
+                                    variant="h5"
+                                    fontWeight={700}
+                                    color="success.main"
+                                >
                                     GHS {totalPaid.toFixed(2)}
                                 </Typography>
                             </Box>
@@ -140,12 +190,18 @@ export default function MarketerPayouts({ payoutRequests }: Props) {
                     </Card>
                     <Card>
                         <CardHeader sx={{ pb: 1.5 }}>
-                            <CardTitle sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                            <CardTitle
+                                sx={{ fontSize: '0.875rem', fontWeight: 500 }}
+                            >
                                 Pending Requests
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <Typography variant="h5" fontWeight={700} color="warning.main">
+                            <Typography
+                                variant="h5"
+                                fontWeight={700}
+                                color="warning.main"
+                            >
                                 {
                                     payoutRequests.data.filter(
                                         (p) => p.status === 'pending',
@@ -201,8 +257,20 @@ export default function MarketerPayouts({ payoutRequests }: Props) {
                                                 {getStatusBadge(payout.status)}
                                             </TableCell>
                                             <TableCell>
-                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                                    <Calendar style={{ width: 16, height: 16, color: 'gray' }} />
+                                                <Box
+                                                    sx={{
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: 1,
+                                                    }}
+                                                >
+                                                    <Calendar
+                                                        style={{
+                                                            width: 16,
+                                                            height: 16,
+                                                            color: 'gray',
+                                                        }}
+                                                    />
                                                     {formatDate(
                                                         payout.created_at,
                                                     )}

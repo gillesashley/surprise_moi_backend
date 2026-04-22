@@ -1,9 +1,9 @@
 import { dashboard, login, register } from '@/routes';
 import { type SharedData } from '@/types';
+import { Head, Link, usePage } from '@inertiajs/react';
 import Box from '@mui/material/Box';
 import MuiButton from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
-import { Head, Link, usePage } from '@inertiajs/react';
 import { Gift, Package, Sparkles, Users } from 'lucide-react';
 
 export default function Welcome({
@@ -44,13 +44,26 @@ export default function Welcome({
                             px: 2,
                         }}
                     >
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 1,
+                            }}
+                        >
                             <Gift style={{ width: 24, height: 24 }} />
                             <Typography variant="h6" fontWeight={700}>
                                 SurpriseMoi
                             </Typography>
                         </Box>
-                        <Box component="nav" sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                        <Box
+                            component="nav"
+                            sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 2,
+                            }}
+                        >
                             {auth.user ? (
                                 <MuiButton
                                     component={Link}
@@ -87,8 +100,13 @@ export default function Welcome({
                 </Box>
 
                 {/* Hero Section */}
-                <Box component="main" sx={{ maxWidth: 1200, mx: 'auto', px: 2, py: 10 }}>
-                    <Box sx={{ mx: 'auto', maxWidth: 896, textAlign: 'center' }}>
+                <Box
+                    component="main"
+                    sx={{ maxWidth: 1200, mx: 'auto', px: 2, py: 10 }}
+                >
+                    <Box
+                        sx={{ mx: 'auto', maxWidth: 896, textAlign: 'center' }}
+                    >
                         <Box
                             sx={{
                                 display: 'inline-flex',
@@ -114,7 +132,11 @@ export default function Welcome({
                             sx={{
                                 mb: 3,
                                 letterSpacing: '-0.02em',
-                                fontSize: { xs: '2.5rem', sm: '3.5rem', md: '4rem' },
+                                fontSize: {
+                                    xs: '2.5rem',
+                                    sm: '3.5rem',
+                                    md: '4rem',
+                                },
                             }}
                         >
                             Welcome to{' '}
@@ -137,8 +159,10 @@ export default function Welcome({
                             fontWeight={400}
                             sx={{ mb: 6 }}
                         >
-                            Your one-stop platform for creating unforgettable surprises and connecting with amazing vendors.
-                            Discover unique gifts, services, and experiences tailored just for you.
+                            Your one-stop platform for creating unforgettable
+                            surprises and connecting with amazing vendors.
+                            Discover unique gifts, services, and experiences
+                            tailored just for you.
                         </Typography>
 
                         <Box
@@ -201,19 +225,22 @@ export default function Welcome({
                             {
                                 icon: Gift,
                                 title: 'Unique Surprises',
-                                description: 'Discover and create personalized surprises with our curated selection of gifts and experiences.',
+                                description:
+                                    'Discover and create personalized surprises with our curated selection of gifts and experiences.',
                                 color: 'primary.main',
                             },
                             {
                                 icon: Package,
                                 title: 'Quality Products',
-                                description: 'Browse thousands of high-quality products from verified vendors across multiple categories.',
+                                description:
+                                    'Browse thousands of high-quality products from verified vendors across multiple categories.',
                                 color: 'secondary.main',
                             },
                             {
                                 icon: Users,
                                 title: 'Trusted Vendors',
-                                description: 'Connect with reliable vendors offering exceptional services and products.',
+                                description:
+                                    'Connect with reliable vendors offering exceptional services and products.',
                                 color: 'success.main',
                             },
                         ].map((feature) => (
@@ -246,12 +273,21 @@ export default function Welcome({
                                         position: 'relative',
                                     }}
                                 >
-                                    <feature.icon style={{ width: 28, height: 28 }} />
+                                    <feature.icon
+                                        style={{ width: 28, height: 28 }}
+                                    />
                                 </Box>
-                                <Typography variant="h6" fontWeight={600} sx={{ mb: 1 }}>
+                                <Typography
+                                    variant="h6"
+                                    fontWeight={600}
+                                    sx={{ mb: 1 }}
+                                >
                                     {feature.title}
                                 </Typography>
-                                <Typography variant="body2" color="text.secondary">
+                                <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                >
                                     {feature.description}
                                 </Typography>
                             </Box>
@@ -279,7 +315,8 @@ export default function Welcome({
                         }}
                     >
                         <Typography variant="body2" color="text.secondary">
-                            &copy; {new Date().getFullYear()} SurpriseMoi. All rights reserved.
+                            &copy; {new Date().getFullYear()} SurpriseMoi. All
+                            rights reserved.
                         </Typography>
                     </Box>
                 </Box>

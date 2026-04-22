@@ -10,9 +10,9 @@ import AppLayout from '@/layouts/app-layout';
 import { dashboard } from '@/routes';
 import { show as userShow } from '@/routes/users';
 import { type BreadcrumbItem, type SharedData } from '@/types';
+import { Head, Link, usePage } from '@inertiajs/react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import { Head, Link, usePage } from '@inertiajs/react';
 import {
     AlertCircle,
     Clock,
@@ -63,12 +63,26 @@ function StatCard({
                 '&:hover': { boxShadow: 3 },
             }}
         >
-            <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+            <Box
+                sx={{
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    justifyContent: 'space-between',
+                }}
+            >
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                    <Typography variant="body2" color="text.secondary" fontWeight={500}>
+                    <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        fontWeight={500}
+                    >
                         {title}
                     </Typography>
-                    <Typography variant="h4" fontWeight={700} sx={{ letterSpacing: '-0.02em' }}>
+                    <Typography
+                        variant="h4"
+                        fontWeight={700}
+                        sx={{ letterSpacing: '-0.02em' }}
+                    >
                         {value}
                     </Typography>
                     {trend && (
@@ -84,7 +98,9 @@ function StatCard({
                                     width: 16,
                                     height: 16,
                                     marginRight: 4,
-                                    transform: !trendUp ? 'rotate(180deg)' : undefined,
+                                    transform: !trendUp
+                                        ? 'rotate(180deg)'
+                                        : undefined,
                                 }}
                             />
                             <Typography variant="body2" fontWeight={500}>
@@ -252,10 +268,14 @@ function RecentActivityCard() {
 
     const getActivityColor = (type: string) => {
         switch (type) {
-            case 'order': return 'primary.main';
-            case 'user': return 'secondary.main';
-            case 'delivery': return 'success.main';
-            default: return 'info.main';
+            case 'order':
+                return 'primary.main';
+            case 'user':
+                return 'secondary.main';
+            case 'delivery':
+                return 'success.main';
+            default:
+                return 'info.main';
         }
     };
 
@@ -301,7 +321,13 @@ function RecentActivityCard() {
                             pb: index < activities.length - 1 ? 1.5 : 0,
                         }}
                     >
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 1.5,
+                            }}
+                        >
                             <Box
                                 sx={{
                                     width: 8,
@@ -314,7 +340,10 @@ function RecentActivityCard() {
                                 <Typography variant="body2" fontWeight={500}>
                                     {activity.action}
                                 </Typography>
-                                <Typography variant="caption" color="text.secondary">
+                                <Typography
+                                    variant="caption"
+                                    color="text.secondary"
+                                >
                                     {activity.user}
                                 </Typography>
                             </Box>
@@ -378,7 +407,13 @@ function VendorApplicationsCard({
         return (
             <Card>
                 <CardHeader>
-                    <CardTitle style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <CardTitle
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 8,
+                        }}
+                    >
                         <Clock style={{ width: 20, height: 20 }} />
                         Pending Vendor Applications
                     </CardTitle>
@@ -398,8 +433,12 @@ function VendorApplicationsCard({
     return (
         <Card>
             <CardHeader>
-                <CardTitle style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <AlertCircle style={{ width: 20, height: 20, color: 'orange' }} />
+                <CardTitle
+                    style={{ display: 'flex', alignItems: 'center', gap: 8 }}
+                >
+                    <AlertCircle
+                        style={{ width: 20, height: 20, color: 'orange' }}
+                    />
                     Pending Vendor Applications
                     <Badge variant="destructive" style={{ marginLeft: 8 }}>
                         {applications.length}
@@ -410,7 +449,9 @@ function VendorApplicationsCard({
                 </CardDescription>
             </CardHeader>
             <CardContent>
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                <Box
+                    sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}
+                >
                     {applications.map((app) => (
                         <Link
                             key={app.id}
@@ -430,10 +471,25 @@ function VendorApplicationsCard({
                                     },
                                 }}
                             >
-                                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                <Box
+                                    sx={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'space-between',
+                                    }}
+                                >
                                     <Box sx={{ flex: 1 }}>
-                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                            <Typography variant="body2" fontWeight={500}>
+                                        <Box
+                                            sx={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: 1,
+                                            }}
+                                        >
+                                            <Typography
+                                                variant="body2"
+                                                fontWeight={500}
+                                            >
                                                 {app.user.name}
                                             </Typography>
                                             <Badge
@@ -448,15 +504,31 @@ function VendorApplicationsCard({
                                                     .toUpperCase()}
                                             </Badge>
                                         </Box>
-                                        <Typography variant="body2" color="text.secondary">
+                                        <Typography
+                                            variant="body2"
+                                            color="text.secondary"
+                                        >
                                             {app.user.email}
                                         </Typography>
-                                        <Box sx={{ mt: 1, display: 'flex', alignItems: 'center', gap: 2 }}>
-                                            <Typography variant="caption" color="text.secondary">
+                                        <Box
+                                            sx={{
+                                                mt: 1,
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: 2,
+                                            }}
+                                        >
+                                            <Typography
+                                                variant="caption"
+                                                color="text.secondary"
+                                            >
                                                 Progress: {app.progress}
                                             </Typography>
                                             {app.submitted_at && (
-                                                <Typography variant="caption" color="text.secondary">
+                                                <Typography
+                                                    variant="caption"
+                                                    color="text.secondary"
+                                                >
                                                     Submitted:{' '}
                                                     {new Date(
                                                         app.submitted_at,
@@ -465,7 +537,9 @@ function VendorApplicationsCard({
                                             )}
                                         </Box>
                                     </Box>
-                                    <TrendingUp style={{ width: 20, height: 20 }} />
+                                    <TrendingUp
+                                        style={{ width: 20, height: 20 }}
+                                    />
                                 </Box>
                             </Box>
                         </Link>
@@ -505,7 +579,16 @@ export default function Dashboard({
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />
-            <Box sx={{ display: 'flex', flex: 1, flexDirection: 'column', gap: 3, overflowX: 'auto', p: 3 }}>
+            <Box
+                sx={{
+                    display: 'flex',
+                    flex: 1,
+                    flexDirection: 'column',
+                    gap: 3,
+                    overflowX: 'auto',
+                    p: 3,
+                }}
+            >
                 <WelcomeCard userName={auth.user.name.split(' ')[0]} />
 
                 <Box
@@ -576,11 +659,23 @@ export default function Dashboard({
                         gridTemplateColumns: { lg: 'repeat(3, 1fr)' },
                     }}
                 >
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: 2,
+                        }}
+                    >
                         <Typography variant="h6" fontWeight={600}>
                             Quick Actions
                         </Typography>
-                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: 2,
+                            }}
+                        >
                             <QuickActionCard
                                 title="Manage Users"
                                 description="View and manage user accounts"

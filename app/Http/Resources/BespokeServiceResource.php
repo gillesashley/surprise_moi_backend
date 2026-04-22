@@ -20,7 +20,7 @@ class BespokeServiceResource extends JsonResource
             'slug' => $this->slug,
             'description' => $this->description,
             'icon' => $this->icon,
-            'image' => $this->image ? url('storage/' . $this->image) : null,
+            'image' => $this->image ? url('storage/'.$this->image) : null,
             'is_active' => $this->is_active,
             'sort_order' => $this->sort_order,
         ];

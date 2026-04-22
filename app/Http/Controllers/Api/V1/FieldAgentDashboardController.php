@@ -41,7 +41,7 @@ class FieldAgentDashboardController extends Controller
             'success' => true,
             'data' => [
                 'stats' => array_merge($targetStats, $earningsSummary, [
-                    'referral_points' => (int) ($user->referral_points ?? 0)
+                    'referral_points' => (int) ($user->referral_points ?? 0),
                 ]),
                 'active_targets' => TargetResource::collection($activeTargets),
                 'recent_earnings' => EarningResource::collection($recentEarnings),

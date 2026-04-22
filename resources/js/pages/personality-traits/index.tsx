@@ -79,42 +79,102 @@ export default function PersonalityTraitsIndex({
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Personality Traits" />
-            <Box sx={{ display: 'flex', height: '100%', flex: 1, flexDirection: 'column', gap: 2, p: 2 }}>
+            <Box
+                sx={{
+                    display: 'flex',
+                    height: '100%',
+                    flex: 1,
+                    flexDirection: 'column',
+                    gap: 2,
+                    p: 2,
+                }}
+            >
                 <Card>
                     <CardHeader>
-                        <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <Box>
-                            <CardTitle>Personality Traits</CardTitle>
-                            <CardDescription>
-                                Manage user personality traits for
-                                personalization
-                            </CardDescription>
-                        </Box>
-                        {canCreate && (
-                            <Button asChild>
-                                <Link href={personalityTraitCreate.url()}>
-                                    <Plus style={{ marginRight: 8, width: 16, height: 16 }} />
-                                    Add Trait
-                                </Link>
-                            </Button>
-                        )}
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                            }}
+                        >
+                            <Box>
+                                <CardTitle>Personality Traits</CardTitle>
+                                <CardDescription>
+                                    Manage user personality traits for
+                                    personalization
+                                </CardDescription>
+                            </Box>
+                            {canCreate && (
+                                <Button asChild>
+                                    <Link href={personalityTraitCreate.url()}>
+                                        <Plus
+                                            style={{
+                                                marginRight: 8,
+                                                width: 16,
+                                                height: 16,
+                                            }}
+                                        />
+                                        Add Trait
+                                    </Link>
+                                </Button>
+                            )}
                         </Box>
                     </CardHeader>
                     <CardContent>
                         <Box sx={{ overflowX: 'auto' }}>
                             <Box component="table" sx={{ width: '100%' }}>
                                 <Box component="thead">
-                                    <Box component="tr" sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                                        <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
+                                    <Box
+                                        component="tr"
+                                        sx={{
+                                            borderBottom: 1,
+                                            borderColor: 'divider',
+                                        }}
+                                    >
+                                        <Box
+                                            component="th"
+                                            sx={{
+                                                p: 1,
+                                                textAlign: 'left',
+                                                fontSize: '0.875rem',
+                                                fontWeight: 500,
+                                            }}
+                                        >
                                             Name
                                         </Box>
-                                        <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
+                                        <Box
+                                            component="th"
+                                            sx={{
+                                                p: 1,
+                                                textAlign: 'left',
+                                                fontSize: '0.875rem',
+                                                fontWeight: 500,
+                                            }}
+                                        >
                                             Icon
                                         </Box>
-                                        <Box component="th" sx={{ p: 1, textAlign: 'left', fontSize: '0.875rem', fontWeight: 500 }}>
+                                        <Box
+                                            component="th"
+                                            sx={{
+                                                p: 1,
+                                                textAlign: 'left',
+                                                fontSize: '0.875rem',
+                                                fontWeight: 500,
+                                            }}
+                                        >
                                             Users
                                         </Box>
-                                        <Box component="th" sx={{ p: 1, textAlign: 'right', fontSize: '0.875rem', fontWeight: 500 }}>
+                                        <Box
+                                            component="th"
+                                            sx={{
+                                                p: 1,
+                                                textAlign: 'right',
+                                                fontSize: '0.875rem',
+                                                fontWeight: 500,
+                                            }}
+                                        >
                                             Actions
                                         </Box>
                                     </Box>
@@ -124,19 +184,54 @@ export default function PersonalityTraitsIndex({
                                         <Box
                                             component="tr"
                                             key={trait.id}
-                                            sx={{ borderBottom: 1, borderColor: 'divider', '&:last-child': { borderBottom: 0 }, '&:hover': { bgcolor: 'action.hover' } }}
+                                            sx={{
+                                                borderBottom: 1,
+                                                borderColor: 'divider',
+                                                '&:last-child': {
+                                                    borderBottom: 0,
+                                                },
+                                                '&:hover': {
+                                                    bgcolor: 'action.hover',
+                                                },
+                                            }}
                                         >
-                                            <Box component="td" sx={{ p: 1, fontSize: '0.875rem', fontWeight: 500 }}>
+                                            <Box
+                                                component="td"
+                                                sx={{
+                                                    p: 1,
+                                                    fontSize: '0.875rem',
+                                                    fontWeight: 500,
+                                                }}
+                                            >
                                                 {trait.name}
                                             </Box>
-                                            <Box component="td" sx={{ p: 1, fontSize: '0.875rem' }}>
+                                            <Box
+                                                component="td"
+                                                sx={{
+                                                    p: 1,
+                                                    fontSize: '0.875rem',
+                                                }}
+                                            >
                                                 {trait.icon || '-'}
                                             </Box>
-                                            <Box component="td" sx={{ p: 1, fontSize: '0.875rem' }}>
+                                            <Box
+                                                component="td"
+                                                sx={{
+                                                    p: 1,
+                                                    fontSize: '0.875rem',
+                                                }}
+                                            >
                                                 {trait.users_count}
                                             </Box>
                                             <Box component="td" sx={{ p: 1 }}>
-                                                <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
+                                                <Box
+                                                    sx={{
+                                                        display: 'flex',
+                                                        justifyContent:
+                                                            'flex-end',
+                                                        gap: 1,
+                                                    }}
+                                                >
                                                     <Button
                                                         variant="ghost"
                                                         size="sm"
@@ -147,7 +242,12 @@ export default function PersonalityTraitsIndex({
                                                                 trait.id,
                                                             )}
                                                         >
-                                                            <Pencil style={{ width: 16, height: 16 }} />
+                                                            <Pencil
+                                                                style={{
+                                                                    width: 16,
+                                                                    height: 16,
+                                                                }}
+                                                            />
                                                         </Link>
                                                     </Button>
                                                     {canDelete && (
@@ -161,7 +261,13 @@ export default function PersonalityTraitsIndex({
                                                                 )
                                                             }
                                                         >
-                                                            <Trash2 style={{ width: 16, height: 16, color: 'var(--destructive)' }} />
+                                                            <Trash2
+                                                                style={{
+                                                                    width: 16,
+                                                                    height: 16,
+                                                                    color: 'var(--destructive)',
+                                                                }}
+                                                            />
                                                         </Button>
                                                     )}
                                                 </Box>
@@ -174,8 +280,20 @@ export default function PersonalityTraitsIndex({
 
                         {/* Pagination */}
                         {personalityTraits.last_page > 1 && (
-                            <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
+                            <Box
+                                sx={{
+                                    mt: 2,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                }}
+                            >
+                                <Typography
+                                    sx={{
+                                        fontSize: '0.875rem',
+                                        color: 'text.secondary',
+                                    }}
+                                >
                                     Showing {personalityTraits.data.length} of{' '}
                                     {personalityTraits.total} traits
                                 </Typography>
@@ -195,7 +313,15 @@ export default function PersonalityTraitsIndex({
                                     >
                                         Previous
                                     </Button>
-                                    <Box component="span" sx={{ display: 'flex', alignItems: 'center', px: 1, fontSize: '0.875rem' }}>
+                                    <Box
+                                        component="span"
+                                        sx={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            px: 1,
+                                            fontSize: '0.875rem',
+                                        }}
+                                    >
                                         Page {personalityTraits.current_page} of{' '}
                                         {personalityTraits.last_page}
                                     </Box>

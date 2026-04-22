@@ -1,5 +1,5 @@
-import Box from '@mui/material/Box';
 import { SidebarInset } from '@/components/ui/sidebar';
+import Box from '@mui/material/Box';
 import * as React from 'react';
 
 interface AppContentProps extends React.ComponentProps<'main'> {

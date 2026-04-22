@@ -21,7 +21,7 @@ class ReferralPayoutService
         if ($detail->user_id !== $user->id) {
             throw new \DomainException('Payout details do not belong to this user.');
         }
-        if (!$detail->is_verified) {
+        if (! $detail->is_verified) {
             throw new \DomainException('Payout details are not verified with Paystack.');
         }
 
@@ -29,7 +29,7 @@ class ReferralPayoutService
             // Row-level lock to serialize create attempts per user.
             $locked = User::whereKey($user->id)->lockForUpdate()->first();
 
-            if (!$locked->canRequestReferralPayout()) {
+            if (! $locked->canRequestReferralPayout()) {
                 throw new \DomainException(
                     'You cannot request a payout right now. Either you have not crossed the next milestone, you have no earnings available, or you already have a pending request.'
                 );
@@ -42,7 +42,7 @@ class ReferralPayoutService
             $payout = PayoutRequest::create([
                 'user_id' => $locked->id,
                 'user_role' => 'customer',
-                'request_number' => 'PYT-' . strtoupper(Str::random(8)),
+                'request_number' => 'PYT-'.strtoupper(Str::random(8)),
                 'source' => PayoutRequest::SOURCE_REFERRAL_MILESTONE,
                 'referral_milestone_threshold' => $threshold,
                 'points_deducted' => $pointsDeducted,
