@@ -25,6 +25,7 @@ class FieldAgentDashboardController extends Controller
 
         $targetStats = $this->targetService->getUserTargetStats($user);
         $earningsSummary = $this->earningService->getUserEarningsSummary($user);
+        $referralStats = app(\App\Services\ReferralService::class)->getInfluencerStats($user);
 
         $activeTargets = Target::where('user_id', $user->id)
             ->where('status', Target::STATUS_ACTIVE)
@@ -42,6 +43,8 @@ class FieldAgentDashboardController extends Controller
             'data' => [
                 'stats' => array_merge($targetStats, $earningsSummary, [
                     'referral_points' => (int) ($user->referral_points ?? 0),
+                    'earned_amount' => (float) ($referralStats['total_earned'] ?? 0),
+                    'total_earned_amount' => (float) ($referralStats['total_earned'] ?? 0),
                 ]),
                 'active_targets' => TargetResource::collection($activeTargets),
                 'recent_earnings' => EarningResource::collection($recentEarnings),
@@ -77,9 +80,12 @@ class FieldAgentDashboardController extends Controller
             ->latest('earned_at')
             ->paginate(15);
 
+        $referralStats = app(\App\Services\ReferralService::class)->getInfluencerStats($request->user());
+
         return response()->json([
             'success' => true,
             'data' => EarningResource::collection($earnings),
+            'total_earned_amount' => (float) ($referralStats['total_earned'] ?? 0),
             'meta' => [
                 'current_page' => $earnings->currentPage(),
                 'last_page' => $earnings->lastPage(),
