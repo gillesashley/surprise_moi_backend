@@ -29,13 +29,14 @@ class FieldAgentDashboardController extends Controller
         $referralCode = $this->getOrCreateReferralCode($user);
 
         $earningsSummary = $this->earningService->getUserEarningsSummary($user);
+        $referralStats = app(\App\Services\ReferralService::class)->getInfluencerStats($user);
 
         return Inertia::render('field-agent/dashboard', [
             'agent' => [
                 'id' => $user->id,
                 'first_name' => $user->first_name ?? (explode(' ', (string) $user->name)[0] ?: $user->name),
                 'referral_points' => (int) ($user->referral_points ?? 0),
-                'earned_amount' => (float) ($earningsSummary['total_earnings'] ?? 0),
+                'earned_amount' => (float) ($referralStats['total_earned'] ?? 0),
             ],
             'period' => $period,
             'referralCode' => [
@@ -69,10 +70,12 @@ class FieldAgentDashboardController extends Controller
             ->latest('earned_at')
             ->paginate(15);
 
+        $referralStats = app(\App\Services\ReferralService::class)->getInfluencerStats($request->user());
+
         return Inertia::render('field-agent/earnings', [
             'earnings' => $earnings,
             'referral_points' => (int) ($request->user()->referral_points ?? 0),
-            'total_earned_amount' => (float) $this->earningService->getUserEarningsSummary($request->user())['total_earnings'],
+            'total_earned_amount' => (float) ($referralStats['total_earned'] ?? 0),
         ]);
     }
 
