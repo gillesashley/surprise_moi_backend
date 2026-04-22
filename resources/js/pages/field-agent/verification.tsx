@@ -1,4 +1,5 @@
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
     Card,
     CardContent,
@@ -79,6 +80,35 @@ function InfoRow({
                 </p>
             </div>
         </div>
+    );
+}
+
+function DocumentCard({ title, url, icon: Icon }: { title: string; url: string; icon: React.ElementType }) {
+    return (
+        <Card className="overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-300 ring-1 ring-border border-0">
+            <CardHeader className="p-4 border-b bg-muted/20">
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                        <Icon className="h-4 w-4 text-muted-foreground" />
+                        <CardTitle className="text-sm font-semibold">{title}</CardTitle>
+                    </div>
+                </div>
+            </CardHeader>
+            <CardContent className="p-3">
+                <div className="relative group overflow-hidden rounded-md border aspect-[4/3] bg-muted/30">
+                    <img 
+                        src={url} 
+                        alt={title} 
+                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                         <Button variant="secondary" size="sm" onClick={() => window.open(url, '_blank')}>
+                             View Original
+                         </Button>
+                    </div>
+                </div>
+            </CardContent>
+        </Card>
     );
 }
 
@@ -177,68 +207,26 @@ export default function Verification({ application }: Props) {
                 </Card>
 
                 {/* Document Cards */}
-                <div className="grid gap-6 md:grid-cols-2">
-                    {/* Ghana Card Front */}
-                    <Card className="border-0 shadow-sm overflow-hidden">
-                        <CardHeader className="pb-3">
-                            <div className="flex items-center gap-2">
-                                <IdCard className="h-4 w-4 text-gray-500" />
-                                <CardTitle className="text-base">Ghana Card — Front</CardTitle>
-                            </div>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="overflow-hidden rounded-lg border bg-gray-50 dark:bg-gray-800">
-                                <img
-                                    src={application.ghana_card_image_url}
-                                    className="h-auto w-full object-contain"
-                                    alt="Ghana card front"
-                                    style={{ maxHeight: '320px' }}
-                                />
-                            </div>
-                        </CardContent>
-                    </Card>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <DocumentCard 
+                        title="Ghana Card — Front" 
+                        url={application.ghana_card_image_url} 
+                        icon={IdCard} 
+                    />
 
-                    {/* Ghana Card Back (if available) */}
                     {application.ghana_card_back_image_url && (
-                        <Card className="border-0 shadow-sm overflow-hidden">
-                            <CardHeader className="pb-3">
-                                <div className="flex items-center gap-2">
-                                    <IdCard className="h-4 w-4 text-gray-500" />
-                                    <CardTitle className="text-base">Ghana Card — Back</CardTitle>
-                                </div>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="overflow-hidden rounded-lg border bg-gray-50 dark:bg-gray-800">
-                                    <img
-                                        src={application.ghana_card_back_image_url}
-                                        className="h-auto w-full object-contain"
-                                        alt="Ghana card back"
-                                        style={{ maxHeight: '320px' }}
-                                    />
-                                </div>
-                            </CardContent>
-                        </Card>
+                        <DocumentCard 
+                            title="Ghana Card — Back" 
+                            url={application.ghana_card_back_image_url} 
+                            icon={IdCard} 
+                        />
                     )}
 
-                    {/* Selfie */}
-                    <Card className={`border-0 shadow-sm overflow-hidden ${!application.ghana_card_back_image_url ? '' : ''}`}>
-                        <CardHeader className="pb-3">
-                            <div className="flex items-center gap-2">
-                                <User className="h-4 w-4 text-gray-500" />
-                                <CardTitle className="text-base">Selfie</CardTitle>
-                            </div>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="overflow-hidden rounded-lg border bg-gray-50 dark:bg-gray-800">
-                                <img
-                                    src={application.selfie_url}
-                                    className="h-auto w-full object-contain"
-                                    alt="Selfie"
-                                    style={{ maxHeight: '320px' }}
-                                />
-                            </div>
-                        </CardContent>
-                    </Card>
+                    <DocumentCard 
+                        title="Selfie" 
+                        url={application.selfie_url} 
+                        icon={User} 
+                    />
                 </div>
             </div>
         </AppLayout>
