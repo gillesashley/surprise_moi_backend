@@ -9,10 +9,10 @@ import {
 } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type SharedData } from '@/types';
-import { Head, Link, router, usePage } from '@inertiajs/react';
+import { Head, router, usePage } from '@inertiajs/react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import { AlertTriangle, CheckCircle, Clock, DollarSign, TrendingUp, Users, XCircle } from 'lucide-react';
+import { CheckCircle, Clock, DollarSign, TrendingUp, Users, XCircle } from 'lucide-react';
 import ReferralCodeCard from './components/ReferralCodeCard';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -55,7 +55,6 @@ interface DashboardProps {
     period: Period;
     referralCode: { code: string };
     vendorStats: VendorStats;
-    needsVisitCount: number;
     earningsSummary: EarningsSummary;
     activeTarget: ActiveTarget | null;
     recentVendors: RecentVendor[];
@@ -117,7 +116,6 @@ export default function FieldAgentDashboard({
     period,
     referralCode,
     vendorStats,
-    needsVisitCount,
     earningsSummary,
     activeTarget,
     recentVendors,
@@ -138,28 +136,6 @@ export default function FieldAgentDashboard({
             <Head title="Field Agent Dashboard" />
 
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4, p: { xs: 2, md: 3 } }}>
-                {/* Visit Alert Banner */}
-                {needsVisitCount > 0 && (
-                    <Link
-                        href="/field-agent/visits"
-                        className="group block rounded-xl border border-amber-200 bg-gradient-to-r from-amber-50 to-orange-50 p-4 transition-all hover:border-amber-300 hover:shadow-md"
-                    >
-                        <div className="flex items-center gap-3">
-                            <div className="rounded-lg bg-amber-100 p-2">
-                                <AlertTriangle className="h-5 w-5 text-amber-600" />
-                            </div>
-                            <div>
-                                <div className="text-sm font-semibold text-amber-900">
-                                    {needsVisitCount} {needsVisitCount === 1 ? 'vendor needs' : 'vendors need'} a visit
-                                </div>
-                                <div className="text-xs text-amber-700 group-hover:text-amber-800">
-                                    Open the visits queue →
-                                </div>
-                            </div>
-                        </div>
-                    </Link>
-                )}
-
                 {/* Header */}
                 <Box
                     sx={{
