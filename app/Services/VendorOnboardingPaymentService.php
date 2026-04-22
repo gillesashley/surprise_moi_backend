@@ -45,9 +45,10 @@ class VendorOnboardingPaymentService
      */
     public function validateReferralCode(string $code, VendorApplication $application): array
     {
+        // Enforce strict case-sensitivity (all codes are uppercase).
         $referralCode = ReferralCode::where('code', $code)->first();
 
-        if (! $referralCode || ! $referralCode->isValid()) {
+        if (! $referralCode || $referralCode->code !== $code || ! $referralCode->isValid()) {
             return [
                 'valid' => false,
                 'message' => 'Invalid, expired, or inactive referral code.',

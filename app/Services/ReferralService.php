@@ -124,8 +124,15 @@ class ReferralService
         VendorApplication $vendorApplication,
         string $code
     ): Referral {
-        // Validate code exists and is valid (not expired, not maxed out)
-        $referralCode = ReferralCode::where('code', $code)->valid()->firstOrFail();
+        // Validate code exists and is valid (not expired, not maxed out).
+        // Database queries for 'code' are typically case-insensitive in PostgreSQL
+        // unless specified otherwise. We fetch it and then perform a strict
+        // PHP comparison to enforce case-sensitivity (all codes are uppercase).
+        $referralCode = ReferralCode::where('code', $code)->valid()->first();
+
+        if (! $referralCode || $referralCode->code !== $code) {
+            throw new \Illuminate\Database\Eloquent\ModelNotFoundException('Invalid referral code.');
+        }
 
         // Defence in depth — also enforced at the validateReferralCode step.
         if ((int) $referralCode->influencer_id === (int) $vendorApplication->user_id) {
