@@ -27,7 +27,7 @@ class FieldAgentRegistrationTest extends TestCase
         parent::setUp();
         $this->region = Region::factory()->create(['name' => 'Greater Accra']);
         $this->city = City::factory()->create(['region_id' => $this->region->id, 'name' => 'Accra']);
-        Storage::fake('public');
+        Storage::fake('r2');
         Notification::fake();
     }
 
@@ -57,9 +57,9 @@ class FieldAgentRegistrationTest extends TestCase
         $this->assertNotNull($app);
         $this->assertSame('pending', $app->status->value);
         $this->assertTrue(Hash::check('SuperSecret123', $app->password));
-        Storage::disk('public')->assertExists($app->ghana_card_image_path);
-        Storage::disk('public')->assertExists($app->ghana_card_back_image_path);
-        Storage::disk('public')->assertExists($app->selfie_path);
+        Storage::disk('r2')->assertExists($app->ghana_card_image_path);
+        Storage::disk('r2')->assertExists($app->ghana_card_back_image_path);
+        Storage::disk('r2')->assertExists($app->selfie_path);
 
         Notification::assertSentTo($app, FieldAgentApplicationReceivedNotification::class);
     }

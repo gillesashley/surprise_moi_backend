@@ -18,9 +18,9 @@ class FieldAgentApplicationService
     public function create(array $validated, array $files): FieldAgentApplication
     {
         return DB::transaction(function () use ($validated, $files) {
-            $ghanaCardPath = $files['ghana_card_image']->store('field-agents/ghana-cards', 'public');
-            $ghanaCardBackPath = $files['ghana_card_back_image']->store('field-agents/ghana-cards', 'public');
-            $selfiePath = $files['selfie']->store('field-agents/selfies', 'public');
+            $ghanaCardPath = $files['ghana_card_image']->store('field-agents/ghana-cards');
+            $ghanaCardBackPath = $files['ghana_card_back_image']->store('field-agents/ghana-cards');
+            $selfiePath = $files['selfie']->store('field-agents/selfies');
 
             $application = FieldAgentApplication::create([
                 'first_name' => $validated['first_name'],
