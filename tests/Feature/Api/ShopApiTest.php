@@ -3,6 +3,7 @@
 namespace Tests\Feature\Api;
 
 use App\Models\Category;
+use App\Models\Product;
 use App\Models\Shop;
 use App\Models\User;
 use App\Models\VendorApplication;
@@ -150,6 +151,42 @@ class ShopApiTest extends TestCase
             ]);
 
         $this->assertSoftDeleted('shops', ['id' => $shop->id]);
+    }
+
+    public function test_deleting_shop_soft_deletes_its_products(): void
+    {
+        $shop = Shop::factory()->create(['vendor_id' => $this->vendor->id]);
+        $product = Product::factory()->create([
+            'shop_id' => $shop->id,
+            'vendor_id' => $this->vendor->id,
+        ]);
+
+        $this->actingAs($this->vendor, 'sanctum')
+            ->deleteJson("/api/v1/shops/{$shop->id}")
+            ->assertStatus(200);
+
+        $this->assertSoftDeleted('shops', ['id' => $shop->id]);
+        $this->assertSoftDeleted('products', ['id' => $product->id]);
+    }
+
+    public function test_force_deleting_shop_force_deletes_its_products(): void
+    {
+        $shop = Shop::factory()->create(['vendor_id' => $this->vendor->id]);
+        $activeProduct = Product::factory()->create([
+            'shop_id' => $shop->id,
+            'vendor_id' => $this->vendor->id,
+        ]);
+        $trashedProduct = Product::factory()->create([
+            'shop_id' => $shop->id,
+            'vendor_id' => $this->vendor->id,
+        ]);
+        $trashedProduct->delete();
+
+        $shop->forceDelete();
+
+        $this->assertDatabaseMissing('shops', ['id' => $shop->id]);
+        $this->assertDatabaseMissing('products', ['id' => $activeProduct->id]);
+        $this->assertDatabaseMissing('products', ['id' => $trashedProduct->id]);
     }
 
     public function test_can_view_shop_products(): void
