@@ -1,10 +1,12 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/react';
 import Box from '@mui/material/Box';
+import Card from '@mui/material/Card';
+import Divider from '@mui/material/Divider';
+import Typography from '@mui/material/Typography';
 import {
     CheckCircle,
     Clock,
@@ -40,32 +42,19 @@ type Props = {
     } | null;
 };
 
-function statusConfig(status: string) {
+function statusConfig(status: string): {
+    label: string;
+    variant: 'default' | 'secondary' | 'destructive';
+} {
     switch (status) {
         case 'approved':
-            return {
-                label: 'Approved',
-                variant: 'default' as const,
-                className: 'bg-emerald-600 hover:bg-emerald-700',
-            };
+            return { label: 'Approved', variant: 'default' };
         case 'rejected':
-            return {
-                label: 'Rejected',
-                variant: 'destructive' as const,
-                className: '',
-            };
+            return { label: 'Rejected', variant: 'destructive' };
         case 'pending':
-            return {
-                label: 'Pending Review',
-                variant: 'secondary' as const,
-                className: 'bg-amber-100 text-amber-800 hover:bg-amber-200',
-            };
+            return { label: 'Pending Review', variant: 'secondary' };
         default:
-            return {
-                label: status,
-                variant: 'secondary' as const,
-                className: '',
-            };
+            return { label: status, variant: 'secondary' };
     }
 }
 
@@ -79,19 +68,39 @@ function InfoRow({
     value?: string | null;
 }) {
     return (
-        <div className="flex items-start gap-3 py-3">
-            <div className="mt-0.5 rounded-lg bg-gray-100 p-2 dark:bg-gray-800">
-                <Icon className="h-4 w-4 text-gray-500 dark:text-gray-400" />
-            </div>
-            <div className="min-w-0 flex-1">
-                <p className="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
+        <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5, py: 1.25 }}>
+            <Box
+                sx={{
+                    mt: 0.25,
+                    p: 1,
+                    borderRadius: 1.5,
+                    bgcolor: 'action.hover',
+                    display: 'inline-flex',
+                }}
+            >
+                <Icon size={16} style={{ color: 'rgba(0,0,0,0.54)' }} />
+            </Box>
+            <Box sx={{ minWidth: 0, flex: 1 }}>
+                <Typography
+                    variant="caption"
+                    sx={{
+                        display: 'block',
+                        fontWeight: 500,
+                        letterSpacing: '0.04em',
+                        textTransform: 'uppercase',
+                        color: 'text.secondary',
+                    }}
+                >
                     {label}
-                </p>
-                <p className="mt-0.5 text-sm font-medium text-gray-900 dark:text-gray-100">
+                </Typography>
+                <Typography
+                    variant="body2"
+                    sx={{ mt: 0.25, fontWeight: 500, color: 'text.primary' }}
+                >
                     {value || '—'}
-                </p>
-            </div>
-        </div>
+                </Typography>
+            </Box>
+        </Box>
     );
 }
 
@@ -105,25 +114,76 @@ function DocumentCard({
     icon: React.ElementType;
 }) {
     return (
-        <Card className="overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-300 ring-1 ring-border border-0">
-            <CardHeader className="p-4 border-b bg-muted/20">
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                        <Icon className="h-4 w-4 text-muted-foreground" />
-                        <CardTitle className="text-sm font-semibold">
-                            {title}
-                        </CardTitle>
-                    </div>
-                </div>
-            </CardHeader>
-            <CardContent className="p-3">
-                <div className="relative group overflow-hidden rounded-md border aspect-[4/3] bg-muted/30">
-                    <img
+        <Card
+            variant="outlined"
+            sx={{
+                overflow: 'hidden',
+                borderRadius: 2,
+                transition: 'box-shadow 0.3s',
+                '&:hover': {
+                    boxShadow: '0 10px 20px rgba(0,0,0,0.08)',
+                },
+            }}
+        >
+            <Box
+                sx={{
+                    p: 2,
+                    borderBottom: 1,
+                    borderColor: 'divider',
+                    bgcolor: 'action.hover',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1,
+                }}
+            >
+                <Icon size={16} style={{ color: 'rgba(0,0,0,0.6)' }} />
+                <Typography variant="subtitle2" fontWeight={600}>
+                    {title}
+                </Typography>
+            </Box>
+            <Box sx={{ p: 1.5 }}>
+                <Box
+                    sx={{
+                        position: 'relative',
+                        overflow: 'hidden',
+                        borderRadius: 1,
+                        border: 1,
+                        borderColor: 'divider',
+                        aspectRatio: '4 / 3',
+                        bgcolor: 'action.hover',
+                        '&:hover .doc-card-overlay': {
+                            opacity: 1,
+                        },
+                        '&:hover .doc-card-image': {
+                            transform: 'scale(1.05)',
+                        },
+                    }}
+                >
+                    <Box
+                        component="img"
+                        className="doc-card-image"
                         src={url}
                         alt={title}
-                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        sx={{
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover',
+                            transition: 'transform 500ms',
+                        }}
                     />
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <Box
+                        className="doc-card-overlay"
+                        sx={{
+                            position: 'absolute',
+                            inset: 0,
+                            bgcolor: 'rgba(0,0,0,0.4)',
+                            opacity: 0,
+                            transition: 'opacity 200ms',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                        }}
+                    >
                         <Button
                             variant="secondary"
                             size="sm"
@@ -131,9 +191,9 @@ function DocumentCard({
                         >
                             View Original
                         </Button>
-                    </div>
-                </div>
-            </CardContent>
+                    </Box>
+                </Box>
+            </Box>
         </Card>
     );
 }
@@ -154,51 +214,45 @@ export default function Verification({ application }: Props) {
                         width: '100%',
                     }}
                 >
-                    <div className="flex min-h-[40vh] flex-col items-center justify-center gap-4 rounded-3xl border-2 border-dashed border-muted p-12 text-center transition-colors hover:border-muted-foreground/20">
-                        <div className="rounded-full bg-primary/10 p-6 ring-8 ring-primary/5">
-                            <ShieldCheck className="h-12 w-12 text-primary" />
-                        </div>
-                        <div className="max-w-xs space-y-2">
-                            <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: 2,
+                            minHeight: '40vh',
+                            p: 6,
+                            border: '2px dashed',
+                            borderColor: 'divider',
+                            borderRadius: 4,
+                            textAlign: 'center',
+                        }}
+                    >
+                        <Box
+                            sx={{
+                                p: 3,
+                                borderRadius: '50%',
+                                bgcolor: 'primary.light',
+                                color: 'primary.main',
+                                display: 'inline-flex',
+                            }}
+                        >
+                            <ShieldCheck size={48} />
+                        </Box>
+                        <Box sx={{ maxWidth: 320 }}>
+                            <Typography variant="h6" fontWeight={700} gutterBottom>
                                 No verification record
-                            </h2>
-                            <p className="text-sm text-muted-foreground">
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary">
                                 Your application details will appear here once
                                 available. If you believe this is an error,
                                 please contact support.
-                            </p>
-                        </div>
-                    </div>
+                            </Typography>
+                        </Box>
+                    </Box>
 
-                    {/* Bottom support section even in empty state */}
-                    <div className="rounded-xl bg-primary/5 p-6 border border-primary/10 flex flex-col md:flex-row items-center justify-between gap-4 transition-all hover:bg-primary/[0.07] shadow-sm">
-                        <div className="flex flex-col md:flex-row items-center gap-4 text-center md:text-left">
-                            <div className="rounded-full bg-primary/10 p-2 ring-4 ring-primary/5">
-                                <ShieldCheck className="h-5 w-5 text-primary" />
-                            </div>
-                            <div>
-                                <p className="font-semibold text-gray-900 dark:text-gray-100 text-base">
-                                    Security & Privacy
-                                </p>
-                                <p className="text-sm text-muted-foreground max-w-md">
-                                    Your verification data is encrypted and
-                                    handled securely according to our privacy
-                                    policy.
-                                </p>
-                            </div>
-                        </div>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() =>
-                                (window.location.href =
-                                    'mailto:support@surprisemoi.com')
-                            }
-                            className="bg-background hover:bg-primary/5 border-primary/20 transition-colors"
-                        >
-                            Contact Support
-                        </Button>
-                    </div>
+                    <SupportFooter />
                 </Box>
             </AppLayout>
         );
@@ -222,120 +276,249 @@ export default function Verification({ application }: Props) {
                 }}
             >
                 {/* Page Header */}
-                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between border-b pb-6">
-                    <div className="flex items-center gap-4">
-                        <div className="rounded-2xl bg-primary/10 p-3 text-primary">
-                            <ShieldCheck className="h-8 w-8" />
-                        </div>
-                        <div>
-                            <h1 className="text-2xl font-bold tracking-tight">
-                                Verification Status
-                            </h1>
-                            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1 text-sm text-muted-foreground">
-                                <span className="flex items-center gap-1">
-                                    <Clock className="h-3.5 w-3.5" />
-                                    Submitted:{' '}
-                                    {application.created_at_formatted}
-                                </span>
-                                {application.reviewed_at_formatted && (
-                                    <span className="flex items-center gap-1">
-                                        <CheckCircle className="h-3.5 w-3.5 text-emerald-500" />
-                                        Reviewed:{' '}
-                                        {application.reviewed_at_formatted}
-                                    </span>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-                    <div className="flex flex-col items-start md:items-end gap-2">
-                        <Badge
-                            className={`text-sm py-1.5 px-4 font-semibold ${status.className}`}
-                            variant={status.variant}
+                <Box
+                    sx={{
+                        display: 'flex',
+                        flexDirection: { xs: 'column', md: 'row' },
+                        alignItems: { md: 'center' },
+                        justifyContent: 'space-between',
+                        gap: 2,
+                        pb: 3,
+                        borderBottom: 1,
+                        borderColor: 'divider',
+                    }}
+                >
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                        <Box
+                            sx={{
+                                p: 1.5,
+                                borderRadius: 2,
+                                bgcolor: 'primary.light',
+                                color: 'primary.main',
+                                display: 'inline-flex',
+                            }}
                         >
-                            {status.label}
-                        </Badge>
-                    </div>
-                </div>
+                            <ShieldCheck size={32} />
+                        </Box>
+                        <Box>
+                            <Typography
+                                variant="h5"
+                                fontWeight={700}
+                                sx={{ letterSpacing: '-0.01em' }}
+                            >
+                                Verification Status
+                            </Typography>
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    flexWrap: 'wrap',
+                                    columnGap: 2,
+                                    rowGap: 0.5,
+                                    mt: 0.5,
+                                    color: 'text.secondary',
+                                }}
+                            >
+                                <Box
+                                    sx={{
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: 0.5,
+                                    }}
+                                >
+                                    <Clock size={14} />
+                                    <Typography variant="body2">
+                                        Submitted: {application.created_at_formatted}
+                                    </Typography>
+                                </Box>
+                                {application.reviewed_at_formatted && (
+                                    <Box
+                                        sx={{
+                                            display: 'inline-flex',
+                                            alignItems: 'center',
+                                            gap: 0.5,
+                                        }}
+                                    >
+                                        <CheckCircle
+                                            size={14}
+                                            style={{ color: '#10b981' }}
+                                        />
+                                        <Typography variant="body2">
+                                            Reviewed:{' '}
+                                            {application.reviewed_at_formatted}
+                                        </Typography>
+                                    </Box>
+                                )}
+                            </Box>
+                        </Box>
+                    </Box>
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            alignItems: { xs: 'flex-start', md: 'flex-end' },
+                        }}
+                    >
+                        <Badge variant={status.variant}>{status.label}</Badge>
+                    </Box>
+                </Box>
 
                 {/* Personal Details Card */}
-                <Card className="border-0 shadow-md ring-1 ring-border">
-                    <CardHeader className="border-b bg-muted/30 px-6 py-4">
-                        <div className="flex items-center gap-2">
-                            <User className="h-5 w-5 text-primary" />
-                            <CardTitle className="text-lg">
-                                Personal & Location Information
-                            </CardTitle>
-                        </div>
-                    </CardHeader>
-                    <CardContent className="p-0">
-                        <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-border">
-                            {/* Identity Column */}
-                            <div className="p-6 space-y-4">
-                                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-                                    Identity Details
-                                </h3>
-                                <InfoRow
-                                    icon={User}
-                                    label="Full Name"
-                                    value={`${application.first_name} ${application.last_name}`}
-                                />
-                                <InfoRow
-                                    icon={Mail}
-                                    label="Email Address"
-                                    value={application.email}
-                                />
-                                <InfoRow
-                                    icon={Phone}
-                                    label="Contact Number"
-                                    value={application.contact_number}
-                                />
-                                <InfoRow
-                                    icon={IdCard}
-                                    label="Ghana Card No."
-                                    value={application.ghana_card_number}
-                                />
-                            </div>
+                <Card
+                    variant="outlined"
+                    sx={{ borderRadius: 2, overflow: 'hidden' }}
+                >
+                    <Box
+                        sx={{
+                            px: 3,
+                            py: 2,
+                            borderBottom: 1,
+                            borderColor: 'divider',
+                            bgcolor: 'action.hover',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 1,
+                        }}
+                    >
+                        <User size={20} style={{ color: '#6366f1' }} />
+                        <Typography variant="h6" fontWeight={600}>
+                            Personal & Location Information
+                        </Typography>
+                    </Box>
+                    <Box
+                        sx={{
+                            display: 'grid',
+                            gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
+                        }}
+                    >
+                        {/* Identity Column */}
+                        <Box
+                            sx={{
+                                p: 3,
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: 1,
+                                borderBottom: {
+                                    xs: 1,
+                                    md: 0,
+                                },
+                                borderRight: {
+                                    xs: 0,
+                                    md: 1,
+                                },
+                                borderColor: 'divider',
+                            }}
+                        >
+                            <Typography
+                                variant="overline"
+                                sx={{
+                                    fontWeight: 600,
+                                    color: 'text.secondary',
+                                    letterSpacing: '0.08em',
+                                }}
+                            >
+                                Identity Details
+                            </Typography>
+                            <InfoRow
+                                icon={User}
+                                label="Full Name"
+                                value={`${application.first_name} ${application.last_name}`}
+                            />
+                            <InfoRow
+                                icon={Mail}
+                                label="Email Address"
+                                value={application.email}
+                            />
+                            <InfoRow
+                                icon={Phone}
+                                label="Contact Number"
+                                value={application.contact_number}
+                            />
+                            <InfoRow
+                                icon={IdCard}
+                                label="Ghana Card No."
+                                value={application.ghana_card_number}
+                            />
+                        </Box>
 
-                            {/* Location Column */}
-                            <div className="p-6 space-y-4">
-                                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-                                    Location Details
-                                </h3>
-                                <InfoRow
-                                    icon={MapPin}
-                                    label="Region"
-                                    value={application.region?.name}
-                                />
-                                <InfoRow
-                                    icon={MapPin}
-                                    label="City"
-                                    value={application.city?.name}
-                                />
-                                <InfoRow
-                                    icon={MapPin}
-                                    label="Street / House No."
-                                    value={application.location}
-                                />
-                                <div className="pt-2">
-                                    <div className="rounded-lg bg-muted p-3">
-                                        <p className="text-xs font-medium text-muted-foreground mb-1 uppercase">
-                                            Current Status
-                                        </p>
-                                        <p className="text-sm font-bold capitalize">
-                                            {application.status.replace(
-                                                '_',
-                                                ' ',
-                                            )}
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </CardContent>
+                        {/* Location Column */}
+                        <Box
+                            sx={{
+                                p: 3,
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: 1,
+                            }}
+                        >
+                            <Typography
+                                variant="overline"
+                                sx={{
+                                    fontWeight: 600,
+                                    color: 'text.secondary',
+                                    letterSpacing: '0.08em',
+                                }}
+                            >
+                                Location Details
+                            </Typography>
+                            <InfoRow
+                                icon={MapPin}
+                                label="Region"
+                                value={application.region?.name}
+                            />
+                            <InfoRow
+                                icon={MapPin}
+                                label="City"
+                                value={application.city?.name}
+                            />
+                            <InfoRow
+                                icon={MapPin}
+                                label="Street / House No."
+                                value={application.location}
+                            />
+                            <Box sx={{ pt: 1 }}>
+                                <Box
+                                    sx={{
+                                        p: 1.5,
+                                        borderRadius: 1.5,
+                                        bgcolor: 'action.hover',
+                                    }}
+                                >
+                                    <Typography
+                                        variant="caption"
+                                        sx={{
+                                            display: 'block',
+                                            fontWeight: 500,
+                                            color: 'text.secondary',
+                                            textTransform: 'uppercase',
+                                            letterSpacing: '0.05em',
+                                            mb: 0.5,
+                                        }}
+                                    >
+                                        Current Status
+                                    </Typography>
+                                    <Typography
+                                        variant="body2"
+                                        fontWeight={700}
+                                        sx={{ textTransform: 'capitalize' }}
+                                    >
+                                        {application.status.replace('_', ' ')}
+                                    </Typography>
+                                </Box>
+                            </Box>
+                        </Box>
+                    </Box>
                 </Card>
 
                 {/* Document Cards */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <Box
+                    sx={{
+                        display: 'grid',
+                        gap: 3,
+                        gridTemplateColumns: {
+                            xs: '1fr',
+                            sm: 'repeat(2, 1fr)',
+                            lg: 'repeat(3, 1fr)',
+                        },
+                    }}
+                >
                     <DocumentCard
                         title="Ghana Card — Front"
                         url={application.ghana_card_image_url}
@@ -355,37 +538,75 @@ export default function Verification({ application }: Props) {
                         url={application.selfie_url}
                         icon={User}
                     />
-                </div>
+                </Box>
 
-                {/* Bottom support section */}
-                <div className="rounded-xl bg-primary/5 p-6 border border-primary/10 flex flex-col md:flex-row items-center justify-between gap-4 transition-all hover:bg-primary/[0.07] shadow-sm">
-                    <div className="flex flex-col md:flex-row items-center gap-4 text-center md:text-left">
-                        <div className="rounded-full bg-primary/10 p-2 ring-4 ring-primary/5">
-                            <ShieldCheck className="h-5 w-5 text-primary" />
-                        </div>
-                        <div>
-                            <p className="font-semibold text-gray-900 dark:text-gray-100 text-base">
-                                Security & Privacy
-                            </p>
-                            <p className="text-sm text-muted-foreground max-w-md">
-                                Your verification data is encrypted and handled
-                                securely according to our privacy policy.
-                            </p>
-                        </div>
-                    </div>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() =>
-                            (window.location.href =
-                                'mailto:support@surprisemoi.com')
-                        }
-                        className="bg-background hover:bg-primary/5 border-primary/20 transition-colors whitespace-nowrap"
-                    >
-                        Contact Support
-                    </Button>
-                </div>
+                <SupportFooter />
             </Box>
         </AppLayout>
+    );
+}
+
+function SupportFooter() {
+    return (
+        <Box
+            sx={{
+                p: 3,
+                borderRadius: 2,
+                border: 1,
+                borderColor: 'primary.light',
+                bgcolor: 'primary.lighter',
+                display: 'flex',
+                flexDirection: { xs: 'column', md: 'row' },
+                alignItems: { xs: 'stretch', md: 'center' },
+                justifyContent: 'space-between',
+                gap: 2,
+            }}
+        >
+            <Box
+                sx={{
+                    display: 'flex',
+                    flexDirection: { xs: 'column', md: 'row' },
+                    alignItems: 'center',
+                    gap: 2,
+                    textAlign: { xs: 'center', md: 'left' },
+                }}
+            >
+                <Box
+                    sx={{
+                        p: 1,
+                        borderRadius: '50%',
+                        bgcolor: 'primary.light',
+                        color: 'primary.main',
+                        display: 'inline-flex',
+                    }}
+                >
+                    <ShieldCheck size={20} />
+                </Box>
+                <Box>
+                    <Typography variant="subtitle1" fontWeight={600}>
+                        Security & Privacy
+                    </Typography>
+                    <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{ maxWidth: 480 }}
+                    >
+                        Your verification data is encrypted and handled securely
+                        according to our privacy policy.
+                    </Typography>
+                </Box>
+            </Box>
+            <Box sx={{ display: 'flex', justifyContent: { xs: 'center', md: 'flex-end' } }}>
+                <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() =>
+                        (window.location.href = 'mailto:support@surprisemoi.com')
+                    }
+                >
+                    Contact Support
+                </Button>
+            </Box>
+        </Box>
     );
 }
