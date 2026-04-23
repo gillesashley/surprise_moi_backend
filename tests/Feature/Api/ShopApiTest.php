@@ -2,12 +2,15 @@
 
 namespace Tests\Feature\Api;
 
+use App\Http\Resources\ProductResource;
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\Service;
 use App\Models\Shop;
 use App\Models\User;
 use App\Models\VendorApplication;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
@@ -187,6 +190,41 @@ class ShopApiTest extends TestCase
         $this->assertDatabaseMissing('shops', ['id' => $shop->id]);
         $this->assertDatabaseMissing('products', ['id' => $activeProduct->id]);
         $this->assertDatabaseMissing('products', ['id' => $trashedProduct->id]);
+    }
+
+    public function test_deleting_shop_soft_deletes_its_services(): void
+    {
+        $shop = Shop::factory()->create(['vendor_id' => $this->vendor->id]);
+        $service = Service::factory()->create([
+            'shop_id' => $shop->id,
+            'vendor_id' => $this->vendor->id,
+        ]);
+
+        $this->actingAs($this->vendor, 'sanctum')
+            ->deleteJson("/api/v1/shops/{$shop->id}")
+            ->assertStatus(200);
+
+        $this->assertSoftDeleted('shops', ['id' => $shop->id]);
+        $this->assertSoftDeleted('services', ['id' => $service->id]);
+    }
+
+    public function test_product_resource_is_null_safe_when_orphan_shop_is_trashed(): void
+    {
+        // Simulate a pre-cascade orphan: a product whose shop was soft-deleted
+        // before the cascading hook existed. We bypass model events to create it.
+        $shop = Shop::factory()->create(['vendor_id' => $this->vendor->id]);
+        $product = Product::factory()->create([
+            'shop_id' => $shop->id,
+            'vendor_id' => $this->vendor->id,
+        ]);
+        Shop::withoutEvents(fn () => $shop->delete());
+
+        $product->load('shop');
+        $this->assertNull($product->shop, 'Soft-deleted shop should resolve to null via SoftDeletingScope');
+
+        $payload = (new ProductResource($product))->toArray(Request::create('/'));
+
+        $this->assertNull($payload['shop']);
     }
 
     public function test_can_view_shop_products(): void

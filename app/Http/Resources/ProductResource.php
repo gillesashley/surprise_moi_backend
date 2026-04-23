@@ -25,7 +25,7 @@ class ProductResource extends JsonResource
             'slug' => $this->slug,
             'name' => $this->name,
             'description' => $this->description,
-            'category' => new CategoryResource($this->whenLoaded('category')),
+            'category' => $this->whenLoaded('category', fn () => $this->category ? new CategoryResource($this->category) : null),
             'price' => (float) $this->price,
             'discount_price' => $this->effective_price < (float) $this->price
                 ? $this->effective_price
@@ -51,8 +51,8 @@ class ProductResource extends JsonResource
             'thumbnail' => $this->thumbnail ? storage_url($this->thumbnail) : null,
             'stock' => $this->stock,
             'is_available' => $this->is_available,
-            'vendor' => new VendorResource($this->whenLoaded('vendor')),
-            'shop' => new ShopResource($this->whenLoaded('shop')),
+            'vendor' => $this->whenLoaded('vendor', fn () => $this->vendor ? new VendorResource($this->vendor) : null),
+            'shop' => $this->whenLoaded('shop', fn () => $this->shop ? new ShopResource($this->shop) : null),
             'rating' => (float) $this->rating,
             'reviews_count' => $this->reviews_count,
             'tags' => $this->whenLoaded('tags', function () {

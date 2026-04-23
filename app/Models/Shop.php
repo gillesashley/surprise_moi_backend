@@ -79,8 +79,10 @@ class Shop extends Model
         static::deleting(function (Shop $shop) {
             if ($shop->isForceDeleting()) {
                 $shop->products()->withTrashed()->forceDelete();
+                $shop->services()->withTrashed()->forceDelete();
             } else {
                 $shop->products()->delete();
+                $shop->services()->delete();
             }
         });
     }
