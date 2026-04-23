@@ -1,5 +1,6 @@
 import AppLogoIcon from '@/components/app-logo-icon';
 import InputError from '@/components/input-error';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -13,6 +14,7 @@ import {
 import { home, login } from '@/routes';
 import { Head, Link, useForm } from '@inertiajs/react';
 import Box from '@mui/material/Box';
+import InputAdornment from '@mui/material/InputAdornment';
 import Stack from '@mui/material/Stack';
 import Step from '@mui/material/Step';
 import StepLabel from '@mui/material/StepLabel';
@@ -84,8 +86,9 @@ export default function FieldAgentRegister({ regions }: Props) {
             return Boolean(data.region_id && data.city_id && data.location);
         }
         if (step === 2) {
+            const digits = data.ghana_card_number.replace(/\D/g, '');
             return Boolean(
-                data.ghana_card_number &&
+                digits.length === 10 &&
                     data.ghana_card_image &&
                     data.ghana_card_back_image &&
                     data.selfie,
@@ -94,9 +97,49 @@ export default function FieldAgentRegister({ regions }: Props) {
         return true;
     };
 
+    const formatGhanaCard = (value: string) => {
+        const digits = value.replace(/\D/g, '').slice(0, 10);
+        if (digits.length <= 9) return digits;
+        return `${digits.slice(0, 9)}-${digits.slice(9)}`;
+    };
+
     const submit = (e: FormEvent) => {
         e.preventDefault();
-        post('/field-agents/register', { forceFormData: true });
+        post('/field-agents/register', {
+            forceFormData: true,
+            onError: (errors) => {
+                if (
+                    Object.keys(errors).some((k) =>
+                        [
+                            'first_name',
+                            'last_name',
+                            'email',
+                            'contact_number',
+                            'password',
+                        ].includes(k),
+                    )
+                ) {
+                    setStep(0);
+                } else if (
+                    Object.keys(errors).some((k) =>
+                        ['region_id', 'city_id', 'location'].includes(k),
+                    )
+                ) {
+                    setStep(1);
+                } else if (
+                    Object.keys(errors).some((k) =>
+                        [
+                            'ghana_card_number',
+                            'ghana_card_image',
+                            'ghana_card_back_image',
+                            'selfie',
+                        ].includes(k),
+                    )
+                ) {
+                    setStep(2);
+                }
+            },
+        });
     };
 
     return (
@@ -160,6 +203,26 @@ export default function FieldAgentRegister({ regions }: Props) {
                                 </Step>
                             ))}
                         </Stepper>
+
+                        {Object.keys(errors).length > 0 && (
+                            <Alert variant="destructive" sx={{ mb: 4 }}>
+                                <AlertTitle>Registration failed</AlertTitle>
+                                <AlertDescription>
+                                    Please check the form for errors and try
+                                    again.
+                                    {errors.email && (
+                                        <div
+                                            style={{
+                                                marginTop: '0.5rem',
+                                                fontWeight: 500,
+                                            }}
+                                        >
+                                            • {errors.email}
+                                        </div>
+                                    )}
+                                </AlertDescription>
+                            </Alert>
+                        )}
 
                         <form
                             onSubmit={submit}
@@ -407,14 +470,28 @@ export default function FieldAgentRegister({ regions }: Props) {
                                         </Label>
                                         <Input
                                             id="ghana_card_number"
-                                            placeholder="GHA-123456789-1"
-                                            value={data.ghana_card_number}
-                                            onChange={(e) =>
+                                            placeholder="123456789-1"
+                                            startAdornment={
+                                                <InputAdornment position="start">
+                                                    GHA-
+                                                </InputAdornment>
+                                            }
+                                            value={data.ghana_card_number.replace(
+                                                'GHA-',
+                                                '',
+                                            )}
+                                            onChange={(e) => {
+                                                const formatted =
+                                                    formatGhanaCard(
+                                                        e.target.value,
+                                                    );
                                                 setData(
                                                     'ghana_card_number',
-                                                    e.target.value,
-                                                )
-                                            }
+                                                    formatted
+                                                        ? `GHA-${formatted}`
+                                                        : '',
+                                                );
+                                            }}
                                         />
                                         <InputError
                                             message={errors.ghana_card_number}
@@ -427,11 +504,14 @@ export default function FieldAgentRegister({ regions }: Props) {
                                         <Input
                                             id="ghana_card_image"
                                             type="file"
-                                            accept="image/jpeg,image/png,image/webp"
+                                            inputProps={{
+                                                accept: 'image/jpeg,image/png,image/webp',
+                                            }}
                                             onChange={(e) =>
                                                 setData(
                                                     'ghana_card_image',
-                                                    e.target.files?.[0] ?? null,
+                                                    (e.target as HTMLInputElement)
+                                                        .files?.[0] ?? null,
                                                 )
                                             }
                                         />
@@ -446,11 +526,14 @@ export default function FieldAgentRegister({ regions }: Props) {
                                         <Input
                                             id="ghana_card_back_image"
                                             type="file"
-                                            accept="image/jpeg,image/png,image/webp"
+                                            inputProps={{
+                                                accept: 'image/jpeg,image/png,image/webp',
+                                            }}
                                             onChange={(e) =>
                                                 setData(
                                                     'ghana_card_back_image',
-                                                    e.target.files?.[0] ?? null,
+                                                    (e.target as HTMLInputElement)
+                                                        .files?.[0] ?? null,
                                                 )
                                             }
                                         />
@@ -467,11 +550,14 @@ export default function FieldAgentRegister({ regions }: Props) {
                                         <Input
                                             id="selfie"
                                             type="file"
-                                            accept="image/jpeg,image/png,image/webp"
+                                            inputProps={{
+                                                accept: 'image/jpeg,image/png,image/webp',
+                                            }}
                                             onChange={(e) =>
                                                 setData(
                                                     'selfie',
-                                                    e.target.files?.[0] ?? null,
+                                                    (e.target as HTMLInputElement)
+                                                        .files?.[0] ?? null,
                                                 )
                                             }
                                         />

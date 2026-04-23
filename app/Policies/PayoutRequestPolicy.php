@@ -14,7 +14,7 @@ class PayoutRequestPolicy
     {
         return $user->isInfluencer()
             || $user->isFieldAgent()
-            || $user->isMarketer()
+            || $user->isEmployee()
             || $user->isAdmin()
             || $user->isSuperAdmin();
     }
@@ -34,7 +34,7 @@ class PayoutRequestPolicy
      */
     public function create(User $user): bool
     {
-        return $user->isInfluencer() || $user->isFieldAgent() || $user->isMarketer();
+        return $user->isInfluencer() || $user->isFieldAgent() || $user->isEmployee();
     }
 
     /**

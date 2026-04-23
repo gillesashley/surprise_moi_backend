@@ -1,12 +1,11 @@
-import * as React from 'react';
-import OutlinedInput from '@mui/material/OutlinedInput';
+import OutlinedInput, { OutlinedInputProps } from '@mui/material/OutlinedInput';
 
 function Input({
     className,
     type,
-    ref,
+    inputRef,
     ...props
-}: React.ComponentProps<'input'>) {
+}: OutlinedInputProps) {
     return (
         <OutlinedInput
             type={type}
@@ -14,11 +13,8 @@ function Input({
             size="small"
             fullWidth
             className={className}
-            inputRef={ref}
-            inputProps={{
-                'aria-invalid': props['aria-invalid'],
-            }}
-            {...(props as React.ComponentProps<typeof OutlinedInput>)}
+            inputRef={inputRef}
+            {...props}
         />
     );
 }

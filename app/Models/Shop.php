@@ -75,6 +75,14 @@ class Shop extends Model
                 $shop->slug = Str::slug($shop->name);
             }
         });
+
+        static::deleting(function (Shop $shop) {
+            if ($shop->isForceDeleting()) {
+                $shop->products()->withTrashed()->forceDelete();
+            } else {
+                $shop->products()->delete();
+            }
+        });
     }
 
     public function vendor(): BelongsTo

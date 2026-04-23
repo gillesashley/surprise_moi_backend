@@ -13,7 +13,7 @@ class TargetPolicy
     public function viewAny(User $user): bool
     {
         return $user->isFieldAgent()
-            || $user->isMarketer()
+            || $user->isEmployee()
             || $user->isAdmin()
             || $user->isSuperAdmin();
     }
