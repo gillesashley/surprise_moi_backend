@@ -131,4 +131,68 @@ class CouponTest extends TestCase
                 'message' => 'Cannot delete a coupon that has been used.',
             ]);
     }
+
+    public function test_owner_vendor_can_delete_own_coupon(): void
+    {
+        $vendor = User::factory()->create(['role' => 'vendor']);
+        $coupon = Coupon::factory()->create([
+            'vendor_id' => $vendor->id,
+            'used_count' => 0,
+        ]);
+
+        $response = $this->actingAs($vendor)
+            ->deleteJson("/api/v1/coupons/{$coupon->id}");
+
+        $response->assertOk()
+            ->assertJson(['message' => 'Coupon deleted successfully.']);
+        $this->assertSoftDeleted('coupons', ['id' => $coupon->id]);
+    }
+
+    public function test_non_owner_vendor_cannot_delete_coupon(): void
+    {
+        $owner = User::factory()->create(['role' => 'vendor']);
+        $stranger = User::factory()->create(['role' => 'vendor']);
+        $coupon = Coupon::factory()->create([
+            'vendor_id' => $owner->id,
+            'used_count' => 0,
+        ]);
+
+        $response = $this->actingAs($stranger)
+            ->deleteJson("/api/v1/coupons/{$coupon->id}");
+
+        $response->assertForbidden();
+        $this->assertDatabaseHas('coupons', ['id' => $coupon->id, 'deleted_at' => null]);
+    }
+
+    public function test_customer_cannot_delete_coupon(): void
+    {
+        $vendor = User::factory()->create(['role' => 'vendor']);
+        $customer = User::factory()->create(['role' => 'customer']);
+        $coupon = Coupon::factory()->create([
+            'vendor_id' => $vendor->id,
+            'used_count' => 0,
+        ]);
+
+        $response = $this->actingAs($customer)
+            ->deleteJson("/api/v1/coupons/{$coupon->id}");
+
+        $response->assertForbidden();
+        $this->assertDatabaseHas('coupons', ['id' => $coupon->id, 'deleted_at' => null]);
+    }
+
+    public function test_admin_can_delete_any_coupon(): void
+    {
+        $vendor = User::factory()->create(['role' => 'vendor']);
+        $admin = User::factory()->create(['role' => 'admin']);
+        $coupon = Coupon::factory()->create([
+            'vendor_id' => $vendor->id,
+            'used_count' => 0,
+        ]);
+
+        $response = $this->actingAs($admin)
+            ->deleteJson("/api/v1/coupons/{$coupon->id}");
+
+        $response->assertOk();
+        $this->assertSoftDeleted('coupons', ['id' => $coupon->id]);
+    }
 }

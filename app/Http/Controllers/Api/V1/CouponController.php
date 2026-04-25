@@ -8,12 +8,15 @@ use App\Http\Requests\StoreCouponRequest;
 use App\Http\Requests\UpdateCouponRequest;
 use App\Http\Resources\CouponResource;
 use App\Models\Coupon;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class CouponController extends Controller
 {
+    use AuthorizesRequests;
+
     public function index(Request $request): AnonymousResourceCollection
     {
         $query = Coupon::query()->with('vendor');
@@ -69,6 +72,8 @@ class CouponController extends Controller
 
     public function destroy(Coupon $coupon): JsonResponse
     {
+        $this->authorize('delete', $coupon);
+
         if ($coupon->used_count > 0) {
             return response()->json([
                 'message' => 'Cannot delete a coupon that has been used.',
