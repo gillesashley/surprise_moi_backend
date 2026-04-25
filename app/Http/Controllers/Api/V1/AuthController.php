@@ -355,12 +355,43 @@ class AuthController extends Controller
 
             $payload = $response->json();
 
-            // Validate audience matches our client ID
+            // Fail closed when GOOGLE_CLIENT_ID is missing — without it we cannot
+            // verify the token was issued for our app, so any Google token would
+            // otherwise be accepted.
             $clientId = config('services.google.client_id');
-            if ($clientId && ($payload['aud'] ?? null) !== $clientId) {
+            if (empty($clientId)) {
+                Log::error('Google social login rejected: services.google.client_id is not configured');
+
+                return null;
+            }
+
+            if (($payload['aud'] ?? null) !== $clientId) {
                 Log::warning('Google token audience mismatch', [
                     'expected' => $clientId,
                     'got' => $payload['aud'] ?? 'missing',
+                ]);
+
+                return null;
+            }
+
+            // Reject tokens not issued by Google. Google sets iss to one of these
+            // two literal values; anything else means the token is not from Google.
+            $allowedIssuers = ['accounts.google.com', 'https://accounts.google.com'];
+            if (! in_array($payload['iss'] ?? null, $allowedIssuers, true)) {
+                Log::warning('Google token issuer mismatch', [
+                    'got' => $payload['iss'] ?? 'missing',
+                ]);
+
+                return null;
+            }
+
+            // Reject tokens where Google has not verified the email address.
+            // A Google Workspace admin can set a primary email to any value
+            // without proving ownership; only email_verified=true means Google
+            // itself vouches for the email-to-account binding.
+            if (filter_var($payload['email_verified'] ?? false, FILTER_VALIDATE_BOOLEAN) !== true) {
+                Log::warning('Google token rejected: email_verified is not true', [
+                    'email' => $payload['email'] ?? 'missing',
                 ]);
 
                 return null;

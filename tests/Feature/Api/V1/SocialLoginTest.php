@@ -26,6 +26,7 @@ class SocialLoginTest extends TestCase
             'name' => 'John Doe',
             'picture' => 'https://lh3.googleusercontent.com/photo.jpg',
             'aud' => config('services.google.client_id'),
+            'iss' => 'https://accounts.google.com',
             'email_verified' => 'true',
         ], $overrides);
 
@@ -237,7 +238,7 @@ class SocialLoginTest extends TestCase
             ->assertJsonValidationErrors(['role']);
     }
 
-    public function test_social_login_skips_audience_check_when_client_id_not_configured(): void
+    public function test_social_login_rejects_when_client_id_not_configured(): void
     {
         config()->set('services.google.client_id', null);
 
@@ -250,7 +251,72 @@ class SocialLoginTest extends TestCase
             'id_token' => 'valid-google-token',
         ]);
 
-        $response->assertOk()
-            ->assertJsonPath('data.user.is_new_user', true);
+        $response->assertStatus(401)
+            ->assertJsonPath('success', false);
+        $this->assertDatabaseCount('users', 0);
+    }
+
+    public function test_social_login_rejects_token_with_unverified_email(): void
+    {
+        config()->set('services.google.client_id', 'test-client-id.apps.googleusercontent.com');
+
+        $this->fakeGoogleTokenSuccess([
+            'aud' => 'test-client-id.apps.googleusercontent.com',
+            'email_verified' => 'false',
+        ]);
+
+        $response = $this->postJson(self::ENDPOINT, [
+            'provider' => 'google',
+            'id_token' => 'unverified-email-token',
+        ]);
+
+        $response->assertStatus(401)
+            ->assertJsonPath('success', false);
+        $this->assertDatabaseCount('users', 0);
+    }
+
+    public function test_social_login_does_not_link_to_existing_user_when_email_unverified(): void
+    {
+        config()->set('services.google.client_id', 'test-client-id.apps.googleusercontent.com');
+
+        $victim = User::factory()->create(['email' => 'victim@gmail.com']);
+
+        $this->fakeGoogleTokenSuccess([
+            'sub' => 'attacker-google-sub',
+            'email' => 'victim@gmail.com',
+            'aud' => 'test-client-id.apps.googleusercontent.com',
+            'email_verified' => 'false',
+        ]);
+
+        $response = $this->postJson(self::ENDPOINT, [
+            'provider' => 'google',
+            'id_token' => 'unverified-email-token',
+        ]);
+
+        $response->assertStatus(401);
+        $this->assertDatabaseMissing('social_accounts', [
+            'user_id' => $victim->id,
+            'provider' => 'google',
+            'provider_id' => 'attacker-google-sub',
+        ]);
+    }
+
+    public function test_social_login_rejects_token_with_invalid_issuer(): void
+    {
+        config()->set('services.google.client_id', 'test-client-id.apps.googleusercontent.com');
+
+        $this->fakeGoogleTokenSuccess([
+            'aud' => 'test-client-id.apps.googleusercontent.com',
+            'iss' => 'https://impostor.example.com',
+        ]);
+
+        $response = $this->postJson(self::ENDPOINT, [
+            'provider' => 'google',
+            'id_token' => 'wrong-issuer-token',
+        ]);
+
+        $response->assertStatus(401)
+            ->assertJsonPath('success', false);
+        $this->assertDatabaseCount('users', 0);
     }
 }

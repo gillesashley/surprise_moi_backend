@@ -313,5 +313,11 @@ Route::get('/account-deletion', [\App\Http\Controllers\AccountDeletionController
     ->name('account-deletion.show');
 Route::post('/account-deletion', [\App\Http\Controllers\AccountDeletionController::class, 'submit'])
     ->name('account-deletion.submit');
+Route::get('/account-deletion/confirm/{user}', [\App\Http\Controllers\AccountDeletionController::class, 'showConfirmation'])
+    ->middleware('signed')
+    ->name('account-deletion.confirm');
+Route::post('/account-deletion/confirm/{user}', [\App\Http\Controllers\AccountDeletionController::class, 'confirm'])
+    ->middleware('signed')
+    ->name('account-deletion.confirm.post');
 
 require __DIR__.'/settings.php';
