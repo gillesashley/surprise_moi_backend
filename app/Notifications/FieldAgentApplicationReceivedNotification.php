@@ -35,6 +35,6 @@ class FieldAgentApplicationReceivedNotification extends Notification implements 
     public function toSms(mixed $notifiable): SmsMessage
     {
         return (new SmsMessage)
-            ->content('Surprise Moi: We received your field agent application. We will notify you once reviewed.');
+            ->content('Surprise Moi: We have received your Field Agent application. Kindly join the official WhatsApp group for updates and training details: https://chat.whatsapp.com/KnZWT2OYOL4Gi6uITQBeyc We will notify you once reviewed.');
     }
 }
