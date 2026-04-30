@@ -233,15 +233,22 @@ function Sidebar({
             style={
               {
                 "--sidebar-width": SIDEBAR_WIDTH_MOBILE,
-                backgroundColor: "var(--sidebar)",
-                color: "var(--sidebar-foreground)",
                 width: "var(--sidebar-width)",
                 padding: 0,
               } as React.CSSProperties
             }
             side={side}
           >
-            <Box sx={{ display: "flex", height: "100%", width: "100%", flexDirection: "column" }}>
+            <Box
+              sx={{
+                display: "flex",
+                height: "100%",
+                width: "100%",
+                flexDirection: "column",
+                bgcolor: "background.paper",
+                color: "text.primary",
+              }}
+            >
               {children}
             </Box>
           </SheetContent>
@@ -367,7 +374,7 @@ function SidebarTrigger({
       variant="ghost"
       size="icon"
       className={className}
-      style={{ width: 28, height: 28 }}
+      style={{ width: 32, height: 32 }}
       onClick={(event) => {
         onClick?.(event)
         toggleSidebar()
