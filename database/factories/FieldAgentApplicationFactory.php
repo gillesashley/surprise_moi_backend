@@ -63,4 +63,9 @@ class FieldAgentApplicationFactory extends Factory
             'rejection_reason' => 'Documents unclear. Please resubmit.',
         ]);
     }
+
+    public function team(): static
+    {
+        return $this->state(['is_team' => true]);
+    }
 }
