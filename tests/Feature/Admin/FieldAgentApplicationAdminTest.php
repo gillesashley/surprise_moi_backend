@@ -9,6 +9,8 @@ use App\Notifications\FieldAgentRejectedNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Storage;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class FieldAgentApplicationAdminTest extends TestCase
@@ -60,6 +62,29 @@ class FieldAgentApplicationAdminTest extends TestCase
         $this->actingAs($this->admin)
             ->get("/dashboard/field-agent-applications/{$app->id}")
             ->assertOk();
+    }
+
+    public function test_show_returns_image_urls_from_default_disk_not_public_disk(): void
+    {
+        Storage::fake('r2');
+
+        $app = FieldAgentApplication::factory()->pending()->create([
+            'ghana_card_image_path' => 'field-agents/ghana-cards/front.jpg',
+            'ghana_card_back_image_path' => 'field-agents/ghana-cards/back.jpg',
+            'selfie_path' => 'field-agents/selfies/selfie.jpg',
+        ]);
+
+        $defaultDisk = Storage::disk(config('filesystems.default'));
+
+        $this->actingAs($this->admin)
+            ->get("/dashboard/field-agent-applications/{$app->id}")
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('application.ghana_card_image_url', $defaultDisk->url($app->ghana_card_image_path))
+                ->where('application.ghana_card_back_image_url', $defaultDisk->url($app->ghana_card_back_image_path))
+                ->where('application.selfie_url', $defaultDisk->url($app->selfie_path))
+                ->etc()
+            );
     }
 
     public function test_approval_creates_field_agent_user_and_clears_password(): void
