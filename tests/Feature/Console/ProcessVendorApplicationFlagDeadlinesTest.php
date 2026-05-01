@@ -29,7 +29,7 @@ class ProcessVendorApplicationFlagDeadlinesTest extends TestCase
 
         Notification::assertSentTo($app->user, VendorFlagReminderNotification::class);
         $this->assertNotNull($app->fresh()->flag_reminder_sent_at);
-        $this->assertDatabaseHas('activity_logs', [
+        $this->assertDatabaseHas('activity_log', [
             'event' => 'vendor_application.flag_reminder_sent',
             'subject_id' => $app->id,
         ]);
@@ -99,7 +99,7 @@ class ProcessVendorApplicationFlagDeadlinesTest extends TestCase
         Notification::assertSentTo($superAdmin, VendorFlagExpiredNotification::class);
         Notification::assertNotSentTo($vendor, VendorFlagExpiredNotification::class);
         $this->assertNotNull($app->fresh()->flag_expired_alert_sent_at);
-        $this->assertDatabaseHas('activity_logs', [
+        $this->assertDatabaseHas('activity_log', [
             'event' => 'vendor_application.flag_expired_alert_sent',
             'subject_id' => $app->id,
         ]);
