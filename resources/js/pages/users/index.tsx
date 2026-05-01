@@ -38,6 +38,10 @@ import {
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
+type UserRow = PaginatedUsers['data'][number] & {
+    is_team_field_agent?: boolean;
+};
+
 interface Props {
     users: PaginatedUsers;
     roles: string[];
@@ -487,18 +491,38 @@ export default function UsersIndex({
                                                         fontSize: '0.875rem',
                                                     }}
                                                 >
-                                                    <Chip
-                                                        label={formatRole(
-                                                            user.role ||
-                                                                'customer',
-                                                        )}
-                                                        color={getRoleBadgeColor(
-                                                            user.role ||
-                                                                'customer',
-                                                        )}
-                                                        size="small"
-                                                        variant="outlined"
-                                                    />
+                                                    <Box
+                                                        sx={{
+                                                            display:
+                                                                'inline-flex',
+                                                            alignItems:
+                                                                'center',
+                                                            gap: 1,
+                                                        }}
+                                                    >
+                                                        <Chip
+                                                            label={formatRole(
+                                                                user.role ||
+                                                                    'customer',
+                                                            )}
+                                                            color={getRoleBadgeColor(
+                                                                user.role ||
+                                                                    'customer',
+                                                            )}
+                                                            size="small"
+                                                            variant="outlined"
+                                                        />
+                                                        {user.role ===
+                                                            'field_agent' &&
+                                                            (user as UserRow)
+                                                                .is_team_field_agent && (
+                                                                <Chip
+                                                                    label="Team"
+                                                                    size="small"
+                                                                    variant="outlined"
+                                                                />
+                                                            )}
+                                                    </Box>
                                                 </Box>
                                             )}
                                             <Box

@@ -65,7 +65,7 @@ class UserController extends Controller
     public function index(Request $request)
     {
         $query = User::query()
-            ->select(['id', 'name', 'email', 'phone', 'role', 'email_verified_at', 'created_at']);
+            ->select(['id', 'name', 'email', 'phone', 'role', 'is_team_field_agent', 'email_verified_at', 'created_at']);
 
         $filters = $this->applyFiltersAndSorting($request, $query);
         $activeRole = $filters['role_filter'];
@@ -86,6 +86,7 @@ class UserController extends Controller
 
                     $data['visits_completed_count'] = $totalVisits;
                     $data['pass_rate'] = null; // pass rate is deprecated
+                    $data['is_team_field_agent'] = (bool) $user->is_team_field_agent;
                 }
 
                 return $data;
