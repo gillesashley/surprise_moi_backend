@@ -99,6 +99,11 @@ interface Application {
         name: string;
     } | null;
     rejection_reason: string | null;
+    flagged_at: string | null;
+    flag_reason: string | null;
+    flagged_by: { id: number; name: string } | null;
+    grace_period_ends_at: string | null;
+    flag_reminder_sent_at: string | null;
     payment_required: boolean;
     payment_completed: boolean;
     payment_completed_at: string | null;
@@ -159,6 +164,7 @@ interface VendorOrders {
 interface Props {
     application: Application;
     vendorOrders: VendorOrders | null;
+    gracePeriodDays: number;
 }
 
 const getStatusBadge = (status: string) => {
@@ -199,6 +205,7 @@ const formatStatus = (status: string): string => {
 export default function VendorApplicationShow({
     application,
     vendorOrders,
+    gracePeriodDays,
 }: Props) {
     useInactivityLock();
     const [showRejectDialog, setShowRejectDialog] = useState(false);

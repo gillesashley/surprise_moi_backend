@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\FlagVendorApplicationRequest;
 use App\Models\Order;
+use App\Models\Setting;
 use App\Models\VendorApplication;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -81,7 +82,7 @@ class VendorApplicationController extends Controller
      */
     public function show(VendorApplication $vendorApplication)
     {
-        $vendorApplication->load(['user', 'reviewer', 'bespokeServices', 'latestOnboardingPayment', 'vendorVisit.fieldAgent']);
+        $vendorApplication->load(['user', 'reviewer', 'flagger', 'bespokeServices', 'latestOnboardingPayment', 'vendorVisit.fieldAgent']);
 
         return Inertia::render('vendor-applications/show', [
             'application' => [
@@ -151,6 +152,16 @@ class VendorApplicationController extends Controller
                 ] : null,
                 'rejection_reason' => $vendorApplication->rejection_reason,
 
+                // Flagging
+                'flagged_at' => $vendorApplication->flagged_at?->toIso8601String(),
+                'flag_reason' => $vendorApplication->flag_reason,
+                'flagged_by' => $vendorApplication->flagger ? [
+                    'id' => $vendorApplication->flagger->id,
+                    'name' => $vendorApplication->flagger->name,
+                ] : null,
+                'grace_period_ends_at' => $vendorApplication->grace_period_ends_at?->toIso8601String(),
+                'flag_reminder_sent_at' => $vendorApplication->flag_reminder_sent_at?->toIso8601String(),
+
                 // Payment info
                 'payment_required' => $vendorApplication->payment_required,
                 'payment_completed' => $vendorApplication->payment_completed,
@@ -191,6 +202,7 @@ class VendorApplicationController extends Controller
                 ] : null,
             ],
             'vendorOrders' => $this->getVendorOrders($vendorApplication),
+            'gracePeriodDays' => (int) Setting::get('vendor_application_grace_period_days', 7),
         ]);
     }
 
