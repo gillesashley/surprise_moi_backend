@@ -68,6 +68,15 @@ class VendorApplicationFlagTest extends TestCase
         $this->assertTrue($app->isEditable());
     }
 
+    public function test_rejected_application_is_editable(): void
+    {
+        // Pin existing behavior so a future narrowing of the in_array check
+        // can't silently break the rejected resubmit path.
+        $app = VendorApplication::factory()->rejected()->create();
+
+        $this->assertTrue($app->isEditable());
+    }
+
     public function test_pending_unsubmitted_application_is_still_editable(): void
     {
         $app = VendorApplication::factory()->create([
