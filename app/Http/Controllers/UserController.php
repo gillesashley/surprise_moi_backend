@@ -81,12 +81,13 @@ class UserController extends Controller
                     'created_at' => $user->created_at?->toIso8601String(),
                 ];
 
+                $data['is_team_field_agent'] = (bool) $user->is_team_field_agent;
+
                 if ($activeRole === 'field_agent') {
                     $totalVisits = $user->vendorVisitsAsAgent()->whereIn('status', ['submitted'])->count();
 
                     $data['visits_completed_count'] = $totalVisits;
                     $data['pass_rate'] = null; // pass rate is deprecated
-                    $data['is_team_field_agent'] = (bool) $user->is_team_field_agent;
                 }
 
                 return $data;

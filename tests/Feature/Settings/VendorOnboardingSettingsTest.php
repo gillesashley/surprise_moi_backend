@@ -59,6 +59,15 @@ class VendorOnboardingSettingsTest extends TestCase
                 'vendor_tier2_onboarding_fee' => 200,
                 'vendor_tier1_commission_rate' => 10,
                 'vendor_tier2_commission_rate' => 15,
+                'referral_bonus_customer_pct' => '15',
+                'referral_bonus_vendor_pct' => '20',
+                'referral_bonus_influencer_pct' => '25',
+                'referral_bonus_field_agent_pct' => '30',
+                'referral_bonus_employee_pct' => '20',
+                'referral_bonus_field_agent_team_pct' => '35',
+                'vendor_onboarding_subsidy_pct' => '25',
+                'referral_points_per_ghs' => '10',
+                'referral_cashout_min_points' => '1000',
             ]);
 
         $response->assertRedirect();
@@ -104,16 +113,17 @@ class VendorOnboardingSettingsTest extends TestCase
                 'referral_bonus_vendor_pct' => '20',
                 'referral_bonus_influencer_pct' => '25',
                 'referral_bonus_field_agent_pct' => '30',
-                'referral_bonus_marketer_pct' => '20',
+                'referral_bonus_employee_pct' => '20',
+                'referral_bonus_field_agent_team_pct' => '35',
                 'vendor_onboarding_subsidy_pct' => '30',
                 'referral_points_per_ghs' => '15',
                 'referral_cashout_min_points' => '2000',
             ])
             ->assertRedirect();
 
-        $this->assertSame('30', \App\Models\Setting::get('vendor_onboarding_subsidy_pct'));
-        $this->assertSame('15', \App\Models\Setting::get('referral_points_per_ghs'));
-        $this->assertSame('2000', \App\Models\Setting::get('referral_cashout_min_points'));
+        $this->assertEquals(30.0, (float) \App\Models\Setting::get('vendor_onboarding_subsidy_pct'));
+        $this->assertEquals(15.0, (float) \App\Models\Setting::get('referral_points_per_ghs'));
+        $this->assertEquals(2000.0, (float) \App\Models\Setting::get('referral_cashout_min_points'));
     }
 
     #[\PHPUnit\Framework\Attributes\Test]
@@ -131,7 +141,8 @@ class VendorOnboardingSettingsTest extends TestCase
                 'referral_bonus_vendor_pct' => '20',
                 'referral_bonus_influencer_pct' => '25',
                 'referral_bonus_field_agent_pct' => '30',
-                'referral_bonus_marketer_pct' => '20',
+                'referral_bonus_employee_pct' => '20',
+                'referral_bonus_field_agent_team_pct' => '35',
                 'vendor_onboarding_subsidy_pct' => '150',
                 'referral_points_per_ghs' => '10',
                 'referral_cashout_min_points' => '1000',
