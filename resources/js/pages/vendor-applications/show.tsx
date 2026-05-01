@@ -576,6 +576,73 @@ export default function VendorApplicationShow({
                                 </Typography>
                             </Box>
                         )}
+                        {application.flag_reason && (
+                            <Box
+                                sx={{
+                                    mt: 2,
+                                    borderRadius: 2,
+                                    bgcolor: 'warning.light',
+                                    opacity: 0.95,
+                                    p: 1.5,
+                                }}
+                            >
+                                <Typography
+                                    sx={{
+                                        fontSize: '0.875rem',
+                                        fontWeight: 500,
+                                        color: 'warning.dark',
+                                    }}
+                                >
+                                    Flag Reason:
+                                </Typography>
+                                <Typography
+                                    sx={{
+                                        mt: 0.5,
+                                        fontSize: '0.875rem',
+                                        color: 'warning.dark',
+                                    }}
+                                >
+                                    {application.flag_reason}
+                                </Typography>
+                                {application.grace_period_ends_at && (
+                                    <Typography
+                                        sx={{
+                                            mt: 1,
+                                            fontSize: '0.8125rem',
+                                            color: 'warning.dark',
+                                        }}
+                                    >
+                                        Vendor deadline:{' '}
+                                        <strong>
+                                            {new Date(
+                                                application.grace_period_ends_at,
+                                            ).toLocaleDateString()}
+                                        </strong>
+                                        {new Date(application.grace_period_ends_at) <
+                                            new Date() && ' — passed'}
+                                    </Typography>
+                                )}
+                                {application.flagged_by &&
+                                    application.flagged_at && (
+                                        <Typography
+                                            sx={{
+                                                mt: 0.5,
+                                                fontSize: '0.75rem',
+                                                color: 'warning.dark',
+                                                opacity: 0.8,
+                                            }}
+                                        >
+                                            Flagged by{' '}
+                                            {application.flagged_by.name} on{' '}
+                                            {new Date(
+                                                application.flagged_at,
+                                            ).toLocaleDateString()}
+                                            {application.flag_reminder_sent_at &&
+                                                ` · Reminder sent ${new Date(application.flag_reminder_sent_at).toLocaleDateString()}`}
+                                        </Typography>
+                                    )}
+                            </Box>
+                        )}
                         {application.rejection_reason && (
                             <Box
                                 sx={{
