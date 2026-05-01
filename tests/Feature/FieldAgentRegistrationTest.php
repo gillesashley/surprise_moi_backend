@@ -197,6 +197,23 @@ class FieldAgentRegistrationTest extends TestCase
             ->assertSessionHasErrors('is_team');
     }
 
+    public function test_terms_must_be_accepted(): void
+    {
+        $payload = $this->validPayload();
+        unset($payload['accepted_terms']);
+
+        $this->post('/field-agents/register', $payload)
+            ->assertSessionHasErrors('accepted_terms');
+        $this->assertSame(0, FieldAgentApplication::count());
+    }
+
+    public function test_terms_unchecked_value_is_rejected(): void
+    {
+        $this->post('/field-agents/register', $this->validPayload(['accepted_terms' => '0']))
+            ->assertSessionHasErrors('accepted_terms');
+        $this->assertSame(0, FieldAgentApplication::count());
+    }
+
     /**
      * Build a real minimal JPEG UploadedFile without requiring GD.
      * The base64 payload below is a valid 1x1 JPEG; we optionally pad
@@ -232,6 +249,7 @@ class FieldAgentRegistrationTest extends TestCase
             'password' => 'SuperSecret123',
             'password_confirmation' => 'SuperSecret123',
             'website' => '',
+            'accepted_terms' => '1',
         ], $overrides);
     }
 }

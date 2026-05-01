@@ -50,4 +50,9 @@ class FieldAgentRegistrationController extends Controller
     {
         return Inertia::render('field-agent/register/submitted');
     }
+
+    public function terms(): Response
+    {
+        return Inertia::render('field-agent/terms');
+    }
 }

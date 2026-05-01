@@ -43,6 +43,7 @@ Route::prefix('field-agents')->name('field-agents.')->group(function () {
         ->middleware('throttle:20,60')
         ->name('register.store');
     Route::get('register/submitted', [\App\Http\Controllers\FieldAgentRegistrationController::class, 'submitted'])->name('register.submitted');
+    Route::get('terms', [\App\Http\Controllers\FieldAgentRegistrationController::class, 'terms'])->name('terms');
 });
 
 $deepLinkRoutes = function () {

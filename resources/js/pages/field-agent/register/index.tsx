@@ -44,6 +44,7 @@ type WizardData = {
     selfie: File | null;
     website: string;
     is_team: boolean;
+    accepted_terms: boolean;
 };
 
 const STEPS = ['Personal', 'Location', 'Identity', 'Review'] as const;
@@ -67,6 +68,7 @@ export default function FieldAgentRegister({ regions }: Props) {
         selfie: null,
         website: '',
         is_team: false,
+        accepted_terms: false,
     });
 
     const selectedRegion = useMemo(
@@ -687,6 +689,54 @@ export default function FieldAgentRegister({ regions }: Props) {
                                             }
                                         />
                                     </Box>
+
+                                    <Stack spacing={1}>
+                                        <Stack
+                                            direction="row"
+                                            spacing={1.25}
+                                            sx={{ alignItems: 'flex-start' }}
+                                        >
+                                            <Checkbox
+                                                id="accepted_terms"
+                                                checked={data.accepted_terms}
+                                                onCheckedChange={(checked) =>
+                                                    setData(
+                                                        'accepted_terms',
+                                                        checked === true,
+                                                    )
+                                                }
+                                            />
+                                            <Stack spacing={0.25}>
+                                                <Label htmlFor="accepted_terms">
+                                                    I have read and agree to the{' '}
+                                                    <Link
+                                                        href="/field-agents/terms"
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        style={{
+                                                            color: 'inherit',
+                                                            textDecoration:
+                                                                'underline',
+                                                        }}
+                                                    >
+                                                        Field Agent Terms &
+                                                        Conditions
+                                                    </Link>
+                                                </Label>
+                                                <Typography
+                                                    variant="caption"
+                                                    color="text.secondary"
+                                                >
+                                                    You must accept the Terms
+                                                    before submitting your
+                                                    application.
+                                                </Typography>
+                                            </Stack>
+                                        </Stack>
+                                        <InputError
+                                            message={errors.accepted_terms}
+                                        />
+                                    </Stack>
                                 </Stack>
                             )}
 
@@ -715,7 +765,12 @@ export default function FieldAgentRegister({ regions }: Props) {
                                         Next
                                     </Button>
                                 ) : (
-                                    <Button type="submit" disabled={processing}>
+                                    <Button
+                                        type="submit"
+                                        disabled={
+                                            processing || !data.accepted_terms
+                                        }
+                                    >
                                         Submit application
                                     </Button>
                                 )}

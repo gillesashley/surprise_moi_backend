@@ -52,6 +52,7 @@ class StoreFieldAgentApplicationRequest extends FormRequest
             'selfie' => ['required', 'image', 'mimes:jpeg,jpg,png,webp', 'max:5120'],
             'password' => ['required', 'confirmed', Password::defaults()],
             'website' => ['nullable', 'max:0'],
+            'accepted_terms' => ['accepted'],
         ];
     }
 
@@ -63,6 +64,7 @@ class StoreFieldAgentApplicationRequest extends FormRequest
             'ghana_card_number.regex' => 'Ghana card number must be in the format GHA-XXXXXXXXX-X.',
             'city_id.exists' => 'Please choose a city that belongs to the selected region.',
             'website.max' => 'Spam detected.',
+            'accepted_terms.accepted' => 'You must accept the Field Agent Terms & Conditions to register.',
         ];
     }
 
