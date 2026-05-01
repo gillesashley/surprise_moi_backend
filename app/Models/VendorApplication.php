@@ -273,8 +273,8 @@ class VendorApplication extends Model
      */
     public function isEditable(): bool
     {
-        // Rejected applications can always be edited
-        if ($this->status === self::STATUS_REJECTED) {
+        // Rejected and flagged applications can always be edited
+        if (in_array($this->status, [self::STATUS_REJECTED, self::STATUS_FLAGGED], true)) {
             return true;
         }
 

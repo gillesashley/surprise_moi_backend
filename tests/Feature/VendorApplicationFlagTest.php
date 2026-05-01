@@ -60,4 +60,31 @@ class VendorApplicationFlagTest extends TestCase
         $this->assertNotNull($app->grace_period_ends_at);
         $this->assertTrue($app->grace_period_ends_at->isFuture());
     }
+
+    public function test_flagged_application_is_editable(): void
+    {
+        $app = VendorApplication::factory()->flagged()->create();
+
+        $this->assertTrue($app->isEditable());
+    }
+
+    public function test_pending_unsubmitted_application_is_still_editable(): void
+    {
+        $app = VendorApplication::factory()->create([
+            'status' => VendorApplication::STATUS_PENDING,
+            'submitted_at' => null,
+        ]);
+
+        $this->assertTrue($app->isEditable());
+    }
+
+    public function test_pending_submitted_application_is_not_editable(): void
+    {
+        $app = VendorApplication::factory()->create([
+            'status' => VendorApplication::STATUS_PENDING,
+            'submitted_at' => now(),
+        ]);
+
+        $this->assertFalse($app->isEditable());
+    }
 }
