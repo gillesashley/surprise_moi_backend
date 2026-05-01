@@ -211,4 +211,32 @@ class FieldAgentApplicationAdminTest extends TestCase
         $this->assertNull($code->expires_at);
         $this->assertNull($code->max_usages);
     }
+
+    public function test_approval_propagates_is_team_true_onto_user(): void
+    {
+        $app = FieldAgentApplication::factory()->team()->pending()->create([
+            'email' => 'teamlead@example.com',
+            'password' => Hash::make('AgentSecret1'),
+        ]);
+
+        app(\App\Services\FieldAgentApprovalService::class)->approve($app->fresh(), $this->admin);
+
+        $user = User::where('email', 'teamlead@example.com')->firstOrFail();
+        $this->assertTrue($user->is_team_field_agent);
+        $this->assertTrue($user->isTeamFieldAgent());
+    }
+
+    public function test_approval_propagates_is_team_false_for_individual_applications(): void
+    {
+        $app = FieldAgentApplication::factory()->pending()->create([
+            'email' => 'soloagent@example.com',
+            'password' => Hash::make('AgentSecret1'),
+        ]);
+
+        app(\App\Services\FieldAgentApprovalService::class)->approve($app->fresh(), $this->admin);
+
+        $user = User::where('email', 'soloagent@example.com')->firstOrFail();
+        $this->assertFalse($user->is_team_field_agent);
+        $this->assertFalse($user->isTeamFieldAgent());
+    }
 }
