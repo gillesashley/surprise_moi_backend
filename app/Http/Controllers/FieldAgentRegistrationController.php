@@ -24,8 +24,18 @@ class FieldAgentRegistrationController extends Controller
 
     public function store(StoreFieldAgentApplicationRequest $request): RedirectResponse
     {
+        $validated = $request->safe()->except([
+            'ghana_card_image',
+            'ghana_card_back_image',
+            'selfie',
+            'website',
+            'password_confirmation',
+        ]);
+
+        $validated['is_team'] = $request->boolean('is_team');
+
         $this->service->create(
-            $request->safe()->except(['ghana_card_image', 'ghana_card_back_image', 'selfie', 'website', 'password_confirmation']),
+            $validated,
             [
                 'ghana_card_image' => $request->file('ghana_card_image'),
                 'ghana_card_back_image' => $request->file('ghana_card_back_image'),
