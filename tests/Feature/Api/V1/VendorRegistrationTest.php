@@ -114,6 +114,43 @@ class VendorRegistrationTest extends TestCase
         $response->assertStatus(401);
     }
 
+    public function test_status_surfaces_flag_fields_and_message_for_flagged_application(): void
+    {
+        $user = User::factory()->create();
+        VendorApplication::factory()
+            ->for($user)
+            ->withGhanaCard()
+            ->flagged()
+            ->create([
+                'flag_reason' => 'Ghana Card image is blurry. Please re-upload a clearer photo.',
+            ]);
+
+        $response = $this->actingAs($user)->getJson('/api/v1/vendor-registration/status');
+
+        $response->assertStatus(200)
+            ->assertJsonPath('data.has_application', true)
+            ->assertJsonPath('data.is_editable', true)
+            ->assertJsonPath('data.application.status', VendorApplication::STATUS_FLAGGED)
+            ->assertJsonPath(
+                'data.application.flag_reason',
+                'Ghana Card image is blurry. Please re-upload a clearer photo.'
+            )
+            ->assertJsonStructure([
+                'data' => [
+                    'message',
+                    'application' => [
+                        'flag_reason',
+                        'flagged_at',
+                        'grace_period_ends_at',
+                    ],
+                ],
+            ]);
+
+        $this->assertStringContainsString('flagged', strtolower($response->json('data.message')));
+        $this->assertNotNull($response->json('data.application.flagged_at'));
+        $this->assertNotNull($response->json('data.application.grace_period_ends_at'));
+    }
+
     // ==========================================
     // Bespoke Services Endpoint Tests
     // ==========================================

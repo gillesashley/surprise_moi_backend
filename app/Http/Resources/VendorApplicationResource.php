@@ -72,6 +72,11 @@ class VendorApplicationResource extends JsonResource
             'reviewed_at' => $this->reviewed_at?->toIso8601String(),
             'submitted_at' => $this->submitted_at?->toIso8601String(),
 
+            // Flag / Grace Period (relevant when status === 'flagged')
+            'flag_reason' => $this->flag_reason,
+            'flagged_at' => $this->flagged_at?->toIso8601String(),
+            'grace_period_ends_at' => $this->grace_period_ends_at?->toIso8601String(),
+
             // Relationships
             'user' => $this->whenLoaded('user', function () {
                 return [

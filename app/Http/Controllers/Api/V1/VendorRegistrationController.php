@@ -73,6 +73,10 @@ class VendorRegistrationController extends Controller
             return 'Your application is under review. We will notify you once a decision is made.';
         }
 
+        if ($application->status === VendorApplication::STATUS_FLAGGED) {
+            return 'Your application was flagged for missing or unclear details. Please review the flag reason and resubmit before your grace period ends.';
+        }
+
         if ($isSubmitted) {
             return 'Your application has been submitted and is pending review.';
         }
