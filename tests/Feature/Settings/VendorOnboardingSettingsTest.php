@@ -138,4 +138,88 @@ class VendorOnboardingSettingsTest extends TestCase
             ])
             ->assertSessionHasErrors('vendor_onboarding_subsidy_pct');
     }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function team_field_agent_pct_is_required_on_update(): void
+    {
+        $admin = User::factory()->create(['role' => 'super_admin']);
+
+        $this->actingAs($admin)
+            ->post('/settings/vendor-onboarding', [
+                'vendor_tier1_onboarding_fee' => '200',
+                'vendor_tier2_onboarding_fee' => '100',
+                'vendor_tier1_commission_rate' => '12',
+                'vendor_tier2_commission_rate' => '8',
+                'referral_bonus_customer_pct' => '15',
+                'referral_bonus_vendor_pct' => '20',
+                'referral_bonus_influencer_pct' => '25',
+                'referral_bonus_field_agent_pct' => '30',
+                'referral_bonus_employee_pct' => '20',
+                'vendor_onboarding_subsidy_pct' => '25',
+                'referral_points_per_ghs' => '10',
+                'referral_cashout_min_points' => '1000',
+                // intentionally omit referral_bonus_field_agent_team_pct
+            ])
+            ->assertSessionHasErrors('referral_bonus_field_agent_team_pct');
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function team_field_agent_pct_must_be_between_0_and_100(): void
+    {
+        $admin = User::factory()->create(['role' => 'super_admin']);
+
+        $this->actingAs($admin)
+            ->post('/settings/vendor-onboarding', [
+                'vendor_tier1_onboarding_fee' => '200',
+                'vendor_tier2_onboarding_fee' => '100',
+                'vendor_tier1_commission_rate' => '12',
+                'vendor_tier2_commission_rate' => '8',
+                'referral_bonus_customer_pct' => '15',
+                'referral_bonus_vendor_pct' => '20',
+                'referral_bonus_influencer_pct' => '25',
+                'referral_bonus_field_agent_pct' => '30',
+                'referral_bonus_employee_pct' => '20',
+                'vendor_onboarding_subsidy_pct' => '25',
+                'referral_points_per_ghs' => '10',
+                'referral_cashout_min_points' => '1000',
+                'referral_bonus_field_agent_team_pct' => '150',
+            ])
+            ->assertSessionHasErrors('referral_bonus_field_agent_team_pct');
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function team_field_agent_pct_round_trips_through_setting_get(): void
+    {
+        \Illuminate\Support\Facades\Cache::flush();
+        $admin = User::factory()->create(['role' => 'super_admin']);
+
+        $this->actingAs($admin)
+            ->post('/settings/vendor-onboarding', [
+                'vendor_tier1_onboarding_fee' => '200',
+                'vendor_tier2_onboarding_fee' => '100',
+                'vendor_tier1_commission_rate' => '12',
+                'vendor_tier2_commission_rate' => '8',
+                'referral_bonus_customer_pct' => '15',
+                'referral_bonus_vendor_pct' => '20',
+                'referral_bonus_influencer_pct' => '25',
+                'referral_bonus_field_agent_pct' => '30',
+                'referral_bonus_employee_pct' => '20',
+                'vendor_onboarding_subsidy_pct' => '25',
+                'referral_points_per_ghs' => '10',
+                'referral_cashout_min_points' => '1000',
+                'referral_bonus_field_agent_team_pct' => '42',
+            ])
+            ->assertRedirect();
+
+        \Illuminate\Support\Facades\Cache::flush();
+        $this->assertEquals(42.0, (float) \App\Models\Setting::get('referral_bonus_field_agent_team_pct'));
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function migration_seeds_the_team_field_agent_pct_setting(): void
+    {
+        \Illuminate\Support\Facades\Cache::flush();
+
+        $this->assertEquals(35.0, (float) \App\Models\Setting::get('referral_bonus_field_agent_team_pct'));
+    }
 }
