@@ -96,7 +96,9 @@ class VendorFlagReminderNotification extends Notification implements ShouldQueue
         return new BroadcastMessage([
             'title' => $data['title'],
             'body' => $data['message'],
+            'status' => 'flagged',
             'vendor_application_id' => $this->vendorApplication->id,
+            'flag_reason' => $this->vendorApplication->flag_reason,
             'grace_period_ends_at' => $this->vendorApplication->grace_period_ends_at?->toIso8601String(),
             'action_url' => $data['action_url'],
         ]);
@@ -120,8 +122,10 @@ class VendorFlagReminderNotification extends Notification implements ShouldQueue
 
     public function toSms(mixed $notifiable): SmsMessage
     {
+        // Use ASCII hyphen, not em-dash. The em-dash forces UCS-2 encoding,
+        // dropping the segment cap from 160 to 70 chars and doubling cost.
         return (new SmsMessage)->content(
-            "Surprise moi: Reminder — your vendor application is due {$this->formattedDeadline()}. Please respond to avoid rejection."
+            "Surprise moi: Reminder - your vendor application is due {$this->formattedDeadline()}. Please respond to avoid rejection."
         );
     }
 
