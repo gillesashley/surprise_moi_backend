@@ -194,8 +194,9 @@ class VendorApplicationFlagTest extends TestCase
     public function test_flag_method_clears_previous_reminder_stamps_on_re_flag(): void
     {
         // The model method has no status guard — it can be invoked on an
-        // already-flagged application. This test proves the stamps reset so the
-        // scheduled command treats the row as a fresh flag against the new deadline.
+        // already-flagged application. This test proves the stamps reset and
+        // the deadline is recalculated so the scheduled command treats the row
+        // as a fresh flag against the new deadline.
         \Notification::fake();
         \Event::fake();
 
@@ -207,7 +208,12 @@ class VendorApplicationFlagTest extends TestCase
 
         $app->flag($reviewer->id, 'Still missing TIN document');
 
-        $this->assertNull($app->fresh()->flag_reminder_sent_at);
-        $this->assertNull($app->fresh()->flag_expired_alert_sent_at);
+        $fresh = $app->fresh();
+        $this->assertNull($fresh->flag_reminder_sent_at);
+        $this->assertNull($fresh->flag_expired_alert_sent_at);
+        $this->assertTrue(
+            $fresh->grace_period_ends_at->isAfter(now()->addDays(6)),
+            'grace_period_ends_at should be recalculated from current time on re-flag.',
+        );
     }
 }

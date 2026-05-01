@@ -401,6 +401,12 @@ class VendorApplication extends Model
      * Puts the application into a time-boxed grace period so the vendor can
      * edit and resubmit. Admins retain manual control — there is no
      * auto-rejection.
+     *
+     * Safe to call on an already-flagged application (re-flag path, e.g.,
+     * when a vendor resubmits and the admin flags again with an updated
+     * reason). Both reminder and expired-alert stamps are always reset to
+     * null so the scheduled flag-deadlines command treats the row as a fresh
+     * flag against the new deadline.
      */
     public function flag(int $reviewerId, string $reason): bool
     {
