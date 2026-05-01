@@ -360,6 +360,14 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Scope to admin and super_admin users.
+     */
+    public function scopeAdmins($query)
+    {
+        return $query->whereIn('role', ['admin', 'super_admin']);
+    }
+
+    /**
      * Check if user is a customer.
      */
     public function isCustomer(): bool

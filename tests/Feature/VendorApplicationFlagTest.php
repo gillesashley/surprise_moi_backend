@@ -216,4 +216,18 @@ class VendorApplicationFlagTest extends TestCase
             'grace_period_ends_at should be recalculated from current time on re-flag.',
         );
     }
+
+    public function test_user_admins_scope_returns_admin_and_super_admin(): void
+    {
+        User::factory()->create(['role' => 'admin']);
+        User::factory()->create(['role' => 'super_admin']);
+        User::factory()->create(['role' => 'vendor']);
+        User::factory()->create(['role' => 'customer']);
+
+        $admins = User::admins()->get();
+
+        $this->assertCount(2, $admins);
+        $this->assertContains('admin', $admins->pluck('role')->all());
+        $this->assertContains('super_admin', $admins->pluck('role')->all());
+    }
 }
