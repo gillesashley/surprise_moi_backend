@@ -243,10 +243,13 @@ class VendorApplication extends Model
      */
     public function canSubmit(): bool
     {
+        $statusOk = in_array($this->status, [self::STATUS_PENDING, self::STATUS_FLAGGED], true);
+        $submittedAtOk = $this->status === self::STATUS_FLAGGED || is_null($this->submitted_at);
+
         return $this->completed_step >= 4
             && $this->isStep3Complete()
-            && $this->status === self::STATUS_PENDING
-            && is_null($this->submitted_at)
+            && $statusOk
+            && $submittedAtOk
             && (! $this->payment_required || $this->payment_completed);
     }
 
@@ -406,6 +409,7 @@ class VendorApplication extends Model
      * Submit the vendor application for review.
      *
      * Fires VendorApprovalSubmitted event to notify admins in real-time.
+     * When resubmitting from flagged status, transitions status to under_review.
      */
     public function submit(): bool
     {
@@ -413,7 +417,12 @@ class VendorApplication extends Model
             return false;
         }
 
-        $this->update(['submitted_at' => now()]);
+        $payload = ['submitted_at' => now()];
+        if ($this->status === self::STATUS_FLAGGED) {
+            $payload['status'] = self::STATUS_UNDER_REVIEW;
+        }
+
+        $this->update($payload);
 
         // Fire submission event to notify admins
         event(new VendorApprovalSubmitted($this));

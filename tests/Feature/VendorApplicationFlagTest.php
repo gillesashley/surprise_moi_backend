@@ -96,4 +96,52 @@ class VendorApplicationFlagTest extends TestCase
 
         $this->assertFalse($app->isEditable());
     }
+
+    public function test_flagged_application_can_be_resubmitted(): void
+    {
+        \Notification::fake();
+        \Event::fake();
+
+        $user = User::factory()->create();
+        $app = VendorApplication::factory()
+            ->for($user)
+            ->withGhanaCard()
+            ->unregisteredVendor()
+            ->withUnregisteredDocuments()
+            ->readyToSubmit()
+            ->withPaymentCompleted()
+            ->flagged()
+            ->create();
+
+        $result = $app->submit();
+
+        $this->assertTrue($result);
+        $this->assertSame(VendorApplication::STATUS_UNDER_REVIEW, $app->fresh()->status);
+        $this->assertNotNull($app->fresh()->submitted_at);
+    }
+
+    public function test_pending_first_submission_does_not_change_status(): void
+    {
+        \Notification::fake();
+        \Event::fake();
+
+        $user = User::factory()->create();
+        $app = VendorApplication::factory()
+            ->for($user)
+            ->withGhanaCard()
+            ->unregisteredVendor()
+            ->withUnregisteredDocuments()
+            ->readyToSubmit()
+            ->withPaymentCompleted()
+            ->create([
+                'status' => VendorApplication::STATUS_PENDING,
+                'submitted_at' => null,
+            ]);
+
+        $result = $app->submit();
+
+        $this->assertTrue($result);
+        $this->assertSame(VendorApplication::STATUS_PENDING, $app->fresh()->status);
+        $this->assertNotNull($app->fresh()->submitted_at);
+    }
 }
