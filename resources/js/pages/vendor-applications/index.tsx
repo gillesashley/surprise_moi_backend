@@ -62,6 +62,7 @@ interface VendorApplicationSummary {
     completed_step: number;
     payment_completed: boolean;
     payment_status: string | null;
+    grace_period_ends_at: string | null;
 }
 
 interface PaginatedApplications {
@@ -718,6 +719,42 @@ export default function VendorApplicationsIndex({
                                                             {getStatusBadge(
                                                                 application.status,
                                                             )}
+                                                            {application.status ===
+                                                                'flagged' &&
+                                                                application.grace_period_ends_at && (
+                                                                    <Box
+                                                                        component="span"
+                                                                        sx={{
+                                                                            ml: 1,
+                                                                            px: 1,
+                                                                            py: 0.25,
+                                                                            borderRadius: 1,
+                                                                            fontSize:
+                                                                                '0.75rem',
+                                                                            bgcolor:
+                                                                                new Date(
+                                                                                    application.grace_period_ends_at,
+                                                                                ) <
+                                                                                new Date()
+                                                                                    ? 'error.light'
+                                                                                    : 'warning.light',
+                                                                            color:
+                                                                                new Date(
+                                                                                    application.grace_period_ends_at,
+                                                                                ) <
+                                                                                new Date()
+                                                                                    ? 'error.dark'
+                                                                                    : 'warning.dark',
+                                                                        }}
+                                                                    >
+                                                                        {new Date(
+                                                                            application.grace_period_ends_at,
+                                                                        ) <
+                                                                        new Date()
+                                                                            ? 'Deadline passed'
+                                                                            : `Due ${new Date(application.grace_period_ends_at).toLocaleDateString()}`}
+                                                                    </Box>
+                                                                )}
                                                         </Box>
                                                         <Box
                                                             component="td"

@@ -66,6 +66,7 @@ class VendorApplicationController extends Controller
                 'completed_step' => $app->completed_step,
                 'payment_completed' => $app->payment_completed,
                 'payment_status' => $app->latestOnboardingPayment?->status,
+                'grace_period_ends_at' => $app->grace_period_ends_at?->toIso8601String(),
             ]),
             'filters' => [
                 'status' => $request->status,
