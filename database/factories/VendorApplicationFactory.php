@@ -169,4 +169,19 @@ class VendorApplicationFactory extends Factory
             'rejection_reason' => $this->faker->sentence(),
         ]);
     }
+
+    /**
+     * Flagged for missing details with an active grace period.
+     */
+    public function flagged(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'status' => VendorApplication::STATUS_FLAGGED,
+            'submitted_at' => now()->subDays(2),
+            'flagged_at' => now()->subDay(),
+            'flag_reason' => $this->faker->sentence(),
+            'flagged_by' => User::factory(),
+            'grace_period_ends_at' => now()->addDays(6),
+        ]);
+    }
 }

@@ -48,4 +48,16 @@ class VendorApplicationFlagTest extends TestCase
         $this->assertSame($flagger->id, $app->flagger->id);
         $this->assertNotSame($owner->id, $app->flagger->id);
     }
+
+    public function test_factory_flagged_state_creates_flagged_application(): void
+    {
+        $app = VendorApplication::factory()->flagged()->create();
+
+        $this->assertSame(VendorApplication::STATUS_FLAGGED, $app->status);
+        $this->assertNotNull($app->flagged_at);
+        $this->assertNotNull($app->flag_reason);
+        $this->assertNotNull($app->flagged_by);
+        $this->assertNotNull($app->grace_period_ends_at);
+        $this->assertTrue($app->grace_period_ends_at->isFuture());
+    }
 }
