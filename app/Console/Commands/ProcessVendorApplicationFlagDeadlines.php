@@ -17,18 +17,20 @@ class ProcessVendorApplicationFlagDeadlines extends Command
 
     protected $description = 'Send pre-deadline reminders to vendors and post-deadline alerts to admins for flagged vendor applications.';
 
-    public function handle(): int
+    public function handle(AuditService $auditService): int
     {
-        $this->sendReminders();
-        $this->sendExpiredAlerts();
+        $reminders = $this->sendReminders($auditService);
+        $expired = $this->sendExpiredAlerts($auditService);
+
+        $this->info("Reminders sent: {$reminders}. Expired alerts sent: {$expired}.");
 
         return self::SUCCESS;
     }
 
-    protected function sendReminders(): void
+    protected function sendReminders(AuditService $auditService): int
     {
         $reminderDays = (int) Setting::get('vendor_application_flag_reminder_days_before', 2);
-        $auditService = app(AuditService::class);
+        $count = 0;
 
         VendorApplication::query()
             ->flagged()
@@ -36,7 +38,7 @@ class ProcessVendorApplicationFlagDeadlines extends Command
             ->where('grace_period_ends_at', '>', now())
             ->where('grace_period_ends_at', '<=', now()->addDays($reminderDays))
             ->with('user')
-            ->chunkById(50, function ($apps) use ($auditService, $reminderDays) {
+            ->chunkById(50, function ($apps) use ($auditService, $reminderDays, &$count) {
                 foreach ($apps as $app) {
                     if ($app->user) {
                         $app->user->notify(new VendorFlagReminderNotification($app));
@@ -50,20 +52,27 @@ class ProcessVendorApplicationFlagDeadlines extends Command
                         extra: ['days_before_deadline' => $reminderDays],
                         retentionClass: 'standard'
                     );
+
+                    $count++;
                 }
             });
+
+        return $count;
     }
 
-    protected function sendExpiredAlerts(): void
+    protected function sendExpiredAlerts(AuditService $auditService): int
     {
+        // Fetched once before chunking so all expired applications in this run notify
+        // the same admin set. Admins added during a run will be included on the next
+        // daily execution.
         $admins = User::admins()->get();
-        $auditService = app(AuditService::class);
+        $count = 0;
 
         VendorApplication::query()
             ->flagged()
             ->whereNull('flag_expired_alert_sent_at')
             ->where('grace_period_ends_at', '<', now())
-            ->chunkById(50, function ($apps) use ($admins, $auditService) {
+            ->chunkById(50, function ($apps) use ($admins, $auditService, &$count) {
                 foreach ($apps as $app) {
                     if ($admins->isNotEmpty()) {
                         Notification::send($admins, new VendorFlagExpiredNotification($app));
@@ -80,7 +89,11 @@ class ProcessVendorApplicationFlagDeadlines extends Command
                         ],
                         retentionClass: 'standard'
                     );
+
+                    $count++;
                 }
             });
+
+        return $count;
     }
 }
