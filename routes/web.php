@@ -158,6 +158,7 @@ Route::middleware(['auth', 'dashboard'])->prefix('dashboard')->group(function ()
         Route::get('/{vendorApplication}', [VendorApplicationController::class, 'show'])->name('show');
         Route::post('/{vendorApplication}/approve', [VendorApplicationController::class, 'approve'])->name('approve');
         Route::post('/{vendorApplication}/reject', [VendorApplicationController::class, 'reject'])->name('reject');
+        Route::post('/{vendorApplication}/flag', [VendorApplicationController::class, 'flag'])->name('flag');
         Route::post('/{vendorApplication}/under-review', [VendorApplicationController::class, 'markUnderReview'])->name('under-review');
         Route::delete('/{vendorApplication}', [VendorApplicationController::class, 'destroy'])->name('destroy');
     });

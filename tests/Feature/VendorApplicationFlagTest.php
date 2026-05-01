@@ -4,12 +4,19 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use App\Models\VendorApplication;
+use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class VendorApplicationFlagTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->withoutMiddleware(ValidateCsrfToken::class);
+    }
 
     public function test_status_flagged_constant_is_defined(): void
     {
@@ -229,5 +236,225 @@ class VendorApplicationFlagTest extends TestCase
         $this->assertCount(2, $admins);
         $this->assertContains('admin', $admins->pluck('role')->all());
         $this->assertContains('super_admin', $admins->pluck('role')->all());
+    }
+
+    public function test_admin_can_flag_a_pending_application(): void
+    {
+        \Notification::fake();
+        \Event::fake();
+
+        $admin = User::factory()->create(['role' => 'admin']);
+        $app = VendorApplication::factory()
+            ->withGhanaCard()
+            ->unregisteredVendor()
+            ->withUnregisteredDocuments()
+            ->readyToSubmit()
+            ->withPaymentCompleted()
+            ->pending()
+            ->create();
+
+        $response = $this->actingAs($admin)
+            ->withSession(['user_management.verified_at' => time()])
+            ->post("/dashboard/vendor-applications/{$app->id}/flag", [
+                'flag_reason' => 'Ghana card back image is unreadable, please re-upload.',
+            ]);
+
+        $response->assertRedirect();
+        $this->assertSame(VendorApplication::STATUS_FLAGGED, $app->fresh()->status);
+        $this->assertSame($admin->id, $app->fresh()->flagged_by);
+    }
+
+    public function test_admin_can_flag_an_under_review_application(): void
+    {
+        \Notification::fake();
+        \Event::fake();
+
+        $admin = User::factory()->create(['role' => 'admin']);
+        $app = VendorApplication::factory()
+            ->withGhanaCard()
+            ->unregisteredVendor()
+            ->withUnregisteredDocuments()
+            ->readyToSubmit()
+            ->withPaymentCompleted()
+            ->underReview()
+            ->create();
+
+        $response = $this->actingAs($admin)
+            ->withSession(['user_management.verified_at' => time()])
+            ->post("/dashboard/vendor-applications/{$app->id}/flag", [
+                'flag_reason' => 'Need a clearer selfie photo, current one is blurry.',
+            ]);
+
+        $response->assertRedirect();
+        $this->assertSame(VendorApplication::STATUS_FLAGGED, $app->fresh()->status);
+    }
+
+    public function test_admin_cannot_flag_already_approved_application(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $app = VendorApplication::factory()
+            ->withGhanaCard()
+            ->unregisteredVendor()
+            ->withUnregisteredDocuments()
+            ->readyToSubmit()
+            ->withPaymentCompleted()
+            ->approved()
+            ->create();
+
+        $response = $this->actingAs($admin)
+            ->withSession(['user_management.verified_at' => time()])
+            ->from("/dashboard/vendor-applications/{$app->id}")
+            ->post("/dashboard/vendor-applications/{$app->id}/flag", [
+                'flag_reason' => 'Ghana card back is unreadable, please re-upload it.',
+            ]);
+
+        $response->assertRedirect("/dashboard/vendor-applications/{$app->id}");
+        $response->assertSessionHas('error');
+        $this->assertSame(VendorApplication::STATUS_APPROVED, $app->fresh()->status);
+    }
+
+    public function test_flag_reason_is_required(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $app = VendorApplication::factory()
+            ->withGhanaCard()
+            ->unregisteredVendor()
+            ->withUnregisteredDocuments()
+            ->readyToSubmit()
+            ->withPaymentCompleted()
+            ->pending()
+            ->create();
+
+        $response = $this->actingAs($admin)
+            ->withSession(['user_management.verified_at' => time()])
+            ->post("/dashboard/vendor-applications/{$app->id}/flag", []);
+
+        $response->assertSessionHasErrors('flag_reason');
+    }
+
+    public function test_flag_reason_must_be_at_least_10_characters(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $app = VendorApplication::factory()
+            ->withGhanaCard()
+            ->unregisteredVendor()
+            ->withUnregisteredDocuments()
+            ->readyToSubmit()
+            ->withPaymentCompleted()
+            ->pending()
+            ->create();
+
+        $response = $this->actingAs($admin)
+            ->withSession(['user_management.verified_at' => time()])
+            ->post("/dashboard/vendor-applications/{$app->id}/flag", [
+                'flag_reason' => 'too short',
+            ]);
+
+        $response->assertSessionHasErrors('flag_reason');
+    }
+
+    public function test_non_admin_cannot_flag(): void
+    {
+        $vendor = User::factory()->create(['role' => 'vendor']);
+        $app = VendorApplication::factory()
+            ->withGhanaCard()
+            ->unregisteredVendor()
+            ->withUnregisteredDocuments()
+            ->readyToSubmit()
+            ->withPaymentCompleted()
+            ->pending()
+            ->create();
+
+        $response = $this->actingAs($vendor)
+            ->withSession(['user_management.verified_at' => time()])
+            ->post("/dashboard/vendor-applications/{$app->id}/flag", [
+                'flag_reason' => 'attempting to flag from a vendor account',
+            ]);
+
+        // Vendor users have no dashboard access; the EnsureDashboardAccess
+        // middleware redirects them to login before reaching the controller.
+        $response->assertRedirect();
+        $this->assertSame(VendorApplication::STATUS_PENDING, $app->fresh()->status);
+    }
+
+    public function test_flagged_application_can_be_approved_by_admin(): void
+    {
+        \Notification::fake();
+        \Event::fake();
+
+        $admin = User::factory()->create(['role' => 'admin']);
+        $app = VendorApplication::factory()
+            ->withGhanaCard()
+            ->unregisteredVendor()
+            ->withUnregisteredDocuments()
+            ->readyToSubmit()
+            ->withPaymentCompleted()
+            ->flagged()
+            ->create();
+
+        $response = $this->actingAs($admin)
+            ->withSession(['user_management.verified_at' => time()])
+            ->post("/dashboard/vendor-applications/{$app->id}/approve");
+
+        $response->assertRedirect();
+        $this->assertSame(VendorApplication::STATUS_APPROVED, $app->fresh()->status);
+    }
+
+    public function test_flagged_application_can_be_rejected_by_admin(): void
+    {
+        \Notification::fake();
+        \Event::fake();
+
+        $admin = User::factory()->create(['role' => 'admin']);
+        $app = VendorApplication::factory()
+            ->withGhanaCard()
+            ->unregisteredVendor()
+            ->withUnregisteredDocuments()
+            ->readyToSubmit()
+            ->withPaymentCompleted()
+            ->flagged()
+            ->create();
+
+        $response = $this->actingAs($admin)
+            ->withSession(['user_management.verified_at' => time()])
+            ->post("/dashboard/vendor-applications/{$app->id}/reject", [
+                'rejection_reason' => 'No response within grace period and details still missing.',
+            ]);
+
+        $response->assertRedirect();
+        $fresh = $app->fresh();
+        $this->assertSame(VendorApplication::STATUS_REJECTED, $fresh->status);
+        $this->assertNotNull($fresh->flag_reason); // preserved
+        $this->assertNotNull($fresh->rejection_reason);
+    }
+
+    public function test_admin_can_re_flag_an_already_flagged_application(): void
+    {
+        \Notification::fake();
+        \Event::fake();
+
+        $admin = User::factory()->create(['role' => 'admin']);
+        $app = VendorApplication::factory()
+            ->withGhanaCard()
+            ->unregisteredVendor()
+            ->withUnregisteredDocuments()
+            ->readyToSubmit()
+            ->withPaymentCompleted()
+            ->flagged()
+            ->create([
+                'flag_reminder_sent_at' => now()->subDay(),
+            ]);
+
+        $response = $this->actingAs($admin)
+            ->withSession(['user_management.verified_at' => time()])
+            ->post("/dashboard/vendor-applications/{$app->id}/flag", [
+                'flag_reason' => 'Updated reason — still need a clearer TIN document.',
+            ]);
+
+        $response->assertRedirect();
+        $fresh = $app->fresh();
+        $this->assertSame(VendorApplication::STATUS_FLAGGED, $fresh->status);
+        $this->assertSame('Updated reason — still need a clearer TIN document.', $fresh->flag_reason);
+        $this->assertNull($fresh->flag_reminder_sent_at); // stamp cleared so reminder fires again
     }
 }
