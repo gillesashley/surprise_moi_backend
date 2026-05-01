@@ -20,8 +20,15 @@ use Illuminate\Notifications\Notification;
  * the first time it runs after a flagged application's grace period has expired
  * without resubmission. Lets admins know to act manually — there is no auto-rejection.
  *
- * Channels: database, mail, broadcast, SMS (when phone). No FCM (admin staff
- * do not get push notifications by project convention).
+ * Channel selection is intentionally broader than other admin-targeted
+ * notifications in this codebase:
+ *
+ *   - database  — standard for the in-app inbox.
+ *   - mail      — standard for an audit-trail copy.
+ *   - broadcast — so the admin dashboard updates live without a re-fetch.
+ *   - SMS       — explicit product requirement: out-of-hours alert, since the
+ *                 grace period can expire when no admin is logged in.
+ *   - FCM       — intentionally omitted; admin staff are not push-targeted.
  *
  * Usage:
  *   Notification::send(User::admins()->get(), new VendorFlagExpiredNotification($app));
@@ -63,7 +70,7 @@ class VendorFlagExpiredNotification extends Notification implements ShouldQueue
             ->line('**Original reason:** '.$this->vendorApplication->flag_reason)
             ->line("**Deadline that passed:** {$this->formattedDeadline()}")
             ->action('Review Application', url('/dashboard/vendor-applications/'.$this->vendorApplication->id))
-            ->salutation('Surprise moi admin alerts');
+            ->salutation('Best regards, The Surprise moi Team');
     }
 
     /** @return array<string, mixed> */
@@ -90,7 +97,10 @@ class VendorFlagExpiredNotification extends Notification implements ShouldQueue
         return new BroadcastMessage([
             'title' => $data['title'],
             'body' => $data['message'],
+            'status' => 'flagged',
             'vendor_application_id' => $this->vendorApplication->id,
+            'flag_reason' => $this->vendorApplication->flag_reason,
+            'grace_period_ends_at' => $this->vendorApplication->grace_period_ends_at?->toIso8601String(),
             'action_url' => $data['action_url'],
         ]);
     }
