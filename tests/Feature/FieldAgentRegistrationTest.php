@@ -175,6 +175,28 @@ class FieldAgentRegistrationTest extends TestCase
             ->assertSessionHasErrors('ghana_card_number');
     }
 
+    public function test_is_team_defaults_to_false_when_omitted(): void
+    {
+        $this->post('/field-agents/register', $this->validPayload());
+
+        $app = FieldAgentApplication::firstOrFail();
+        $this->assertFalse($app->is_team);
+    }
+
+    public function test_is_team_persists_when_true(): void
+    {
+        $this->post('/field-agents/register', $this->validPayload(['is_team' => '1']));
+
+        $app = FieldAgentApplication::firstOrFail();
+        $this->assertTrue($app->is_team);
+    }
+
+    public function test_is_team_rejects_non_boolean_values(): void
+    {
+        $this->post('/field-agents/register', $this->validPayload(['is_team' => 'banana']))
+            ->assertSessionHasErrors('is_team');
+    }
+
     /**
      * Build a real minimal JPEG UploadedFile without requiring GD.
      * The base64 payload below is a valid 1x1 JPEG; we optionally pad

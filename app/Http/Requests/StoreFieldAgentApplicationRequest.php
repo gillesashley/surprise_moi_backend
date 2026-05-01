@@ -41,6 +41,7 @@ class StoreFieldAgentApplicationRequest extends FormRequest
                 Rule::exists('cities', 'id')->where(fn ($q) => $q->where('region_id', $this->integer('region_id'))),
             ],
             'location' => ['required', 'string', 'max:160'],
+            'is_team' => ['nullable', 'boolean'],
             'ghana_card_number' => [
                 'required', 'regex:/^GHA-\d{9}-\d$/',
                 Rule::unique('field_agent_applications', 'ghana_card_number')
