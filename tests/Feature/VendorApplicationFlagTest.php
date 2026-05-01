@@ -56,7 +56,7 @@ class VendorApplicationFlagTest extends TestCase
         $this->assertSame(VendorApplication::STATUS_FLAGGED, $app->status);
         $this->assertNotNull($app->flagged_at);
         $this->assertNotNull($app->flag_reason);
-        $this->assertNotNull($app->flagged_by);
+        $this->assertInstanceOf(User::class, $app->flagger);
         $this->assertNotNull($app->grace_period_ends_at);
         $this->assertTrue($app->grace_period_ends_at->isFuture());
     }
