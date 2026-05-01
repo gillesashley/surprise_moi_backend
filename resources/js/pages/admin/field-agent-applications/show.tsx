@@ -28,6 +28,7 @@ type Application = {
     location: string;
     ghana_card_number: string;
     status: string;
+    is_team: boolean;
     region?: { name: string };
     city?: { name: string };
     reviewer?: { name: string } | null;
@@ -237,6 +238,10 @@ export default function FieldAgentApplicationShow({
                             />
                         </Section>
                         <Section title="Identity">
+                            <Field
+                                label="Registration type"
+                                value={application.is_team ? 'Team' : 'Individual'}
+                            />
                             <Field
                                 label="Ghana card number"
                                 value={application.ghana_card_number}
