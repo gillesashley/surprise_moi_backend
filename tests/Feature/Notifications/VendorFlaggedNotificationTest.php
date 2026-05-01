@@ -28,6 +28,8 @@ class VendorFlaggedNotificationTest extends TestCase
         $this->assertContains('mail', $channels);
         $this->assertContains(BroadcastChannel::class, $channels);
         $this->assertContains(SmsChannel::class, $channels);
+        // FCM only fires when a device token exists; this user has none.
+        $this->assertNotContains(FcmChannel::class, $channels);
     }
 
     public function test_via_excludes_sms_when_phone_missing(): void
@@ -83,17 +85,23 @@ class VendorFlaggedNotificationTest extends TestCase
         $this->assertStringContainsString('Ghana card back image is unreadable', $allLines);
     }
 
-    public function test_to_sms_returns_short_content(): void
+    public function test_to_sms_fits_in_a_single_segment_with_a_long_reason(): void
     {
+        // GSM-7 single-segment SMS limit is 160 chars. A long reason must be
+        // truncated so total content fits — exceeding 160 splits into two
+        // chargeable segments and risks concat issues on older handsets.
         $user = User::factory()->create();
+        $longReason = str_repeat('Ghana card back image is unreadable. ', 5); // ~185 chars
         $app = VendorApplication::factory()->for($user)->flagged()->create([
-            'flag_reason' => 'Ghana card back image is unreadable',
+            'flag_reason' => $longReason,
+            'grace_period_ends_at' => now()->addDays(7),
         ]);
 
         $sms = (new VendorFlaggedNotification($app))->toSms($user);
 
         $this->assertNotNull($sms->getContent());
         $this->assertStringContainsString('Surprise moi', $sms->getContent());
+        $this->assertLessThanOrEqual(160, mb_strlen($sms->getContent()));
     }
 
     public function test_notification_is_queued_on_notifications_queue(): void
