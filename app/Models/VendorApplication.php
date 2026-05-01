@@ -243,8 +243,10 @@ class VendorApplication extends Model
      */
     public function canSubmit(): bool
     {
-        $statusOk = in_array($this->status, [self::STATUS_PENDING, self::STATUS_FLAGGED], true);
-        $submittedAtOk = $this->status === self::STATUS_FLAGGED || is_null($this->submitted_at);
+        $isResubmit = $this->status === self::STATUS_FLAGGED;
+        $statusOk = $isResubmit || $this->status === self::STATUS_PENDING;
+        // Resubmits already have a submitted_at from their first submission — that's expected, not a block.
+        $submittedAtOk = $isResubmit || is_null($this->submitted_at);
 
         return $this->completed_step >= 4
             && $this->isStep3Complete()

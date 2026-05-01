@@ -113,11 +113,17 @@ class VendorApplicationFlagTest extends TestCase
             ->flagged()
             ->create();
 
+        $originalSubmittedAt = $app->submitted_at;
+
         $result = $app->submit();
 
         $this->assertTrue($result);
-        $this->assertSame(VendorApplication::STATUS_UNDER_REVIEW, $app->fresh()->status);
-        $this->assertNotNull($app->fresh()->submitted_at);
+        $fresh = $app->fresh();
+        $this->assertSame(VendorApplication::STATUS_UNDER_REVIEW, $fresh->status);
+        $this->assertTrue(
+            $fresh->submitted_at->isAfter($originalSubmittedAt),
+            'submitted_at should be refreshed on resubmit, not retained from the first submission.',
+        );
     }
 
     public function test_pending_first_submission_does_not_change_status(): void
