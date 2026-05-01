@@ -27,6 +27,7 @@ class FieldAgentApplication extends Model
         'region_id',
         'city_id',
         'location',
+        'is_team',
         'ghana_card_number',
         'ghana_card_image_path',
         'ghana_card_back_image_path',
@@ -46,6 +47,7 @@ class FieldAgentApplication extends Model
         return [
             'reviewed_at' => 'datetime',
             'status' => FieldAgentApplicationStatus::class,
+            'is_team' => 'boolean',
         ];
     }
 
@@ -77,6 +79,11 @@ class FieldAgentApplication extends Model
     public function fullName(): string
     {
         return trim($this->first_name.' '.$this->last_name);
+    }
+
+    public function isTeam(): bool
+    {
+        return (bool) $this->is_team;
     }
 
     public function routeNotificationForSms(): ?string
