@@ -31,11 +31,16 @@ class FieldAgentApplicationController extends Controller
             $query->where('region_id', $regionId);
         }
 
+        $type = $request->string('type')->toString();
+        if (in_array($type, ['individual', 'team'], true)) {
+            $query->where('is_team', $type === 'team');
+        }
+
         $applications = $query->latest()->paginate(20)->withQueryString();
 
         return Inertia::render('admin/field-agent-applications/index', [
             'applications' => $applications,
-            'filters' => $request->only(['status', 'region_id']),
+            'filters' => $request->only(['status', 'region_id', 'type']),
             'statuses' => collect(FieldAgentApplicationStatus::cases())
                 ->map(fn ($s) => ['value' => $s->value, 'label' => $s->label()]),
         ]);

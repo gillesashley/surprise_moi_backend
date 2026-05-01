@@ -24,6 +24,7 @@ class FieldAgentApplicationAdminTest extends TestCase
         parent::setUp();
         Notification::fake();
         $this->admin = User::factory()->create(['role' => 'admin']);
+        $this->session(['user_management.verified_at' => time()]);
     }
 
     public function test_non_admin_cannot_access_index(): void
@@ -238,5 +239,38 @@ class FieldAgentApplicationAdminTest extends TestCase
         $user = User::where('email', 'soloagent@example.com')->firstOrFail();
         $this->assertFalse($user->is_team_field_agent);
         $this->assertFalse($user->isTeamFieldAgent());
+    }
+
+    public function test_admin_index_filters_by_type_team(): void
+    {
+        FieldAgentApplication::factory()->team()->pending()->count(2)->create();
+        FieldAgentApplication::factory()->pending()->count(3)->create();
+
+        $this->actingAs($this->admin)
+            ->get('/dashboard/field-agent-applications?type=team')
+            ->assertOk()
+            ->assertInertia(fn ($page) => $page->where('applications.total', 2)->etc());
+    }
+
+    public function test_admin_index_filters_by_type_individual(): void
+    {
+        FieldAgentApplication::factory()->team()->pending()->count(2)->create();
+        FieldAgentApplication::factory()->pending()->count(3)->create();
+
+        $this->actingAs($this->admin)
+            ->get('/dashboard/field-agent-applications?type=individual')
+            ->assertOk()
+            ->assertInertia(fn ($page) => $page->where('applications.total', 3)->etc());
+    }
+
+    public function test_admin_index_ignores_invalid_type_filter(): void
+    {
+        FieldAgentApplication::factory()->team()->pending()->count(2)->create();
+        FieldAgentApplication::factory()->pending()->count(3)->create();
+
+        $this->actingAs($this->admin)
+            ->get('/dashboard/field-agent-applications?type=banana')
+            ->assertOk()
+            ->assertInertia(fn ($page) => $page->where('applications.total', 5)->etc());
     }
 }
