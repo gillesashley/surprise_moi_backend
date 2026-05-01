@@ -2,6 +2,7 @@ import AppLogoIcon from '@/components/app-logo-icon';
 import InputError from '@/components/input-error';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -42,6 +43,7 @@ type WizardData = {
     ghana_card_back_image: File | null;
     selfie: File | null;
     website: string;
+    is_team: boolean;
 };
 
 const STEPS = ['Personal', 'Location', 'Identity', 'Review'] as const;
@@ -64,6 +66,7 @@ export default function FieldAgentRegister({ regions }: Props) {
         ghana_card_back_image: null,
         selfie: null,
         website: '',
+        is_team: false,
     });
 
     const selectedRegion = useMemo(
@@ -377,6 +380,39 @@ export default function FieldAgentRegister({ regions }: Props) {
                                             />
                                         </Stack>
                                     </Box>
+                                    <Stack spacing={1}>
+                                        <Stack
+                                            direction="row"
+                                            spacing={1.25}
+                                            sx={{ alignItems: 'flex-start' }}
+                                        >
+                                            <Checkbox
+                                                id="is_team"
+                                                checked={data.is_team}
+                                                onCheckedChange={(checked) =>
+                                                    setData(
+                                                        'is_team',
+                                                        checked === true,
+                                                    )
+                                                }
+                                            />
+                                            <Stack spacing={0.25}>
+                                                <Label htmlFor="is_team">
+                                                    I am registering as a team
+                                                    leader
+                                                </Label>
+                                                <Typography
+                                                    variant="caption"
+                                                    color="text.secondary"
+                                                >
+                                                    Tick this if you'll be
+                                                    coordinating a team of field
+                                                    agents under your account.
+                                                </Typography>
+                                            </Stack>
+                                        </Stack>
+                                        <InputError message={errors.is_team} />
+                                    </Stack>
                                 </Stack>
                             )}
 
@@ -641,6 +677,14 @@ export default function FieldAgentRegister({ regions }: Props) {
                                         <ReviewRow
                                             label="Selfie"
                                             value={data.selfie?.name ?? '—'}
+                                        />
+                                        <ReviewRow
+                                            label="Registration type"
+                                            value={
+                                                data.is_team
+                                                    ? 'Team'
+                                                    : 'Individual'
+                                            }
                                         />
                                     </Box>
                                 </Stack>
