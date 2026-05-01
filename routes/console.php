@@ -26,3 +26,9 @@ Schedule::command('backup:email')->daily()->at('00:00');
 
 // Audit log retention: prune standard-retention rows older than 90 days.
 Schedule::command('audit:prune')->dailyAt('03:30')->withoutOverlapping()->onOneServer();
+
+// Vendor application flag deadlines: send reminders before deadline, alert admins after.
+Schedule::command('vendor-applications:process-flag-deadlines')
+    ->daily()
+    ->withoutOverlapping()
+    ->onOneServer();

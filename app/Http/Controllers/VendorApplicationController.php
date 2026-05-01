@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\FlagVendorApplicationRequest;
 use App\Models\Order;
+use App\Models\Setting;
 use App\Models\VendorApplication;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -64,6 +66,7 @@ class VendorApplicationController extends Controller
                 'completed_step' => $app->completed_step,
                 'payment_completed' => $app->payment_completed,
                 'payment_status' => $app->latestOnboardingPayment?->status,
+                'grace_period_ends_at' => $app->grace_period_ends_at?->toIso8601String(),
             ]),
             'filters' => [
                 'status' => $request->status,
@@ -80,7 +83,7 @@ class VendorApplicationController extends Controller
      */
     public function show(VendorApplication $vendorApplication)
     {
-        $vendorApplication->load(['user', 'reviewer', 'bespokeServices', 'latestOnboardingPayment', 'vendorVisit.fieldAgent']);
+        $vendorApplication->load(['user', 'reviewer', 'flagger', 'bespokeServices', 'latestOnboardingPayment', 'vendorVisit.fieldAgent']);
 
         return Inertia::render('vendor-applications/show', [
             'application' => [
@@ -150,6 +153,16 @@ class VendorApplicationController extends Controller
                 ] : null,
                 'rejection_reason' => $vendorApplication->rejection_reason,
 
+                // Flagging
+                'flagged_at' => $vendorApplication->flagged_at?->toIso8601String(),
+                'flag_reason' => $vendorApplication->flag_reason,
+                'flagged_by' => $vendorApplication->flagger ? [
+                    'id' => $vendorApplication->flagger->id,
+                    'name' => $vendorApplication->flagger->name,
+                ] : null,
+                'grace_period_ends_at' => $vendorApplication->grace_period_ends_at?->toIso8601String(),
+                'flag_reminder_sent_at' => $vendorApplication->flag_reminder_sent_at?->toIso8601String(),
+
                 // Payment info
                 'payment_required' => $vendorApplication->payment_required,
                 'payment_completed' => $vendorApplication->payment_completed,
@@ -190,6 +203,7 @@ class VendorApplicationController extends Controller
                 ] : null,
             ],
             'vendorOrders' => $this->getVendorOrders($vendorApplication),
+            'gracePeriodDays' => (int) Setting::get('vendor_application_grace_period_days', 7),
         ]);
     }
 
@@ -253,13 +267,11 @@ class VendorApplicationController extends Controller
     {
         // Check if application is complete and ready for review
         if (! $vendorApplication->canBeReviewed()) {
-            dump($vendorApplication->completed_step, $vendorApplication->payment_required, $vendorApplication->payment_completed, $vendorApplication->submitted_at, $vendorApplication->isStep3Complete());
-
             return back()->with('error', 'This application cannot be reviewed. Ensure all steps are completed, payment is made, and the application has been submitted.');
         }
 
         // Check if application is in a state that can be approved
-        if (! in_array($vendorApplication->status, [VendorApplication::STATUS_PENDING, VendorApplication::STATUS_UNDER_REVIEW])) {
+        if (! in_array($vendorApplication->status, [VendorApplication::STATUS_PENDING, VendorApplication::STATUS_UNDER_REVIEW, VendorApplication::STATUS_FLAGGED], true)) {
             return back()->with('error', 'This application cannot be approved in its current state.');
         }
 
@@ -304,7 +316,7 @@ class VendorApplicationController extends Controller
         }
 
         // Check if application is in a state that can be rejected
-        if (! in_array($vendorApplication->status, [VendorApplication::STATUS_PENDING, VendorApplication::STATUS_UNDER_REVIEW])) {
+        if (! in_array($vendorApplication->status, [VendorApplication::STATUS_PENDING, VendorApplication::STATUS_UNDER_REVIEW, VendorApplication::STATUS_FLAGGED], true)) {
             return back()->with('error', 'This application cannot be rejected in its current state.');
         }
 
@@ -320,6 +332,40 @@ class VendorApplicationController extends Controller
 
         return redirect()->route('vendor-applications.show', $vendorApplication)
             ->with('success', 'Vendor application rejected.');
+    }
+
+    /**
+     * Flag a vendor application for missing or unclear details.
+     */
+    public function flag(FlagVendorApplicationRequest $request, VendorApplication $vendorApplication)
+    {
+        if (! $vendorApplication->canBeReviewed()) {
+            return back()->with('error', 'This application cannot be reviewed. Ensure all steps are completed, payment is made, and the application has been submitted.');
+        }
+
+        if (! in_array($vendorApplication->status, [
+            VendorApplication::STATUS_PENDING,
+            VendorApplication::STATUS_UNDER_REVIEW,
+            VendorApplication::STATUS_FLAGGED,
+        ], true)) {
+            return back()->with('error', 'This application cannot be flagged in its current state.');
+        }
+
+        $vendorApplication->flag(Auth::id(), $request->input('flag_reason'));
+
+        app(\App\Services\AuditService::class)->record(
+            'vendor_application.flagged',
+            $vendorApplication,
+            Auth::user(),
+            extra: [
+                'reason' => $request->input('flag_reason'),
+                'grace_period_ends_at' => $vendorApplication->grace_period_ends_at?->toIso8601String(),
+            ],
+            retentionClass: 'critical'
+        );
+
+        return redirect()->route('vendor-applications.show', $vendorApplication)
+            ->with('success', 'Vendor application flagged. The vendor has been notified.');
     }
 
     /**

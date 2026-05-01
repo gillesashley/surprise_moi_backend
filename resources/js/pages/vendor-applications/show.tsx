@@ -31,6 +31,7 @@ import {
     CreditCard,
     Download,
     Eye,
+    Flag,
     IdCard,
     Package,
     ShoppingBag,
@@ -99,6 +100,11 @@ interface Application {
         name: string;
     } | null;
     rejection_reason: string | null;
+    flagged_at: string | null;
+    flag_reason: string | null;
+    flagged_by: { id: number; name: string } | null;
+    grace_period_ends_at: string | null;
+    flag_reminder_sent_at: string | null;
     payment_required: boolean;
     payment_completed: boolean;
     payment_completed_at: string | null;
@@ -159,12 +165,14 @@ interface VendorOrders {
 interface Props {
     application: Application;
     vendorOrders: VendorOrders | null;
+    gracePeriodDays: number;
 }
 
 const getStatusBadge = (status: string) => {
     const variants: Record<string, { variant: any; label: string }> = {
         pending: { variant: 'secondary', label: 'Pending Review' },
         under_review: { variant: 'default', label: 'Under Review' },
+        flagged: { variant: 'secondary', label: 'Needs More Info' },
         approved: { variant: 'default', label: 'Approved' },
         rejected: { variant: 'destructive', label: 'Rejected' },
     };
@@ -199,15 +207,18 @@ const formatStatus = (status: string): string => {
 export default function VendorApplicationShow({
     application,
     vendorOrders,
+    gracePeriodDays,
 }: Props) {
     useInactivityLock();
     const [showRejectDialog, setShowRejectDialog] = useState(false);
+    const [showFlagDialog, setShowFlagDialog] = useState(false);
     const [previewDoc, setPreviewDoc] = useState<{
         url: string;
         title: string;
     } | null>(null);
-    const { data, setData, post, processing } = useForm({
+    const { data, setData, post, processing, reset } = useForm({
         rejection_reason: '',
+        flag_reason: '',
     });
 
     const breadcrumbs: BreadcrumbItem[] = [
@@ -243,6 +254,19 @@ export default function VendorApplicationShow({
         });
     };
 
+    const handleFlag = () => {
+        if (data.flag_reason.trim().length < 10) {
+            alert('Please provide a detailed reason (at least 10 characters).');
+            return;
+        }
+        post(`/dashboard/vendor-applications/${application.id}/flag`, {
+            onSuccess: () => {
+                setShowFlagDialog(false);
+                reset('flag_reason');
+            },
+        });
+    };
+
     const handleMarkUnderReview = () => {
         router.post(
             `/dashboard/vendor-applications/${application.id}/under-review`,
@@ -251,7 +275,11 @@ export default function VendorApplicationShow({
 
     const canApproveOrReject =
         application.can_be_reviewed &&
-        ['pending', 'under_review'].includes(application.status);
+        ['pending', 'under_review', 'flagged'].includes(application.status);
+
+    const canFlag =
+        application.can_be_reviewed &&
+        ['pending', 'under_review', 'flagged'].includes(application.status);
 
     const { auth } = usePage<SharedData>().props;
     const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -314,6 +342,24 @@ export default function VendorApplicationShow({
                                     onClick={handleMarkUnderReview}
                                 >
                                     Mark Under Review
+                                </Button>
+                            )}
+                            {canFlag && (
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => setShowFlagDialog(true)}
+                                >
+                                    <Flag
+                                        style={{
+                                            marginRight: 8,
+                                            width: 16,
+                                            height: 16,
+                                        }}
+                                    />
+                                    {application.status === 'flagged'
+                                        ? 'Re-flag'
+                                        : 'Flag for missing details'}
                                 </Button>
                             )}
                             <Button
@@ -528,6 +574,73 @@ export default function VendorApplicationShow({
                                         application.reviewed_at,
                                     ).toLocaleDateString()}
                                 </Typography>
+                            </Box>
+                        )}
+                        {application.flag_reason && (
+                            <Box
+                                sx={{
+                                    mt: 2,
+                                    borderRadius: 2,
+                                    bgcolor: 'warning.light',
+                                    opacity: 0.95,
+                                    p: 1.5,
+                                }}
+                            >
+                                <Typography
+                                    sx={{
+                                        fontSize: '0.875rem',
+                                        fontWeight: 500,
+                                        color: 'warning.dark',
+                                    }}
+                                >
+                                    Flag Reason:
+                                </Typography>
+                                <Typography
+                                    sx={{
+                                        mt: 0.5,
+                                        fontSize: '0.875rem',
+                                        color: 'warning.dark',
+                                    }}
+                                >
+                                    {application.flag_reason}
+                                </Typography>
+                                {application.grace_period_ends_at && (
+                                    <Typography
+                                        sx={{
+                                            mt: 1,
+                                            fontSize: '0.8125rem',
+                                            color: 'warning.dark',
+                                        }}
+                                    >
+                                        Vendor deadline:{' '}
+                                        <strong>
+                                            {new Date(
+                                                application.grace_period_ends_at,
+                                            ).toLocaleDateString()}
+                                        </strong>
+                                        {new Date(application.grace_period_ends_at) <
+                                            new Date() && ' — passed'}
+                                    </Typography>
+                                )}
+                                {application.flagged_by &&
+                                    application.flagged_at && (
+                                        <Typography
+                                            sx={{
+                                                mt: 0.5,
+                                                fontSize: '0.75rem',
+                                                color: 'warning.dark',
+                                                opacity: 0.8,
+                                            }}
+                                        >
+                                            Flagged by{' '}
+                                            {application.flagged_by.name} on{' '}
+                                            {new Date(
+                                                application.flagged_at,
+                                            ).toLocaleDateString()}
+                                            {application.flag_reminder_sent_at &&
+                                                ` · Reminder sent ${new Date(application.flag_reminder_sent_at).toLocaleDateString()}`}
+                                        </Typography>
+                                    )}
                             </Box>
                         )}
                         {application.rejection_reason && (
@@ -2430,6 +2543,61 @@ export default function VendorApplicationShow({
                             }
                         >
                             Reject Application
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            {/* Flag Dialog */}
+            <Dialog open={showFlagDialog} onOpenChange={setShowFlagDialog}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Flag Vendor Application</DialogTitle>
+                        <DialogDescription>
+                            Tell the vendor what is missing or unclear. They will
+                            have <strong>{gracePeriodDays} days</strong> to update
+                            and resubmit before you decide whether to approve or
+                            reject.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <Box sx={{ py: 2 }}>
+                        <Textarea
+                            placeholder="e.g. The Ghana card back image is unreadable, please re-upload a clearer photo."
+                            value={data.flag_reason}
+                            onChange={(e) =>
+                                setData('flag_reason', e.target.value)
+                            }
+                            rows={5}
+                            style={{ resize: 'none' }}
+                        />
+                        {data.flag_reason &&
+                            data.flag_reason.length < 10 && (
+                                <Typography
+                                    sx={{
+                                        mt: 1,
+                                        fontSize: '0.875rem',
+                                        color: 'error.main',
+                                    }}
+                                >
+                                    Please provide at least 10 characters
+                                </Typography>
+                            )}
+                    </Box>
+                    <DialogFooter>
+                        <Button
+                            variant="outline"
+                            onClick={() => setShowFlagDialog(false)}
+                            disabled={processing}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            onClick={handleFlag}
+                            disabled={
+                                processing || data.flag_reason.length < 10
+                            }
+                        >
+                            Flag Application
                         </Button>
                     </DialogFooter>
                 </DialogContent>

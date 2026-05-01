@@ -4,9 +4,11 @@ namespace App\Models;
 
 use App\Events\VendorApprovalSubmitted;
 use App\Events\VendorApproved;
+use App\Events\VendorFlagged;
 use App\Events\VendorRejected;
 use App\Notifications\VendorApplicationSubmittedNotification;
 use App\Notifications\VendorApprovalNotification;
+use App\Notifications\VendorFlaggedNotification;
 use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -31,6 +33,8 @@ class VendorApplication extends Model
     public const STATUS_APPROVED = 'approved';
 
     public const STATUS_REJECTED = 'rejected';
+
+    public const STATUS_FLAGGED = 'flagged';
 
     /**
      * Mobile money provider constants.
@@ -74,6 +78,13 @@ class VendorApplication extends Model
         'reviewed_by',
         'reviewed_at',
         'submitted_at',
+        // Flagging fields
+        'flagged_at',
+        'flag_reason',
+        'flagged_by',
+        'grace_period_ends_at',
+        'flag_reminder_sent_at',
+        'flag_expired_alert_sent_at',
         // Payment fields
         'payment_required',
         'payment_completed',
@@ -97,6 +108,10 @@ class VendorApplication extends Model
             'payment_required' => 'boolean',
             'payment_completed' => 'boolean',
             'payment_completed_at' => 'datetime',
+            'flagged_at' => 'datetime',
+            'grace_period_ends_at' => 'datetime',
+            'flag_reminder_sent_at' => 'datetime',
+            'flag_expired_alert_sent_at' => 'datetime',
             'onboarding_fee' => 'decimal:2',
             'discount_amount' => 'decimal:2',
             'final_amount' => 'decimal:2',
@@ -111,6 +126,11 @@ class VendorApplication extends Model
     public function reviewer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'reviewed_by');
+    }
+
+    public function flagger(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'flagged_by');
     }
 
     public function referralCode(): BelongsTo
@@ -225,10 +245,15 @@ class VendorApplication extends Model
      */
     public function canSubmit(): bool
     {
+        $isResubmit = $this->status === self::STATUS_FLAGGED;
+        $statusOk = $isResubmit || $this->status === self::STATUS_PENDING;
+        // Resubmits already have a submitted_at from their first submission — that's expected, not a block.
+        $submittedAtOk = $isResubmit || is_null($this->submitted_at);
+
         return $this->completed_step >= 4
             && $this->isStep3Complete()
-            && $this->status === self::STATUS_PENDING
-            && is_null($this->submitted_at)
+            && $statusOk
+            && $submittedAtOk
             && (! $this->payment_required || $this->payment_completed);
     }
 
@@ -255,8 +280,8 @@ class VendorApplication extends Model
      */
     public function isEditable(): bool
     {
-        // Rejected applications can always be edited
-        if ($this->status === self::STATUS_REJECTED) {
+        // Rejected and flagged applications can always be edited
+        if (in_array($this->status, [self::STATUS_REJECTED, self::STATUS_FLAGGED], true)) {
             return true;
         }
 
@@ -274,6 +299,7 @@ class VendorApplication extends Model
         return [
             self::STATUS_PENDING,
             self::STATUS_UNDER_REVIEW,
+            self::STATUS_FLAGGED,
             self::STATUS_APPROVED,
             self::STATUS_REJECTED,
         ];
@@ -299,6 +325,14 @@ class VendorApplication extends Model
     public function scopeStatus($query, string $status)
     {
         return $query->where('status', $status);
+    }
+
+    /**
+     * Scope to get flagged applications.
+     */
+    public function scopeFlagged($query)
+    {
+        return $query->where('status', self::STATUS_FLAGGED);
     }
 
     /**
@@ -362,6 +396,39 @@ class VendorApplication extends Model
     }
 
     /**
+     * Flag the vendor application for missing or unclear details.
+     *
+     * Puts the application into a time-boxed grace period so the vendor can
+     * edit and resubmit. Admins retain manual control — there is no
+     * auto-rejection.
+     *
+     * Safe to call on an already-flagged application (re-flag path, e.g.,
+     * when a vendor resubmits and the admin flags again with an updated
+     * reason). Both reminder and expired-alert stamps are always reset to
+     * null so the scheduled flag-deadlines command treats the row as a fresh
+     * flag against the new deadline.
+     */
+    public function flag(int $reviewerId, string $reason): bool
+    {
+        $graceDays = (int) Setting::get('vendor_application_grace_period_days', 7);
+
+        $this->update([
+            'status' => self::STATUS_FLAGGED,
+            'flag_reason' => $reason,
+            'flagged_by' => $reviewerId,
+            'flagged_at' => now(),
+            'grace_period_ends_at' => now()->addDays($graceDays),
+            'flag_reminder_sent_at' => null,
+            'flag_expired_alert_sent_at' => null,
+        ]);
+
+        event(new VendorFlagged($this));
+        $this->user->notify(new VendorFlaggedNotification($this));
+
+        return true;
+    }
+
+    /**
      * Mark application as under review.
      */
     public function markUnderReview(): bool
@@ -379,6 +446,7 @@ class VendorApplication extends Model
      * Submit the vendor application for review.
      *
      * Fires VendorApprovalSubmitted event to notify admins in real-time.
+     * When resubmitting from flagged status, transitions status to under_review.
      */
     public function submit(): bool
     {
@@ -386,7 +454,12 @@ class VendorApplication extends Model
             return false;
         }
 
-        $this->update(['submitted_at' => now()]);
+        $payload = ['submitted_at' => now()];
+        if ($this->status === self::STATUS_FLAGGED) {
+            $payload['status'] = self::STATUS_UNDER_REVIEW;
+        }
+
+        $this->update($payload);
 
         // Fire submission event to notify admins
         event(new VendorApprovalSubmitted($this));
