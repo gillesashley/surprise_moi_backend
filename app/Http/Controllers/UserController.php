@@ -65,7 +65,7 @@ class UserController extends Controller
     public function index(Request $request)
     {
         $query = User::query()
-            ->select(['id', 'name', 'email', 'phone', 'role', 'email_verified_at', 'created_at']);
+            ->select(['id', 'name', 'email', 'phone', 'role', 'is_team_field_agent', 'email_verified_at', 'created_at']);
 
         $filters = $this->applyFiltersAndSorting($request, $query);
         $activeRole = $filters['role_filter'];
@@ -80,6 +80,8 @@ class UserController extends Controller
                     'role' => $user->role,
                     'created_at' => $user->created_at?->toIso8601String(),
                 ];
+
+                $data['is_team_field_agent'] = (bool) $user->is_team_field_agent;
 
                 if ($activeRole === 'field_agent') {
                     $totalVisits = $user->vendorVisitsAsAgent()->whereIn('status', ['submitted'])->count();

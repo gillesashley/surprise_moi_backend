@@ -27,6 +27,7 @@ class FieldAgentApplicationFactory extends Factory
             'region_id' => $region->id,
             'city_id' => $city->id,
             'location' => fake()->streetName(),
+            'is_team' => false,
             'ghana_card_number' => 'GHA-'.fake()->unique()->numerify('#########').'-'.fake()->numberBetween(0, 9),
             'ghana_card_image_path' => 'field-agents/ghana-cards/sample-front.jpg',
             'ghana_card_back_image_path' => 'field-agents/ghana-cards/sample-back.jpg',
@@ -62,5 +63,10 @@ class FieldAgentApplicationFactory extends Factory
             'reviewed_at' => now(),
             'rejection_reason' => 'Documents unclear. Please resubmit.',
         ]);
+    }
+
+    public function team(): static
+    {
+        return $this->state(['is_team' => true]);
     }
 }

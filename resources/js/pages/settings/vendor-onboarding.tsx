@@ -65,6 +65,11 @@ interface Settings {
         type: string;
         description: string;
     };
+    referral_bonus_field_agent_team_pct?: {
+        value: string;
+        type: string;
+        description: string;
+    };
     vendor_onboarding_subsidy_pct?: {
         value: string;
         type: string;
@@ -106,6 +111,11 @@ const BONUS_CATEGORIES = [
         key: 'referral_bonus_field_agent_pct',
         label: 'Field Agent',
         defaultValue: '30.00',
+    },
+    {
+        key: 'referral_bonus_field_agent_team_pct',
+        label: 'Field Agent (Team)',
+        defaultValue: '35.00',
     },
     {
         key: 'referral_bonus_employee_pct',

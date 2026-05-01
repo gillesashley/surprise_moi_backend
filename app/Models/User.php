@@ -47,6 +47,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'is_popular',
         'field_verified_at',
         'field_verified_until',
+        'is_team_field_agent',
     ];
 
     /**
@@ -75,6 +76,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'two_factor_confirmed_at' => 'datetime',
             'date_of_birth' => 'date',
             'is_popular' => 'boolean',
+            'is_team_field_agent' => 'boolean',
             'vendor_tier' => 'integer',
             'referral_points' => 'integer',
             'field_verified_at' => 'datetime',
@@ -405,6 +407,17 @@ class User extends Authenticatable implements MustVerifyEmail
     public function isFieldAgent(): bool
     {
         return $this->role === 'field_agent';
+    }
+
+    /**
+     * Whether this user is a field agent operating as a team leader.
+     *
+     * The role guard prevents nonsensical reads on rows where the
+     * column happens to be false but the user is not a field agent.
+     */
+    public function isTeamFieldAgent(): bool
+    {
+        return $this->isFieldAgent() && (bool) $this->is_team_field_agent;
     }
 
     /**

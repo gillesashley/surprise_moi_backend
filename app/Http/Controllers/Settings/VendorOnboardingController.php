@@ -42,6 +42,7 @@ class VendorOnboardingController extends Controller
             'referral_bonus_vendor_pct' => 'required|numeric|min:0|max:100',
             'referral_bonus_influencer_pct' => 'required|numeric|min:0|max:100',
             'referral_bonus_field_agent_pct' => 'required|numeric|min:0|max:100',
+            'referral_bonus_field_agent_team_pct' => 'required|numeric|min:0|max:100',
             'referral_bonus_employee_pct' => 'required|numeric|min:0|max:100',
             'vendor_onboarding_subsidy_pct' => 'required|numeric|min:0|max:100',
             'referral_points_per_ghs' => 'required|integer|min:1',

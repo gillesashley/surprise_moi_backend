@@ -29,6 +29,7 @@ type Application = {
     email: string;
     contact_number: string;
     status: string;
+    is_team: boolean;
     created_at: string;
     region?: { name: string };
     city?: { name: string };
@@ -42,7 +43,7 @@ type Props = {
         last_page: number;
         total: number;
     };
-    filters: { status?: string; region_id?: number };
+    filters: { status?: string; region_id?: number; type?: 'individual' | 'team' };
     statuses: Array<{ value: string; label: string }>;
 };
 
@@ -60,12 +61,28 @@ export default function FieldAgentApplicationsIndex({
 }: Props) {
     useInactivityLock();
     const [status, setStatus] = useState(filters.status ?? '');
+    const [type, setType] = useState(filters.type ?? '');
 
     const applyFilter = (newStatus: string) => {
         setStatus(newStatus);
         router.get(
             '/dashboard/field-agent-applications',
-            { status: newStatus || undefined },
+            {
+                status: newStatus || undefined,
+                type: type || undefined,
+            },
+            { preserveScroll: true, preserveState: true },
+        );
+    };
+
+    const applyType = (newType: string) => {
+        setType(newType);
+        router.get(
+            '/dashboard/field-agent-applications',
+            {
+                status: status || undefined,
+                type: newType || undefined,
+            },
             { preserveScroll: true, preserveState: true },
         );
     };
@@ -129,6 +146,25 @@ export default function FieldAgentApplicationsIndex({
                                             {s.label}
                                         </SelectItem>
                                     ))}
+                                </SelectContent>
+                            </Select>
+                            <Select
+                                value={type || 'all'}
+                                onValueChange={(v) =>
+                                    applyType(v === 'all' ? '' : v)
+                                }
+                            >
+                                <SelectTrigger className="w-48">
+                                    <SelectValue placeholder="All types" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">
+                                        All Types
+                                    </SelectItem>
+                                    <SelectItem value="individual">
+                                        Individual
+                                    </SelectItem>
+                                    <SelectItem value="team">Team</SelectItem>
                                 </SelectContent>
                             </Select>
                         </Box>
@@ -232,7 +268,23 @@ export default function FieldAgentApplicationsIndex({
                                                     fontSize: '0.875rem',
                                                 }}
                                             >
-                                                {a.first_name} {a.last_name}
+                                                <Box
+                                                    sx={{
+                                                        display: 'inline-flex',
+                                                        alignItems: 'center',
+                                                        gap: 1,
+                                                    }}
+                                                >
+                                                    <span>
+                                                        {a.first_name}{' '}
+                                                        {a.last_name}
+                                                    </span>
+                                                    {a.is_team && (
+                                                        <Badge variant="secondary">
+                                                            Team
+                                                        </Badge>
+                                                    )}
+                                                </Box>
                                             </Box>
                                             <Box
                                                 component="td"

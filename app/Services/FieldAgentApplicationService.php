@@ -30,6 +30,7 @@ class FieldAgentApplicationService
                 'region_id' => $validated['region_id'],
                 'city_id' => $validated['city_id'],
                 'location' => $validated['location'],
+                'is_team' => $validated['is_team'] ?? false,
                 'ghana_card_number' => $validated['ghana_card_number'],
                 'ghana_card_image_path' => $ghanaCardPath,
                 'ghana_card_back_image_path' => $ghanaCardBackPath,

@@ -198,7 +198,11 @@ class ReferralService
             // Pessimistic lock prevents races with concurrent role changes.
             $sharer = User::lockForUpdate()->findOrFail($referral->influencer_id);
 
-            $percentage = (float) Setting::get("referral_bonus_{$sharer->role}_pct", 0);
+            $settingKey = $sharer->isTeamFieldAgent()
+                ? 'referral_bonus_field_agent_team_pct'
+                : "referral_bonus_{$sharer->role}_pct";
+
+            $percentage = (float) Setting::get($settingKey, 0);
             $finalAmount = (float) $vendorApplication->final_amount;
             $ghsAmount = round(($percentage / 100) * $finalAmount, 2);
 

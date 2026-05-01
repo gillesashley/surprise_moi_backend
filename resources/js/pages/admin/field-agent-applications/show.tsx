@@ -28,6 +28,7 @@ type Application = {
     location: string;
     ghana_card_number: string;
     status: string;
+    is_team: boolean;
     region?: { name: string };
     city?: { name: string };
     reviewer?: { name: string } | null;
@@ -237,6 +238,21 @@ export default function FieldAgentApplicationShow({
                             />
                         </Section>
                         <Section title="Identity">
+                            <Box
+                                sx={{
+                                    display: 'grid',
+                                    gap: 1,
+                                    gridTemplateColumns: { xs: '1fr', sm: '10rem 1fr' },
+                                    alignItems: 'baseline',
+                                }}
+                            >
+                                <Typography variant="body2" color="text.secondary">
+                                    Registration type
+                                </Typography>
+                                <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                                    {application.is_team ? 'Team' : 'Individual'}
+                                </Typography>
+                            </Box>
                             <Field
                                 label="Ghana card number"
                                 value={application.ghana_card_number}

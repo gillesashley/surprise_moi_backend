@@ -28,6 +28,7 @@ class FieldAgentApprovalService
                 'role' => 'field_agent',
                 'phone' => $application->contact_number,
                 'email_verified_at' => now(),
+                'is_team_field_agent' => $application->is_team,
             ]);
 
             $application->update([
