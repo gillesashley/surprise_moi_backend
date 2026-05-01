@@ -371,10 +371,12 @@ class VendorApplicationFlagTest extends TestCase
                 'flag_reason' => 'attempting to flag from a vendor account',
             ]);
 
-        // Vendor users have no dashboard access; the EnsureDashboardAccess
-        // middleware redirects them to login before reaching the controller.
+        // Non-admin users are blocked by the dashboard access middleware before
+        // they reach FlagVendorApplicationRequest::authorize() — the exact redirect
+        // target isn't material; what matters is that the flag did not happen.
         $response->assertRedirect();
         $this->assertSame(VendorApplication::STATUS_PENDING, $app->fresh()->status);
+        $this->assertNull($app->fresh()->flagged_by);
     }
 
     public function test_flagged_application_can_be_approved_by_admin(): void

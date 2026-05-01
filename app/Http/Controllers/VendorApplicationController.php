@@ -258,7 +258,7 @@ class VendorApplicationController extends Controller
         }
 
         // Check if application is in a state that can be approved
-        if (! in_array($vendorApplication->status, [VendorApplication::STATUS_PENDING, VendorApplication::STATUS_UNDER_REVIEW, VendorApplication::STATUS_FLAGGED])) {
+        if (! in_array($vendorApplication->status, [VendorApplication::STATUS_PENDING, VendorApplication::STATUS_UNDER_REVIEW, VendorApplication::STATUS_FLAGGED], true)) {
             return back()->with('error', 'This application cannot be approved in its current state.');
         }
 
@@ -303,7 +303,7 @@ class VendorApplicationController extends Controller
         }
 
         // Check if application is in a state that can be rejected
-        if (! in_array($vendorApplication->status, [VendorApplication::STATUS_PENDING, VendorApplication::STATUS_UNDER_REVIEW, VendorApplication::STATUS_FLAGGED])) {
+        if (! in_array($vendorApplication->status, [VendorApplication::STATUS_PENDING, VendorApplication::STATUS_UNDER_REVIEW, VendorApplication::STATUS_FLAGGED], true)) {
             return back()->with('error', 'This application cannot be rejected in its current state.');
         }
 
