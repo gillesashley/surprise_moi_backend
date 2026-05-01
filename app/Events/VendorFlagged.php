@@ -35,11 +35,6 @@ class VendorFlagged implements ShouldBroadcast
         ];
     }
 
-    public function broadcastAs(): string
-    {
-        return 'vendor.flagged';
-    }
-
     /**
      * @return array<string, mixed>
      */
@@ -50,9 +45,15 @@ class VendorFlagged implements ShouldBroadcast
             'user_id' => $this->vendorApplication->user_id,
             'user_name' => $this->vendorApplication->user->name,
             'user_email' => $this->vendorApplication->user->email,
-            'flagged_at' => $this->vendorApplication->flagged_at,
-            'grace_period_ends_at' => $this->vendorApplication->grace_period_ends_at,
+            'flag_reason' => $this->vendorApplication->flag_reason,
+            'flagged_at' => $this->vendorApplication->flagged_at?->toIso8601String(),
+            'grace_period_ends_at' => $this->vendorApplication->grace_period_ends_at?->toIso8601String(),
             'message' => "Vendor application flagged for {$this->vendorApplication->user->name}",
         ];
+    }
+
+    public function broadcastAs(): string
+    {
+        return 'vendor.flagged';
     }
 }
