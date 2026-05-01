@@ -32,6 +32,8 @@ class VendorApplication extends Model
 
     public const STATUS_REJECTED = 'rejected';
 
+    public const STATUS_FLAGGED = 'flagged';
+
     /**
      * Mobile money provider constants.
      */
@@ -74,6 +76,13 @@ class VendorApplication extends Model
         'reviewed_by',
         'reviewed_at',
         'submitted_at',
+        // Flagging fields
+        'flagged_at',
+        'flag_reason',
+        'flagged_by',
+        'grace_period_ends_at',
+        'flag_reminder_sent_at',
+        'flag_expired_alert_sent_at',
         // Payment fields
         'payment_required',
         'payment_completed',
@@ -97,6 +106,10 @@ class VendorApplication extends Model
             'payment_required' => 'boolean',
             'payment_completed' => 'boolean',
             'payment_completed_at' => 'datetime',
+            'flagged_at' => 'datetime',
+            'grace_period_ends_at' => 'datetime',
+            'flag_reminder_sent_at' => 'datetime',
+            'flag_expired_alert_sent_at' => 'datetime',
             'onboarding_fee' => 'decimal:2',
             'discount_amount' => 'decimal:2',
             'final_amount' => 'decimal:2',
@@ -111,6 +124,11 @@ class VendorApplication extends Model
     public function reviewer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'reviewed_by');
+    }
+
+    public function flagger(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'flagged_by');
     }
 
     public function referralCode(): BelongsTo
@@ -274,6 +292,7 @@ class VendorApplication extends Model
         return [
             self::STATUS_PENDING,
             self::STATUS_UNDER_REVIEW,
+            self::STATUS_FLAGGED,
             self::STATUS_APPROVED,
             self::STATUS_REJECTED,
         ];
@@ -299,6 +318,14 @@ class VendorApplication extends Model
     public function scopeStatus($query, string $status)
     {
         return $query->where('status', $status);
+    }
+
+    /**
+     * Scope to get flagged applications.
+     */
+    public function scopeFlagged($query)
+    {
+        return $query->where('status', self::STATUS_FLAGGED);
     }
 
     /**
