@@ -150,4 +150,64 @@ class VendorApplicationFlagTest extends TestCase
         $this->assertSame(VendorApplication::STATUS_PENDING, $app->fresh()->status);
         $this->assertNotNull($app->fresh()->submitted_at);
     }
+
+    public function test_flag_method_sets_status_and_columns(): void
+    {
+        \Notification::fake();
+        \Event::fake();
+
+        \App\Models\Setting::set('vendor_application_grace_period_days', '7', 'number');
+
+        $reviewer = User::factory()->create();
+        $app = VendorApplication::factory()->underReview()->create();
+
+        $result = $app->flag($reviewer->id, 'Ghana card back is unreadable');
+
+        $this->assertTrue($result);
+        $fresh = $app->fresh();
+        $this->assertSame(VendorApplication::STATUS_FLAGGED, $fresh->status);
+        $this->assertSame('Ghana card back is unreadable', $fresh->flag_reason);
+        $this->assertSame($reviewer->id, $fresh->flagged_by);
+        $this->assertNotNull($fresh->flagged_at);
+        $this->assertTrue($fresh->grace_period_ends_at->isAfter(now()->addDays(6)));
+        $this->assertNull($fresh->flag_reminder_sent_at);
+        $this->assertNull($fresh->flag_expired_alert_sent_at);
+    }
+
+    public function test_flag_method_dispatches_event_and_notification(): void
+    {
+        \Notification::fake();
+        \Event::fake();
+
+        $reviewer = User::factory()->create();
+        $app = VendorApplication::factory()->underReview()->create();
+
+        $app->flag($reviewer->id, 'Ghana card back is unreadable');
+
+        \Event::assertDispatched(\App\Events\VendorFlagged::class);
+        \Notification::assertSentTo(
+            $app->user,
+            \App\Notifications\VendorFlaggedNotification::class
+        );
+    }
+
+    public function test_flag_method_clears_previous_reminder_stamps_on_re_flag(): void
+    {
+        // The model method has no status guard — it can be invoked on an
+        // already-flagged application. This test proves the stamps reset so the
+        // scheduled command treats the row as a fresh flag against the new deadline.
+        \Notification::fake();
+        \Event::fake();
+
+        $reviewer = User::factory()->create();
+        $app = VendorApplication::factory()->flagged()->create([
+            'flag_reminder_sent_at' => now()->subDay(),
+            'flag_expired_alert_sent_at' => now()->subDay(),
+        ]);
+
+        $app->flag($reviewer->id, 'Still missing TIN document');
+
+        $this->assertNull($app->fresh()->flag_reminder_sent_at);
+        $this->assertNull($app->fresh()->flag_expired_alert_sent_at);
+    }
 }

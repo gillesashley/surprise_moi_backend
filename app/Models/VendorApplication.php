@@ -4,9 +4,11 @@ namespace App\Models;
 
 use App\Events\VendorApprovalSubmitted;
 use App\Events\VendorApproved;
+use App\Events\VendorFlagged;
 use App\Events\VendorRejected;
 use App\Notifications\VendorApplicationSubmittedNotification;
 use App\Notifications\VendorApprovalNotification;
+use App\Notifications\VendorFlaggedNotification;
 use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -389,6 +391,33 @@ class VendorApplication extends Model
         // Fire rejection event and send notification
         event(new VendorRejected($this));
         $this->user->notify(new VendorApprovalNotification($this, 'rejected'));
+
+        return true;
+    }
+
+    /**
+     * Flag the vendor application for missing or unclear details.
+     *
+     * Puts the application into a time-boxed grace period so the vendor can
+     * edit and resubmit. Admins retain manual control — there is no
+     * auto-rejection.
+     */
+    public function flag(int $reviewerId, string $reason): bool
+    {
+        $graceDays = (int) Setting::get('vendor_application_grace_period_days', 7);
+
+        $this->update([
+            'status' => self::STATUS_FLAGGED,
+            'flag_reason' => $reason,
+            'flagged_by' => $reviewerId,
+            'flagged_at' => now(),
+            'grace_period_ends_at' => now()->addDays($graceDays),
+            'flag_reminder_sent_at' => null,
+            'flag_expired_alert_sent_at' => null,
+        ]);
+
+        event(new VendorFlagged($this));
+        $this->user->notify(new VendorFlaggedNotification($this));
 
         return true;
     }
