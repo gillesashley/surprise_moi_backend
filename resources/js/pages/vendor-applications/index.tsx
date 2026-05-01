@@ -39,6 +39,7 @@ import {
     Clock,
     Eye,
     FileCheck,
+    Flag,
     Search,
     ThumbsDown,
     ThumbsUp,
@@ -109,6 +110,11 @@ const getStatusBadge = (status: string) => {
                 <FileCheck style={{ marginRight: 4, width: 12, height: 12 }} />
             ),
             label: 'Under Review',
+        },
+        flagged: {
+            color: 'warning',
+            icon: <Flag style={{ marginRight: 4, width: 12, height: 12 }} />,
+            label: 'Needs More Info',
         },
         approved: {
             color: 'success',

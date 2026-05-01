@@ -171,6 +171,7 @@ const getStatusBadge = (status: string) => {
     const variants: Record<string, { variant: any; label: string }> = {
         pending: { variant: 'secondary', label: 'Pending Review' },
         under_review: { variant: 'default', label: 'Under Review' },
+        flagged: { variant: 'secondary', label: 'Needs More Info' },
         approved: { variant: 'default', label: 'Approved' },
         rejected: { variant: 'destructive', label: 'Rejected' },
     };
