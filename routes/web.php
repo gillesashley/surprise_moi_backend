@@ -115,6 +115,10 @@ Route::middleware(['auth', 'dashboard'])->prefix('dashboard')->group(function ()
         'destroy' => 'users.destroy',
     ])->middleware('user-management');
 
+    Route::post('users/{user}/switch-field-agent-type', [UserController::class, 'switchFieldAgentType'])
+        ->middleware('user-management')
+        ->name('users.switch-field-agent-type');
+
     // Targets Management
     Route::resource('targets', TargetController::class)->names([
         'index' => 'targets.index',
