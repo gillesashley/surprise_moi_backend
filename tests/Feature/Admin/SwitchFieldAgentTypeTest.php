@@ -5,6 +5,7 @@ namespace Tests\Feature\Admin;
 use App\Models\ActivityLog;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Config;
 use Tests\TestCase;
 
 class SwitchFieldAgentTypeTest extends TestCase
@@ -16,6 +17,9 @@ class SwitchFieldAgentTypeTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        Config::set('session.driver', 'array');
+        Config::set('cache.default', 'array');
+        $this->withoutMiddleware(\Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class);
         $this->admin = User::factory()->create(['role' => 'admin']);
         $this->session(['user_management.verified_at' => time()]);
     }
