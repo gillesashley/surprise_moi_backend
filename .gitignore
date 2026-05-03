@@ -55,3 +55,5 @@ firebase-credentials.json
 /GEMINI.md
 .superpowers/*
 docs/*
+/graphify-out
+/app/Http/Resources/graphify-out/*

@@ -335,6 +335,34 @@ class UserController extends Controller
     }
 
     /**
+     * Toggle a field agent between team and individual modes.
+     */
+    public function switchFieldAgentType(Request $request, User $user): \Illuminate\Http\RedirectResponse
+    {
+        if (! $user->isFieldAgent()) {
+            return back()->with('error', 'Only field agents can have their team status switched.');
+        }
+
+        $previous = (bool) $user->is_team_field_agent;
+        $user->update(['is_team_field_agent' => ! $previous]);
+
+        app(\App\Services\AuditService::class)->record(
+            'field_agent.type_switched',
+            $user,
+            $request->user(),
+            extra: [
+                'old_type' => $previous ? 'team' : 'individual',
+                'new_type' => $previous ? 'individual' : 'team',
+            ],
+            retentionClass: 'critical'
+        );
+
+        $label = $previous ? 'individual' : 'team';
+
+        return back()->with('success', "Field agent switched to {$label}.");
+    }
+
+    /**
      * Remove the specified user from storage.
      */
     public function destroy(User $user)

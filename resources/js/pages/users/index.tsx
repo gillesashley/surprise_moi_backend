@@ -35,6 +35,7 @@ import {
     Pencil,
     Search,
     Trash2,
+    UserCog,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
@@ -110,6 +111,12 @@ export default function UsersIndex({
         id: number;
         name: string;
     } | null>(null);
+    const [agentToSwitch, setAgentToSwitch] = useState<{
+        id: number;
+        name: string;
+        is_team: boolean;
+    } | null>(null);
+    const [isSwitching, setIsSwitching] = useState(false);
     const roleInfo = activeRole ? roleLabelMap[activeRole] : null;
     const pageTitle = roleInfo?.title ?? 'All Users';
     const pageDescription =
@@ -147,6 +154,22 @@ export default function UsersIndex({
 
         return () => clearTimeout(delayDebounceFn);
     }, [searchTerm]);
+
+    const handleSwitchType = () => {
+        if (!agentToSwitch) return;
+        setIsSwitching(true);
+        router.post(
+            `/dashboard/users/${agentToSwitch.id}/switch-field-agent-type`,
+            {},
+            {
+                preserveScroll: true,
+                onFinish: () => {
+                    setIsSwitching(false);
+                    setAgentToSwitch(null);
+                },
+            },
+        );
+    };
 
     const handleDelete = () => {
         if (!userToDelete || deleteConfirmation !== 'DELETE') return;
@@ -610,6 +633,39 @@ export default function UsersIndex({
                                                             />
                                                         </Link>
                                                     </Button>
+                                                    {user.role ===
+                                                        'field_agent' && (
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            title={
+                                                                (user as UserRow)
+                                                                    .is_team_field_agent
+                                                                    ? 'Switch to individual'
+                                                                    : 'Switch to team'
+                                                            }
+                                                            onClick={() =>
+                                                                setAgentToSwitch(
+                                                                    {
+                                                                        id: user.id,
+                                                                        name: user.name,
+                                                                        is_team:
+                                                                            !!(
+                                                                                user as UserRow
+                                                                            )
+                                                                                .is_team_field_agent,
+                                                                    },
+                                                                )
+                                                            }
+                                                        >
+                                                            <UserCog
+                                                                style={{
+                                                                    width: 16,
+                                                                    height: 16,
+                                                                }}
+                                                            />
+                                                        </Button>
+                                                    )}
                                                     {canDelete && (
                                                         <Button
                                                             variant="ghost"
@@ -771,6 +827,48 @@ export default function UsersIndex({
                             }
                         >
                             {isDeleting ? 'Deleting...' : 'Permanently Delete'}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            {/* Switch Field Agent Type Confirmation */}
+            <Dialog
+                open={!!agentToSwitch}
+                onOpenChange={(open) => {
+                    if (!open && !isSwitching) {
+                        setAgentToSwitch(null);
+                    }
+                }}
+            >
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>
+                            Switch to{' '}
+                            {agentToSwitch?.is_team ? 'Individual' : 'Team'}{' '}
+                            Field Agent
+                        </DialogTitle>
+                        <DialogDescription>
+                            {agentToSwitch?.is_team
+                                ? `${agentToSwitch?.name} will be moved from team to individual field agent.`
+                                : `${agentToSwitch?.name} will be promoted from individual to team field agent.`}
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                        <Button
+                            variant="outline"
+                            onClick={() => setAgentToSwitch(null)}
+                            disabled={isSwitching}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            onClick={handleSwitchType}
+                            disabled={isSwitching}
+                        >
+                            {isSwitching
+                                ? 'Switching...'
+                                : `Switch to ${agentToSwitch?.is_team ? 'Individual' : 'Team'}`}
                         </Button>
                     </DialogFooter>
                 </DialogContent>
