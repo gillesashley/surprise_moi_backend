@@ -564,4 +564,54 @@ class SocialLoginTest extends TestCase
 
         $response->assertOk()->assertJsonPath('data.user.email', 'longlived@facebook.com');
     }
+
+    public function test_social_login_rejects_facebook_token_when_me_returns_no_email(): void
+    {
+        config()->set('services.facebook.app_id', 'test-fb-app-id');
+        config()->set('services.facebook.app_secret', 'test-fb-app-secret');
+
+        // /me payload deliberately omits 'email' — simulates a user who declined
+        // the email permission at the Facebook login dialog.
+        $this->fakeFacebookEndpoints(
+            $this->fakeFacebookDebugTokenSuccess(),
+            [
+                'id' => '1234567890',
+                'name' => 'No Email User',
+                'picture' => ['data' => ['url' => 'https://scontent.example/ne.jpg']],
+                // 'email' key intentionally absent
+            ]
+        );
+
+        $response = $this->postJson(self::ENDPOINT, [
+            'provider' => 'facebook',
+            'id_token' => 'no-email-fb-token',
+        ]);
+
+        $response->assertStatus(401)
+            ->assertJsonPath('success', false)
+            ->assertJsonPath('message', 'Invalid or expired token');
+
+        // Critical: no user or social_account row should have been created.
+        $this->assertDatabaseCount('users', 0);
+        $this->assertDatabaseCount('social_accounts', 0);
+    }
+
+    public function test_social_login_rejects_facebook_token_when_me_returns_empty_email(): void
+    {
+        config()->set('services.facebook.app_id', 'test-fb-app-id');
+        config()->set('services.facebook.app_secret', 'test-fb-app-secret');
+
+        $this->fakeFacebookEndpoints(
+            $this->fakeFacebookDebugTokenSuccess(),
+            $this->fakeFacebookMeProfile(['email' => ''])
+        );
+
+        $response = $this->postJson(self::ENDPOINT, [
+            'provider' => 'facebook',
+            'id_token' => 'empty-email-fb-token',
+        ]);
+
+        $response->assertStatus(401);
+        $this->assertDatabaseCount('users', 0);
+    }
 }
