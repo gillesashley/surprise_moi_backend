@@ -18,6 +18,7 @@ import { Link, usePage } from '@inertiajs/react';
 import {
     AlertTriangle,
     BarChart3,
+    Bell,
     CheckCircle,
     Code,
     CreditCard,
@@ -53,6 +54,11 @@ const getNavItemsForRole = (role: string): NavItem[] => {
                 title: 'Dashboard',
                 href: dashboard(),
                 icon: LayoutGrid,
+            },
+            {
+                title: 'Notifications',
+                href: '/dashboard/notifications',
+                icon: Bell,
             },
             {
                 title: 'User Management',
