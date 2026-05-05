@@ -143,4 +143,60 @@ class AdminNotificationFeedServiceTest extends TestCase
         $this->assertNotContains('approved', $types);
         $this->assertNotContains('rejected', $types);
     }
+
+    public function test_field_agent_application_approved_yields_submitted_and_approved(): void
+    {
+        $app = \App\Models\FieldAgentApplication::factory()->create([
+            'first_name' => 'Yaw',
+            'last_name' => 'Owusu',
+            'status' => \App\Enums\FieldAgentApplicationStatus::Approved,
+            'created_at' => now()->subDays(2),
+            'reviewed_at' => now()->subDay(),
+        ]);
+
+        $rows = app(AdminNotificationFeedService::class)->feed([], 50, 1)->items();
+        $faRows = collect($rows)->where('category', 'field_agent')->values();
+
+        $this->assertCount(2, $faRows);
+        $this->assertEqualsCanonicalizing(['submitted', 'approved'], $faRows->pluck('type')->all());
+        $this->assertNull($faRows[0]['actor']);
+        $this->assertSame('field_agent_application', $faRows[0]['subject']['type']);
+        $this->assertSame($app->id, $faRows[0]['subject']['id']);
+        $this->assertStringContainsString('Yaw Owusu', $faRows[0]['subject']['label']);
+        $this->assertSame("/dashboard/field-agent-applications/{$app->id}", $faRows[0]['action_url']);
+    }
+
+    public function test_filter_excludes_other_categories(): void
+    {
+        VendorApplication::factory()->create(['submitted_at' => now()]);
+        \App\Models\TierUpgradeRequest::factory()->create(['created_at' => now()]);
+        \App\Models\FieldAgentApplication::factory()->create(['created_at' => now()]);
+
+        $rows = app(AdminNotificationFeedService::class)
+            ->feed(['vendor_onboarding'], 50, 1)
+            ->items();
+
+        $categories = collect($rows)->pluck('category')->unique()->values()->all();
+        $this->assertSame(['vendor_onboarding'], $categories);
+    }
+
+    public function test_pagination_respects_per_page_and_page(): void
+    {
+        foreach (range(1, 5) as $i) {
+            VendorApplication::factory()->create([
+                'submitted_at' => now()->subMinutes($i),
+            ]);
+        }
+
+        $page1 = app(AdminNotificationFeedService::class)->feed([], 2, 1);
+        $page2 = app(AdminNotificationFeedService::class)->feed([], 2, 2);
+
+        $this->assertCount(2, $page1->items());
+        $this->assertCount(2, $page2->items());
+        $this->assertSame(5, $page1->total());
+        $this->assertNotEquals(
+            collect($page1->items())->pluck('id')->all(),
+            collect($page2->items())->pluck('id')->all(),
+        );
+    }
 }
