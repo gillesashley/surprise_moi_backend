@@ -86,7 +86,7 @@ class SocialLoginTest extends TestCase
      * Helper to set up Http::fake routes for both FB endpoints with given payloads.
      *
      * @param  array<string, mixed>|null  $debugTokenPayload  null = HTTP 500
-     * @param  array<string, mixed>|null  $meProfilePayload   null = HTTP 500
+     * @param  array<string, mixed>|null  $meProfilePayload  null = HTTP 500
      */
     private function fakeFacebookEndpoints(?array $debugTokenPayload, ?array $meProfilePayload): void
     {
@@ -722,5 +722,30 @@ class SocialLoginTest extends TestCase
 
         $response->assertStatus(401);
         $this->assertDatabaseCount('users', 0);
+    }
+
+    public function test_social_login_assigns_vendor_role_when_requested_via_facebook(): void
+    {
+        config()->set('services.facebook.app_id', 'test-fb-app-id');
+        config()->set('services.facebook.app_secret', 'test-fb-app-secret');
+
+        $this->fakeFacebookEndpoints(
+            $this->fakeFacebookDebugTokenSuccess(['user_id' => 'fb-vendor-5555']),
+            $this->fakeFacebookMeProfile([
+                'id' => 'fb-vendor-5555',
+                'email' => 'fb-vendor@example.com',
+                'name' => 'FB Vendor',
+            ])
+        );
+
+        $response = $this->postJson(self::ENDPOINT, [
+            'provider' => 'facebook',
+            'id_token' => 'valid-fb-token',
+            'role' => 'vendor',
+        ]);
+
+        $response->assertOk()
+            ->assertJsonPath('data.user.role', 'vendor')
+            ->assertJsonPath('data.user.is_new_user', true);
     }
 }
