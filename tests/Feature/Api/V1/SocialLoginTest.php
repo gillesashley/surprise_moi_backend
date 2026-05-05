@@ -226,6 +226,20 @@ class SocialLoginTest extends TestCase
             ->assertJsonValidationErrors(['provider']);
     }
 
+    public function test_social_login_validator_accepts_facebook_as_provider(): void
+    {
+        $response = $this->postJson(self::ENDPOINT, [
+            'provider' => 'facebook',
+            'id_token' => 'any-token',
+        ]);
+
+        // Validator should pass; controller will reject with 401 because
+        // services.facebook.app_id is empty (fail-closed). The point of this
+        // test is that the response is NOT a 422 with a `provider` field error.
+        $response->assertStatus(401);
+        $response->assertJsonMissingValidationErrors(['provider']);
+    }
+
     public function test_social_login_returns_422_for_invalid_role(): void
     {
         $response = $this->postJson(self::ENDPOINT, [

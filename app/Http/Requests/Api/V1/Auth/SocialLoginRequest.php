@@ -22,7 +22,9 @@ class SocialLoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'provider' => ['required', 'string', 'in:google'],
+            // id_token carries a generic credential — Google JWT for provider=google,
+            // Facebook OAuth user access_token for provider=facebook.
+            'provider' => ['required', 'string', 'in:google,facebook'],
             'id_token' => ['required', 'string'],
             'role' => ['sometimes', 'string', 'in:customer,vendor'],
         ];
