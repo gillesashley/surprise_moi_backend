@@ -437,8 +437,91 @@ class AuthController extends Controller
             return null;
         }
 
-        // TODO: implement debug_token + /me calls (Task 4)
-        return null;
+        try {
+            // Step A: validate the user token via debug_token, authenticated as our app.
+            $debugResponse = Http::get('https://graph.facebook.com/debug_token', [
+                'input_token' => $accessToken,
+                'access_token' => "{$appId}|{$appSecret}",
+            ]);
+
+            if ($debugResponse->failed()) {
+                Log::error('Facebook debug_token request failed', [
+                    'status' => $debugResponse->status(),
+                ]);
+
+                return null;
+            }
+
+            $debugData = $debugResponse->json('data') ?? [];
+
+            if (($debugData['is_valid'] ?? false) !== true) {
+                Log::warning('Facebook token rejected: is_valid is not true', [
+                    'is_valid' => $debugData['is_valid'] ?? 'missing',
+                ]);
+
+                return null;
+            }
+
+            if (($debugData['app_id'] ?? null) !== $appId) {
+                Log::warning('Facebook token rejected: app_id mismatch', [
+                    'expected' => $appId,
+                    'got' => $debugData['app_id'] ?? 'missing',
+                ]);
+
+                return null;
+            }
+
+            // Facebook returns expires_at: 0 for never-expiring tokens.
+            // Only reject if expires_at is set, non-zero, and in the past.
+            $expiresAt = $debugData['expires_at'] ?? 0;
+            if ($expiresAt !== 0 && $expiresAt < time()) {
+                Log::warning('Facebook token rejected: expired', [
+                    'expires_at' => $expiresAt,
+                    'now' => time(),
+                ]);
+
+                return null;
+            }
+
+            // Step B: fetch the user profile (id, name, email, picture).
+            $meResponse = Http::get('https://graph.facebook.com/me', [
+                'fields' => 'id,name,email,picture.type(large)',
+                'access_token' => $accessToken,
+            ]);
+
+            if ($meResponse->failed()) {
+                Log::error('Facebook /me request failed', [
+                    'status' => $meResponse->status(),
+                ]);
+
+                return null;
+            }
+
+            $payload = $meResponse->json();
+
+            // No-email gate (Q1 hard-reject): Facebook can return a profile without
+            // email if the user declined the email permission. Reject closed to
+            // preserve the codebase invariant that users.email is non-null.
+            $email = $payload['email'] ?? null;
+            if (empty($email)) {
+                Log::warning('Facebook token rejected: no email returned (user denied permission)', [
+                    'fb_user_id' => $payload['id'] ?? 'missing',
+                ]);
+
+                return null;
+            }
+
+            return [
+                'provider_id' => (string) $payload['id'],
+                'email' => $email,
+                'name' => $payload['name'] ?? 'Facebook User',
+                'avatar' => $payload['picture']['data']['url'] ?? null,
+            ];
+        } catch (\Exception $e) {
+            Log::error('Facebook token verification failed', ['error' => $e->getMessage()]);
+
+            return null;
+        }
     }
 
     /**

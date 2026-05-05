@@ -430,4 +430,44 @@ class SocialLoginTest extends TestCase
         Http::assertNothingSent();
         $this->assertDatabaseCount('users', 0);
     }
+
+    public function test_social_login_creates_new_user_with_facebook(): void
+    {
+        config()->set('services.facebook.app_id', 'test-fb-app-id');
+        config()->set('services.facebook.app_secret', 'test-fb-app-secret');
+
+        $this->fakeFacebookEndpoints(
+            $this->fakeFacebookDebugTokenSuccess([
+                'app_id' => 'test-fb-app-id',
+                'user_id' => 'fb-user-1234',
+            ]),
+            $this->fakeFacebookMeProfile([
+                'id' => 'fb-user-1234',
+                'name' => 'Jane Doe',
+                'email' => 'jane@facebook.com',
+            ])
+        );
+
+        $response = $this->postJson(self::ENDPOINT, [
+            'provider' => 'facebook',
+            'id_token' => 'valid-fb-access-token',
+        ]);
+
+        $response->assertOk()
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('message', 'Login successful')
+            ->assertJsonPath('data.token_type', 'Bearer')
+            ->assertJsonPath('data.user.email', 'jane@facebook.com')
+            ->assertJsonPath('data.user.name', 'Jane Doe')
+            ->assertJsonPath('data.user.role', 'customer')
+            ->assertJsonPath('data.user.is_new_user', true);
+
+        $this->assertNotNull($response->json('data.user.email_verified_at'));
+        $this->assertDatabaseHas('users', ['email' => 'jane@facebook.com']);
+        $this->assertDatabaseHas('social_accounts', [
+            'provider' => 'facebook',
+            'provider_id' => 'fb-user-1234',
+            'provider_email' => 'jane@facebook.com',
+        ]);
+    }
 }
