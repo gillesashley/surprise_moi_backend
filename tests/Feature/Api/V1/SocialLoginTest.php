@@ -683,4 +683,44 @@ class SocialLoginTest extends TestCase
             'provider_id' => 'fb-link-7777',
         ]);
     }
+
+    public function test_social_login_rejects_when_facebook_debug_token_returns_500(): void
+    {
+        config()->set('services.facebook.app_id', 'test-fb-app-id');
+        config()->set('services.facebook.app_secret', 'test-fb-app-secret');
+
+        // First call (debug_token) returns 500; second call shouldn't matter.
+        $this->fakeFacebookEndpoints(
+            null, // 500
+            $this->fakeFacebookMeProfile()
+        );
+
+        $response = $this->postJson(self::ENDPOINT, [
+            'provider' => 'facebook',
+            'id_token' => 'any-fb-token',
+        ]);
+
+        $response->assertStatus(401);
+        $this->assertDatabaseCount('users', 0);
+    }
+
+    public function test_social_login_rejects_when_facebook_me_endpoint_returns_500(): void
+    {
+        config()->set('services.facebook.app_id', 'test-fb-app-id');
+        config()->set('services.facebook.app_secret', 'test-fb-app-secret');
+
+        // debug_token succeeds; /me returns 500.
+        $this->fakeFacebookEndpoints(
+            $this->fakeFacebookDebugTokenSuccess(),
+            null // 500
+        );
+
+        $response = $this->postJson(self::ENDPOINT, [
+            'provider' => 'facebook',
+            'id_token' => 'any-fb-token',
+        ]);
+
+        $response->assertStatus(401);
+        $this->assertDatabaseCount('users', 0);
+    }
 }
