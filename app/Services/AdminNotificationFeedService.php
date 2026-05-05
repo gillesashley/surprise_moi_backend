@@ -20,6 +20,7 @@ class AdminNotificationFeedService
     {
         $rows = $this->vendorApplicationRows();
 
+        // ISO-8601 strings sort lexicographically in chronological order; id is a deterministic tiebreaker.
         $rows = $rows
             ->sortByDesc(fn (array $row) => [$row['occurred_at'], $row['id']])
             ->values();
@@ -51,7 +52,7 @@ class AdminNotificationFeedService
             $subject = [
                 'id' => $app->id,
                 'type' => 'vendor_application',
-                'label' => trim(($app->user?->name ?? 'Unknown vendor').' — '.$tierLabel),
+                'label' => ($app->user?->name ?? 'Unknown vendor').' — '.$tierLabel,
             ];
             $url = "/dashboard/vendor-applications/{$app->id}";
 

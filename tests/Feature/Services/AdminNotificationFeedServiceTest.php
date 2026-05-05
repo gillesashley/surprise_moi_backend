@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit\Services;
+namespace Tests\Feature\Services;
 
 use App\Models\User;
 use App\Models\VendorApplication;
@@ -91,5 +91,13 @@ class AdminNotificationFeedServiceTest extends TestCase
         $this->assertContains('flagged', $types);
         $this->assertContains('flag_reminded', $types);
         $this->assertContains('flag_expired', $types);
+    }
+
+    public function test_empty_table_returns_empty_paginator(): void
+    {
+        $page = app(AdminNotificationFeedService::class)->feed([], 50, 1);
+
+        $this->assertCount(0, $page->items());
+        $this->assertSame(0, $page->total());
     }
 }
