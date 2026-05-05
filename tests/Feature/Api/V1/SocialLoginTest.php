@@ -614,4 +614,73 @@ class SocialLoginTest extends TestCase
         $response->assertStatus(401);
         $this->assertDatabaseCount('users', 0);
     }
+
+    public function test_social_login_returns_existing_facebook_user_on_repeat_login(): void
+    {
+        config()->set('services.facebook.app_id', 'test-fb-app-id');
+        config()->set('services.facebook.app_secret', 'test-fb-app-secret');
+
+        $user = User::factory()->create(['email' => 'returning-fb@example.com']);
+        $user->socialAccounts()->create([
+            'provider' => 'facebook',
+            'provider_id' => 'fb-returning-9999',
+            'provider_email' => 'returning-fb@example.com',
+        ]);
+
+        $this->fakeFacebookEndpoints(
+            $this->fakeFacebookDebugTokenSuccess(['user_id' => 'fb-returning-9999']),
+            $this->fakeFacebookMeProfile([
+                'id' => 'fb-returning-9999',
+                'email' => 'returning-fb@example.com',
+                'name' => 'Returning FB User',
+            ])
+        );
+
+        $response = $this->postJson(self::ENDPOINT, [
+            'provider' => 'facebook',
+            'id_token' => 'valid-returning-fb-token',
+        ]);
+
+        $response->assertOk()
+            ->assertJsonPath('data.user.id', $user->id)
+            ->assertJsonPath('data.user.is_new_user', false);
+
+        $this->assertDatabaseCount('users', 1);
+    }
+
+    public function test_social_login_links_facebook_to_existing_email_user(): void
+    {
+        config()->set('services.facebook.app_id', 'test-fb-app-id');
+        config()->set('services.facebook.app_secret', 'test-fb-app-secret');
+
+        $user = User::factory()->create([
+            'email' => 'manual-signup@example.com',
+            'name' => 'Manual Signup User',
+        ]);
+
+        $this->fakeFacebookEndpoints(
+            $this->fakeFacebookDebugTokenSuccess(['user_id' => 'fb-link-7777']),
+            $this->fakeFacebookMeProfile([
+                'id' => 'fb-link-7777',
+                'email' => 'manual-signup@example.com',
+                'name' => 'Manual Signup User',
+            ])
+        );
+
+        $response = $this->postJson(self::ENDPOINT, [
+            'provider' => 'facebook',
+            'id_token' => 'valid-fb-token-matching-email',
+        ]);
+
+        $response->assertOk()
+            ->assertJsonPath('data.user.id', $user->id)
+            ->assertJsonPath('data.user.is_new_user', false);
+
+        $this->assertDatabaseCount('users', 1);
+        $this->assertDatabaseHas('social_accounts', [
+            'user_id' => $user->id,
+            'provider' => 'facebook',
+            'provider_id' => 'fb-link-7777',
+        ]);
+    }
 }
