@@ -100,4 +100,47 @@ class AdminNotificationFeedServiceTest extends TestCase
         $this->assertCount(0, $page->items());
         $this->assertSame(0, $page->total());
     }
+
+    public function test_tier_upgrade_submitted_paid_rejected_yields_three_rows(): void
+    {
+        $vendor = User::factory()->create(['name' => 'Ama Boateng']);
+        $request = \App\Models\TierUpgradeRequest::factory()->create([
+            'vendor_id' => $vendor->id,
+            'status' => \App\Models\TierUpgradeRequest::STATUS_REJECTED,
+            'created_at' => now()->subDays(5),
+            'payment_verified_at' => now()->subDays(4),
+            'reviewed_at' => now()->subDays(2),
+        ]);
+
+        $rows = app(AdminNotificationFeedService::class)->feed([], 50, 1)->items();
+        $types = collect($rows)
+            ->where('category', 'tier_upgrade')
+            ->pluck('type')
+            ->all();
+
+        $this->assertEqualsCanonicalizing(['submitted', 'paid', 'rejected'], $types);
+        $first = collect($rows)->firstWhere('category', 'tier_upgrade');
+        $this->assertSame($vendor->id, $first['actor']['id']);
+        $this->assertSame('tier_upgrade_request', $first['subject']['type']);
+        $this->assertSame($request->id, $first['subject']['id']);
+        $this->assertSame("/dashboard/tier-upgrades/{$request->id}", $first['action_url']);
+    }
+
+    public function test_tier_upgrade_pending_review_does_not_emit_terminal_rows(): void
+    {
+        \App\Models\TierUpgradeRequest::factory()->create([
+            'status' => \App\Models\TierUpgradeRequest::STATUS_PENDING_REVIEW,
+            'created_at' => now(),
+            'payment_verified_at' => now(),
+            'reviewed_at' => null,
+        ]);
+
+        $types = collect(app(AdminNotificationFeedService::class)->feed([], 50, 1)->items())
+            ->where('category', 'tier_upgrade')
+            ->pluck('type')
+            ->all();
+
+        $this->assertNotContains('approved', $types);
+        $this->assertNotContains('rejected', $types);
+    }
 }

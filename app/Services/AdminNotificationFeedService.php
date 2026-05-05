@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\TierUpgradeRequest;
 use App\Models\VendorApplication;
 use App\Models\VendorOnboardingPayment;
 use Carbon\Carbon;
@@ -18,7 +19,7 @@ class AdminNotificationFeedService
      */
     public function feed(array $categories = [], int $perPage = 30, int $page = 1): LengthAwarePaginator
     {
-        $rows = $this->vendorApplicationRows();
+        $rows = $this->vendorApplicationRows()->concat($this->tierUpgradeRows());
 
         // ISO-8601 strings sort lexicographically in chronological order; id is a deterministic tiebreaker.
         $rows = $rows
@@ -86,6 +87,53 @@ class AdminNotificationFeedService
             $emit('flagged', $app->flagged_at);
             $emit('flag_reminded', $app->flag_reminder_sent_at);
             $emit('flag_expired', $app->flag_expired_alert_sent_at);
+
+            return $rows;
+        });
+    }
+
+    /**
+     * @return Collection<int, array<string, mixed>>
+     */
+    private function tierUpgradeRows(): Collection
+    {
+        $requests = TierUpgradeRequest::query()
+            ->with('vendor:id,name')
+            ->get();
+
+        return $requests->flatMap(function (TierUpgradeRequest $req): array {
+            $rows = [];
+            $actor = $req->vendor ? ['id' => $req->vendor->id, 'name' => $req->vendor->name] : null;
+            $subject = [
+                'id' => $req->id,
+                'type' => 'tier_upgrade_request',
+                'label' => ($req->vendor?->name ?? 'Unknown vendor').' — Tier Upgrade',
+            ];
+            $url = "/dashboard/tier-upgrades/{$req->id}";
+
+            $emit = function (string $type, ?Carbon $at) use (&$rows, $req, $actor, $subject, $url): void {
+                if ($at === null) {
+                    return;
+                }
+                $rows[] = [
+                    'id' => "tier_upgrade_request:{$req->id}:{$type}",
+                    'category' => 'tier_upgrade',
+                    'type' => $type,
+                    'occurred_at' => $at->toIso8601String(),
+                    'actor' => $actor,
+                    'subject' => $subject,
+                    'action_url' => $url,
+                ];
+            };
+
+            $emit('submitted', $req->created_at);
+            $emit('paid', $req->payment_verified_at);
+            if ($req->status === TierUpgradeRequest::STATUS_APPROVED) {
+                $emit('approved', $req->reviewed_at);
+            }
+            if ($req->status === TierUpgradeRequest::STATUS_REJECTED) {
+                $emit('rejected', $req->reviewed_at);
+            }
 
             return $rows;
         });
