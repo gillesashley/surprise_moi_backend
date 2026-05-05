@@ -84,6 +84,11 @@ Route::middleware(['auth', 'dashboard'])->group(function () {
 Route::middleware(['auth', 'dashboard'])->prefix('dashboard')->group(function () {
     Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
 
+    // Admin Notifications Feed
+    Route::get('notifications', [\App\Http\Controllers\AdminNotificationFeedController::class, 'index'])
+        ->middleware('role:admin,super_admin')
+        ->name('admin.notifications.index');
+
     // Commission Statistics
     Route::get('commission-statistics', [AdminDashboardController::class, 'commissionStatistics'])->name('commission-statistics');
 
