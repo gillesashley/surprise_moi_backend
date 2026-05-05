@@ -254,6 +254,7 @@ class AuthController extends Controller
     {
         $providerData = match ($request->provider) {
             'google' => $this->verifyGoogleToken($request->id_token),
+            'facebook' => $this->verifyFacebookToken($request->id_token),
             default => null,
         };
 
@@ -413,6 +414,31 @@ class AuthController extends Controller
 
             return null;
         }
+    }
+
+    /**
+     * Verify a Facebook user-access-token via Facebook's debug_token + /me endpoints.
+     *
+     * Returns a normalized payload matching verifyGoogleToken's contract on success,
+     * or null on any failure (invalid token, network error, missing email, missing config).
+     *
+     * @return array{provider_id: string, email: string, name: string, avatar: string|null}|null
+     */
+    private function verifyFacebookToken(string $accessToken): ?array
+    {
+        $appId = config('services.facebook.app_id');
+        $appSecret = config('services.facebook.app_secret');
+
+        // Fail closed when either credential is missing — without both, we cannot
+        // call debug_token, so any FB token would otherwise be accepted.
+        if (empty($appId) || empty($appSecret)) {
+            Log::error('Facebook social login rejected: services.facebook.app_id or app_secret is not configured');
+
+            return null;
+        }
+
+        // TODO: implement debug_token + /me calls (Task 4)
+        return null;
     }
 
     /**

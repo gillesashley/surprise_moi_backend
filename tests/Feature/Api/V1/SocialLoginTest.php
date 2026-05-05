@@ -48,6 +48,58 @@ class SocialLoginTest extends TestCase
         ]);
     }
 
+    /**
+     * Helper to fake a successful Facebook debug_token response.
+     *
+     * @param  array{is_valid?: bool, app_id?: string, expires_at?: int, user_id?: string}  $overrides
+     */
+    private function fakeFacebookDebugTokenSuccess(array $overrides = []): array
+    {
+        $appId = config('services.facebook.app_id') ?: 'test-fb-app-id';
+
+        $payload = array_merge([
+            'is_valid' => true,
+            'app_id' => $appId,
+            'expires_at' => 0, // 0 = never expires
+            'user_id' => '1234567890',
+        ], $overrides);
+
+        return ['data' => $payload];
+    }
+
+    /**
+     * Helper to fake a successful Facebook /me profile response.
+     *
+     * @param  array{id?: string, name?: string, email?: string|null, picture?: array<string, mixed>|null}  $overrides
+     */
+    private function fakeFacebookMeProfile(array $overrides = []): array
+    {
+        return array_merge([
+            'id' => '1234567890',
+            'name' => 'Jane Doe',
+            'email' => 'jane@facebook.com',
+            'picture' => ['data' => ['url' => 'https://scontent.example/jane.jpg']],
+        ], $overrides);
+    }
+
+    /**
+     * Helper to set up Http::fake routes for both FB endpoints with given payloads.
+     *
+     * @param  array<string, mixed>|null  $debugTokenPayload  null = HTTP 500
+     * @param  array<string, mixed>|null  $meProfilePayload   null = HTTP 500
+     */
+    private function fakeFacebookEndpoints(?array $debugTokenPayload, ?array $meProfilePayload): void
+    {
+        Http::fake([
+            'graph.facebook.com/debug_token*' => $debugTokenPayload === null
+                ? Http::response('', 500)
+                : Http::response($debugTokenPayload),
+            'graph.facebook.com/me*' => $meProfilePayload === null
+                ? Http::response('', 500)
+                : Http::response($meProfilePayload),
+        ]);
+    }
+
     public function test_social_login_creates_new_user_with_google(): void
     {
         config()->set('services.google.client_id', 'test-client-id.apps.googleusercontent.com');
@@ -331,6 +383,51 @@ class SocialLoginTest extends TestCase
 
         $response->assertStatus(401)
             ->assertJsonPath('success', false);
+        $this->assertDatabaseCount('users', 0);
+    }
+
+    public function test_social_login_rejects_when_facebook_app_id_not_configured(): void
+    {
+        config()->set('services.facebook.app_id', null);
+        config()->set('services.facebook.app_secret', 'some-secret');
+
+        $this->fakeFacebookEndpoints(
+            $this->fakeFacebookDebugTokenSuccess(),
+            $this->fakeFacebookMeProfile()
+        );
+
+        $response = $this->postJson(self::ENDPOINT, [
+            'provider' => 'facebook',
+            'id_token' => 'any-fb-token',
+        ]);
+
+        $response->assertStatus(401)
+            ->assertJsonPath('success', false)
+            ->assertJsonPath('message', 'Invalid or expired token');
+
+        // Critical: prove the fail-closed gate fires before network egress.
+        Http::assertNothingSent();
+
+        $this->assertDatabaseCount('users', 0);
+    }
+
+    public function test_social_login_rejects_when_facebook_app_secret_not_configured(): void
+    {
+        config()->set('services.facebook.app_id', 'test-fb-app-id');
+        config()->set('services.facebook.app_secret', null);
+
+        $this->fakeFacebookEndpoints(
+            $this->fakeFacebookDebugTokenSuccess(),
+            $this->fakeFacebookMeProfile()
+        );
+
+        $response = $this->postJson(self::ENDPOINT, [
+            'provider' => 'facebook',
+            'id_token' => 'any-fb-token',
+        ]);
+
+        $response->assertStatus(401);
+        Http::assertNothingSent();
         $this->assertDatabaseCount('users', 0);
     }
 }
