@@ -470,4 +470,98 @@ class SocialLoginTest extends TestCase
             'provider_email' => 'jane@facebook.com',
         ]);
     }
+
+    public function test_social_login_rejects_facebook_token_when_is_valid_false(): void
+    {
+        config()->set('services.facebook.app_id', 'test-fb-app-id');
+        config()->set('services.facebook.app_secret', 'test-fb-app-secret');
+
+        $this->fakeFacebookEndpoints(
+            $this->fakeFacebookDebugTokenSuccess([
+                'is_valid' => false,
+                'app_id' => 'test-fb-app-id',
+            ]),
+            $this->fakeFacebookMeProfile()
+        );
+
+        $response = $this->postJson(self::ENDPOINT, [
+            'provider' => 'facebook',
+            'id_token' => 'invalidated-fb-token',
+        ]);
+
+        $response->assertStatus(401)->assertJsonPath('success', false);
+        $this->assertDatabaseCount('users', 0);
+    }
+
+    public function test_social_login_rejects_facebook_token_with_app_id_mismatch(): void
+    {
+        config()->set('services.facebook.app_id', 'our-real-fb-app-id');
+        config()->set('services.facebook.app_secret', 'test-fb-app-secret');
+
+        $this->fakeFacebookEndpoints(
+            $this->fakeFacebookDebugTokenSuccess([
+                'is_valid' => true,
+                'app_id' => 'someone-elses-fb-app-id',
+            ]),
+            $this->fakeFacebookMeProfile()
+        );
+
+        $response = $this->postJson(self::ENDPOINT, [
+            'provider' => 'facebook',
+            'id_token' => 'token-from-different-fb-app',
+        ]);
+
+        $response->assertStatus(401)->assertJsonPath('success', false);
+        $this->assertDatabaseCount('users', 0);
+    }
+
+    public function test_social_login_rejects_expired_facebook_token(): void
+    {
+        config()->set('services.facebook.app_id', 'test-fb-app-id');
+        config()->set('services.facebook.app_secret', 'test-fb-app-secret');
+
+        $this->fakeFacebookEndpoints(
+            $this->fakeFacebookDebugTokenSuccess([
+                'is_valid' => true,
+                'app_id' => 'test-fb-app-id',
+                'expires_at' => time() - 3600, // expired one hour ago
+            ]),
+            $this->fakeFacebookMeProfile()
+        );
+
+        $response = $this->postJson(self::ENDPOINT, [
+            'provider' => 'facebook',
+            'id_token' => 'expired-fb-token',
+        ]);
+
+        $response->assertStatus(401)->assertJsonPath('success', false);
+        $this->assertDatabaseCount('users', 0);
+    }
+
+    public function test_social_login_accepts_facebook_token_with_zero_expires_at(): void
+    {
+        // expires_at: 0 means "never expires" (e.g., long-lived page tokens).
+        // Must NOT be treated as "expired in 1970".
+        config()->set('services.facebook.app_id', 'test-fb-app-id');
+        config()->set('services.facebook.app_secret', 'test-fb-app-secret');
+
+        $this->fakeFacebookEndpoints(
+            $this->fakeFacebookDebugTokenSuccess([
+                'is_valid' => true,
+                'app_id' => 'test-fb-app-id',
+                'expires_at' => 0,
+            ]),
+            $this->fakeFacebookMeProfile([
+                'id' => 'fb-long-lived-user',
+                'email' => 'longlived@facebook.com',
+            ])
+        );
+
+        $response = $this->postJson(self::ENDPOINT, [
+            'provider' => 'facebook',
+            'id_token' => 'never-expires-fb-token',
+        ]);
+
+        $response->assertOk()->assertJsonPath('data.user.email', 'longlived@facebook.com');
+    }
 }
