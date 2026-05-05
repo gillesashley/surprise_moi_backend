@@ -97,6 +97,22 @@ return [
         'client_id' => env('GOOGLE_CLIENT_ID'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Facebook OAuth (Social Login)
+    |--------------------------------------------------------------------------
+    |
+    | App ID and Client Secret from the Facebook Developer dashboard. The
+    | secret is used to call Facebook's debug_token endpoint as
+    | `{app_id}|{app_secret}` to validate user access tokens server-side.
+    |
+    */
+
+    'facebook' => [
+        'app_id' => env('FACEBOOK_APP_ID'),
+        'app_secret' => env('FACEBOOK_APP_SECRET'),
+    ],
+
     'google_maps' => [
         'api_key' => env('GOOGLE_MAPS_API_KEY'),
         'places_api_url' => 'https://maps.googleapis.com/maps/api/place',
