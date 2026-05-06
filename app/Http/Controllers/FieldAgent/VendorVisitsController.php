@@ -33,13 +33,15 @@ class VendorVisitsController extends Controller
 
     public function start(Request $request, VendorApplication $application): RedirectResponse
     {
-        // Ensure application belongs to a referral code from this agent
-        abort_unless($application->referralCode?->influencer_id === $request->user()->id, 403);
+        $user = $request->user();
+        $codeOwnerId = $application->referralCode?->influencer_id;
+        $leadId = $user->parent_user_id ?? $user->id;
+        abort_unless($codeOwnerId !== null && $codeOwnerId === $leadId, 403);
 
         $visit = VendorVisit::firstOrCreate(
             [
                 'vendor_application_id' => $application->id,
-                'field_agent_user_id' => $request->user()->id,
+                'field_agent_user_id' => $user->id,
             ],
             [
                 'vendor_user_id' => $application->user_id,
@@ -47,6 +49,10 @@ class VendorVisitsController extends Controller
                 'started_at' => now(),
             ]
         );
+
+        if ($application->onboarded_by_user_id === null) {
+            $application->forceFill(['onboarded_by_user_id' => $user->id])->save();
+        }
 
         return redirect("/field-agent/visits/forms/{$visit->id}");
     }
