@@ -5,11 +5,32 @@ namespace App\Http\Controllers\FieldAgent;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\FieldAgent\StoreTeamMemberRequest;
 use App\Models\User;
+use App\Models\VendorApplication;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class TeamMemberController extends Controller
 {
+    public function index(Request $request): Response
+    {
+        $members = $request->user()->teamMembers()
+            ->select(['id', 'parent_user_id', 'name', 'email', 'phone', 'location', 'is_active', 'must_change_password', 'created_at'])
+            ->addSelect([
+                'vendors_onboarded' => VendorApplication::query()
+                    ->selectRaw('count(*)')
+                    ->whereColumn('onboarded_by_user_id', 'users.id'),
+            ])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return Inertia::render('field-agent/team/index', [
+            'members' => $members,
+        ]);
+    }
+
     public function store(StoreTeamMemberRequest $request): RedirectResponse
     {
         User::create([
