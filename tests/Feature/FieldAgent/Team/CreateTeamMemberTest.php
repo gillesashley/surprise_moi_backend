@@ -17,6 +17,7 @@ class CreateTeamMemberTest extends TestCase
         parent::setUp();
         Config::set('session.driver', 'array');
         Config::set('cache.default', 'array');
+        Config::set('inertia.testing.ensure_pages_exist', false);
         $this->withoutMiddleware(\Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class);
     }
 
@@ -93,5 +94,14 @@ class CreateTeamMemberTest extends TestCase
                 'name' => 'X', 'email' => 'x@e.com', 'phone' => 'not-a-number', 'location' => 'A',
             ])
             ->assertSessionHasErrors('phone');
+    }
+
+    public function test_lead_can_render_new_member_form(): void
+    {
+        $lead = User::factory()->lead()->create();
+
+        $this->actingAs($lead)->get('/field-agent/team/new')
+            ->assertOk()
+            ->assertInertia(fn ($page) => $page->component('field-agent/team/new'));
     }
 }

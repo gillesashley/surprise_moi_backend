@@ -292,6 +292,7 @@ Route::middleware(['auth', 'dashboard'])->prefix('field-agent')->name('field-age
 
     Route::middleware('can:manageTeam')->prefix('team')->name('team.')->group(function () {
         Route::get('/', [\App\Http\Controllers\FieldAgent\TeamMemberController::class, 'index'])->name('index');
+        Route::get('/new', [\App\Http\Controllers\FieldAgent\TeamMemberController::class, 'create'])->name('create');
         Route::post('/', [\App\Http\Controllers\FieldAgent\TeamMemberController::class, 'store'])->name('store');
     });
 

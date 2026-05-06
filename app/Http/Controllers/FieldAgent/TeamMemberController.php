@@ -31,6 +31,11 @@ class TeamMemberController extends Controller
         ]);
     }
 
+    public function create(): Response
+    {
+        return Inertia::render('field-agent/team/new');
+    }
+
     public function store(StoreTeamMemberRequest $request): RedirectResponse
     {
         User::create([
