@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\VendorApplication;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -36,9 +37,9 @@ class TeamMemberController extends Controller
         return Inertia::render('field-agent/team/new');
     }
 
-    public function show(\Illuminate\Http\Request $request, User $member): Response
+    public function show(User $member): Response
     {
-        \Illuminate\Support\Facades\Gate::authorize('view', $member);
+        Gate::authorize('view', $member);
 
         $vendors = VendorApplication::query()
             ->with('user:id,name,business_name')
