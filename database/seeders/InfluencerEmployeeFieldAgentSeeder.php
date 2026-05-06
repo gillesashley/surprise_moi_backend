@@ -42,6 +42,7 @@ class InfluencerEmployeeFieldAgentSeeder extends Seeder
 
         // Create a deterministic field agent for testing the onboarding flow.
         // This agent always has the same email so credentials survive re-seeding.
+        // Configured as a team LEAD so the team-management feature is exercised.
         $primaryAgent = User::updateOrCreate(
             ['email' => 'fieldagent@surprisemoi.test'],
             [
@@ -49,10 +50,53 @@ class InfluencerEmployeeFieldAgentSeeder extends Seeder
                 'phone' => '0240000010',
                 'password' => 'password',
                 'role' => 'field_agent',
+                'is_team_field_agent' => true,
+                'parent_user_id' => null,
+                'is_active' => true,
+                'must_change_password' => false,
+                'location' => 'Accra',
                 'email_verified_at' => now(),
                 'phone_verified_at' => now(),
             ]
         );
+
+        // Seed two team members under the lead so the Team page is populated
+        // immediately on first login. One member starts with a default password
+        // (must_change_password=false → easy direct login). The second simulates
+        // a freshly-provisioned member who must rotate their password on first login.
+        $teamMembers = collect([
+            [
+                'email' => 'fieldagent.member1@surprisemoi.test',
+                'name' => 'Member One',
+                'phone' => '0240000011',
+                'must_change_password' => false,
+                'location' => 'Accra',
+            ],
+            [
+                'email' => 'fieldagent.member2@surprisemoi.test',
+                'name' => 'Member Two',
+                'phone' => '0240000012',
+                'must_change_password' => true,
+                'location' => 'Kumasi',
+            ],
+        ])->map(function (array $row) use ($primaryAgent) {
+            return User::updateOrCreate(
+                ['email' => $row['email']],
+                [
+                    'name' => $row['name'],
+                    'phone' => $row['phone'],
+                    'password' => 'password',
+                    'role' => 'field_agent',
+                    'is_team_field_agent' => false,
+                    'parent_user_id' => $primaryAgent->id,
+                    'is_active' => true,
+                    'must_change_password' => $row['must_change_password'],
+                    'location' => $row['location'],
+                    'email_verified_at' => now(),
+                    'phone_verified_at' => now(),
+                ]
+            );
+        });
 
         // Ensure the primary agent has a referral code
         $agentCode = ReferralCode::firstOrCreate(
@@ -79,8 +123,12 @@ class InfluencerEmployeeFieldAgentSeeder extends Seeder
                 ]
             );
 
-            // Only create the application if one doesn't already exist for this user
-            if (! $vendorUser->vendorApplications()->exists()) {
+            // First vendor is attributed to Member One so the team breakdown
+            // shows real data on the lead's Team page. Second vendor is unclaimed.
+            $onboardedBy = $i === 1 ? $teamMembers->first()->id : null;
+
+            $existingApplication = $vendorUser->vendorApplications()->first();
+            if (! $existingApplication) {
                 VendorApplication::factory()
                     ->for($vendorUser)
                     ->withGhanaCard()
@@ -89,9 +137,16 @@ class InfluencerEmployeeFieldAgentSeeder extends Seeder
                         'completed_step' => 4,
                         'referral_code_id' => $agentCode->id,
                         'referral_code_used' => $agentCode->code,
+                        'onboarded_by_user_id' => $onboardedBy,
                         'payment_required' => true,
                         'payment_completed' => true,
                     ]);
+            } else {
+                // Idempotent re-seed: keep attribution in sync with current
+                // team-membership configuration even if the row pre-existed.
+                $existingApplication->forceFill([
+                    'onboarded_by_user_id' => $onboardedBy,
+                ])->save();
             }
         }
 
@@ -168,7 +223,11 @@ class InfluencerEmployeeFieldAgentSeeder extends Seeder
         $this->command->newLine();
 
         $this->command->info('--- FIELD AGENTS ---');
-        $this->command->info("Email: {$primaryAgent->email} (primary — has 2 pending vendor onboardings)");
+        $this->command->info("Email: {$primaryAgent->email} (LEAD — manages 2 team members; 2 pending vendor onboardings, 1 attributed to Member One)");
+        foreach ($teamMembers as $member) {
+            $must = $member->must_change_password ? ' [must change password on first login]' : '';
+            $this->command->info("Email: {$member->email} (team member of {$primaryAgent->email}){$must}");
+        }
         foreach ($fieldAgents as $agent) {
             $this->command->info("Email: {$agent->email}");
         }
