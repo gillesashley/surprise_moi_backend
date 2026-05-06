@@ -24,7 +24,7 @@ class MemberDashboardScopingTest extends TestCase
         $lead = User::factory()->lead()->create();
         $member = User::factory()->teamMember($lead)->create(['must_change_password' => false]);
 
-        foreach (['/field-agent/earnings', '/field-agent/payouts', '/field-agent/targets', '/field-agent/verification'] as $path) {
+        foreach (['/field-agent/earnings', '/field-agent/payouts', '/field-agent/targets', '/field-agent/verification', '/field-agent/terms'] as $path) {
             $this->actingAs($member)->get($path)->assertForbidden();
         }
     }
