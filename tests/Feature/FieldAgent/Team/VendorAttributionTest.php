@@ -80,4 +80,56 @@ class VendorAttributionTest extends TestCase
 
         $this->assertSame($memberA->id, $application->fresh()->onboarded_by_user_id);
     }
+
+    public function test_member_visits_index_only_shows_own_onboardings(): void
+    {
+        $lead = User::factory()->lead()->create();
+        $memberA = User::factory()->teamMember($lead)->create(['must_change_password' => false]);
+        $memberB = User::factory()->teamMember($lead)->create(['must_change_password' => false]);
+        $vendor1 = User::factory()->vendor()->create();
+        $vendor2 = User::factory()->vendor()->create();
+        $code = ReferralCode::factory()->create(['influencer_id' => $lead->id]);
+        $appA = VendorApplication::factory()->create([
+            'user_id' => $vendor1->id,
+            'referral_code_id' => $code->id,
+            'onboarded_by_user_id' => $memberA->id,
+            'status' => VendorApplication::STATUS_PENDING,
+        ]);
+        VendorApplication::factory()->create([
+            'user_id' => $vendor2->id,
+            'referral_code_id' => $code->id,
+            'onboarded_by_user_id' => $memberB->id,
+            'status' => VendorApplication::STATUS_PENDING,
+        ]);
+
+        $this->actingAs($memberA)
+            ->get('/field-agent/visits')
+            ->assertInertia(fn ($page) => $page
+                ->component('field-agent/visits/index')
+                ->has('applications', 1)
+                ->where('applications.0.id', $appA->id)
+            );
+    }
+
+    public function test_lead_visits_index_shows_all_referrals(): void
+    {
+        $lead = User::factory()->lead()->create();
+        $member = User::factory()->teamMember($lead)->create(['must_change_password' => false]);
+        $vendor1 = User::factory()->vendor()->create();
+        $vendor2 = User::factory()->vendor()->create();
+        $code = ReferralCode::factory()->create(['influencer_id' => $lead->id]);
+        VendorApplication::factory()->create([
+            'user_id' => $vendor1->id, 'referral_code_id' => $code->id,
+            'onboarded_by_user_id' => $member->id,
+            'status' => VendorApplication::STATUS_PENDING,
+        ]);
+        VendorApplication::factory()->create([
+            'user_id' => $vendor2->id, 'referral_code_id' => $code->id,
+            'status' => VendorApplication::STATUS_PENDING,
+        ]);
+
+        $this->actingAs($lead)
+            ->get('/field-agent/visits')
+            ->assertInertia(fn ($page) => $page->has('applications', 2));
+    }
 }

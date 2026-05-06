@@ -16,18 +16,18 @@ class VendorVisitsController extends Controller
     public function index(Request $request): Response
     {
         $agent = $request->user();
+        $leadId = $agent->parent_user_id ?? $agent->id;
 
-        // Get applications linked to this agent's referral code
-        $applications = VendorApplication::query()
+        $query = VendorApplication::query()
             ->with(['user:id,business_name,name,email', 'vendorVisit'])
-            ->whereHas('referralCode', function ($query) use ($agent) {
-                $query->where('influencer_id', $agent->id);
-            })
-            ->latest('id')
-            ->get();
+            ->whereHas('referralCode', fn ($q) => $q->where('influencer_id', $leadId));
+
+        if ($agent->parent_user_id !== null) {
+            $query->where('onboarded_by_user_id', $agent->id);
+        }
 
         return Inertia::render('field-agent/visits/index', [
-            'applications' => $applications,
+            'applications' => $query->latest('id')->get(),
         ]);
     }
 
