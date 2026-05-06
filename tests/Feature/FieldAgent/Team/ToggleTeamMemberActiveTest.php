@@ -64,4 +64,34 @@ class ToggleTeamMemberActiveTest extends TestCase
         $this->assertSame('original@example.com', $fresh->email);
         $this->assertSame($lead->id, $fresh->parent_user_id);
     }
+
+    public function test_deactivated_user_cannot_log_in(): void
+    {
+        $lead = User::factory()->lead()->create();
+        $member = User::factory()->teamMember($lead)->create([
+            'is_active' => false,
+            'password' => \Illuminate\Support\Facades\Hash::make('secret-pass'),
+        ]);
+
+        $this->post('/login', [
+            'email' => $member->email,
+            'password' => 'secret-pass',
+        ])->assertSessionHasErrors('email');
+
+        $this->assertGuest();
+    }
+
+    public function test_active_user_logs_in_normally(): void
+    {
+        $lead = User::factory()->lead()->create([
+            'password' => \Illuminate\Support\Facades\Hash::make('secret-pass'),
+        ]);
+
+        $this->post('/login', [
+            'email' => $lead->email,
+            'password' => 'secret-pass',
+        ])->assertRedirect();
+
+        $this->assertAuthenticatedAs($lead);
+    }
 }
