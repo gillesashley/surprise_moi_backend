@@ -1,7 +1,10 @@
-import AppLayout from '@/layouts/app-layout';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
+import AppLayout from '@/layouts/app-layout';
 import { Form, Head } from '@inertiajs/react';
+import Box from '@mui/material/Box';
+import Chip from '@mui/material/Chip';
+import Typography from '@mui/material/Typography';
 
 type Member = {
     id: number;
@@ -21,26 +24,54 @@ type Vendor = {
     created_at: string | null;
 };
 
-export default function TeamShow({ member, vendors }: { member: Member; vendors: Vendor[] }) {
+export default function TeamShow({
+    member,
+    vendors,
+}: {
+    member: Member;
+    vendors: Vendor[];
+}) {
     return (
-        <AppLayout breadcrumbs={[
-            { title: 'Team', href: '/field-agent/team' },
-            { title: member.name, href: `/field-agent/team/${member.id}` },
-        ]}>
+        <AppLayout
+            breadcrumbs={[
+                { title: 'Team', href: '/field-agent/team' },
+                { title: member.name, href: `/field-agent/team/${member.id}` },
+            ]}
+        >
             <Head title={member.name} />
 
-            <div className="max-w-3xl mx-auto p-4 space-y-6">
-                <div className="flex items-center justify-between">
-                    <div>
-                        <h1 className="text-xl font-semibold">{member.name}</h1>
-                        <p className="text-sm text-muted-foreground">
+            <Box
+                sx={{
+                    p: { xs: 2, md: 3 },
+                    maxWidth: 880,
+                    mx: 'auto',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 3,
+                }}
+            >
+                <Box
+                    sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        gap: 2,
+                    }}
+                >
+                    <Box sx={{ minWidth: 0 }}>
+                        <Typography variant="h5" fontWeight={700} noWrap>
+                            {member.name}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
                             {member.email} · {member.phone} · {member.location ?? '—'}
-                        </p>
-                    </div>
-                    <Badge variant={member.is_active ? 'default' : 'secondary'}>
-                        {member.is_active ? 'Active' : 'Inactive'}
-                    </Badge>
-                </div>
+                        </Typography>
+                    </Box>
+                    <Chip
+                        label={member.is_active ? 'Active' : 'Inactive'}
+                        color={member.is_active ? 'success' : 'default'}
+                        size="small"
+                    />
+                </Box>
 
                 <Form
                     action={`/field-agent/team/${member.id}`}
@@ -48,31 +79,70 @@ export default function TeamShow({ member, vendors }: { member: Member; vendors:
                     transform={(data) => ({ ...data, is_active: !member.is_active })}
                 >
                     {({ processing }) => (
-                        <Button type="submit" variant={member.is_active ? 'destructive' : 'default'} disabled={processing}>
-                            {member.is_active ? 'Deactivate member' : 'Reactivate member'}
-                        </Button>
+                        <Box>
+                            <Button
+                                type="submit"
+                                variant={member.is_active ? 'destructive' : 'default'}
+                                disabled={processing}
+                            >
+                                {member.is_active ? 'Deactivate member' : 'Reactivate member'}
+                            </Button>
+                        </Box>
                     )}
                 </Form>
 
-                <section>
-                    <h2 className="font-medium mb-2">Onboarded vendors ({vendors.length})</h2>
+                <Box>
+                    <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 1 }}>
+                        Onboarded vendors ({vendors.length})
+                    </Typography>
+
                     {vendors.length === 0 ? (
-                        <p className="text-sm text-muted-foreground">None yet.</p>
+                        <Card>
+                            <CardContent sx={{ textAlign: 'center', py: 4 }}>
+                                <Typography variant="body2" color="text.secondary">
+                                    None yet.
+                                </Typography>
+                            </CardContent>
+                        </Card>
                     ) : (
-                        <div className="divide-y rounded-md border">
-                            {vendors.map((v) => (
-                                <div key={v.id} className="flex items-center justify-between p-3">
-                                    <div>
-                                        <div className="font-medium">{v.business_name}</div>
-                                        <div className="text-xs text-muted-foreground">{v.created_at ?? ''}</div>
-                                    </div>
-                                    <Badge variant="outline">{v.status}</Badge>
-                                </div>
-                            ))}
-                        </div>
+                        <Card>
+                            <CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
+                                <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                                    {vendors.map((v, idx) => (
+                                        <Box
+                                            key={v.id}
+                                            sx={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'space-between',
+                                                gap: 2,
+                                                px: 2,
+                                                py: 1.5,
+                                                borderTop: idx === 0 ? 0 : 1,
+                                                borderColor: 'divider',
+                                            }}
+                                        >
+                                            <Box sx={{ minWidth: 0, flex: 1 }}>
+                                                <Typography variant="body2" fontWeight={500} noWrap>
+                                                    {v.business_name}
+                                                </Typography>
+                                                <Typography
+                                                    variant="caption"
+                                                    color="text.secondary"
+                                                    sx={{ display: 'block' }}
+                                                >
+                                                    {v.created_at ?? ''}
+                                                </Typography>
+                                            </Box>
+                                            <Chip label={v.status} variant="outlined" size="small" />
+                                        </Box>
+                                    ))}
+                                </Box>
+                            </CardContent>
+                        </Card>
                     )}
-                </section>
-            </div>
+                </Box>
+            </Box>
         </AppLayout>
     );
 }

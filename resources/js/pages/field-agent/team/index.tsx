@@ -1,7 +1,10 @@
-import AppLayout from '@/layouts/app-layout';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
+import AppLayout from '@/layouts/app-layout';
 import { Head, Link } from '@inertiajs/react';
+import Box from '@mui/material/Box';
+import Chip from '@mui/material/Chip';
+import Typography from '@mui/material/Typography';
 
 type Member = {
     id: number;
@@ -20,41 +23,79 @@ export default function TeamIndex({ members }: { members: Member[] }) {
         <AppLayout breadcrumbs={[{ title: 'Team', href: '/field-agent/team' }]}>
             <Head title="My Team" />
 
-            <div className="flex items-center justify-between p-4">
-                <h1 className="text-xl font-semibold">My Team</h1>
-                <Button asChild>
-                    <Link href="/field-agent/team/new">Add member</Link>
-                </Button>
-            </div>
+            <Box sx={{ p: { xs: 2, md: 3 }, display: 'flex', flexDirection: 'column', gap: 3 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <Typography variant="h5" fontWeight={700}>
+                        My Team
+                    </Typography>
+                    <Button asChild>
+                        <Link href="/field-agent/team/new">Add member</Link>
+                    </Button>
+                </Box>
 
-            {members.length === 0 ? (
-                <div className="rounded-md border border-dashed p-8 text-center text-muted-foreground mx-4">
-                    No team members yet. Click <strong>Add member</strong> to create one.
-                </div>
-            ) : (
-                <div className="divide-y rounded-md border mx-4">
-                    {members.map((m) => (
-                        <Link
-                            key={m.id}
-                            href={`/field-agent/team/${m.id}`}
-                            className="flex items-center justify-between p-4 hover:bg-muted"
-                        >
-                            <div>
-                                <div className="font-medium">{m.name}</div>
-                                <div className="text-sm text-muted-foreground">
-                                    {m.email} · {m.phone} · {m.location ?? '—'}
-                                </div>
-                            </div>
-                            <div className="flex items-center gap-3">
-                                <span className="text-sm">{m.vendors_onboarded} onboarded</span>
-                                <Badge variant={m.is_active ? 'default' : 'secondary'}>
-                                    {m.is_active ? 'Active' : 'Inactive'}
-                                </Badge>
-                            </div>
-                        </Link>
-                    ))}
-                </div>
-            )}
+                {members.length === 0 ? (
+                    <Card>
+                        <CardContent sx={{ textAlign: 'center', py: 6 }}>
+                            <Typography variant="body2" color="text.secondary">
+                                No team members yet. Click <strong>Add member</strong> to create one.
+                            </Typography>
+                        </CardContent>
+                    </Card>
+                ) : (
+                    <Card>
+                        <CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
+                            <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                                {members.map((m, idx) => (
+                                    <Link
+                                        key={m.id}
+                                        href={`/field-agent/team/${m.id}`}
+                                        style={{ textDecoration: 'none', color: 'inherit' }}
+                                    >
+                                        <Box
+                                            sx={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'space-between',
+                                                gap: 2,
+                                                px: 2,
+                                                py: 2,
+                                                borderTop: idx === 0 ? 0 : 1,
+                                                borderColor: 'divider',
+                                                transition: 'background-color 0.15s',
+                                                '&:hover': { bgcolor: 'action.hover' },
+                                            }}
+                                        >
+                                            <Box sx={{ minWidth: 0, flex: 1 }}>
+                                                <Typography variant="body1" fontWeight={500} noWrap>
+                                                    {m.name}
+                                                </Typography>
+                                                <Typography
+                                                    variant="caption"
+                                                    color="text.secondary"
+                                                    noWrap
+                                                    sx={{ display: 'block' }}
+                                                >
+                                                    {m.email} · {m.phone} · {m.location ?? '—'}
+                                                </Typography>
+                                            </Box>
+                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                                                <Typography variant="body2" color="text.secondary">
+                                                    {m.vendors_onboarded} onboarded
+                                                </Typography>
+                                                <Chip
+                                                    label={m.is_active ? 'Active' : 'Inactive'}
+                                                    color={m.is_active ? 'success' : 'default'}
+                                                    size="small"
+                                                />
+                                            </Box>
+                                        </Box>
+                                    </Link>
+                                ))}
+                            </Box>
+                        </CardContent>
+                    </Card>
+                )}
+            </Box>
         </AppLayout>
     );
 }

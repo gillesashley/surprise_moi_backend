@@ -1,68 +1,106 @@
-import AppLayout from '@/layouts/app-layout';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { Card, CardContent } from '@/components/ui/card';
+import AppLayout from '@/layouts/app-layout';
 import { Form, Head, Link } from '@inertiajs/react';
+import Box from '@mui/material/Box';
+import TextField from '@mui/material/TextField';
+import Typography from '@mui/material/Typography';
 
 export default function TeamNew() {
     return (
-        <AppLayout breadcrumbs={[
-            { title: 'Team', href: '/field-agent/team' },
-            { title: 'Add member', href: '/field-agent/team/new' },
-        ]}>
+        <AppLayout
+            breadcrumbs={[
+                { title: 'Team', href: '/field-agent/team' },
+                { title: 'Add member', href: '/field-agent/team/new' },
+            ]}
+        >
             <Head title="Add team member" />
 
-            <div className="max-w-xl mx-auto p-4 space-y-4">
-                <h1 className="text-xl font-semibold">Add team member</h1>
-                <p className="text-sm text-muted-foreground">
-                    The member's default password will be their phone number. They will be required to change
-                    it on first login.
-                </p>
+            <Box
+                sx={{
+                    p: { xs: 2, md: 3 },
+                    maxWidth: 640,
+                    mx: 'auto',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 2.5,
+                }}
+            >
+                <Box>
+                    <Typography variant="h5" fontWeight={700}>
+                        Add team member
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                        The member's default password will be their phone number. They will be
+                        required to change it on first login.
+                    </Typography>
+                </Box>
 
-                <Form
-                    action="/field-agent/team"
-                    method="post"
-                    resetOnSuccess
-                    className="space-y-3"
-                >
-                    {({ processing, errors }) => (
-                        <>
-                            <div>
-                                <Label htmlFor="name">Full name</Label>
-                                <Input id="name" name="name" required />
-                                {errors.name && <p className="text-sm text-destructive">{errors.name}</p>}
-                            </div>
+                <Card>
+                    <CardContent>
+                        <Form action="/field-agent/team" method="post" resetOnSuccess>
+                            {({ processing, errors }) => (
+                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+                                    <TextField
+                                        id="name"
+                                        name="name"
+                                        label="Full name"
+                                        required
+                                        fullWidth
+                                        size="small"
+                                        error={Boolean(errors.name)}
+                                        helperText={errors.name as string | undefined}
+                                    />
 
-                            <div>
-                                <Label htmlFor="email">Email</Label>
-                                <Input id="email" name="email" type="email" required />
-                                {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
-                            </div>
+                                    <TextField
+                                        id="email"
+                                        name="email"
+                                        type="email"
+                                        label="Email"
+                                        required
+                                        fullWidth
+                                        size="small"
+                                        error={Boolean(errors.email)}
+                                        helperText={errors.email as string | undefined}
+                                    />
 
-                            <div>
-                                <Label htmlFor="phone">Phone (default password)</Label>
-                                <Input id="phone" name="phone" placeholder="0551234567" required />
-                                {errors.phone && <p className="text-sm text-destructive">{errors.phone}</p>}
-                            </div>
+                                    <TextField
+                                        id="phone"
+                                        name="phone"
+                                        label="Phone (default password)"
+                                        placeholder="0551234567"
+                                        required
+                                        fullWidth
+                                        size="small"
+                                        error={Boolean(errors.phone)}
+                                        helperText={errors.phone as string | undefined}
+                                    />
 
-                            <div>
-                                <Label htmlFor="location">Location</Label>
-                                <Input id="location" name="location" required />
-                                {errors.location && <p className="text-sm text-destructive">{errors.location}</p>}
-                            </div>
+                                    <TextField
+                                        id="location"
+                                        name="location"
+                                        label="Location"
+                                        required
+                                        fullWidth
+                                        size="small"
+                                        error={Boolean(errors.location)}
+                                        helperText={errors.location as string | undefined}
+                                    />
 
-                            <div className="flex gap-2">
-                                <Button type="submit" disabled={processing}>
-                                    {processing ? 'Adding…' : 'Add member'}
-                                </Button>
-                                <Button type="button" variant="ghost" asChild>
-                                    <Link href="/field-agent/team">Cancel</Link>
-                                </Button>
-                            </div>
-                        </>
-                    )}
-                </Form>
-            </div>
+                                    <Box sx={{ display: 'flex', gap: 1.5, mt: 1 }}>
+                                        <Button type="submit" disabled={processing}>
+                                            {processing ? 'Adding…' : 'Add member'}
+                                        </Button>
+                                        <Button type="button" variant="ghost" asChild>
+                                            <Link href="/field-agent/team">Cancel</Link>
+                                        </Button>
+                                    </Box>
+                                </Box>
+                            )}
+                        </Form>
+                    </CardContent>
+                </Card>
+            </Box>
         </AppLayout>
     );
 }

@@ -1,6 +1,10 @@
+import { Card, CardContent } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
+import Box from '@mui/material/Box';
+import Chip from '@mui/material/Chip';
+import Typography from '@mui/material/Typography';
 import { ICON_FOR_TYPE, TITLE_FOR_TYPE } from './icons';
 import type { FeedCategory, FeedRow, NotificationsPageProps } from './types';
 
@@ -49,11 +53,19 @@ function formatRelative(iso: string): string {
     return `${Math.floor(diffSec / 86_400)}d ago`;
 }
 
-function toggleCategory(current: FeedCategory[], cat: FeedCategory): FeedCategory[] {
-    return current.includes(cat) ? current.filter((c) => c !== cat) : [...current, cat];
+function toggleCategory(
+    current: FeedCategory[],
+    cat: FeedCategory,
+): FeedCategory[] {
+    return current.includes(cat)
+        ? current.filter((c) => c !== cat)
+        : [...current, cat];
 }
 
-export default function NotificationsIndex({ feed, filters }: NotificationsPageProps) {
+export default function NotificationsIndex({
+    feed,
+    filters,
+}: NotificationsPageProps) {
     const updateFilter = (next: FeedCategory[]) => {
         router.get(
             '/dashboard/notifications',
@@ -79,44 +91,44 @@ export default function NotificationsIndex({ feed, filters }: NotificationsPageP
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Notifications" />
 
-            <div className="space-y-4 px-6 py-4">
-                <h1 className="text-2xl font-semibold">Notifications</h1>
+            <Box sx={{ p: { xs: 2, md: 3 }, display: 'flex', flexDirection: 'column', gap: 3 }}>
+                <Typography variant="h5" fontWeight={700}>
+                    Notifications
+                </Typography>
 
-                <div className="flex flex-wrap gap-2">
-                    <button
-                        type="button"
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                    <Chip
+                        label="All"
+                        clickable
+                        color={filters.categories.length === 0 ? 'primary' : 'default'}
+                        variant={filters.categories.length === 0 ? 'filled' : 'outlined'}
                         onClick={() => updateFilter([])}
-                        className={`rounded-full border px-3 py-1 text-sm ${
-                            filters.categories.length === 0
-                                ? 'bg-primary text-primary-foreground'
-                                : ''
-                        }`}
-                    >
-                        All
-                    </button>
+                    />
                     {ALL_CATEGORIES.map((c) => {
                         const active = filters.categories.includes(c.id);
                         return (
-                            <button
+                            <Chip
                                 key={c.id}
-                                type="button"
+                                label={c.label}
+                                clickable
+                                color={active ? 'primary' : 'default'}
+                                variant={active ? 'filled' : 'outlined'}
                                 onClick={() =>
                                     updateFilter(toggleCategory(filters.categories, c.id))
                                 }
-                                className={`rounded-full border px-3 py-1 text-sm ${
-                                    active ? 'bg-primary text-primary-foreground' : ''
-                                }`}
-                            >
-                                {c.label}
-                            </button>
+                            />
                         );
                     })}
-                </div>
+                </Box>
 
                 {feed.data.length === 0 && (
-                    <p className="text-muted-foreground py-12 text-center">
+                    <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{ textAlign: 'center', py: 6 }}
+                    >
                         No notifications yet.
-                    </p>
+                    </Typography>
                 )}
 
                 {(['today', 'yesterday', 'last7', 'older'] as const).map((bucket) => {
@@ -125,55 +137,110 @@ export default function NotificationsIndex({ feed, filters }: NotificationsPageP
                         return null;
                     }
                     return (
-                        <section key={bucket} className="space-y-2">
-                            <h2 className="text-muted-foreground text-xs font-medium uppercase tracking-wider">
+                        <Box key={bucket} sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                            <Typography
+                                variant="overline"
+                                color="text.secondary"
+                                sx={{ fontWeight: 600, letterSpacing: '0.08em' }}
+                            >
                                 {BUCKET_LABEL[bucket]}
-                            </h2>
-                            <ul className="divide-y rounded-lg border">
-                                {rows.map((row) => {
-                                    const Icon = ICON_FOR_TYPE[row.type];
-                                    return (
-                                        <li key={row.id}>
-                                            <Link
-                                                href={row.action_url}
-                                                className="hover:bg-muted/40 flex items-start gap-3 px-4 py-3"
-                                            >
-                                                <Icon className="text-muted-foreground mt-0.5 h-5 w-5 shrink-0" />
-                                                <div className="min-w-0 flex-1">
-                                                    <p className="truncate text-sm">
-                                                        <span className="font-medium">
-                                                            {row.actor?.name ?? 'Someone'}
-                                                        </span>{' '}
-                                                        {TITLE_FOR_TYPE[row.type]}
-                                                    </p>
-                                                    <p className="text-muted-foreground truncate text-xs">
-                                                        {row.subject.label}
-                                                    </p>
-                                                </div>
-                                                <span className="text-muted-foreground shrink-0 text-xs">
-                                                    {formatRelative(row.occurred_at)}
-                                                </span>
-                                            </Link>
-                                        </li>
-                                    );
-                                })}
-                            </ul>
-                        </section>
+                            </Typography>
+                            <Card>
+                                <CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
+                                    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                                        {rows.map((row, idx) => {
+                                            const Icon = ICON_FOR_TYPE[row.type];
+                                            return (
+                                                <Link
+                                                    key={row.id}
+                                                    href={row.action_url}
+                                                    style={{ textDecoration: 'none', color: 'inherit' }}
+                                                >
+                                                    <Box
+                                                        sx={{
+                                                            display: 'flex',
+                                                            alignItems: 'flex-start',
+                                                            gap: 1.5,
+                                                            px: 2,
+                                                            py: 1.5,
+                                                            borderTop: idx === 0 ? 0 : 1,
+                                                            borderColor: 'divider',
+                                                            transition: 'background-color 0.15s',
+                                                            '&:hover': {
+                                                                bgcolor: 'action.hover',
+                                                            },
+                                                        }}
+                                                    >
+                                                        <Icon
+                                                            style={{
+                                                                width: 20,
+                                                                height: 20,
+                                                                marginTop: 2,
+                                                                flexShrink: 0,
+                                                                color: 'rgb(107, 114, 128)',
+                                                            }}
+                                                        />
+                                                        <Box sx={{ minWidth: 0, flex: 1 }}>
+                                                            <Typography
+                                                                variant="body2"
+                                                                noWrap
+                                                                sx={{ fontWeight: 500 }}
+                                                            >
+                                                                {row.actor?.name ?? 'Someone'}{' '}
+                                                                <Typography
+                                                                    component="span"
+                                                                    variant="body2"
+                                                                    sx={{ fontWeight: 400 }}
+                                                                >
+                                                                    {TITLE_FOR_TYPE[row.type]}
+                                                                </Typography>
+                                                            </Typography>
+                                                            <Typography
+                                                                variant="caption"
+                                                                color="text.secondary"
+                                                                noWrap
+                                                                sx={{ display: 'block' }}
+                                                            >
+                                                                {row.subject.label}
+                                                            </Typography>
+                                                        </Box>
+                                                        <Typography
+                                                            variant="caption"
+                                                            color="text.secondary"
+                                                            sx={{ flexShrink: 0 }}
+                                                        >
+                                                            {formatRelative(row.occurred_at)}
+                                                        </Typography>
+                                                    </Box>
+                                                </Link>
+                                            );
+                                        })}
+                                    </Box>
+                                </CardContent>
+                            </Card>
+                        </Box>
                     );
                 })}
 
                 {feed.current_page < feed.last_page && (
-                    <div className="flex justify-center pt-4">
+                    <Box sx={{ display: 'flex', justifyContent: 'center', pt: 2 }}>
                         <Link
                             href={`/dashboard/notifications?page=${feed.current_page + 1}${categoriesQuery}`}
                             preserveScroll
-                            className="rounded-md border px-4 py-2 text-sm"
+                            style={{
+                                textDecoration: 'none',
+                                padding: '8px 16px',
+                                border: '1px solid rgba(0,0,0,0.12)',
+                                borderRadius: 6,
+                                fontSize: 14,
+                                color: 'inherit',
+                            }}
                         >
                             Load more
                         </Link>
-                    </div>
+                    </Box>
                 )}
-            </div>
+            </Box>
         </AppLayout>
     );
 }
