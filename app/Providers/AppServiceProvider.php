@@ -98,6 +98,12 @@ class AppServiceProvider extends ServiceProvider
             return true;
         });
 
+        Gate::define('manageTeam', function (\App\Models\User $user) {
+            return $user->isFieldAgent()
+                && (bool) $user->is_team_field_agent
+                && $user->parent_user_id === null;
+        });
+
         Gate::policy(\App\Models\UserPayoutDetail::class, \App\Policies\UserPayoutDetailPolicy::class);
 
         VerifyEmail::toMailUsing(function (object $notifiable, string $url) {
