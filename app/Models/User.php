@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Traits\Auditable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -48,6 +49,10 @@ class User extends Authenticatable implements MustVerifyEmail
         'field_verified_at',
         'field_verified_until',
         'is_team_field_agent',
+        'parent_user_id',
+        'is_active',
+        'must_change_password',
+        'location',
     ];
 
     /**
@@ -77,6 +82,9 @@ class User extends Authenticatable implements MustVerifyEmail
             'date_of_birth' => 'date',
             'is_popular' => 'boolean',
             'is_team_field_agent' => 'boolean',
+            'is_active' => 'boolean',
+            'must_change_password' => 'boolean',
+            'parent_user_id' => 'integer',
             'vendor_tier' => 'integer',
             'referral_points' => 'integer',
             'field_verified_at' => 'datetime',
@@ -418,6 +426,44 @@ class User extends Authenticatable implements MustVerifyEmail
     public function isTeamFieldAgent(): bool
     {
         return $this->isFieldAgent() && (bool) $this->is_team_field_agent;
+    }
+
+    /**
+     * The team-lead this user reports to. Null for leads/non-members.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<self, $this>
+     */
+    public function lead(): BelongsTo
+    {
+        return $this->belongsTo(self::class, 'parent_user_id');
+    }
+
+    /**
+     * Members reporting to this user as a team lead.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<self, $this>
+     */
+    public function teamMembers(): HasMany
+    {
+        return $this->hasMany(self::class, 'parent_user_id');
+    }
+
+    /**
+     * Whether this user is a field-agent team lead (can manage members).
+     */
+    public function isLead(): bool
+    {
+        return $this->isFieldAgent()
+            && (bool) $this->is_team_field_agent
+            && $this->parent_user_id === null;
+    }
+
+    /**
+     * Whether this user is a team member under a field-agent lead.
+     */
+    public function isTeamMember(): bool
+    {
+        return $this->isFieldAgent() && $this->parent_user_id !== null;
     }
 
     /**
