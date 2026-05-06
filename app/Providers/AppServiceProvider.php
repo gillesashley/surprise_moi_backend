@@ -105,6 +105,7 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Gate::policy(\App\Models\UserPayoutDetail::class, \App\Policies\UserPayoutDetailPolicy::class);
+        Gate::policy(\App\Models\User::class, \App\Policies\TeamMemberPolicy::class);
 
         VerifyEmail::toMailUsing(function (object $notifiable, string $url) {
             // Generate the API verification URL
