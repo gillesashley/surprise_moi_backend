@@ -134,4 +134,32 @@ class UserFactory extends Factory
             'role' => 'employee',
         ]);
     }
+
+    /**
+     * Indicate that the user is a team-lead field agent.
+     */
+    public function lead(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 'field_agent',
+            'is_team_field_agent' => true,
+            'parent_user_id' => null,
+            'is_active' => true,
+            'must_change_password' => false,
+        ]);
+    }
+
+    /**
+     * Indicate that the user is a team-member field agent under the given lead.
+     */
+    public function teamMember(\App\Models\User $lead): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 'field_agent',
+            'is_team_field_agent' => false,
+            'parent_user_id' => $lead->id,
+            'is_active' => true,
+            'must_change_password' => true,
+        ]);
+    }
 }
