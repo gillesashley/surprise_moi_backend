@@ -46,6 +46,21 @@ class EnsureDashboardAccess
             return redirect()->route('field-agent.dashboard');
         }
 
+        // Field-agent team members are barred from money/verification pages.
+        if (
+            $user->role === 'field_agent'
+            && $user->parent_user_id !== null
+            && (
+                str_starts_with($currentPath, 'field-agent/earnings')
+                || str_starts_with($currentPath, 'field-agent/payouts')
+                || str_starts_with($currentPath, 'field-agent/targets')
+                || str_starts_with($currentPath, 'field-agent/verification')
+                || str_starts_with($currentPath, 'field-agent/terms')
+            )
+        ) {
+            abort(403);
+        }
+
         // Employees should only access /employee/* routes
         if ($user->role === 'employee' && ! str_starts_with($currentPath, 'employee')) {
             return redirect()->route('employee.dashboard');

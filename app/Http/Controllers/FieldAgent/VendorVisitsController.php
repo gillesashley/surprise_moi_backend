@@ -16,30 +16,32 @@ class VendorVisitsController extends Controller
     public function index(Request $request): Response
     {
         $agent = $request->user();
+        $leadId = $agent->parent_user_id ?? $agent->id;
 
-        // Get applications linked to this agent's referral code
-        $applications = VendorApplication::query()
+        $query = VendorApplication::query()
             ->with(['user:id,business_name,name,email', 'vendorVisit'])
-            ->whereHas('referralCode', function ($query) use ($agent) {
-                $query->where('influencer_id', $agent->id);
-            })
-            ->latest('id')
-            ->get();
+            ->whereHas('referralCode', fn ($q) => $q->where('influencer_id', $leadId));
+
+        if ($agent->parent_user_id !== null) {
+            $query->where('onboarded_by_user_id', $agent->id);
+        }
 
         return Inertia::render('field-agent/visits/index', [
-            'applications' => $applications,
+            'applications' => $query->latest('id')->get(),
         ]);
     }
 
     public function start(Request $request, VendorApplication $application): RedirectResponse
     {
-        // Ensure application belongs to a referral code from this agent
-        abort_unless($application->referralCode?->influencer_id === $request->user()->id, 403);
+        $user = $request->user();
+        $codeOwnerId = $application->referralCode?->influencer_id;
+        $leadId = $user->parent_user_id ?? $user->id;
+        abort_unless($codeOwnerId !== null && $codeOwnerId === $leadId, 403);
 
         $visit = VendorVisit::firstOrCreate(
             [
                 'vendor_application_id' => $application->id,
-                'field_agent_user_id' => $request->user()->id,
+                'field_agent_user_id' => $user->id,
             ],
             [
                 'vendor_user_id' => $application->user_id,
@@ -47,6 +49,10 @@ class VendorVisitsController extends Controller
                 'started_at' => now(),
             ]
         );
+
+        if ($application->onboarded_by_user_id === null) {
+            $application->forceFill(['onboarded_by_user_id' => $user->id])->save();
+        }
 
         return redirect("/field-agent/visits/forms/{$visit->id}");
     }

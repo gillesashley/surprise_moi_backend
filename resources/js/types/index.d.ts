@@ -45,6 +45,10 @@ export interface User {
     is_popular?: boolean;
     email_verified_at: string | null;
     two_factor_enabled?: boolean;
+    is_team_field_agent?: boolean;
+    parent_user_id?: number | null;
+    must_change_password?: boolean;
+    is_active?: boolean;
     created_at: string;
     updated_at: string;
     [key: string]: unknown; // This allows for additional properties...

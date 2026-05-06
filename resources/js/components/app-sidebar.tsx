@@ -45,7 +45,11 @@ import {
 } from 'lucide-react';
 import AppLogo from './app-logo';
 
-const getNavItemsForRole = (role: string): NavItem[] => {
+const getNavItemsForRole = (
+    role: string,
+    isLead: boolean,
+    isMember: boolean,
+): NavItem[] => {
     // Admin & Super Admin - full access with organized groups
     if (role === 'admin' || role === 'super_admin') {
         const items: NavItem[] = [
@@ -245,7 +249,7 @@ const getNavItemsForRole = (role: string): NavItem[] => {
 
     // Field Agent - targets, earnings, payouts, onboarding
     if (role === 'field_agent') {
-        return [
+        const items: NavItem[] = [
             {
                 title: 'Dashboard',
                 href: '/field-agent/dashboard',
@@ -256,33 +260,30 @@ const getNavItemsForRole = (role: string): NavItem[] => {
                 href: '/field-agent/visits',
                 icon: UserCheck,
             },
-            {
+        ];
+
+        if (!isMember) {
+            items.push({
                 title: 'Work & Earnings',
                 icon: DollarSign,
                 items: [
-                    {
-                        title: 'My Targets',
-                        href: '/field-agent/targets',
-                        icon: Target,
-                    },
-                    {
-                        title: 'My Earnings',
-                        href: '/field-agent/earnings',
-                        icon: Wallet,
-                    },
-                    {
-                        title: 'Payouts',
-                        href: '/field-agent/payouts',
-                        icon: CheckCircle,
-                    },
+                    { title: 'My Targets', href: '/field-agent/targets', icon: Target },
+                    { title: 'My Earnings', href: '/field-agent/earnings', icon: Wallet },
+                    { title: 'Payouts', href: '/field-agent/payouts', icon: CheckCircle },
                 ],
-            },
-            {
+            });
+            items.push({
                 title: 'My Verification',
                 href: '/field-agent/verification',
                 icon: ShieldCheck,
-            },
-        ];
+            });
+        }
+
+        if (isLead) {
+            items.push({ title: 'My Team', href: '/field-agent/team', icon: Users });
+        }
+
+        return items;
     }
 
     // Employee - targets, earnings, payouts
@@ -329,7 +330,10 @@ const getNavItemsForRole = (role: string): NavItem[] => {
 
 export function AppSidebar() {
     const { auth } = usePage<SharedData>().props;
-    const navItems = getNavItemsForRole(auth?.user?.role || 'customer');
+    const user = auth?.user;
+    const isLead = !!user?.is_team_field_agent && user?.parent_user_id == null;
+    const isMember = user?.parent_user_id != null;
+    const navItems = getNavItemsForRole(user?.role || 'customer', isLead, isMember);
 
     return (
         <Sidebar collapsible="icon" variant="inset">

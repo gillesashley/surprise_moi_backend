@@ -95,6 +95,7 @@ class VendorApplication extends Model
         'onboarding_fee',
         'discount_amount',
         'final_amount',
+        'onboarded_by_user_id',
     ];
 
     protected function casts(): array
