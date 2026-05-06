@@ -290,6 +290,10 @@ Route::middleware(['auth', 'dashboard'])->prefix('field-agent')->name('field-age
         Route::post('/forms/{visit}/submit', [\App\Http\Controllers\FieldAgent\VendorVisitsController::class, 'submit'])->name('submit');
     });
 
+    Route::middleware('can:manageTeam')->prefix('team')->name('team.')->group(function () {
+        Route::post('/', [\App\Http\Controllers\FieldAgent\TeamMemberController::class, 'store'])->name('store');
+    });
+
     // SPA catch-all - must be LAST in the group
     Route::get('/{any?}', [FieldAgentDashboardController::class, 'index'])
         ->where('any', '.*')
