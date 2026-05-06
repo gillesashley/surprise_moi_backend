@@ -49,6 +49,7 @@ return Application::configure(basePath: dirname(__DIR__))
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
             AuditLogMiddleware::class,
+            \App\Http\Middleware\EnforcePasswordChange::class,
         ]);
 
         $middleware->validateCsrfTokens(except: [
@@ -60,6 +61,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin' => EnsureUserIsAdmin::class,
             'cache.headers' => \App\Http\Middleware\SetCacheHeaders::class,
             'dashboard' => EnsureDashboardAccess::class,
+            'enforce-password-change' => \App\Http\Middleware\EnforcePasswordChange::class,
             'rider.approved' => EnsureRiderApproved::class,
             'role' => EnsureUserRole::class,
             'user-management' => EnsureUserManagementAccess::class,
