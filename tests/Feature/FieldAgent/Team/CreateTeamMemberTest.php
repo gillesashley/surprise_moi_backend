@@ -57,7 +57,7 @@ class CreateTeamMemberTest extends TestCase
     public function test_member_cannot_create_sub_members(): void
     {
         $lead = User::factory()->lead()->create();
-        $member = User::factory()->teamMember($lead)->create();
+        $member = User::factory()->teamMember($lead)->create(['must_change_password' => false]);
 
         $this->actingAs($member)->post('/field-agent/team', [
             'name' => 'X', 'email' => 'x@e.com', 'phone' => '0551112222', 'location' => 'A',
