@@ -37,4 +37,19 @@ class MemberDashboardScopingTest extends TestCase
             $this->actingAs($lead)->get($path)->assertOk();
         }
     }
+
+    public function test_member_dashboard_omits_money_fields_and_referral_code(): void
+    {
+        $lead = User::factory()->lead()->create();
+        $member = User::factory()->teamMember($lead)->create(['must_change_password' => false]);
+
+        $this->actingAs($member)
+            ->get('/field-agent/dashboard')
+            ->assertInertia(fn ($page) => $page
+                ->component('field-agent/dashboard')
+                ->where('referralCode', null)
+                ->where('earningsSummary', null)
+                ->has('vendorStats')
+            );
+    }
 }

@@ -26,25 +26,24 @@ class FieldAgentDashboardController extends Controller
     {
         $user = $request->user();
         $period = $this->resolvePeriod($request);
-        $referralCode = $this->getOrCreateReferralCode($user);
+        $isMember = $user->parent_user_id !== null;
 
-        $earningsSummary = $this->earningService->getUserEarningsSummary($user);
-        $referralStats = app(\App\Services\ReferralService::class)->getInfluencerStats($user);
+        $referralCode = $isMember ? null : $this->getOrCreateReferralCode($user);
+        $earningsSummary = $isMember ? null : $this->earningService->getUserEarningsSummary($user);
+        $referralStats = $isMember ? ['total_earned' => 0] : app(\App\Services\ReferralService::class)->getInfluencerStats($user);
 
         return Inertia::render('field-agent/dashboard', [
             'agent' => [
                 'id' => $user->id,
                 'first_name' => $user->first_name ?? (explode(' ', (string) $user->name)[0] ?: $user->name),
-                'referral_points' => (int) ($user->referral_points ?? 0),
+                'referral_points' => $isMember ? 0 : (int) ($user->referral_points ?? 0),
                 'earned_amount' => (float) ($referralStats['total_earned'] ?? 0),
             ],
             'period' => $period,
-            'referralCode' => [
-                'code' => $referralCode->code,
-            ],
+            'referralCode' => $referralCode ? ['code' => $referralCode->code] : null,
             'vendorStats' => $this->computeVendorStats($user, $period),
             'earningsSummary' => $earningsSummary,
-            'activeTarget' => $this->computeActiveTarget($user),
+            'activeTarget' => $isMember ? null : $this->computeActiveTarget($user),
             'recentVendors' => $this->computeRecentVendors($user),
         ]);
     }
@@ -125,11 +124,14 @@ class FieldAgentDashboardController extends Controller
             default => $now->startOfWeek(),
         };
 
-        $base = VendorApplication::query()
-            ->whereHas('referralCode', fn ($q) => $q->where('influencer_id', $agent->id));
+        $base = VendorApplication::query();
+        if ($agent->parent_user_id !== null) {
+            $base->where('onboarded_by_user_id', $agent->id);
+        } else {
+            $base->whereHas('referralCode', fn ($q) => $q->where('influencer_id', $agent->id));
+        }
 
         $total = (clone $base)->count();
-
         $inPeriod = (clone $base)->where('created_at', '>=', $start);
 
         return [
@@ -137,12 +139,8 @@ class FieldAgentDashboardController extends Controller
             'pending' => (clone $inPeriod)
                 ->whereIn('status', [VendorApplication::STATUS_PENDING, VendorApplication::STATUS_UNDER_REVIEW])
                 ->count(),
-            'approved' => (clone $inPeriod)
-                ->where('status', VendorApplication::STATUS_APPROVED)
-                ->count(),
-            'rejected' => (clone $inPeriod)
-                ->where('status', VendorApplication::STATUS_REJECTED)
-                ->count(),
+            'approved' => (clone $inPeriod)->where('status', VendorApplication::STATUS_APPROVED)->count(),
+            'rejected' => (clone $inPeriod)->where('status', VendorApplication::STATUS_REJECTED)->count(),
         ];
     }
 
@@ -151,8 +149,14 @@ class FieldAgentDashboardController extends Controller
      */
     private function computeRecentVendors(User $agent): array
     {
-        return VendorApplication::query()
-            ->whereHas('referralCode', fn ($q) => $q->where('influencer_id', $agent->id))
+        $query = VendorApplication::query();
+        if ($agent->parent_user_id !== null) {
+            $query->where('onboarded_by_user_id', $agent->id);
+        } else {
+            $query->whereHas('referralCode', fn ($q) => $q->where('influencer_id', $agent->id));
+        }
+
+        return $query
             ->with('user:id,name,business_name')
             ->latest('created_at')
             ->limit(5)
