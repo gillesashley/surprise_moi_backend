@@ -66,9 +66,9 @@ interface DashboardProps {
         earned_amount: number;
     };
     period: Period;
-    referralCode: { code: string };
+    referralCode: { code: string } | null;
     vendorStats: VendorStats;
-    earningsSummary: EarningsSummary;
+    earningsSummary: EarningsSummary | null;
     activeTarget: ActiveTarget | null;
     recentVendors: RecentVendor[];
 }
@@ -206,7 +206,7 @@ export default function FieldAgentDashboard({
                 </Box>
 
                 {/* Referral code */}
-                <ReferralCodeCard code={referralCode.code} />
+                {referralCode && <ReferralCodeCard code={referralCode.code} />}
 
                 {/* Row 1: Vendor pipeline */}
                 <Box
@@ -258,7 +258,8 @@ export default function FieldAgentDashboard({
                     />
                 </Box>
 
-                {/* Row 2: Earnings + Target */}
+                {/* Row 2: Earnings + Target — leads only */}
+                {earningsSummary && (
                 <Box
                     sx={{
                         display: 'grid',
@@ -450,6 +451,7 @@ export default function FieldAgentDashboard({
                         </Card>
                     )}
                 </Box>
+                )}
 
                 {/* Row 3: Recent vendors */}
                 <Card className="border-0 shadow-sm">
