@@ -65,6 +65,7 @@ interface DashboardProps {
         referral_points: number;
         earned_amount: number;
     };
+    isMember: boolean;
     period: Period;
     referralCode: { code: string } | null;
     vendorStats: VendorStats;
@@ -139,6 +140,7 @@ function statusVariant(
 
 export default function FieldAgentDashboard({
     agent,
+    isMember,
     period,
     referralCode,
     vendorStats,
@@ -216,7 +218,7 @@ export default function FieldAgentDashboard({
                         gridTemplateColumns: {
                             xs: '1fr 1fr',
                             sm: 'repeat(2, 1fr)',
-                            lg: 'repeat(6, 1fr)',
+                            lg: isMember ? 'repeat(4, 1fr)' : 'repeat(6, 1fr)',
                         },
                     }}
                 >
@@ -226,18 +228,22 @@ export default function FieldAgentDashboard({
                         icon={Users}
                         iconBg="#3b82f6"
                     />
-                    <StatTile
-                        title="Referral Points"
-                        value={agent.referral_points}
-                        icon={Award}
-                        iconBg="#8b5cf6"
-                    />
-                    <StatTile
-                        title="Earned Amount"
-                        value={`GHS ${agent.earned_amount.toFixed(2)}`}
-                        icon={DollarSign}
-                        iconBg="#22c55e"
-                    />
+                    {!isMember && (
+                        <StatTile
+                            title="Referral Points"
+                            value={agent.referral_points}
+                            icon={Award}
+                            iconBg="#8b5cf6"
+                        />
+                    )}
+                    {!isMember && (
+                        <StatTile
+                            title="Earned Amount"
+                            value={`GHS ${agent.earned_amount.toFixed(2)}`}
+                            icon={DollarSign}
+                            iconBg="#22c55e"
+                        />
+                    )}
                     <StatTile
                         title="Pending"
                         value={vendorStats.pending}

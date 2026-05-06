@@ -49,7 +49,22 @@ class MemberDashboardScopingTest extends TestCase
                 ->component('field-agent/dashboard')
                 ->where('referralCode', null)
                 ->where('earningsSummary', null)
+                ->where('isMember', true)
+                ->where('agent.referral_points', 0)
+                ->where('agent.earned_amount', 0)
                 ->has('vendorStats')
+            );
+    }
+
+    public function test_lead_dashboard_marks_isMember_false(): void
+    {
+        $lead = User::factory()->lead()->create();
+
+        $this->actingAs($lead)
+            ->get('/field-agent/dashboard')
+            ->assertInertia(fn ($page) => $page
+                ->component('field-agent/dashboard')
+                ->where('isMember', false)
             );
     }
 }

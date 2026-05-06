@@ -39,6 +39,7 @@ class FieldAgentDashboardController extends Controller
                 'referral_points' => $isMember ? 0 : (int) ($user->referral_points ?? 0),
                 'earned_amount' => (float) ($referralStats['total_earned'] ?? 0),
             ],
+            'isMember' => $isMember,
             'period' => $period,
             'referralCode' => $referralCode ? ['code' => $referralCode->code] : null,
             'vendorStats' => $this->computeVendorStats($user, $period),
