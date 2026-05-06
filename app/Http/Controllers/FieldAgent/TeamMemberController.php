@@ -36,6 +36,37 @@ class TeamMemberController extends Controller
         return Inertia::render('field-agent/team/new');
     }
 
+    public function show(\Illuminate\Http\Request $request, User $member): Response
+    {
+        \Illuminate\Support\Facades\Gate::authorize('view', $member);
+
+        $vendors = VendorApplication::query()
+            ->with('user:id,name,business_name')
+            ->where('onboarded_by_user_id', $member->id)
+            ->latest('created_at')
+            ->get()
+            ->map(fn (VendorApplication $app) => [
+                'id' => $app->id,
+                'business_name' => $app->user?->business_name ?: ($app->user?->name ?? ''),
+                'status' => $app->status,
+                'created_at' => $app->created_at?->toIso8601String(),
+            ]);
+
+        return Inertia::render('field-agent/team/show', [
+            'member' => [
+                'id' => $member->id,
+                'name' => $member->name,
+                'email' => $member->email,
+                'phone' => $member->phone,
+                'location' => $member->location,
+                'is_active' => (bool) $member->is_active,
+                'must_change_password' => (bool) $member->must_change_password,
+                'created_at' => $member->created_at?->toIso8601String(),
+            ],
+            'vendors' => $vendors,
+        ]);
+    }
+
     public function store(StoreTeamMemberRequest $request): RedirectResponse
     {
         User::create([
