@@ -68,6 +68,20 @@ class TeamMemberController extends Controller
         ]);
     }
 
+    public function update(Request $request, User $member): RedirectResponse
+    {
+        Gate::authorize('update', $member);
+
+        $validated = $request->validate([
+            'is_active' => ['required', 'boolean'],
+        ]);
+
+        $member->update(['is_active' => $validated['is_active']]);
+
+        return redirect("/field-agent/team/{$member->id}")
+            ->with('success', $validated['is_active'] ? 'Member reactivated.' : 'Member deactivated.');
+    }
+
     public function store(StoreTeamMemberRequest $request): RedirectResponse
     {
         User::create([

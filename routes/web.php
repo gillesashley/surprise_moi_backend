@@ -295,6 +295,7 @@ Route::middleware(['auth', 'dashboard'])->prefix('field-agent')->name('field-age
         Route::get('/new', [\App\Http\Controllers\FieldAgent\TeamMemberController::class, 'create'])->name('create');
         Route::post('/', [\App\Http\Controllers\FieldAgent\TeamMemberController::class, 'store'])->name('store');
         Route::get('/{member}', [\App\Http\Controllers\FieldAgent\TeamMemberController::class, 'show'])->name('show');
+        Route::patch('/{member}', [\App\Http\Controllers\FieldAgent\TeamMemberController::class, 'update'])->name('update');
     });
 
     // SPA catch-all - must be LAST in the group
