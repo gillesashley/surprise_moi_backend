@@ -83,17 +83,52 @@ class KairosAfrikaSmsServiceTest extends TestCase
      */
     public function test_phone_number_formatting(): void
     {
-        // Test with leading zero
+        // Ghana local with trunk prefix
         $result = $this->smsService->send('0559400612', 'Test');
         $this->assertTrue($result['success']);
 
-        // Test with international format
-        $result = $this->smsService->send('233559400612', 'Test');
-        $this->assertTrue($result['success']);
-
-        // Test with plus sign
+        // Canonical E.164
         $result = $this->smsService->send('+233559400612', 'Test');
         $this->assertTrue($result['success']);
+    }
+
+    /**
+     * The formatter must produce the digits-only international form Kairos
+     * expects, regardless of which acceptable input shape it receives.
+     */
+    public function test_format_phone_number_normalizes_to_digits_international(): void
+    {
+        $reflection = new \ReflectionMethod($this->smsService, 'formatPhoneNumber');
+        $reflection->setAccessible(true);
+
+        $cases = [
+            '0559400612' => '233559400612',           // Ghana local, trunk-prefixed
+            '+233559400612' => '233559400612',        // canonical E.164
+            ' +233 559 400 612 ' => '233559400612',   // whitespace tolerated by libphonenumber
+            '+12025550123' => '12025550123',          // foreign country (US) preserved
+        ];
+
+        foreach ($cases as $input => $expected) {
+            $this->assertSame(
+                $expected,
+                $reflection->invoke($this->smsService, $input),
+                "formatPhoneNumber({$input}) should return {$expected}",
+            );
+        }
+    }
+
+    /**
+     * Bad input is the FormRequest's job to reject — but if the service is
+     * ever called with garbage anyway, it must fail loudly rather than silently
+     * dispatch to a non-existent number.
+     */
+    public function test_format_phone_number_throws_on_unparseable_input(): void
+    {
+        $reflection = new \ReflectionMethod($this->smsService, 'formatPhoneNumber');
+        $reflection->setAccessible(true);
+
+        $this->expectException(\InvalidArgumentException::class);
+        $reflection->invoke($this->smsService, 'not-a-phone');
     }
 
     /**

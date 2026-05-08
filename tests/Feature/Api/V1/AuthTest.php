@@ -28,7 +28,7 @@ class AuthTest extends TestCase
         $response = $this->postJson('/api/v1/auth/register', [
             'name' => 'John Doe',
             'email' => 'john@example.com',
-            'phone' => '0559400612',
+            'phone' => '+233559400612',
             'password' => 'Password123!',
             'password_confirmation' => 'Password123!',
             'role' => 'customer',
@@ -55,7 +55,7 @@ class AuthTest extends TestCase
 
         $this->assertDatabaseHas('users', [
             'email' => 'john@example.com',
-            'phone' => '0559400612',
+            'phone' => '+233559400612',
         ]);
     }
 
@@ -80,7 +80,7 @@ class AuthTest extends TestCase
         $response = $this->postJson('/api/v1/auth/register', [
             'name' => 'John Doe',
             'email' => 'test@example.com',
-            'phone' => '0559400612',
+            'phone' => '+233559400612',
             'password' => 'Password123!',
             'password_confirmation' => 'Password123!',
             'role' => 'customer',
@@ -92,7 +92,7 @@ class AuthTest extends TestCase
 
     public function test_registration_fails_with_duplicate_phone(): void
     {
-        User::factory()->create(['phone' => '0559400612']);
+        User::factory()->create(['phone' => '+233559400612']);
 
         $this->mock(KairosAfrikaSmsService::class, function (MockInterface $mock) {
             $mock->shouldReceive('sendOtp')->never();
@@ -101,7 +101,7 @@ class AuthTest extends TestCase
         $response = $this->postJson('/api/v1/auth/register', [
             'name' => 'John Doe',
             'email' => 'john@example.com',
-            'phone' => '0559400612',
+            'phone' => '+233559400612',
             'password' => 'Password123!',
             'password_confirmation' => 'Password123!',
             'role' => 'customer',
@@ -114,13 +114,13 @@ class AuthTest extends TestCase
     public function test_user_can_verify_phone_with_valid_otp(): void
     {
         $user = User::factory()->phoneUnverified()->create([
-            'phone' => '0559400612',
+            'phone' => '+233559400612',
         ]);
 
         $this->mock(KairosAfrikaSmsService::class, function (MockInterface $mock) {
             $mock->shouldReceive('validateOtp')
                 ->once()
-                ->with('1234', '0559400612')
+                ->with('1234', '+233559400612')
                 ->andReturn([
                     'success' => true,
                     'message' => 'Verification successful',
@@ -129,7 +129,7 @@ class AuthTest extends TestCase
         });
 
         $response = $this->postJson('/api/v1/auth/verify-phone', [
-            'phone' => '0559400612',
+            'phone' => '+233559400612',
             'code' => '1234',
         ]);
 
@@ -150,7 +150,7 @@ class AuthTest extends TestCase
     public function test_phone_verification_fails_with_invalid_otp(): void
     {
         $user = User::factory()->phoneUnverified()->create([
-            'phone' => '0559400612',
+            'phone' => '+233559400612',
         ]);
 
         $this->mock(KairosAfrikaSmsService::class, function (MockInterface $mock) {
@@ -164,7 +164,7 @@ class AuthTest extends TestCase
         });
 
         $response = $this->postJson('/api/v1/auth/verify-phone', [
-            'phone' => '0559400612',
+            'phone' => '+233559400612',
             'code' => '9999',
         ]);
 
@@ -180,12 +180,12 @@ class AuthTest extends TestCase
     public function test_phone_verification_fails_when_already_verified(): void
     {
         User::factory()->create([
-            'phone' => '0559400612',
+            'phone' => '+233559400612',
             'phone_verified_at' => now(),
         ]);
 
         $response = $this->postJson('/api/v1/auth/verify-phone', [
-            'phone' => '0559400612',
+            'phone' => '+233559400612',
             'code' => '1234',
         ]);
 
@@ -199,13 +199,13 @@ class AuthTest extends TestCase
     public function test_user_can_resend_otp(): void
     {
         User::factory()->phoneUnverified()->create([
-            'phone' => '0559400612',
+            'phone' => '+233559400612',
         ]);
 
         $this->mock(KairosAfrikaSmsService::class, function (MockInterface $mock) {
             $mock->shouldReceive('sendOtp')
                 ->once()
-                ->with('0559400612')
+                ->with('+233559400612')
                 ->andReturn([
                     'success' => true,
                     'message' => 'OTP sent successfully',
@@ -214,7 +214,7 @@ class AuthTest extends TestCase
         });
 
         $response = $this->postJson('/api/v1/auth/resend-otp', [
-            'phone' => '0559400612',
+            'phone' => '+233559400612',
         ]);
 
         $response->assertStatus(200)
@@ -227,12 +227,12 @@ class AuthTest extends TestCase
     public function test_resend_otp_fails_when_phone_already_verified(): void
     {
         User::factory()->create([
-            'phone' => '0559400612',
+            'phone' => '+233559400612',
             'phone_verified_at' => now(),
         ]);
 
         $response = $this->postJson('/api/v1/auth/resend-otp', [
-            'phone' => '0559400612',
+            'phone' => '+233559400612',
         ]);
 
         $response->assertStatus(400)
@@ -245,7 +245,7 @@ class AuthTest extends TestCase
     public function test_resend_otp_fails_for_nonexistent_phone(): void
     {
         $response = $this->postJson('/api/v1/auth/resend-otp', [
-            'phone' => '0559999999',
+            'phone' => '+233559999999',
         ]);
 
         $response->assertStatus(422)
