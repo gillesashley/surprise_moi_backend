@@ -28,11 +28,12 @@ return new class extends Migration
         }
 
         $unparseable = [];
+        $collisions = [];
 
         DB::table('users')
             ->whereNotNull('phone')
             ->orderBy('id')
-            ->chunkById(500, function ($rows) use (&$unparseable) {
+            ->chunkById(500, function ($rows) use (&$unparseable, &$collisions) {
                 foreach ($rows as $row) {
                     $original = (string) $row->phone;
 
@@ -44,6 +45,25 @@ return new class extends Migration
                     }
 
                     if ($normalized === $original && $row->phone_legacy_backup !== null) {
+                        continue;
+                    }
+
+                    // Skip rows where another user already owns the canonical
+                    // form. Without this, the unique index on users.phone aborts
+                    // the whole migration and leaves the table half-normalized.
+                    // Operators reconcile the surfaced collisions manually.
+                    $collidingId = DB::table('users')
+                        ->where('phone', $normalized)
+                        ->where('id', '!=', $row->id)
+                        ->value('id');
+
+                    if ($collidingId !== null) {
+                        $collisions[] = [
+                            'id' => $row->id,
+                            'phone' => $original,
+                            'normalized' => $normalized,
+                            'collides_with_id' => $collidingId,
+                        ];
                         continue;
                     }
 
@@ -60,6 +80,13 @@ return new class extends Migration
             Log::warning('Phone normalization migration: unparseable rows skipped', [
                 'count' => count($unparseable),
                 'ids' => array_column($unparseable, 'id'),
+            ]);
+        }
+
+        if (! empty($collisions)) {
+            Log::warning('Phone normalization migration: duplicate canonical numbers skipped', [
+                'count' => count($collisions),
+                'collisions' => $collisions,
             ]);
         }
     }
