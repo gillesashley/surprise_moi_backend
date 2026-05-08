@@ -27,6 +27,7 @@
         "laravel/wayfinder": "^0.1.9",
         "league/flysystem-aws-s3-v3": "^3.32",
         "predis/predis": "^3.4",
+        "propaganistas/laravel-phone": "*",
         "spatie/laravel-activitylog": "^4.10",
         "symfony/var-exporter": "^7.0"
     },

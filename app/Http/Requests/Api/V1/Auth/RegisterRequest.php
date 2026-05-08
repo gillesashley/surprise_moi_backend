@@ -2,11 +2,15 @@
 
 namespace App\Http\Requests\Api\V1\Auth;
 
+use App\Http\Requests\Concerns\NormalizesPhone;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Password;
+use Propaganistas\LaravelPhone\Rules\Phone;
 
 class RegisterRequest extends FormRequest
 {
+    use NormalizesPhone;
+
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -25,7 +29,7 @@ class RegisterRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
-            'phone' => ['required', 'string', 'max:20', 'unique:users,phone'],
+            'phone' => ['required', 'string', 'max:20', (new Phone)->international()->mobile(), 'unique:users,phone'],
             'password' => ['required', 'string', 'confirmed', Password::min(8)->mixedCase()->numbers()],
             'role' => ['required', 'in:customer,vendor'],
             'date_of_birth' => ['nullable', 'date', 'before:today'],
@@ -43,6 +47,7 @@ class RegisterRequest extends FormRequest
         return [
             'role.in' => 'The role must be either customer or vendor.',
             'phone.required' => 'Phone number is required for verification.',
+            'phone.phone' => 'Please enter a valid mobile phone number with country code.',
             'phone.unique' => 'This phone number is already registered.',
         ];
     }

@@ -2,38 +2,36 @@
 
 namespace App\Http\Requests\Api\V1\Auth;
 
+use App\Http\Requests\Concerns\NormalizesPhone;
 use Illuminate\Foundation\Http\FormRequest;
+use Propaganistas\LaravelPhone\Rules\Phone;
 
 class ResendOtpRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
+    use NormalizesPhone;
+
     public function authorize(): bool
     {
         return true;
     }
 
     /**
-     * Get the validation rules that apply to the request.
-     *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
         return [
-            'phone' => ['required', 'string', 'exists:users,phone'],
+            'phone' => ['required', 'string', (new Phone)->international()->mobile(), 'exists:users,phone'],
         ];
     }
 
     /**
-     * Get custom messages for validator errors.
-     *
      * @return array<string, string>
      */
     public function messages(): array
     {
         return [
+            'phone.phone' => 'Please enter a valid mobile phone number with country code.',
             'phone.exists' => 'No account found with this phone number.',
         ];
     }

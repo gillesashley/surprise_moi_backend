@@ -5,6 +5,9 @@ namespace App\Services;
 use App\Contracts\Sms\SmsProviderInterface;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use InvalidArgumentException;
+use Propaganistas\LaravelPhone\PhoneNumber;
+use Throwable;
 
 class KairosAfrikaSmsService implements SmsProviderInterface
 {
@@ -281,23 +284,25 @@ class KairosAfrikaSmsService implements SmsProviderInterface
     }
 
     /**
-     * Format phone number to international format (Ghana).
-     * Converts 0559400612 to 233559400612
+     * Normalize a phone number to the digits-only international format Kairos
+     * expects (e.g. "233247648200"). Country-agnostic: parses via libphonenumber
+     * and falls back to Ghana when no country code is present in the input.
+     *
+     * @throws InvalidArgumentException when the input cannot be parsed as a
+     *                                  valid phone number.
      */
     protected function formatPhoneNumber(string $phoneNumber): string
     {
-        // Remove any spaces, dashes, or parentheses
-        $phoneNumber = preg_replace('/[\s\-\(\)]+/', '', $phoneNumber);
-
-        // Remove leading + if present
-        $phoneNumber = ltrim($phoneNumber, '+');
-
-        // If starts with 0, replace with 233 (Ghana country code)
-        if (str_starts_with($phoneNumber, '0')) {
-            $phoneNumber = '233'.substr($phoneNumber, 1);
+        try {
+            $e164 = (new PhoneNumber($phoneNumber, ['GH']))->formatE164();
+        } catch (Throwable $e) {
+            throw new InvalidArgumentException(
+                "Unable to parse phone number for SMS dispatch: {$phoneNumber}",
+                previous: $e,
+            );
         }
 
-        return $phoneNumber;
+        return ltrim($e164, '+');
     }
 
     /**

@@ -74,6 +74,7 @@ class AuthController extends Controller
                 'token' => $token,
                 'token_type' => 'Bearer',
                 'otp_sent' => $otpResult['success'],
+                'transaction_id' => $otpResult['data']['transactionId'] ?? null,
             ],
         ], 201);
     }
@@ -145,6 +146,9 @@ class AuthController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Verification code sent successfully',
+            'data' => [
+                'transaction_id' => $otpResult['data']['transactionId'] ?? null,
+            ],
         ]);
     }
 
@@ -208,6 +212,9 @@ class AuthController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Verification code sent successfully',
+            'data' => [
+                'transaction_id' => $otpResult['data']['transactionId'] ?? null,
+            ],
         ]);
     }
 
