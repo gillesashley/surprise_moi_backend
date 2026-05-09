@@ -347,4 +347,41 @@ class AuthControllerTest extends TestCase
 
         $response->assertStatus(422);
     }
+
+    // ---------- Rate limiting ----------
+
+    public function test_login_throttles_after_5_attempts_per_minute(): void
+    {
+        Rider::factory()->approved()->create([
+            'email' => 'rider@example.com',
+            'password' => Hash::make('Secret123!'),
+        ]);
+        $payload = ['email' => 'rider@example.com', 'password' => 'WrongPassword'];
+
+        for ($i = 0; $i < 5; $i++) {
+            $this->postJson('/api/rider/v1/auth/login', $payload)
+                ->assertStatus(401);
+        }
+
+        $this->postJson('/api/rider/v1/auth/login', $payload)
+            ->assertStatus(429);
+    }
+
+    public function test_otp_send_throttles_after_3_attempts_per_minute(): void
+    {
+        Rider::factory()->approved()->create(['phone' => '+233200000099']);
+
+        $this->mock(\App\Services\KairosAfrikaSmsService::class, function (\Mockery\MockInterface $mock) {
+            $mock->shouldReceive('sendOtp')->andReturn(['success' => true]);
+        });
+
+        $payload = ['phone' => '+233200000099'];
+
+        for ($i = 0; $i < 3; $i++) {
+            $this->postJson('/api/rider/v1/auth/otp/send', $payload)->assertOk();
+        }
+
+        $this->postJson('/api/rider/v1/auth/otp/send', $payload)
+            ->assertStatus(429);
+    }
 }

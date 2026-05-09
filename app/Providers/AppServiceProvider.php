@@ -89,6 +89,21 @@ class AppServiceProvider extends ServiceProvider
             'service' => \App\Models\Service::class,
         ]);
 
+        RateLimiter::for('rider-login', function (Request $request) {
+            $email = (string) $request->input('email', '');
+
+            return [
+                Limit::perMinute(5)->by($email.'|'.$request->ip()),
+                Limit::perMinute(20)->by($request->ip()),
+            ];
+        });
+
+        RateLimiter::for('rider-otp-send', function (Request $request) {
+            $phone = (string) $request->input('phone', '');
+
+            return Limit::perMinute(3)->by($phone !== '' ? $phone : $request->ip());
+        });
+
         RateLimiter::for('treasury-transfer', function (Request $request) {
             return Limit::perHour(5)->by($request->user()?->id ?: $request->ip());
         });

@@ -13,8 +13,10 @@ Route::prefix('v1')->group(function () {
     // Public auth routes
     Route::prefix('auth')->group(function () {
         Route::post('register', [AuthController::class, 'register']);
-        Route::post('login', [AuthController::class, 'login']);
-        Route::post('otp/send', [AuthController::class, 'sendOtp']);
+        Route::post('login', [AuthController::class, 'login'])
+            ->middleware('throttle:rider-login');
+        Route::post('otp/send', [AuthController::class, 'sendOtp'])
+            ->middleware('throttle:rider-otp-send');
         Route::post('otp/verify', [AuthController::class, 'verifyOtp']);
         Route::post('forgot-password', [AuthController::class, 'forgotPassword']);
         Route::post('reset-password', [AuthController::class, 'resetPassword']);
