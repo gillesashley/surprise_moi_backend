@@ -231,9 +231,9 @@ class AuthController extends Controller
         $rider = Rider::where('email', $request->email)->first();
         if ($rider && $rider->isShadowRider()) {
             return response()->json([
-                'success' => false,
-                'message' => 'This account uses dashboard credentials. Reset your password in the admin dashboard.',
-            ], 422);
+                'success' => true,
+                'message' => 'If an account exists with this email, a reset link has been sent.',
+            ]);
         }
 
         Password::broker('riders')->sendResetLink(['email' => $request->email]);

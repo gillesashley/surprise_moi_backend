@@ -14,7 +14,7 @@ return new class extends Migration
                 ->after('id')
                 ->constrained('users')
                 ->nullOnDelete();
-            $table->index('user_id', 'riders_user_id_index');
+            $table->unique('user_id', 'riders_user_id_unique');
         });
     }
 
@@ -22,7 +22,7 @@ return new class extends Migration
     {
         Schema::table('riders', function (Blueprint $table) {
             $table->dropForeign(['user_id']);
-            $table->dropIndex('riders_user_id_index');
+            $table->dropUnique('riders_user_id_unique');
             $table->dropColumn('user_id');
         });
     }

@@ -90,7 +90,7 @@ class AppServiceProvider extends ServiceProvider
         ]);
 
         RateLimiter::for('rider-login', function (Request $request) {
-            $email = (string) $request->input('email', '');
+            $email = strtolower(trim((string) $request->input('email', '')));
 
             return [
                 Limit::perMinute(5)->by($email.'|'.$request->ip()),
@@ -101,7 +101,10 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('rider-otp-send', function (Request $request) {
             $phone = (string) $request->input('phone', '');
 
-            return Limit::perMinute(3)->by($phone !== '' ? $phone : $request->ip());
+            return [
+                Limit::perMinute(3)->by($phone !== '' ? $phone : $request->ip()),
+                Limit::perMinute(10)->by($request->ip()),
+            ];
         });
 
         RateLimiter::for('treasury-transfer', function (Request $request) {
