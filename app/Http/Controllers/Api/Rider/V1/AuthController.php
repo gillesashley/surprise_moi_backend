@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers\Api\Rider\V1;
 
+use App\Actions\Rider\ProvisionShadowRiderAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\Rider\V1\LoginRequest;
 use App\Http\Requests\Api\Rider\V1\RegisterRequest;
 use App\Http\Resources\Api\Rider\V1\RiderResource;
 use App\Models\Rider;
+use App\Models\User;
 use App\Services\KairosAfrikaSmsService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -44,31 +46,109 @@ class AuthController extends Controller
     }
 
     /**
-     * Login a rider with email or phone.
+     * Login a rider with email or phone. When config('rider.admin_login_enabled')
+     * is true, also accepts super-admin / admin credentials from the users table
+     * and idempotently provisions a shadow rider.
      */
     public function login(LoginRequest $request): JsonResponse
     {
-        $field = $request->filled('email') ? 'email' : 'phone';
-        $rider = Rider::where($field, $request->input($field))->first();
+        $email = $request->input('email');
+        $phone = $request->input('phone');
+        $password = $request->input('password');
 
-        if (! $rider || ! Hash::check($request->password, $rider->password)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Invalid credentials.',
-            ], 401);
+        $rider = $email
+            ? Rider::where('email', $email)->first()
+            : Rider::where('phone', $phone)->first();
+
+        if ($rider) {
+            return $this->authenticateExistingRider($rider, $password);
         }
 
+        if ($email && config('rider.admin_login_enabled')) {
+            $admin = User::where('email', $email)
+                ->whereIn('role', ['super_admin', 'admin'])
+                ->first();
+
+            if ($admin && Hash::check($password, $admin->password)) {
+                $shadowRider = (new ProvisionShadowRiderAction)($admin);
+
+                return $this->issueLoginResponse($shadowRider, 'Login successful.');
+            }
+        }
+
+        return $this->invalidCredentialsResponse();
+    }
+
+    /**
+     * Handle a Rider row that matched the email/phone lookup.
+     */
+    protected function authenticateExistingRider(Rider $rider, string $password): JsonResponse
+    {
+        if ($rider->isShadowRider()) {
+            if (! config('rider.admin_login_enabled')) {
+                return $this->invalidCredentialsResponse();
+            }
+
+            $admin = User::where('id', $rider->user_id)
+                ->whereIn('role', ['super_admin', 'admin'])
+                ->first();
+
+            if (! $admin || ! Hash::check($password, $admin->password)) {
+                return $this->invalidCredentialsResponse();
+            }
+
+            return $this->issueLoginResponse($rider, 'Login successful.');
+        }
+
+        if (! Hash::check($password, $rider->password)) {
+            return $this->invalidCredentialsResponse();
+        }
+
+        if ($rider->isSuspended()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Your account has been suspended. Please contact support.',
+            ], 403);
+        }
+
+        if ($rider->isRejected()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Your application was rejected. Please contact support for details.',
+            ], 403);
+        }
+
+        if (! $rider->is_active) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Your account is currently deactivated. Please contact support.',
+            ], 403);
+        }
+
+        return $this->issueLoginResponse($rider, 'Login successful.');
+    }
+
+    protected function issueLoginResponse(Rider $rider, string $message): JsonResponse
+    {
         $token = $rider->createToken('rider-app')->plainTextToken;
 
         return response()->json([
             'success' => true,
-            'message' => 'Login successful.',
+            'message' => $message,
             'data' => [
                 'rider' => new RiderResource($rider),
                 'token' => $token,
                 'token_type' => 'Bearer',
             ],
         ]);
+    }
+
+    protected function invalidCredentialsResponse(): JsonResponse
+    {
+        return response()->json([
+            'success' => false,
+            'message' => 'Invalid credentials.',
+        ], 401);
     }
 
     /**
