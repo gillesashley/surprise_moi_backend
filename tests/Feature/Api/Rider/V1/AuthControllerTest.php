@@ -288,4 +288,63 @@ class AuthControllerTest extends TestCase
             ->assertJsonPath('success', false);
         \Illuminate\Support\Facades\Notification::assertNothingSent();
     }
+
+    // ---------- Reset password ----------
+
+    public function test_reset_password_with_valid_token_updates_password_and_revokes_tokens(): void
+    {
+        $rider = Rider::factory()->approved()->create([
+            'email' => 'rider@example.com',
+            'password' => Hash::make('OldSecret1!'),
+        ]);
+        // Simulate an active session by issuing a token first.
+        $rider->createToken('rider-app');
+        $token = \Illuminate\Support\Facades\Password::broker('riders')->createToken($rider);
+
+        $response = $this->postJson('/api/rider/v1/auth/reset-password', [
+            'email' => 'rider@example.com',
+            'token' => $token,
+            'password' => 'NewSecret1!',
+            'password_confirmation' => 'NewSecret1!',
+        ]);
+
+        $response->assertOk()->assertJsonPath('success', true);
+
+        $rider->refresh();
+        $this->assertTrue(Hash::check('NewSecret1!', $rider->password));
+        $this->assertSame(0, $rider->tokens()->count());
+    }
+
+    public function test_reset_password_with_invalid_token_returns_422(): void
+    {
+        Rider::factory()->approved()->create([
+            'email' => 'rider@example.com',
+            'password' => Hash::make('OldSecret1!'),
+        ]);
+
+        $response = $this->postJson('/api/rider/v1/auth/reset-password', [
+            'email' => 'rider@example.com',
+            'token' => 'definitely-not-a-real-token',
+            'password' => 'NewSecret1!',
+            'password_confirmation' => 'NewSecret1!',
+        ]);
+
+        $response->assertStatus(422)
+            ->assertJsonPath('success', false)
+            ->assertJsonFragment(['message' => 'Invalid or expired reset token.']);
+    }
+
+    public function test_reset_password_with_mismatched_confirmation_returns_422(): void
+    {
+        Rider::factory()->approved()->create(['email' => 'rider@example.com']);
+
+        $response = $this->postJson('/api/rider/v1/auth/reset-password', [
+            'email' => 'rider@example.com',
+            'token' => 'whatever',
+            'password' => 'NewSecret1!',
+            'password_confirmation' => 'DifferentValue1!',
+        ]);
+
+        $response->assertStatus(422);
+    }
 }

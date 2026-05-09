@@ -10,10 +10,12 @@ use App\Http\Resources\Api\Rider\V1\RiderResource;
 use App\Models\Rider;
 use App\Models\User;
 use App\Services\KairosAfrikaSmsService;
+use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Validation\Rules\Password as PasswordRule;
 
 class AuthController extends Controller
 {
@@ -243,19 +245,35 @@ class AuthController extends Controller
     }
 
     /**
-     * Reset rider's password with token.
+     * Reset rider's password using the riders password broker.
      */
     public function resetPassword(Request $request): JsonResponse
     {
         $request->validate([
-            'email' => 'required|email',
-            'token' => 'required|string',
-            'password' => 'required|string|min:8|confirmed',
+            'email' => ['required', 'email'],
+            'token' => ['required', 'string'],
+            'password' => ['required', 'string', 'confirmed', PasswordRule::min(8)],
         ]);
+
+        $status = Password::broker('riders')->reset(
+            $request->only('email', 'password', 'password_confirmation', 'token'),
+            function (Rider $rider, string $password): void {
+                $rider->forceFill(['password' => Hash::make($password)])->save();
+                $rider->tokens()->delete();
+                event(new PasswordReset($rider));
+            }
+        );
+
+        if ($status !== Password::PASSWORD_RESET) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid or expired reset token.',
+            ], 422);
+        }
 
         return response()->json([
             'success' => true,
-            'message' => 'Password reset successfully.',
+            'message' => 'Password reset successfully. Please log in with your new password.',
         ]);
     }
 }
