@@ -12,6 +12,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (DB::getDriverName() !== 'pgsql') {
+            return;
+        }
+
         // Services: trigram indexes for ILIKE text search on name and description
         DB::statement('CREATE INDEX IF NOT EXISTS idx_services_name_trgm ON services USING gin (name gin_trgm_ops)');
         DB::statement('CREATE INDEX IF NOT EXISTS idx_services_description_trgm ON services USING gin (description gin_trgm_ops)');
@@ -26,6 +30,10 @@ return new class extends Migration
      */
     public function down(): void
     {
+        if (DB::getDriverName() !== 'pgsql') {
+            return;
+        }
+
         DB::statement('DROP INDEX IF EXISTS idx_services_name_trgm');
         DB::statement('DROP INDEX IF EXISTS idx_services_description_trgm');
         DB::statement('DROP INDEX IF EXISTS idx_users_name_trgm');

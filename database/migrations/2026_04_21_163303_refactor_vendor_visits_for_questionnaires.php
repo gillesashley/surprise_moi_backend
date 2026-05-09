@@ -23,6 +23,9 @@ return new class extends Migration
             $table->string('shop_location')->nullable();
             $table->string('primary_business_address')->nullable();
 
+            // Drop indexes that depend on columns to be dropped (SQLite requires this).
+            $table->dropIndex(['badge_expires_at']);
+
             // Drop Legacy Fields
             $table->dropColumn([
                 'visit_latitude',

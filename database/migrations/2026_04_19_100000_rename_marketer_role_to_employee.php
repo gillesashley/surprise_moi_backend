@@ -23,10 +23,14 @@ return new class extends Migration
     public function up(): void
     {
         DB::transaction(function () {
+            $isPgsql = DB::getDriverName() === 'pgsql';
+
             // 1. Drop existing check constraints so we can rewrite values.
-            DB::statement('ALTER TABLE earnings DROP CONSTRAINT IF EXISTS earnings_user_role_check');
-            DB::statement('ALTER TABLE targets DROP CONSTRAINT IF EXISTS targets_user_role_check');
-            DB::statement('ALTER TABLE payout_requests DROP CONSTRAINT IF EXISTS payout_requests_user_role_check');
+            if ($isPgsql) {
+                DB::statement('ALTER TABLE earnings DROP CONSTRAINT IF EXISTS earnings_user_role_check');
+                DB::statement('ALTER TABLE targets DROP CONSTRAINT IF EXISTS targets_user_role_check');
+                DB::statement('ALTER TABLE payout_requests DROP CONSTRAINT IF EXISTS payout_requests_user_role_check');
+            }
 
             // 2. Rewrite data.
             DB::table('users')->where('role', 'marketer')->update(['role' => 'employee']);
@@ -40,18 +44,24 @@ return new class extends Migration
                 ->update(['key' => 'referral_bonus_employee_pct']);
 
             // 4. Recreate check constraints with 'employee' in place of 'marketer'.
-            DB::statement("ALTER TABLE earnings ADD CONSTRAINT earnings_user_role_check CHECK (user_role::text = ANY (ARRAY['influencer'::character varying, 'field_agent'::character varying, 'employee'::character varying]::text[]))");
-            DB::statement("ALTER TABLE targets ADD CONSTRAINT targets_user_role_check CHECK (user_role::text = ANY (ARRAY['field_agent'::character varying, 'employee'::character varying]::text[]))");
-            DB::statement("ALTER TABLE payout_requests ADD CONSTRAINT payout_requests_user_role_check CHECK (user_role::text = ANY (ARRAY['influencer'::character varying, 'field_agent'::character varying, 'employee'::character varying, 'vendor'::character varying, 'customer'::character varying]::text[]))");
+            if ($isPgsql) {
+                DB::statement("ALTER TABLE earnings ADD CONSTRAINT earnings_user_role_check CHECK (user_role::text = ANY (ARRAY['influencer'::character varying, 'field_agent'::character varying, 'employee'::character varying]::text[]))");
+                DB::statement("ALTER TABLE targets ADD CONSTRAINT targets_user_role_check CHECK (user_role::text = ANY (ARRAY['field_agent'::character varying, 'employee'::character varying]::text[]))");
+                DB::statement("ALTER TABLE payout_requests ADD CONSTRAINT payout_requests_user_role_check CHECK (user_role::text = ANY (ARRAY['influencer'::character varying, 'field_agent'::character varying, 'employee'::character varying, 'vendor'::character varying, 'customer'::character varying]::text[]))");
+            }
         });
     }
 
     public function down(): void
     {
         DB::transaction(function () {
-            DB::statement('ALTER TABLE earnings DROP CONSTRAINT IF EXISTS earnings_user_role_check');
-            DB::statement('ALTER TABLE targets DROP CONSTRAINT IF EXISTS targets_user_role_check');
-            DB::statement('ALTER TABLE payout_requests DROP CONSTRAINT IF EXISTS payout_requests_user_role_check');
+            $isPgsql = DB::getDriverName() === 'pgsql';
+
+            if ($isPgsql) {
+                DB::statement('ALTER TABLE earnings DROP CONSTRAINT IF EXISTS earnings_user_role_check');
+                DB::statement('ALTER TABLE targets DROP CONSTRAINT IF EXISTS targets_user_role_check');
+                DB::statement('ALTER TABLE payout_requests DROP CONSTRAINT IF EXISTS payout_requests_user_role_check');
+            }
 
             DB::table('users')->where('role', 'employee')->update(['role' => 'marketer']);
             DB::table('earnings')->where('user_role', 'employee')->update(['user_role' => 'marketer']);
@@ -62,9 +72,11 @@ return new class extends Migration
                 ->where('key', 'referral_bonus_employee_pct')
                 ->update(['key' => 'referral_bonus_marketer_pct']);
 
-            DB::statement("ALTER TABLE earnings ADD CONSTRAINT earnings_user_role_check CHECK (user_role::text = ANY (ARRAY['influencer'::character varying, 'field_agent'::character varying, 'marketer'::character varying]::text[]))");
-            DB::statement("ALTER TABLE targets ADD CONSTRAINT targets_user_role_check CHECK (user_role::text = ANY (ARRAY['field_agent'::character varying, 'marketer'::character varying]::text[]))");
-            DB::statement("ALTER TABLE payout_requests ADD CONSTRAINT payout_requests_user_role_check CHECK (user_role::text = ANY (ARRAY['influencer'::character varying, 'field_agent'::character varying, 'marketer'::character varying, 'vendor'::character varying, 'customer'::character varying]::text[]))");
+            if ($isPgsql) {
+                DB::statement("ALTER TABLE earnings ADD CONSTRAINT earnings_user_role_check CHECK (user_role::text = ANY (ARRAY['influencer'::character varying, 'field_agent'::character varying, 'marketer'::character varying]::text[]))");
+                DB::statement("ALTER TABLE targets ADD CONSTRAINT targets_user_role_check CHECK (user_role::text = ANY (ARRAY['field_agent'::character varying, 'marketer'::character varying]::text[]))");
+                DB::statement("ALTER TABLE payout_requests ADD CONSTRAINT payout_requests_user_role_check CHECK (user_role::text = ANY (ARRAY['influencer'::character varying, 'field_agent'::character varying, 'marketer'::character varying, 'vendor'::character varying, 'customer'::character varying]::text[]))");
+            }
         });
     }
 };

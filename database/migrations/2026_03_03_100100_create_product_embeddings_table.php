@@ -19,8 +19,10 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        DB::statement('ALTER TABLE product_embeddings ADD COLUMN embedding vector(768)');
-        DB::statement('CREATE INDEX product_embeddings_embedding_idx ON product_embeddings USING hnsw (embedding vector_cosine_ops)');
+        if (DB::getDriverName() === 'pgsql') {
+            DB::statement('ALTER TABLE product_embeddings ADD COLUMN embedding vector(768)');
+            DB::statement('CREATE INDEX product_embeddings_embedding_idx ON product_embeddings USING hnsw (embedding vector_cosine_ops)');
+        }
     }
 
     /**

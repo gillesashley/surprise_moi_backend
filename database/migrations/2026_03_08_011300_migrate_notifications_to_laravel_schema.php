@@ -39,7 +39,7 @@ return new class extends Migration
 
         // Step 4: Drop foreign key, old indexes, and old columns
         Schema::table('notifications', function (Blueprint $table) {
-            $table->dropForeign('notifications_user_id_foreign');
+            $table->dropForeign(['user_id']);
             $table->dropIndex('notifications_user_id_read_at_index');
             $table->dropIndex('notifications_user_id_created_at_index');
             $table->dropColumn(['user_id', 'title', 'message']);

@@ -18,12 +18,16 @@ return new class extends Migration
             $table->boolean('is_team_field_agent')->default(false);
         });
 
-        DB::statement('CREATE INDEX CONCURRENTLY IF NOT EXISTS users_is_team_field_agent_index ON users (is_team_field_agent)');
+        if (DB::getDriverName() === 'pgsql') {
+            DB::statement('CREATE INDEX CONCURRENTLY IF NOT EXISTS users_is_team_field_agent_index ON users (is_team_field_agent)');
+        }
     }
 
     public function down(): void
     {
-        DB::statement('DROP INDEX CONCURRENTLY IF EXISTS users_is_team_field_agent_index');
+        if (DB::getDriverName() === 'pgsql') {
+            DB::statement('DROP INDEX CONCURRENTLY IF EXISTS users_is_team_field_agent_index');
+        }
 
         Schema::table('users', function (Blueprint $table) {
             $table->dropColumn('is_team_field_agent');
