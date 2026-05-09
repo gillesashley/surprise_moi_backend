@@ -243,4 +243,49 @@ class AuthControllerTest extends TestCase
 
         $response->assertStatus(401);
     }
+
+    // ---------- Forgot password ----------
+
+    public function test_forgot_password_for_real_rider_dispatches_notification(): void
+    {
+        \Illuminate\Support\Facades\Notification::fake();
+        $rider = Rider::factory()->approved()->create(['email' => 'rider@example.com']);
+
+        $response = $this->postJson('/api/rider/v1/auth/forgot-password', [
+            'email' => 'rider@example.com',
+        ]);
+
+        $response->assertOk()->assertJsonPath('success', true);
+        \Illuminate\Support\Facades\Notification::assertSentTo(
+            $rider,
+            \App\Notifications\RiderResetPasswordNotification::class
+        );
+    }
+
+    public function test_forgot_password_unknown_email_returns_uniform_success(): void
+    {
+        \Illuminate\Support\Facades\Notification::fake();
+
+        $response = $this->postJson('/api/rider/v1/auth/forgot-password', [
+            'email' => 'nobody@example.com',
+        ]);
+
+        $response->assertOk()->assertJsonPath('success', true);
+        \Illuminate\Support\Facades\Notification::assertNothingSent();
+    }
+
+    public function test_forgot_password_for_shadow_rider_returns_422(): void
+    {
+        \Illuminate\Support\Facades\Notification::fake();
+        $admin = User::factory()->superAdmin()->create();
+        Rider::factory()->shadowOf($admin)->create(['email' => 'admin@example.com']);
+
+        $response = $this->postJson('/api/rider/v1/auth/forgot-password', [
+            'email' => 'admin@example.com',
+        ]);
+
+        $response->assertStatus(422)
+            ->assertJsonPath('success', false);
+        \Illuminate\Support\Facades\Notification::assertNothingSent();
+    }
 }

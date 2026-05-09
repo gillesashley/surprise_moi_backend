@@ -13,6 +13,7 @@ use App\Services\KairosAfrikaSmsService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
 
 class AuthController extends Controller
 {
@@ -219,24 +220,25 @@ class AuthController extends Controller
     }
 
     /**
-     * Send password reset instructions to rider's email.
+     * Send password reset instructions via the riders password broker.
      */
     public function forgotPassword(Request $request): JsonResponse
     {
         $request->validate(['email' => 'required|email']);
 
         $rider = Rider::where('email', $request->email)->first();
-
-        if (! $rider) {
+        if ($rider && $rider->isShadowRider()) {
             return response()->json([
                 'success' => false,
-                'message' => 'No rider found with this email.',
-            ], 404);
+                'message' => 'This account uses dashboard credentials. Reset your password in the admin dashboard.',
+            ], 422);
         }
+
+        Password::broker('riders')->sendResetLink(['email' => $request->email]);
 
         return response()->json([
             'success' => true,
-            'message' => 'Password reset instructions sent to your email.',
+            'message' => 'If an account exists with this email, a reset link has been sent.',
         ]);
     }
 
