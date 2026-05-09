@@ -104,4 +104,21 @@ class RiderFactory extends Factory
             'vehicle_photo' => 'documents/vehicle_photo.jpg',
         ]);
     }
+
+    /**
+     * Indicate that this is a shadow rider linked to an admin User.
+     * Used in tests of the super-admin dev-login fallback.
+     */
+    public function shadowOf(\App\Models\User $admin): static
+    {
+        return $this->state(fn () => [
+            'user_id' => $admin->id,
+            'name' => $admin->name,
+            'email' => $admin->email,
+            'phone' => $admin->phone ?? "admin-{$admin->id}",
+            'password' => \Illuminate\Support\Facades\Hash::make(\Illuminate\Support\Str::random(40)),
+            'status' => 'approved',
+            'is_active' => true,
+        ]);
+    }
 }
