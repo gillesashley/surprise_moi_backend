@@ -22,8 +22,10 @@ return new class extends Migration
         });
 
         // Extend user_role check constraint to include 'customer' (PostgreSQL-safe pattern).
-        DB::statement('ALTER TABLE payout_requests DROP CONSTRAINT IF EXISTS payout_requests_user_role_check');
-        DB::statement("ALTER TABLE payout_requests ADD CONSTRAINT payout_requests_user_role_check CHECK (user_role::text = ANY (ARRAY['influencer'::character varying, 'field_agent'::character varying, 'marketer'::character varying, 'vendor'::character varying, 'customer'::character varying]::text[]))");
+        if (DB::getDriverName() === 'pgsql') {
+            DB::statement('ALTER TABLE payout_requests DROP CONSTRAINT IF EXISTS payout_requests_user_role_check');
+            DB::statement("ALTER TABLE payout_requests ADD CONSTRAINT payout_requests_user_role_check CHECK (user_role::text = ANY (ARRAY['influencer'::character varying, 'field_agent'::character varying, 'marketer'::character varying, 'vendor'::character varying, 'customer'::character varying]::text[]))");
+        }
     }
 
     public function down(): void
@@ -39,7 +41,9 @@ return new class extends Migration
             $table->dropColumn(['source', 'referral_milestone_threshold', 'points_deducted', 'user_payout_detail_id']);
         });
 
-        DB::statement('ALTER TABLE payout_requests DROP CONSTRAINT IF EXISTS payout_requests_user_role_check');
-        DB::statement("ALTER TABLE payout_requests ADD CONSTRAINT payout_requests_user_role_check CHECK (user_role::text = ANY (ARRAY['influencer'::character varying, 'field_agent'::character varying, 'marketer'::character varying, 'vendor'::character varying]::text[]))");
+        if (DB::getDriverName() === 'pgsql') {
+            DB::statement('ALTER TABLE payout_requests DROP CONSTRAINT IF EXISTS payout_requests_user_role_check');
+            DB::statement("ALTER TABLE payout_requests ADD CONSTRAINT payout_requests_user_role_check CHECK (user_role::text = ANY (ARRAY['influencer'::character varying, 'field_agent'::character varying, 'marketer'::character varying, 'vendor'::character varying]::text[]))");
+        }
     }
 };

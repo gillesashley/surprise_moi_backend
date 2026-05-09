@@ -2,8 +2,11 @@
 
 namespace App\Models;
 
+use App\Notifications\RiderResetPasswordNotification;
+use Illuminate\Contracts\Auth\CanResetPassword;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -11,11 +14,12 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-class Rider extends Authenticatable
+class Rider extends Authenticatable implements CanResetPassword
 {
     use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
 
     protected $fillable = [
+        'user_id',
         'name',
         'phone',
         'email',
@@ -112,6 +116,38 @@ class Rider extends Authenticatable
     public function isRejected(): bool
     {
         return $this->status === 'rejected';
+    }
+
+    /**
+     * Whether this rider is a shadow rider linked to an admin User.
+     */
+    public function isShadowRider(): bool
+    {
+        return ! is_null($this->user_id);
+    }
+
+    /**
+     * The admin User that owns this shadow rider, if any.
+     */
+    public function adminUser(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    /**
+     * CanResetPassword: email used to send the reset link.
+     */
+    public function getEmailForPasswordReset(): string
+    {
+        return (string) $this->email;
+    }
+
+    /**
+     * CanResetPassword: dispatch the rider-specific notification.
+     */
+    public function sendPasswordResetNotification($token): void
+    {
+        $this->notify(new RiderResetPasswordNotification($token));
     }
 
     /**

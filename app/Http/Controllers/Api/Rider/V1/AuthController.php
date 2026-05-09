@@ -2,15 +2,20 @@
 
 namespace App\Http\Controllers\Api\Rider\V1;
 
+use App\Actions\Rider\ProvisionShadowRiderAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\Rider\V1\LoginRequest;
 use App\Http\Requests\Api\Rider\V1\RegisterRequest;
 use App\Http\Resources\Api\Rider\V1\RiderResource;
 use App\Models\Rider;
+use App\Models\User;
 use App\Services\KairosAfrikaSmsService;
+use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Validation\Rules\Password as PasswordRule;
 
 class AuthController extends Controller
 {
@@ -44,31 +49,109 @@ class AuthController extends Controller
     }
 
     /**
-     * Login a rider with email or phone.
+     * Login a rider with email or phone. When config('rider.admin_login_enabled')
+     * is true, also accepts super-admin / admin credentials from the users table
+     * and idempotently provisions a shadow rider.
      */
     public function login(LoginRequest $request): JsonResponse
     {
-        $field = $request->filled('email') ? 'email' : 'phone';
-        $rider = Rider::where($field, $request->input($field))->first();
+        $email = $request->input('email');
+        $phone = $request->input('phone');
+        $password = $request->input('password');
 
-        if (! $rider || ! Hash::check($request->password, $rider->password)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Invalid credentials.',
-            ], 401);
+        $rider = $email
+            ? Rider::where('email', $email)->first()
+            : Rider::where('phone', $phone)->first();
+
+        if ($rider) {
+            return $this->authenticateExistingRider($rider, $password);
         }
 
+        if ($email && config('rider.admin_login_enabled')) {
+            $admin = User::where('email', $email)
+                ->whereIn('role', ['super_admin', 'admin'])
+                ->first();
+
+            if ($admin && Hash::check($password, $admin->password)) {
+                $shadowRider = (new ProvisionShadowRiderAction)($admin);
+
+                return $this->issueLoginResponse($shadowRider, 'Login successful.');
+            }
+        }
+
+        return $this->invalidCredentialsResponse();
+    }
+
+    /**
+     * Handle a Rider row that matched the email/phone lookup.
+     */
+    protected function authenticateExistingRider(Rider $rider, string $password): JsonResponse
+    {
+        if ($rider->isShadowRider()) {
+            if (! config('rider.admin_login_enabled')) {
+                return $this->invalidCredentialsResponse();
+            }
+
+            $admin = User::where('id', $rider->user_id)
+                ->whereIn('role', ['super_admin', 'admin'])
+                ->first();
+
+            if (! $admin || ! Hash::check($password, $admin->password)) {
+                return $this->invalidCredentialsResponse();
+            }
+
+            return $this->issueLoginResponse($rider, 'Login successful.');
+        }
+
+        if (! Hash::check($password, $rider->password)) {
+            return $this->invalidCredentialsResponse();
+        }
+
+        if ($rider->isSuspended()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Your account has been suspended. Please contact support.',
+            ], 403);
+        }
+
+        if ($rider->isRejected()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Your application was rejected. Please contact support for details.',
+            ], 403);
+        }
+
+        if (! $rider->is_active) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Your account is currently deactivated. Please contact support.',
+            ], 403);
+        }
+
+        return $this->issueLoginResponse($rider, 'Login successful.');
+    }
+
+    protected function issueLoginResponse(Rider $rider, string $message): JsonResponse
+    {
         $token = $rider->createToken('rider-app')->plainTextToken;
 
         return response()->json([
             'success' => true,
-            'message' => 'Login successful.',
+            'message' => $message,
             'data' => [
                 'rider' => new RiderResource($rider),
                 'token' => $token,
                 'token_type' => 'Bearer',
             ],
         ]);
+    }
+
+    protected function invalidCredentialsResponse(): JsonResponse
+    {
+        return response()->json([
+            'success' => false,
+            'message' => 'Invalid credentials.',
+        ], 401);
     }
 
     /**
@@ -139,41 +222,58 @@ class AuthController extends Controller
     }
 
     /**
-     * Send password reset instructions to rider's email.
+     * Send password reset instructions via the riders password broker.
      */
     public function forgotPassword(Request $request): JsonResponse
     {
         $request->validate(['email' => 'required|email']);
 
         $rider = Rider::where('email', $request->email)->first();
-
-        if (! $rider) {
+        if ($rider && $rider->isShadowRider()) {
             return response()->json([
-                'success' => false,
-                'message' => 'No rider found with this email.',
-            ], 404);
+                'success' => true,
+                'message' => 'If an account exists with this email, a reset link has been sent.',
+            ]);
         }
+
+        Password::broker('riders')->sendResetLink(['email' => $request->email]);
 
         return response()->json([
             'success' => true,
-            'message' => 'Password reset instructions sent to your email.',
+            'message' => 'If an account exists with this email, a reset link has been sent.',
         ]);
     }
 
     /**
-     * Reset rider's password with token.
+     * Reset rider's password using the riders password broker.
      */
     public function resetPassword(Request $request): JsonResponse
     {
         $request->validate([
-            'email' => 'required|email',
-            'token' => 'required|string',
-            'password' => 'required|string|min:8|confirmed',
+            'email' => ['required', 'email'],
+            'token' => ['required', 'string'],
+            'password' => ['required', 'string', 'confirmed', PasswordRule::min(8)],
         ]);
+
+        $status = Password::broker('riders')->reset(
+            $request->only('email', 'password', 'password_confirmation', 'token'),
+            function (Rider $rider, string $password): void {
+                $rider->forceFill(['password' => Hash::make($password)])->save();
+                $rider->tokens()->delete();
+                event(new PasswordReset($rider));
+            }
+        );
+
+        if ($status !== Password::PASSWORD_RESET) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid or expired reset token.',
+            ], 422);
+        }
 
         return response()->json([
             'success' => true,
-            'message' => 'Password reset successfully.',
+            'message' => 'Password reset successfully. Please log in with your new password.',
         ]);
     }
 }

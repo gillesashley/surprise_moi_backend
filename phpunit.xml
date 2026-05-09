@@ -36,5 +36,10 @@
         <env name="PAYSTACK_PUBLIC_KEY" value="pk_test_public_key"/>
         <env name="PAYSTACK_WEBHOOK_SECRET" value="test_webhook_secret"/>
         <env name="DEEP_LINK_DOMAIN" value=""/>
+        <env name="KAIROSAFRIKA_API_KEY" value="test_api_key"/>
+        <env name="KAIROSAFRIKA_API_SECRET" value="test_api_secret"/>
+        <env name="KAIROSAFRIKA_API_URL" value="https://api.kairosafrika.com/v1"/>
+        <env name="KAIROSAFRIKA_API_VERSION" value="2025-08-01"/>
+        <env name="SMS_LOG_ONLY" value="true"/>
     </php>
 </phpunit>

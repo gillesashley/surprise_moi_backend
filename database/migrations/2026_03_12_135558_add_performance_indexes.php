@@ -13,6 +13,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (DB::getDriverName() !== 'pgsql') {
+            return;
+        }
+
         // Enable pg_trgm extension for trigram-based text search indexes
         DB::statement('CREATE EXTENSION IF NOT EXISTS pg_trgm');
 
@@ -51,6 +55,10 @@ return new class extends Migration
      */
     public function down(): void
     {
+        if (DB::getDriverName() !== 'pgsql') {
+            return;
+        }
+
         DB::statement('DROP INDEX IF EXISTS idx_products_name_trgm');
         DB::statement('DROP INDEX IF EXISTS idx_products_description_trgm');
         DB::statement('DROP INDEX IF EXISTS idx_products_available_price');

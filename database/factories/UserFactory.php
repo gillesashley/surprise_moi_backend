@@ -106,6 +106,16 @@ class UserFactory extends Factory
     }
 
     /**
+     * Indicate that the user is a super admin.
+     */
+    public function superAdmin(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 'super_admin',
+        ]);
+    }
+
+    /**
      * Indicate that the user is an influencer.
      */
     public function influencer(): static
