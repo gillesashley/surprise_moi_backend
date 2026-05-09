@@ -107,6 +107,13 @@ return [
             'expire' => 60,
             'throttle' => 60,
         ],
+
+        'riders' => [
+            'provider' => 'riders',
+            'table' => 'rider_password_reset_tokens',
+            'expire' => 60,
+            'throttle' => 60,
+        ],
     ],
 
     /*
