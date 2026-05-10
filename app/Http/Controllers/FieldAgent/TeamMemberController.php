@@ -84,6 +84,23 @@ class TeamMemberController extends Controller
 
     public function store(StoreTeamMemberRequest $request): RedirectResponse
     {
+        $existing = User::where('email', $request->string('email')->lower())->first();
+
+        if ($existing) {
+            $existing->update([
+                'name' => $request->string('name'),
+                'phone' => $request->string('phone'),
+                'location' => $request->string('location'),
+                'role' => 'field_agent',
+                'is_team_field_agent' => false,
+                'parent_user_id' => $request->user()->id,
+                'is_active' => true,
+            ]);
+
+            return redirect('/field-agent/team')
+                ->with('success', 'Team member added successfully.');
+        }
+
         User::create([
             'name' => $request->string('name'),
             'email' => $request->string('email')->lower(),

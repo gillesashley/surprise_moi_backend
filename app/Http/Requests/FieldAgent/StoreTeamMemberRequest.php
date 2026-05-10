@@ -2,8 +2,10 @@
 
 namespace App\Http\Requests\FieldAgent;
 
+use App\Models\User;
+use Closure;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 
 class StoreTeamMemberRequest extends FormRequest
 {
@@ -24,8 +26,8 @@ class StoreTeamMemberRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email:rfc', 'max:255', Rule::unique('users', 'email')],
-            'phone' => ['required', 'regex:/^\+233\d{9}$/', Rule::unique('users', 'phone')],
+            'email' => ['required', 'email:rfc', 'max:255', $this->eligibilityRule('email')],
+            'phone' => ['required', 'regex:/^\+233\d{9}$/', $this->eligibilityRule('phone')],
             'location' => ['required', 'string', 'max:255'],
         ];
     }
@@ -36,6 +38,69 @@ class StoreTeamMemberRequest extends FormRequest
         return [
             'phone.regex' => 'Please enter a valid Ghana phone number (e.g. 0551234567 or +233551234567).',
         ];
+    }
+
+    /**
+     * Cross-field checks that individual eligibility rules cannot catch.
+     */
+    public function after(): array
+    {
+        return [
+            function (Validator $validator): void {
+                $email = (string) $this->input('email');
+                $phone = (string) $this->input('phone');
+
+                $byEmail = User::where('email', strtolower($email))->first();
+                $byPhone = User::where('phone', $phone)->first();
+
+                if ($byEmail && $byPhone && $byEmail->id !== $byPhone->id) {
+                    $validator->errors()->add(
+                        'email',
+                        'The email and phone number belong to different registered users. Please verify the details.'
+                    );
+                }
+            },
+        ];
+    }
+
+    /**
+     * Allow an existing user to be added as a team member unless they are
+     * already a team member, a lead, the authenticated user, or an admin.
+     */
+    private function eligibilityRule(string $column): Closure
+    {
+        return function (string $attribute, mixed $value, callable $fail): void {
+            $normalized = $column === 'email' ? strtolower((string) $value) : $value;
+            $existing = User::where($column, $normalized)->first();
+
+            if (! $existing) {
+                return;
+            }
+
+            if ($existing->id === $this->user()?->id) {
+                $fail('You cannot add yourself as a team member.');
+
+                return;
+            }
+
+            if (in_array($existing->role, ['admin', 'super_admin'], true)) {
+                $fail("A user with this {$attribute} is an administrator and cannot be added as a team member.");
+
+                return;
+            }
+
+            if ($existing->parent_user_id !== null) {
+                $fail("A user with this {$attribute} is already a team member.");
+
+                return;
+            }
+
+            if ((bool) $existing->is_team_field_agent) {
+                $fail("A user with this {$attribute} is already a team lead.");
+
+                return;
+            }
+        };
     }
 
     private function normalizePhone(string $raw): string
