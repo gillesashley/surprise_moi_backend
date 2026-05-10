@@ -140,6 +140,39 @@ class CreateTeamMemberTest extends TestCase
             ->assertSessionHasErrors('email');
     }
 
+    public function test_phone_mismatch_with_different_user_is_rejected(): void
+    {
+        $lead = User::factory()->lead()->create();
+        User::factory()->create(['email' => 'alice@example.com', 'phone' => '+233551111111']);
+        User::factory()->create(['email' => 'bob@example.com',   'phone' => '+233552222222']);
+
+        $this->actingAs($lead)
+            ->from('/field-agent/team/new')
+            ->post('/field-agent/team', [
+                'name' => 'X',
+                'email' => 'alice@example.com',
+                'phone' => '0552222222', // bob's phone
+                'location' => 'A',
+            ])
+            ->assertSessionHasErrors('email');
+    }
+
+    public function test_cannot_add_admin_as_team_member(): void
+    {
+        $lead = User::factory()->lead()->create();
+        User::factory()->admin()->create([
+            'email' => 'admin@example.com',
+            'phone' => '+233551112222',
+        ]);
+
+        $this->actingAs($lead)
+            ->from('/field-agent/team/new')
+            ->post('/field-agent/team', [
+                'name' => 'X', 'email' => 'admin@example.com', 'phone' => '0551112222', 'location' => 'A',
+            ])
+            ->assertSessionHasErrors('email');
+    }
+
     public function test_invalid_phone_format_rejected(): void
     {
         $lead = User::factory()->lead()->create();
