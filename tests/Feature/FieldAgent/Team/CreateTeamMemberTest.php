@@ -64,24 +64,80 @@ class CreateTeamMemberTest extends TestCase
         ])->assertForbidden();
     }
 
-    public function test_duplicate_email_or_phone_returns_validation_error(): void
+    public function test_lead_can_add_existing_regular_user_as_team_member(): void
     {
         $lead = User::factory()->lead()->create();
-        User::factory()->create(['email' => 'taken@example.com', 'phone' => '+233551112222']);
+        $existing = User::factory()->create([
+            'email' => 'existing@example.com',
+            'phone' => '+233551112222',
+            'role' => 'customer',
+        ]);
 
         $this->actingAs($lead)
             ->from('/field-agent/team/new')
             ->post('/field-agent/team', [
-                'name' => 'X', 'email' => 'taken@example.com', 'phone' => '0552223333', 'location' => 'A',
+                'name' => 'Updated Name',
+                'email' => 'existing@example.com',
+                'phone' => '0551112222',
+                'location' => 'Kumasi',
+            ])
+            ->assertRedirect('/field-agent/team');
+
+        $existing->refresh();
+        $this->assertSame('field_agent', $existing->role);
+        $this->assertSame($lead->id, $existing->parent_user_id);
+        $this->assertFalse((bool) $existing->is_team_field_agent);
+        $this->assertTrue((bool) $existing->is_active);
+        $this->assertSame('Updated Name', $existing->name);
+        $this->assertSame('Kumasi', $existing->location);
+    }
+
+    public function test_cannot_add_existing_team_member(): void
+    {
+        $lead = User::factory()->lead()->create();
+        $otherLead = User::factory()->lead()->create();
+        $member = User::factory()->teamMember($otherLead)->create([
+            'email' => 'member@example.com',
+            'phone' => '+233551112222',
+        ]);
+
+        $this->actingAs($lead)
+            ->from('/field-agent/team/new')
+            ->post('/field-agent/team', [
+                'name' => 'X', 'email' => 'member@example.com', 'phone' => '0551112222', 'location' => 'A',
             ])
             ->assertSessionHasErrors('email');
+    }
+
+    public function test_cannot_add_existing_lead_as_team_member(): void
+    {
+        $lead = User::factory()->lead()->create();
+        $otherLead = User::factory()->lead()->create([
+            'email' => 'otherlead@example.com',
+            'phone' => '+233551112222',
+        ]);
 
         $this->actingAs($lead)
             ->from('/field-agent/team/new')
             ->post('/field-agent/team', [
-                'name' => 'X', 'email' => 'fresh@example.com', 'phone' => '0551112222', 'location' => 'A',
+                'name' => 'X', 'email' => 'otherlead@example.com', 'phone' => '0551112222', 'location' => 'A',
             ])
-            ->assertSessionHasErrors('phone');
+            ->assertSessionHasErrors('email');
+    }
+
+    public function test_cannot_add_self_as_team_member(): void
+    {
+        $lead = User::factory()->lead()->create([
+            'email' => 'lead@example.com',
+            'phone' => '+233551234567',
+        ]);
+
+        $this->actingAs($lead)
+            ->from('/field-agent/team/new')
+            ->post('/field-agent/team', [
+                'name' => $lead->name, 'email' => 'lead@example.com', 'phone' => '0551234567', 'location' => 'A',
+            ])
+            ->assertSessionHasErrors('email');
     }
 
     public function test_invalid_phone_format_rejected(): void
