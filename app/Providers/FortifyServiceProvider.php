@@ -60,7 +60,7 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::createUsersUsing(CreateNewUser::class);
 
         Fortify::authenticateUsing(function (Request $request) {
-            $login = (string) $request->input('email');
+            $login = trim((string) $request->input('email'));
 
             $digits = preg_replace('/\D+/', '', $login) ?? '';
             $phone = $login;

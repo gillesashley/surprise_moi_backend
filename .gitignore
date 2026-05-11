@@ -57,3 +57,4 @@ firebase-credentials.json
 docs/*
 /graphify-out
 /app/Http/Resources/graphify-out/*
+.gemini
