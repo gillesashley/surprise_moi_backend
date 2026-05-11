@@ -35,7 +35,7 @@ export default function TeamIndex({ members }: { members: Member[] }) {
 
                 {members.length === 0 ? (
                     <Card>
-                        <CardContent sx={{ textAlign: 'center', py: 6 }}>
+                        <CardContent className="text-center py-6">
                             <Typography variant="body2" color="text.secondary">
                                 No team members yet. Click <strong>Add member</strong> to create one.
                             </Typography>
@@ -43,7 +43,7 @@ export default function TeamIndex({ members }: { members: Member[] }) {
                     </Card>
                 ) : (
                     <Card>
-                        <CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
+                        <CardContent className="p-0 last:pb-0">
                             <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                                 {members.map((m, idx) => (
                                     <Link

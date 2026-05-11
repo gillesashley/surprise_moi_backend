@@ -119,4 +119,24 @@ class TeamMemberController extends Controller
         return redirect('/field-agent/team')
             ->with('success', 'Team member added. Their default password is their phone number.');
     }
+
+    public function destroy(User $member): RedirectResponse
+    {
+        // Must authorize that the current user manages this member
+        // Assuming Gate::authorize('update', $member) or similar is appropriate, 
+        // but checking parent_user_id is safest if the Gate is broad
+        if ($member->parent_user_id !== auth()->id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $hasVendors = VendorApplication::where('onboarded_by_user_id', $member->id)->exists();
+
+        if ($hasVendors) {
+            return back()->with('error', 'Cannot delete team member because they have already onboarded vendors.');
+        }
+
+        $member->delete();
+
+        return redirect('/field-agent/team')->with('success', 'Team member deleted successfully.');
+    }
 }
