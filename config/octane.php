@@ -106,7 +106,7 @@ return [
             FlushOnce::class,
             FlushTemporaryContainerInstances::class,
             CollectGarbage::class,
-            // DisconnectFromDatabases::class,
+            DisconnectFromDatabases::class,
         ],
 
         WorkerErrorOccurred::class => [
@@ -219,6 +219,6 @@ return [
     |
     */
 
-    'max_execution_time' => 30,
+    'max_execution_time' => 60,
 
 ];
