@@ -60,7 +60,19 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::createUsersUsing(CreateNewUser::class);
 
         Fortify::authenticateUsing(function (Request $request) {
-            $user = User::where('email', $request->input('email'))->first();
+            $login = (string) $request->input('email');
+
+            $digits = preg_replace('/\D+/', '', $login) ?? '';
+            $phone = $login;
+            if (str_starts_with($digits, '233') && strlen($digits) === 12) {
+                $phone = '+'.$digits;
+            } elseif (str_starts_with($digits, '0') && strlen($digits) === 10) {
+                $phone = '+233'.substr($digits, 1);
+            }
+
+            $user = User::where('email', strtolower($login))
+                ->orWhere('phone', $phone)
+                ->first();
 
             if ($user && Hash::check((string) $request->input('password'), $user->password)) {
                 if (! (bool) $user->is_active) {
@@ -72,7 +84,10 @@ class FortifyServiceProvider extends ServiceProvider
                 return $user;
             }
 
-            $application = FieldAgentApplication::where('email', strtolower((string) $request->input('email')))
+            $application = FieldAgentApplication::where(function ($query) use ($login, $phone) {
+                    $query->where('email', strtolower($login))
+                          ->orWhere('phone', $phone);
+                })
                 ->whereNotNull('password')
                 ->first();
 
