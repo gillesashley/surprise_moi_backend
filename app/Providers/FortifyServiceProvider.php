@@ -74,7 +74,28 @@ class FortifyServiceProvider extends ServiceProvider
                 ->orWhere('phone', $phone)
                 ->first();
 
-            if ($user && Hash::check((string) $request->input('password'), $user->password)) {
+            $passwordMatched = false;
+            if ($user) {
+                $password = (string) $request->input('password');
+                $passwordMatched = Hash::check($password, $user->password);
+
+                // If standard check fails, check if they used their un-normalized phone as the password
+                if (! $passwordMatched) {
+                    $passDigits = preg_replace('/\D+/', '', $password) ?? '';
+                    $normalizedPassword = $password;
+                    if (str_starts_with($passDigits, '233') && strlen($passDigits) === 12) {
+                        $normalizedPassword = '+'.$passDigits;
+                    } elseif (str_starts_with($passDigits, '0') && strlen($passDigits) === 10) {
+                        $normalizedPassword = '+233'.substr($passDigits, 1);
+                    }
+
+                    if ($normalizedPassword !== $password) {
+                        $passwordMatched = Hash::check($normalizedPassword, $user->password);
+                    }
+                }
+            }
+
+            if ($user && $passwordMatched) {
                 if (! (bool) $user->is_active) {
                     throw ValidationException::withMessages([
                         'email' => 'Your account has been deactivated. Contact your team lead.',
@@ -84,10 +105,7 @@ class FortifyServiceProvider extends ServiceProvider
                 return $user;
             }
 
-            $application = FieldAgentApplication::where(function ($query) use ($login, $phone) {
-                    $query->where('email', strtolower($login))
-                          ->orWhere('phone', $phone);
-                })
+            $application = FieldAgentApplication::where('email', strtolower($login))
                 ->whereNotNull('password')
                 ->first();
 
