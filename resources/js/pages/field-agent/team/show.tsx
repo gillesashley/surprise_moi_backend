@@ -73,23 +73,44 @@ export default function TeamShow({
                     />
                 </Box>
 
-                <Form
-                    action={`/field-agent/team/${member.id}`}
-                    method="patch"
-                    transform={(data) => ({ ...data, is_active: !member.is_active })}
-                >
-                    {({ processing }) => (
-                        <Box>
+                <Box sx={{ display: 'flex', gap: 2 }}>
+                    <Form
+                        action={`/field-agent/team/${member.id}`}
+                        method="patch"
+                        transform={(data) => ({ ...data, is_active: !member.is_active })}
+                    >
+                        {({ processing }) => (
                             <Button
                                 type="submit"
-                                variant={member.is_active ? 'destructive' : 'default'}
+                                variant={member.is_active ? 'secondary' : 'default'}
                                 disabled={processing}
                             >
                                 {member.is_active ? 'Deactivate member' : 'Reactivate member'}
                             </Button>
-                        </Box>
-                    )}
-                </Form>
+                        )}
+                    </Form>
+
+                    <Form
+                        action={`/field-agent/team/${member.id}`}
+                        method="delete"
+                        onSubmit={(e) => {
+                            if (!confirm('Are you sure you want to delete this team member? This action cannot be undone.')) {
+                                e.preventDefault();
+                            }
+                        }}
+                    >
+                        {({ processing }) => (
+                            <Button
+                                type="submit"
+                                variant="destructive"
+                                disabled={processing || vendors.length > 0}
+                                title={vendors.length > 0 ? "Cannot delete a member who has onboarded vendors" : undefined}
+                            >
+                                Delete member
+                            </Button>
+                        )}
+                    </Form>
+                </Box>
 
                 <Box>
                     <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 1 }}>
@@ -98,7 +119,7 @@ export default function TeamShow({
 
                     {vendors.length === 0 ? (
                         <Card>
-                            <CardContent sx={{ textAlign: 'center', py: 4 }}>
+                            <CardContent className="text-center py-4">
                                 <Typography variant="body2" color="text.secondary">
                                     None yet.
                                 </Typography>
@@ -106,7 +127,7 @@ export default function TeamShow({
                         </Card>
                     ) : (
                         <Card>
-                            <CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
+                            <CardContent className="p-0 last:pb-0">
                                 <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                                     {vendors.map((v, idx) => (
                                         <Box
