@@ -31,6 +31,6 @@ class UserFactoryTeamStatesTest extends TestCase
         $this->assertFalse((bool) $member->is_team_field_agent);
         $this->assertSame($lead->id, $member->parent_user_id);
         $this->assertTrue((bool) $member->is_active);
-        $this->assertTrue((bool) $member->must_change_password);
+        $this->assertFalse((bool) $member->must_change_password);
     }
 }

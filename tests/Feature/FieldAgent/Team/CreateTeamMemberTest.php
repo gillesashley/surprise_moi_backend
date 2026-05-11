@@ -39,7 +39,7 @@ class CreateTeamMemberTest extends TestCase
         $this->assertSame($lead->id, $member->parent_user_id);
         $this->assertFalse((bool) $member->is_team_field_agent);
         $this->assertTrue((bool) $member->is_active);
-        $this->assertTrue((bool) $member->must_change_password);
+        $this->assertFalse((bool) $member->must_change_password);
         $this->assertSame('+233551234567', $member->phone);
         $this->assertSame('Accra', $member->location);
         $this->assertTrue(Hash::check('+233551234567', $member->password));

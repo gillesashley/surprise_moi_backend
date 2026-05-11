@@ -49,7 +49,6 @@ return Application::configure(basePath: dirname(__DIR__))
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
             AuditLogMiddleware::class,
-            \App\Http\Middleware\EnforcePasswordChange::class,
         ]);
 
         $middleware->validateCsrfTokens(except: [

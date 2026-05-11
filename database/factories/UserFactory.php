@@ -169,7 +169,7 @@ class UserFactory extends Factory
             'is_team_field_agent' => false,
             'parent_user_id' => $lead->id,
             'is_active' => true,
-            'must_change_password' => true,
+            'must_change_password' => false,
         ]);
     }
 }

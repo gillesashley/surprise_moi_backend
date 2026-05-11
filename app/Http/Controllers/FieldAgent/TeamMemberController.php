@@ -110,7 +110,7 @@ class TeamMemberController extends Controller
             'is_team_field_agent' => false,
             'parent_user_id' => $request->user()->id,
             'is_active' => true,
-            'must_change_password' => true,
+            'must_change_password' => false,
             'password' => Hash::make((string) $request->string('phone')),
             'email_verified_at' => now(),
             'phone_verified_at' => now(),
