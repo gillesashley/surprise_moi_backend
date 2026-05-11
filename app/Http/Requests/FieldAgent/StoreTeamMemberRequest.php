@@ -69,7 +69,7 @@ class StoreTeamMemberRequest extends FormRequest
      */
     private function eligibilityRule(string $column): Closure
     {
-        return function (string $attribute, mixed $value, callable $fail): void {
+        return function (string $attribute, mixed $value, callable $fail) use ($column): void {
             $normalized = $column === 'email' ? strtolower((string) $value) : $value;
             $existing = User::where($column, $normalized)->first();
 
