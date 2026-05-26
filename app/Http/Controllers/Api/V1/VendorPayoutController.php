@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Models\PayoutRequest;
+use App\Models\Setting;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -65,8 +66,11 @@ class VendorPayoutController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
+        $minAmount = Setting::get('payout_min_amount', 50);
+        $maxAmount = Setting::get('payout_max_amount', 10000);
+
         $validator = Validator::make($request->all(), [
-            'amount' => ['required', 'numeric', 'min:50', 'max:10000'],
+            'amount' => ['required', 'numeric', "min:{$minAmount}", "max:{$maxAmount}"],
             'payout_detail_id' => [
                 'required',
                 'exists:vendor_payout_details,id',

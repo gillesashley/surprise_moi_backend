@@ -6,6 +6,7 @@ use App\Models\Order;
 use App\Models\PayoutRequest;
 use App\Models\User;
 use App\Models\VendorApplication;
+use App\Services\PaystackService;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -187,7 +188,7 @@ class AdminDashboardController extends Controller
         ]);
     }
 
-    public function vendorPayouts(): Response
+    public function vendorPayouts(PaystackService $paystackService): Response
     {
         $status = request()->input('status', 'pending');
 
@@ -206,6 +207,19 @@ class AdminDashboardController extends Controller
             'total_rejected' => PayoutRequest::where('status', 'rejected')->count(),
             'pending_amount' => PayoutRequest::where('status', 'pending')->sum('amount') ?? 0,
         ];
+
+        $paystackBalance = '0.00';
+        try {
+            $result = $paystackService->checkBalance();
+            if ($result['success']) {
+                $ghs = collect($result['data'])->firstWhere('currency', 'GHS');
+                if ($ghs && ($ghs['balance'] ?? 0) > 0) {
+                    $paystackBalance = number_format((float) $ghs['balance'] / 100, 2, '.', '');
+                }
+            }
+        } catch (\Exception $e) {
+            // Silently degrade if Paystack is unreachable
+        }
 
         return Inertia::render('vendor-payouts/index', [
             'initialData' => [
@@ -251,6 +265,7 @@ class AdminDashboardController extends Controller
                     'total_rejected' => $statistics['total_rejected'],
                     'pending_amount' => (string) $statistics['pending_amount'],
                 ],
+                'paystack_balance' => $paystackBalance,
             ],
         ]);
     }

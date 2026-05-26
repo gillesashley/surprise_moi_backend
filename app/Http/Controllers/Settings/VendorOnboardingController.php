@@ -47,6 +47,8 @@ class VendorOnboardingController extends Controller
             'vendor_onboarding_subsidy_pct' => 'required|numeric|min:0|max:100',
             'referral_points_per_ghs' => 'required|integer|min:1',
             'referral_cashout_min_points' => 'required|integer|min:1',
+            'payout_min_amount' => 'required|numeric|min:1',
+            'payout_max_amount' => 'required|numeric|min:1|gt:payout_min_amount',
         ]);
 
         foreach ($validated as $key => $value) {

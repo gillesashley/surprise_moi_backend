@@ -93,6 +93,7 @@ interface ApiResponse {
         total_rejected: number;
         pending_amount: string;
     };
+    paystack_balance: string;
 }
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -303,6 +304,67 @@ export default function VendorPayouts({
             <Box
                 sx={{ display: 'flex', flexDirection: 'column', gap: 3, p: 3 }}
             >
+                {/* Paystack Balance */}
+                <Card
+                    style={{
+                        backgroundColor: 'var(--color-green-50)',
+                        borderColor: 'var(--color-green-200)',
+                    }}
+                >
+                    <CardContent
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            paddingTop: 16,
+                            paddingBottom: 16,
+                        }}
+                    >
+                        <Box>
+                            <Typography
+                                sx={{
+                                    fontSize: '0.875rem',
+                                    color: 'text.secondary',
+                                }}
+                            >
+                                Paystack Balance
+                            </Typography>
+                            <Box
+                                sx={{
+                                    fontSize: '1.75rem',
+                                    fontWeight: 700,
+                                    color: 'var(--color-green-700)',
+                                }}
+                            >
+                                GHS {data.paystack_balance}
+                            </Box>
+                        </Box>
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 1,
+                            }}
+                        >
+                            <Typography
+                                sx={{
+                                    fontSize: '0.75rem',
+                                    color: 'text.secondary',
+                                }}
+                            >
+                                Available for payouts
+                            </Typography>
+                            <RefreshCw
+                                style={{
+                                    width: 14,
+                                    height: 14,
+                                    color: 'var(--muted-foreground)',
+                                }}
+                            />
+                        </Box>
+                    </CardContent>
+                </Card>
+
                 {/* Statistics Cards */}
                 <Box
                     sx={{

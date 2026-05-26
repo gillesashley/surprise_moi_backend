@@ -85,6 +85,16 @@ interface Settings {
         type: string;
         description: string;
     };
+    payout_min_amount?: {
+        value: string;
+        type: string;
+        description: string;
+    };
+    payout_max_amount?: {
+        value: string;
+        type: string;
+        description: string;
+    };
 }
 
 interface Props {
@@ -596,6 +606,95 @@ export default function VendorOnboarding({ settings }: Props) {
                                                 <InputError
                                                     message={
                                                         errors.referral_cashout_min_points
+                                                    }
+                                                />
+                                            </Box>
+                                        </Box>
+                                    </CardContent>
+                                </Card>
+
+                                {/* Payout Amount Settings */}
+                                <Card>
+                                    <CardHeader>
+                                        <CardTitle>Payout Limits</CardTitle>
+                                        <CardDescription>
+                                            Minimum and maximum amounts a vendor
+                                            can request for a single payout.
+                                        </CardDescription>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <Box
+                                            sx={{
+                                                display: 'grid',
+                                                gap: 2,
+                                                gridTemplateColumns: {
+                                                    md: 'repeat(2, 1fr)',
+                                                },
+                                            }}
+                                        >
+                                            <Box
+                                                sx={{ display: 'grid', gap: 1 }}
+                                            >
+                                                <Label htmlFor="payout_min_amount">
+                                                    Minimum Payout (GHS)
+                                                </Label>
+                                                <Input
+                                                    id="payout_min_amount"
+                                                    name="payout_min_amount"
+                                                    type="number"
+                                                    step="1"
+                                                    min="1"
+                                                    defaultValue={
+                                                        settings
+                                                            .payout_min_amount
+                                                            ?.value || '50'
+                                                    }
+                                                    required
+                                                />
+                                                <Typography
+                                                    variant="body2"
+                                                    color="text.secondary"
+                                                >
+                                                    {settings.payout_min_amount
+                                                        ?.description ||
+                                                        'Minimum amount a vendor can request'}
+                                                </Typography>
+                                                <InputError
+                                                    message={
+                                                        errors.payout_min_amount
+                                                    }
+                                                />
+                                            </Box>
+                                            <Box
+                                                sx={{ display: 'grid', gap: 1 }}
+                                            >
+                                                <Label htmlFor="payout_max_amount">
+                                                    Maximum Payout (GHS)
+                                                </Label>
+                                                <Input
+                                                    id="payout_max_amount"
+                                                    name="payout_max_amount"
+                                                    type="number"
+                                                    step="1"
+                                                    min="1"
+                                                    defaultValue={
+                                                        settings
+                                                            .payout_max_amount
+                                                            ?.value || '10000'
+                                                    }
+                                                    required
+                                                />
+                                                <Typography
+                                                    variant="body2"
+                                                    color="text.secondary"
+                                                >
+                                                    {settings.payout_max_amount
+                                                        ?.description ||
+                                                        'Maximum amount a vendor can request'}
+                                                </Typography>
+                                                <InputError
+                                                    message={
+                                                        errors.payout_max_amount
                                                     }
                                                 />
                                             </Box>
