@@ -82,6 +82,9 @@ RUN composer dump-autoload --optimize
 # Copy package files
 COPY package.json pnpm-lock.yaml ./
 
+# Create pnpm-workspace.yaml for pnpm v11+ build script approval
+RUN printf 'allowBuilds:\n  esbuild: true\n' > pnpm-workspace.yaml
+
 # Install Node dependencies
 RUN pnpm install --frozen-lockfile
 
@@ -256,7 +259,7 @@ RUN cp .env.example .env \
     && sed -i 's/REDIS_CLIENT=phpredis/REDIS_CLIENT=predis/' .env \
     && sed -i 's/CACHE_STORE=redis/CACHE_STORE=array/' .env \
     && php artisan key:generate --ansi \
-    && pnpm config set --location=project onlyBuiltDependencies '["esbuild"]' \
+    && printf 'allowBuilds:\n  esbuild: true\n' > pnpm-workspace.yaml \
     && pnpm install --frozen-lockfile \
     && php -d memory_limit=512M artisan wayfinder:generate --with-form \
     && SKIP_WAYFINDER=true pnpm run build \
