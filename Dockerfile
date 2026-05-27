@@ -256,6 +256,7 @@ RUN cp .env.example .env \
     && sed -i 's/REDIS_CLIENT=phpredis/REDIS_CLIENT=predis/' .env \
     && sed -i 's/CACHE_STORE=redis/CACHE_STORE=array/' .env \
     && php artisan key:generate --ansi \
+    && pnpm config set --location=project onlyBuiltDependencies '["esbuild"]' \
     && pnpm install --frozen-lockfile \
     && php -d memory_limit=512M artisan wayfinder:generate --with-form \
     && SKIP_WAYFINDER=true pnpm run build \
