@@ -115,6 +115,11 @@ if [ "${CONTAINER_ROLE:-app}" = "queue" ]; then
     log_info "Queue worker setup completed!"
 fi
 
+# Clean up any stale Octane state from previous runs (persists in Docker volumes)
+log_info "Cleaning up stale Octane state..."
+php artisan octane:stop 2>/dev/null || true
+rm -f /var/www/html/storage/logs/octane-server-state.json
+
 # Execute the main command
 log_info "Starting application..."
 exec "$@"
