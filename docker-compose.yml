@@ -85,9 +85,9 @@ services:
           "pg_isready -U ${DB_USERNAME:-laraveluser} -d ${DB_DATABASE:-surprise_moi_db}",
         ]
       interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
+      timeout: 10s
+      retries: 15
+      start_period: 60s
 
   # ---------------------------------------------------------------------------
   # Redis Cache
