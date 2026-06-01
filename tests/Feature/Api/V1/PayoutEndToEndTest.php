@@ -19,8 +19,11 @@ class PayoutEndToEndTest extends TestCase
     use RefreshDatabase;
 
     protected User $admin;
+
     protected User $vendor;
+
     protected VendorBalance $balance;
+
     protected VendorPayoutDetail $payoutDetail;
 
     protected function setUp(): void

@@ -41,6 +41,7 @@ return new class extends Migration
                         $normalized = (new PhoneNumber($original, ['GH']))->formatE164();
                     } catch (\Throwable) {
                         $unparseable[] = ['id' => $row->id, 'phone' => $original];
+
                         continue;
                     }
 
@@ -64,6 +65,7 @@ return new class extends Migration
                             'normalized' => $normalized,
                             'collides_with_id' => $collidingId,
                         ];
+
                         continue;
                     }
 
