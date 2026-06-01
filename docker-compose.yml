@@ -104,7 +104,9 @@ services:
         reservations:
           cpus: "0.25"
           memory: 128M
-    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-Gilash@123}
+    # AOF only (no RDB snapshots — avoids fork+write CPU spikes).
+    # volatile-lru evicts only TTL-tagged keys (cache), not queue data.
+    command: redis-server --appendonly yes --save "" --maxmemory-policy volatile-lru --requirepass ${REDIS_PASSWORD:-Gilash@123}
     volumes:
       - redis-data:/data
     networks:
