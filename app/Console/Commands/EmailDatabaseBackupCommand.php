@@ -34,9 +34,6 @@ class EmailDatabaseBackupCommand extends Command
         'jobs',
         'cache',
         'cache_locks',
-        'telescope_entries',
-        'telescope_entries_tags',
-        'telescope_monitoring',
     ];
 
     /**
