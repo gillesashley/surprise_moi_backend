@@ -17,6 +17,7 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Storage;
 
 class ChatController extends Controller
@@ -236,15 +237,24 @@ class ChatController extends Controller
             ], 403);
         }
 
+        $user = $request->user();
+
+        // Throttle typing broadcasts per-user per-conversation (1 req / 2s).
+        $throttleKey = sprintf('typing:%d:%d', $user->id, $conversation->id);
+        if (RateLimiter::tooManyAttempts($throttleKey, 1)) {
+            return response()->json(['message' => 'Typing status sent.']);
+        }
+        RateLimiter::hit($throttleKey, 2);
+
         $isTyping = $request->boolean('is_typing', true);
 
         // Broadcast typing indicator to the other participant
         $conversation->load(['customer', 'vendor']);
-        $recipient = $conversation->getOtherParticipant($request->user());
+        $recipient = $conversation->getOtherParticipant($user);
 
         broadcast(new UserTyping(
             $conversation->id,
-            $request->user(),
+            $user,
             $recipient->id,
             $isTyping
         ))->toOthers();
