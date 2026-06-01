@@ -20,14 +20,6 @@
       ],
       "enabled": true
     },
-    "auggiecode": {
-      "type": "local",
-      "command": [
-        "auggie",
-        "--mcp",
-        "--mcp-auto-workspace"
-      ]
-    },
     "sequential-thinking": {
       "type": "local",
       "command": [
