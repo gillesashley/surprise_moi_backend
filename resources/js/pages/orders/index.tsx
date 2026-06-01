@@ -26,6 +26,7 @@ interface Order {
     currency: string;
     status: string;
     payment_status: string;
+    delivery_method: string | null;
     created_at: string;
 }
 
@@ -38,9 +39,11 @@ interface Props {
         total: number;
     };
     statuses: string[];
+    deliveryMethods: string[];
     filters: {
         search?: string;
         status?: string;
+        delivery_method?: string;
         sort_by?: string;
         sort_order?: string;
     };
@@ -73,7 +76,13 @@ const formatStatus = (status: string): string => {
     return status.charAt(0).toUpperCase() + status.slice(1);
 };
 
-export default function OrdersIndex({ orders, statuses, filters }: Props) {
+const deliveryMethodLabel: Record<string, string> = {
+    vendor_self: 'Vendor Self',
+    platform_rider: 'Platform Rider',
+    third_party_courier: 'Courier',
+};
+
+export default function OrdersIndex({ orders, statuses, deliveryMethods, filters }: Props) {
     useInactivityLock();
     const [searchTerm, setSearchTerm] = useState(filters.search || '');
 
@@ -82,7 +91,12 @@ export default function OrdersIndex({ orders, statuses, filters }: Props) {
             if (searchTerm !== filters.search) {
                 router.get(
                     '/dashboard/orders',
-                    { status: filters.status, search: searchTerm, page: 1 },
+                    {
+                        status: filters.status,
+                        delivery_method: filters.delivery_method,
+                        search: searchTerm,
+                        page: 1,
+                    },
                     {
                         preserveState: true,
                         preserveScroll: true,
@@ -116,6 +130,25 @@ export default function OrdersIndex({ orders, statuses, filters }: Props) {
             '/dashboard/orders',
             {
                 status: status || undefined,
+                delivery_method: filters.delivery_method,
+                search: filters.search,
+                sort_by: filters.sort_by,
+                sort_order: filters.sort_order,
+                page: 1,
+            },
+            {
+                preserveState: true,
+                preserveScroll: true,
+            },
+        );
+    };
+
+    const handleDeliveryFilter = (method: string) => {
+        router.get(
+            '/dashboard/orders',
+            {
+                status: filters.status,
+                delivery_method: method || undefined,
                 search: filters.search,
                 sort_by: filters.sort_by,
                 sort_order: filters.sort_order,
@@ -212,6 +245,36 @@ export default function OrdersIndex({ orders, statuses, filters }: Props) {
                                     </option>
                                 ))}
                             </Box>
+                            <Box
+                                component="select"
+                                value={filters.delivery_method || ''}
+                                onChange={(
+                                    e: React.ChangeEvent<HTMLSelectElement>,
+                                ) => handleDeliveryFilter(e.target.value)}
+                                sx={{
+                                    height: 36,
+                                    borderRadius: 1,
+                                    border: 1,
+                                    borderColor: 'divider',
+                                    px: 1.5,
+                                    fontSize: '0.875rem',
+                                    bgcolor: 'background.paper',
+                                    color: 'text.primary',
+                                    cursor: 'pointer',
+                                    '&:focus': {
+                                        outline: 'none',
+                                        borderColor: 'primary.main',
+                                    },
+                                }}
+                            >
+                                <option value="">All Deliveries</option>
+                                {deliveryMethods.map((method) => (
+                                    <option key={method} value={method}>
+                                        {deliveryMethodLabel[method] || formatStatus(method)}
+                                    </option>
+                                ))}
+                                <option value="none">No Delivery</option>
+                            </Box>
                         </Box>
 
                         <Box sx={{ overflowX: 'auto' }}>
@@ -300,6 +363,17 @@ export default function OrdersIndex({ orders, statuses, filters }: Props) {
                                             }}
                                         >
                                             Payment
+                                        </Box>
+                                        <Box
+                                            component="th"
+                                            sx={{
+                                                p: 1,
+                                                textAlign: 'left',
+                                                fontSize: '0.875rem',
+                                                fontWeight: 500,
+                                            }}
+                                        >
+                                            Delivery
                                         </Box>
                                         <Box
                                             component="th"
@@ -448,6 +522,48 @@ export default function OrdersIndex({ orders, statuses, filters }: Props) {
                                                 </Box>
                                                 <Box
                                                     component="td"
+                                                    sx={{ p: 1 }}
+                                                >
+                                                    {order.delivery_method ? (
+                                                        <Box
+                                                            component="span"
+                                                            sx={{
+                                                                display:
+                                                                    'inline-block',
+                                                                px: 1,
+                                                                py: 0.25,
+                                                                borderRadius:
+                                                                    '9999px',
+                                                                fontSize: '0.75rem',
+                                                                fontWeight: 500,
+                                                                bgcolor: order.delivery_method === 'platform_rider'
+                                                                    ? '#DBEAFE'
+                                                                    : order.delivery_method === 'vendor_self'
+                                                                        ? '#FEF3C7'
+                                                                        : '#E0E7FF',
+                                                                color: order.delivery_method === 'platform_rider'
+                                                                    ? '#1E40AF'
+                                                                    : order.delivery_method === 'vendor_self'
+                                                                        ? '#92400E'
+                                                                        : '#3730A3',
+                                                            }}
+                                                        >
+                                                            {deliveryMethodLabel[order.delivery_method] ||
+                                                                formatStatus(order.delivery_method)}
+                                                        </Box>
+                                                    ) : (
+                                                        <Typography
+                                                            sx={{
+                                                                fontSize: '0.75rem',
+                                                                color: 'text.disabled',
+                                                            }}
+                                                        >
+                                                            —
+                                                        </Typography>
+                                                    )}
+                                                </Box>
+                                                <Box
+                                                    component="td"
                                                     sx={{
                                                         p: 1,
                                                         fontSize: '0.875rem',
@@ -456,26 +572,26 @@ export default function OrdersIndex({ orders, statuses, filters }: Props) {
                                                     {new Date(
                                                         order.created_at,
                                                     ).toLocaleDateString()}
-                                                </Box>
-                                            </Box>
-                                        );
-                                    })}
-                                    {orders.data.length === 0 && (
-                                        <Box component="tr">
-                                            <Box
-                                                component="td"
-                                                colSpan={8}
-                                                sx={{
-                                                    p: 4,
-                                                    textAlign: 'center',
-                                                    fontSize: '0.875rem',
-                                                    color: 'text.secondary',
-                                                }}
-                                            >
-                                                No orders found.
-                                            </Box>
                                         </Box>
-                                    )}
+                                    </Box>
+                                );
+                            })}
+                            {orders.data.length === 0 && (
+                                <Box component="tr">
+                                    <Box
+                                        component="td"
+                                        colSpan={9}
+                                        sx={{
+                                            p: 4,
+                                            textAlign: 'center',
+                                            fontSize: '0.875rem',
+                                            color: 'text.secondary',
+                                        }}
+                                    >
+                                        No orders found.
+                                    </Box>
+                                </Box>
+                            )}
                                 </tbody>
                             </Box>
                         </Box>

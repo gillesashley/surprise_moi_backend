@@ -17,11 +17,14 @@ import Typography from '@mui/material/Typography';
 import {
     ArrowLeft,
     Calendar,
+    Clock,
     CreditCard,
     MapPin,
+    Navigation,
     Package,
     ShoppingCart,
     Store,
+    Truck,
     User as UserIcon,
 } from 'lucide-react';
 import { useState } from 'react';
@@ -36,6 +39,21 @@ interface OrderItem {
     subtotal: string;
 }
 
+interface DeliveryRequestData {
+    id: string;
+    status: string;
+    rider_name: string | null;
+    rider_phone: string | null;
+    pickup_address: string | null;
+    dropoff_address: string | null;
+    delivery_fee: string;
+    distance_km: string;
+    created_at: string | null;
+    accepted_at: string | null;
+    picked_up_at: string | null;
+    delivered_at: string | null;
+}
+
 interface OrderData {
     id: number;
     order_number: string;
@@ -45,6 +63,7 @@ interface OrderData {
     subtotal: string;
     discount_amount: string;
     delivery_fee: string;
+    delivery_method: string | null;
     total: string;
     platform_commission_amount: string;
     vendor_payout_amount: string;
@@ -62,6 +81,7 @@ interface OrderData {
     receiver_phone: string | null;
     special_instructions: string | null;
     occasion: string | null;
+    delivery_request: DeliveryRequestData | null;
     payment: {
         reference: string;
         status: string;
@@ -111,6 +131,23 @@ const statusActionLabels: Record<string, string> = {
 
 const formatStatus = (status: string): string => {
     return status.charAt(0).toUpperCase() + status.slice(1);
+};
+
+const deliveryMethodLabel: Record<string, string> = {
+    vendor_self: 'Vendor Self-Delivery',
+    platform_rider: 'Platform Rider',
+    third_party_courier: 'Third-Party Courier',
+};
+
+const deliveryStatusColors: Record<string, { bg: string; text: string }> = {
+    broadcasting: { bg: '#FEF3C7', text: '#92400E' },
+    assigned: { bg: '#DBEAFE', text: '#1E40AF' },
+    accepted: { bg: '#EDE9FE', text: '#6B21A8' },
+    picked_up: { bg: '#D1FAE5', text: '#065F46' },
+    in_transit: { bg: '#E0E7FF', text: '#3730A3' },
+    delivered: { bg: '#D1FAE5', text: '#065F46' },
+    cancelled: { bg: '#FEE2E2', text: '#991B1B' },
+    expired: { bg: '#FEE2E2', text: '#991B1B' },
 };
 
 export default function OrderShow({ order, allowedTransitions }: Props) {
@@ -720,6 +757,43 @@ export default function OrderShow({ order, allowedTransitions }: Props) {
                                         </Typography>
                                     </Box>
                                 )}
+                                {order.delivery_method && (
+                                    <Box>
+                                        <Typography
+                                            sx={{
+                                                fontSize: '0.75rem',
+                                                color: 'text.secondary',
+                                                fontWeight: 500,
+                                            }}
+                                        >
+                                            Delivery Method
+                                        </Typography>
+                                        <Box
+                                            component="span"
+                                            sx={{
+                                                display: 'inline-block',
+                                                px: 1,
+                                                py: 0.25,
+                                                borderRadius: '9999px',
+                                                fontSize: '0.75rem',
+                                                fontWeight: 500,
+                                                mt: 0.25,
+                                                bgcolor: order.delivery_method === 'platform_rider'
+                                                    ? '#DBEAFE'
+                                                    : order.delivery_method === 'vendor_self'
+                                                        ? '#FEF3C7'
+                                                        : '#E0E7FF',
+                                                color: order.delivery_method === 'platform_rider'
+                                                    ? '#1E40AF'
+                                                    : order.delivery_method === 'vendor_self'
+                                                        ? '#92400E'
+                                                        : '#3730A3',
+                                            }}
+                                        >
+                                            {deliveryMethodLabel[order.delivery_method] || formatStatus(order.delivery_method)}
+                                        </Box>
+                                    </Box>
+                                )}
                                 {order.special_instructions && (
                                     <Box>
                                         <Typography
@@ -758,6 +832,235 @@ export default function OrderShow({ order, allowedTransitions }: Props) {
                                 )}
                             </CardContent>
                         </Card>
+
+                        {/* Delivery Status */}
+                        {order.delivery_request && (
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle
+                                        sx={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: 1,
+                                            fontSize: '1rem',
+                                        }}
+                                    >
+                                        <Truck style={{ width: 16, height: 16 }} />{' '}
+                                        Delivery Status
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent
+                                    sx={{
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        gap: 1,
+                                    }}
+                                >
+                                    <Box>
+                                        <Typography
+                                            sx={{
+                                                fontSize: '0.75rem',
+                                                color: 'text.secondary',
+                                                fontWeight: 500,
+                                            }}
+                                        >
+                                            Status
+                                        </Typography>
+                                        <Box
+                                            component="span"
+                                            sx={{
+                                                display: 'inline-block',
+                                                px: 1,
+                                                py: 0.25,
+                                                borderRadius: '9999px',
+                                                fontSize: '0.75rem',
+                                                fontWeight: 500,
+                                                mt: 0.25,
+                                                bgcolor: (deliveryStatusColors[order.delivery_request.status] || { bg: '#F3F4F6' }).bg,
+                                                color: (deliveryStatusColors[order.delivery_request.status] || { text: '#374151' }).text,
+                                            }}
+                                        >
+                                            {formatStatus(order.delivery_request.status)}
+                                        </Box>
+                                    </Box>
+                                    {order.delivery_request.rider_name && (
+                                        <Box>
+                                            <Typography
+                                                sx={{
+                                                    fontSize: '0.75rem',
+                                                    color: 'text.secondary',
+                                                    fontWeight: 500,
+                                                }}
+                                            >
+                                                Rider
+                                            </Typography>
+                                            <Typography
+                                                sx={{ fontSize: '0.875rem' }}
+                                            >
+                                                {order.delivery_request.rider_name}
+                                            </Typography>
+                                        </Box>
+                                    )}
+                                    {order.delivery_request.rider_phone && (
+                                        <Box>
+                                            <Typography
+                                                sx={{
+                                                    fontSize: '0.75rem',
+                                                    color: 'text.secondary',
+                                                    fontWeight: 500,
+                                                }}
+                                            >
+                                                Rider Phone
+                                            </Typography>
+                                            <Typography
+                                                sx={{ fontSize: '0.875rem' }}
+                                            >
+                                                {order.delivery_request.rider_phone}
+                                            </Typography>
+                                        </Box>
+                                    )}
+                                    {order.delivery_request.pickup_address && (
+                                        <Box>
+                                            <Typography
+                                                sx={{
+                                                    fontSize: '0.75rem',
+                                                    color: 'text.secondary',
+                                                    fontWeight: 500,
+                                                }}
+                                            >
+                                                Pickup
+                                            </Typography>
+                                            <Typography
+                                                sx={{ fontSize: '0.875rem' }}
+                                            >
+                                                {order.delivery_request.pickup_address}
+                                            </Typography>
+                                        </Box>
+                                    )}
+                                    {order.delivery_request.dropoff_address && (
+                                        <Box>
+                                            <Typography
+                                                sx={{
+                                                    fontSize: '0.75rem',
+                                                    color: 'text.secondary',
+                                                    fontWeight: 500,
+                                                }}
+                                            >
+                                                Dropoff
+                                            </Typography>
+                                            <Typography
+                                                sx={{ fontSize: '0.875rem' }}
+                                            >
+                                                {order.delivery_request.dropoff_address || order.delivery_address ? [
+                                                    order.delivery_address?.address_line_1,
+                                                    order.delivery_address?.city,
+                                                    order.delivery_address?.state,
+                                                ].filter(Boolean).join(', ') : 'N/A'}
+                                            </Typography>
+                                        </Box>
+                                    )}
+                                    {parseFloat(order.delivery_request.delivery_fee) > 0 && (
+                                        <Box>
+                                            <Typography
+                                                sx={{
+                                                    fontSize: '0.75rem',
+                                                    color: 'text.secondary',
+                                                    fontWeight: 500,
+                                                }}
+                                            >
+                                                Delivery Fee
+                                            </Typography>
+                                            <Typography
+                                                sx={{ fontSize: '0.875rem' }}
+                                            >
+                                                GHS {parseFloat(order.delivery_request.delivery_fee).toFixed(2)}
+                                            </Typography>
+                                        </Box>
+                                    )}
+                                    {parseFloat(order.delivery_request.distance_km) > 0 && (
+                                        <Box>
+                                            <Typography
+                                                sx={{
+                                                    fontSize: '0.75rem',
+                                                    color: 'text.secondary',
+                                                    fontWeight: 500,
+                                                }}
+                                            >
+                                                Distance
+                                            </Typography>
+                                            <Typography
+                                                sx={{ fontSize: '0.875rem' }}
+                                            >
+                                                {parseFloat(order.delivery_request.distance_km).toFixed(1)} km
+                                            </Typography>
+                                        </Box>
+                                    )}
+                                    {/* Delivery Timeline */}
+                                    <Box
+                                        sx={{
+                                            mt: 1,
+                                            pt: 1,
+                                            borderTop: 1,
+                                            borderColor: 'divider',
+                                        }}
+                                    >
+                                        <Typography
+                                            sx={{
+                                                fontSize: '0.75rem',
+                                                color: 'text.secondary',
+                                                fontWeight: 500,
+                                                mb: 1,
+                                            }}
+                                        >
+                                            Delivery Timeline
+                                        </Typography>
+                                        {[
+                                            { label: 'Requested', date: order.delivery_request.created_at },
+                                            { label: 'Accepted', date: order.delivery_request.accepted_at },
+                                            { label: 'Picked Up', date: order.delivery_request.picked_up_at },
+                                            { label: 'Delivered', date: order.delivery_request.delivered_at },
+                                        ]
+                                            .filter((e) => e.date !== null)
+                                            .map((event) => (
+                                                <Box
+                                                    key={event.label}
+                                                    sx={{
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: 1,
+                                                        py: 0.25,
+                                                    }}
+                                                >
+                                                    <Clock
+                                                        style={{
+                                                            width: 12,
+                                                            height: 12,
+                                                            color: 'var(--muted-foreground)',
+                                                            flexShrink: 0,
+                                                        }}
+                                                    />
+                                                    <Typography
+                                                        sx={{
+                                                            fontSize: '0.75rem',
+                                                            color: 'text.secondary',
+                                                        }}
+                                                    >
+                                                        {event.label}
+                                                    </Typography>
+                                                    <Typography
+                                                        sx={{
+                                                            fontSize: '0.75rem',
+                                                            ml: 'auto',
+                                                        }}
+                                                    >
+                                                        {new Date(event.date!).toLocaleString()}
+                                                    </Typography>
+                                                </Box>
+                                            ))}
+                                    </Box>
+                                </CardContent>
+                            </Card>
+                        )}
 
                         {/* Payment */}
                         {order.payment && (

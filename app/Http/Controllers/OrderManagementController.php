@@ -41,6 +41,13 @@ class OrderManagementController extends Controller
     /**
      * Display a paginated list of orders with search, status filter, and sorting.
      */
+    /** @var string[] */
+    private const DELIVERY_METHODS = [
+        'vendor_self',
+        'platform_rider',
+        'third_party_courier',
+    ];
+
     public function index(Request $request): Response
     {
         $query = Order::query()
@@ -62,6 +69,11 @@ class OrderManagementController extends Controller
             $query->where('status', $request->input('status'));
         }
 
+        // Filter by delivery method
+        if ($request->filled('delivery_method')) {
+            $query->where('delivery_method', $request->input('delivery_method'));
+        }
+
         // Sorting
         $sortBy = $request->input('sort_by', 'created_at');
         $sortOrder = $request->input('sort_order', 'desc');
@@ -78,9 +90,11 @@ class OrderManagementController extends Controller
         return Inertia::render('orders/index', [
             'orders' => $orders,
             'statuses' => self::STATUSES,
+            'deliveryMethods' => self::DELIVERY_METHODS,
             'filters' => [
                 'search' => $request->input('search'),
                 'status' => $request->input('status'),
+                'delivery_method' => $request->input('delivery_method'),
                 'sort_by' => $sortBy,
                 'sort_order' => $sortOrder,
             ],
@@ -102,6 +116,11 @@ class OrderManagementController extends Controller
 
         $allowedTransitions = self::TRANSITIONS[$order->status] ?? [];
 
+        $latestDeliveryRequest = $order->deliveryRequests()
+            ->with('assignedRider')
+            ->latest()
+            ->first();
+
         return Inertia::render('orders/show', [
             'order' => [
                 'id' => $order->id,
@@ -112,6 +131,7 @@ class OrderManagementController extends Controller
                 'subtotal' => (string) $order->subtotal,
                 'discount_amount' => (string) ($order->discount_amount ?? '0.00'),
                 'delivery_fee' => (string) ($order->delivery_fee ?? '0.00'),
+                'delivery_method' => $order->delivery_method,
                 'total' => (string) $order->total,
                 'platform_commission_amount' => (string) ($order->platform_commission_amount ?? '0.00'),
                 'vendor_payout_amount' => (string) ($order->vendor_payout_amount ?? '0.00'),
@@ -144,6 +164,20 @@ class OrderManagementController extends Controller
                 'receiver_phone' => $order->receiver_phone,
                 'special_instructions' => $order->special_instructions,
                 'occasion' => $order->occasion,
+                'delivery_request' => $latestDeliveryRequest ? [
+                    'id' => $latestDeliveryRequest->id,
+                    'status' => $latestDeliveryRequest->status,
+                    'rider_name' => $latestDeliveryRequest->assignedRider?->name,
+                    'rider_phone' => $latestDeliveryRequest->assignedRider?->phone,
+                    'pickup_address' => $latestDeliveryRequest->pickup_address,
+                    'dropoff_address' => $latestDeliveryRequest->dropoff_address,
+                    'delivery_fee' => (string) ($latestDeliveryRequest->delivery_fee ?? '0.00'),
+                    'distance_km' => (string) ($latestDeliveryRequest->distance_km ?? '0.00'),
+                    'created_at' => $latestDeliveryRequest->created_at?->toIso8601String(),
+                    'accepted_at' => $latestDeliveryRequest->accepted_at?->toIso8601String(),
+                    'picked_up_at' => $latestDeliveryRequest->picked_up_at?->toIso8601String(),
+                    'delivered_at' => $latestDeliveryRequest->delivered_at?->toIso8601String(),
+                ] : null,
                 'payment' => $order->latestPayment ? [
                     'reference' => $order->latestPayment->reference,
                     'status' => $order->latestPayment->status,
