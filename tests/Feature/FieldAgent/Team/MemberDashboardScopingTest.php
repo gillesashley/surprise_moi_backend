@@ -56,7 +56,7 @@ class MemberDashboardScopingTest extends TestCase
             );
     }
 
-    public function test_lead_dashboard_marks_isMember_false(): void
+    public function test_lead_dashboard_marks_is_member_false(): void
     {
         $lead = User::factory()->lead()->create();
 

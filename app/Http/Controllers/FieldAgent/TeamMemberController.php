@@ -123,7 +123,7 @@ class TeamMemberController extends Controller
     public function destroy(User $member): RedirectResponse
     {
         // Must authorize that the current user manages this member
-        // Assuming Gate::authorize('update', $member) or similar is appropriate, 
+        // Assuming Gate::authorize('update', $member) or similar is appropriate,
         // but checking parent_user_id is safest if the Gate is broad
         if ($member->parent_user_id !== auth()->id()) {
             abort(403, 'Unauthorized action.');
