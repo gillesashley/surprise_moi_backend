@@ -50,6 +50,7 @@ Route::prefix('v1')->group(function () {
                 Route::post('{deliveryRequest}/accept', [DeliveryController::class, 'accept']);
                 Route::post('{deliveryRequest}/decline', [DeliveryController::class, 'decline']);
                 Route::post('{deliveryRequest}/pickup', [DeliveryController::class, 'pickup']);
+                Route::post('{deliveryRequest}/in-transit', [DeliveryController::class, 'inTransit']);
                 Route::post('{deliveryRequest}/deliver', [DeliveryController::class, 'deliver']);
                 Route::post('{deliveryRequest}/cancel', [DeliveryController::class, 'cancel']);
             });

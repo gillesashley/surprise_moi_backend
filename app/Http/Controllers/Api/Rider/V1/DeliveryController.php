@@ -166,6 +166,33 @@ class DeliveryController extends Controller
     }
 
     /**
+     * Mark a delivery as in transit (on route to dropoff).
+     */
+    public function inTransit(DeliveryRequest $deliveryRequest, Request $request): JsonResponse
+    {
+        $rider = $request->user('rider');
+
+        if ($deliveryRequest->rider_id !== $rider->id || $deliveryRequest->status !== 'picked_up') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Cannot mark this delivery as in transit.',
+            ], 403);
+        }
+
+        $deliveryRequest->update(['status' => 'in_transit']);
+
+        event(new DeliveryStatusUpdated($deliveryRequest->fresh()));
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Delivery is now in transit.',
+            'data' => [
+                'status' => 'in_transit',
+            ],
+        ]);
+    }
+
+    /**
      * Confirm delivery completion with PIN verification.
      */
     public function deliver(ConfirmDeliveryRequest $request, DeliveryRequest $deliveryRequest): JsonResponse
