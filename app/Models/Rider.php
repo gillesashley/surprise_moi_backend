@@ -211,6 +211,14 @@ class Rider extends Authenticatable implements CanResetPassword
     }
 
     /**
+     * Route FCM notifications to the rider's device token.
+     */
+    public function routeNotificationForFcm(): ?string
+    {
+        return $this->device_token;
+    }
+
+    /**
      * Get the rider's pending balance from uncleared earnings.
      */
     public function getPendingBalanceAttribute(): float
