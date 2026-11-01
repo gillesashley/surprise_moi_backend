@@ -1,5 +1,7 @@
 <?php
 
+use App\Jobs\ReleasePendingFundsJob;
+use App\Jobs\VerifyPendingTransfersJob;
 use App\Services\TargetService;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
@@ -15,9 +17,9 @@ Schedule::call(function (TargetService $targetService) {
     logger()->info("Expired {$expired} targets");
 })->daily()->at('00:05');
 
-Schedule::job(new \App\Jobs\ReleasePendingFundsJob)->hourly();
+Schedule::job(new ReleasePendingFundsJob)->hourly();
 
-Schedule::job(new \App\Jobs\VerifyPendingTransfersJob)->everyThirtyMinutes();
+Schedule::job(new VerifyPendingTransfersJob)->everyThirtyMinutes();
 
 Schedule::command('tier-upgrade:expire-stale')->hourly();
 
@@ -32,3 +34,6 @@ Schedule::command('vendor-applications:process-flag-deadlines')
     ->daily()
     ->withoutOverlapping()
     ->onOneServer();
+
+// Deactivate special offers whose end date has passed.
+Schedule::command('special-offers:deactivate-expired')->hourly();
