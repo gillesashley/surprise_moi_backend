@@ -58,8 +58,8 @@ RUN apk add --no-cache \
 # Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Install pnpm
-RUN npm install -g pnpm
+# Install bun
+RUN npm install -g bun@1.3.9
 
 WORKDIR /app
 
@@ -80,13 +80,10 @@ COPY app ./app
 RUN composer dump-autoload --optimize
 
 # Copy package files
-COPY package.json pnpm-lock.yaml ./
-
-# Create pnpm-workspace.yaml for pnpm v11+ build script approval
-RUN printf 'allowBuilds:\n  esbuild: true\n' > pnpm-workspace.yaml
+COPY package.json bun.lock ./
 
 # Install Node dependencies
-RUN pnpm install --frozen-lockfile
+RUN bun install --frozen-lockfile
 
 # Copy frontend source files
 COPY resources ./resources
@@ -116,7 +113,7 @@ RUN cp .env.example .env \
 RUN php -d memory_limit=512M artisan wayfinder:generate --with-form
 
 # Build the frontend assets (skip Wayfinder plugin since we already generated)
-RUN SKIP_WAYFINDER=true pnpm run build
+RUN SKIP_WAYFINDER=true bun run build
 
 # -----------------------------------------------------------------------------
 # Stage 3: Production Image
@@ -235,9 +232,9 @@ RUN cp "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
 # Add Composer for development
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Add Node.js and pnpm for frontend development
+# Add Node.js and bun for frontend development
 RUN apk add --no-cache nodejs npm \
-    && npm install -g pnpm
+    && npm install -g bun@1.3.9
 
 WORKDIR /var/www/html
 
@@ -259,10 +256,9 @@ RUN cp .env.example .env \
     && sed -i 's/REDIS_CLIENT=phpredis/REDIS_CLIENT=predis/' .env \
     && sed -i 's/CACHE_STORE=redis/CACHE_STORE=array/' .env \
     && php artisan key:generate --ansi \
-    && printf 'allowBuilds:\n  esbuild: true\n' > pnpm-workspace.yaml \
-    && pnpm install --frozen-lockfile \
+    && bun install --frozen-lockfile \
     && php -d memory_limit=512M artisan wayfinder:generate --with-form \
-    && SKIP_WAYFINDER=true pnpm run build \
+    && SKIP_WAYFINDER=true bun run build \
     && rm .env
 
 # Recreate directories and fix permissions
