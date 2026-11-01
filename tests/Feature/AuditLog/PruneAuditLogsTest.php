@@ -4,14 +4,14 @@ namespace Tests\Feature\AuditLog;
 
 use App\Models\ActivityLog;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\DatabaseTruncation;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class PruneAuditLogsTest extends TestCase
 {
-    use RefreshDatabase;
+    use DatabaseTruncation;
 
     private User $user;
 
@@ -25,6 +25,9 @@ class PruneAuditLogsTest extends TestCase
 
         $this->user = User::factory()->create();
         DB::statement('TRUNCATE TABLE activity_log RESTART IDENTITY CASCADE');
+        // Production's pruner role is configured with session_replication_role=replica,
+        // which bypasses the append-only trigger. Mirror that for the test connection.
+        DB::connection('audit_pruner')->statement('SET session_replication_role = replica');
     }
 
     /**

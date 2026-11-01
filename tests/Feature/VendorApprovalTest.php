@@ -18,6 +18,7 @@ class VendorApprovalTest extends TestCase
     {
         parent::setUp();
         $this->withoutMiddleware(ValidateCsrfToken::class);
+        $this->withSession(['user_management.verified_at' => time()]);
     }
 
     public function test_admin_can_approve_vendor_application(): void

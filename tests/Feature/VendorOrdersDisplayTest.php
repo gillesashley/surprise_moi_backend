@@ -5,12 +5,15 @@ namespace Tests\Feature;
 use App\Models\Order;
 use App\Models\User;
 use App\Models\VendorApplication;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class VendorOrdersDisplayTest extends TestCase
 {
-    use RefreshDatabase;
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->withSession(['user_management.verified_at' => time()]);
+    }
 
     public function test_approved_vendor_application_shows_vendor_orders(): void
     {
