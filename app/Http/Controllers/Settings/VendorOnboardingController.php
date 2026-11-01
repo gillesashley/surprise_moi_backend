@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Settings;
 
 use App\Http\Controllers\Controller;
 use App\Models\Setting;
+use App\Services\AuditService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -55,7 +56,7 @@ class VendorOnboardingController extends Controller
             Setting::set($key, $value, 'number');
         }
 
-        app(\App\Services\AuditService::class)->record(
+        app(AuditService::class)->record(
             'settings.updated',
             null,
             $request->user(),

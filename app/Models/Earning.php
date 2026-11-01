@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Database\Factories\EarningFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -10,7 +11,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Earning extends Model
 {
-    /** @use HasFactory<\Database\Factories\EarningFactory> */
+    /** @use HasFactory<EarningFactory> */
     use HasFactory, SoftDeletes;
 
     public const TYPE_REFERRAL_BONUS = 'referral_bonus';

@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Earning;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Collection;
 
@@ -98,8 +99,8 @@ class EarningService
         $startMonth = ($quarter - 1) * 3 + 1;
         $endMonth = $startMonth + 2;
 
-        $startDate = \Carbon\Carbon::createFromDate($year, $startMonth, 1)->startOfMonth();
-        $endDate = \Carbon\Carbon::createFromDate($year, $endMonth, 1)->endOfMonth();
+        $startDate = Carbon::createFromDate($year, $startMonth, 1)->startOfMonth();
+        $endDate = Carbon::createFromDate($year, $endMonth, 1)->endOfMonth();
 
         return (float) Earning::where('user_id', $user->id)
             ->where('earning_type', Earning::TYPE_SIGN_ON_BONUS)

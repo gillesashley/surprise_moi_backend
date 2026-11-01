@@ -12,7 +12,7 @@ class SendPasswordResetToken extends BaseJob
     /**
      * The user requesting password reset.
      *
-     * @var \App\Models\User
+     * @var User
      */
     public $user;
 

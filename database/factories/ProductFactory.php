@@ -2,10 +2,14 @@
 
 namespace Database\Factories;
 
+use App\Models\Category;
+use App\Models\Product;
+use App\Models\Shop;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Product>
+ * @extends Factory<Product>
  */
 class ProductFactory extends Factory
 {
@@ -20,9 +24,9 @@ class ProductFactory extends Factory
         $hasDiscount = $this->faker->boolean(30);
 
         return [
-            'category_id' => \App\Models\Category::factory(),
-            'vendor_id' => \App\Models\User::factory(),
-            'shop_id' => \App\Models\Shop::factory(),
+            'category_id' => Category::factory(),
+            'vendor_id' => User::factory(),
+            'shop_id' => Shop::factory(),
             'name' => $this->faker->words(3, true),
             'description' => $this->faker->sentence(),
             'detailed_description' => $this->faker->paragraph(3),

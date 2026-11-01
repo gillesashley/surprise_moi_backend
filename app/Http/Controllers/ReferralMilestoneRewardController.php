@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ReferralMilestoneReward;
+use App\Services\AuditService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -46,7 +47,7 @@ class ReferralMilestoneRewardController extends Controller
             'fulfilled_at' => now(),
         ]);
 
-        app(\App\Services\AuditService::class)->record(
+        app(AuditService::class)->record(
             'referral_milestone.fulfilled',
             $reward,
             $request->user(),

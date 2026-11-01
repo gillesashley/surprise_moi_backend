@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Notifications\FieldAgentApplicationReceivedNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
@@ -27,6 +28,7 @@ class FieldAgentRegistrationTest extends TestCase
         parent::setUp();
         $this->region = Region::factory()->create(['name' => 'Greater Accra']);
         $this->city = City::factory()->create(['region_id' => $this->region->id, 'name' => 'Accra']);
+        config(['filesystems.default' => 'r2']);
         Storage::fake('r2');
         Notification::fake();
     }
@@ -101,7 +103,7 @@ class FieldAgentRegistrationTest extends TestCase
 
     public function test_validation_rejects_each_missing_required_field(): void
     {
-        $this->withoutMiddleware(\Illuminate\Routing\Middleware\ThrottleRequests::class);
+        $this->withoutMiddleware(ThrottleRequests::class);
 
         foreach (['first_name', 'last_name', 'email', 'contact_number', 'region_id', 'city_id', 'location', 'ghana_card_number', 'ghana_card_image', 'ghana_card_back_image', 'selfie', 'password'] as $field) {
             $payload = $this->validPayload();

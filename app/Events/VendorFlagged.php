@@ -3,6 +3,7 @@
 namespace App\Events;
 
 use App\Models\VendorApplication;
+use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
@@ -26,7 +27,7 @@ class VendorFlagged implements ShouldBroadcast
     public function __construct(public VendorApplication $vendorApplication) {}
 
     /**
-     * @return array<int, \Illuminate\Broadcasting\Channel>
+     * @return array<int, Channel>
      */
     public function broadcastOn(): array
     {

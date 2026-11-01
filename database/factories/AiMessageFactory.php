@@ -3,10 +3,11 @@
 namespace Database\Factories;
 
 use App\Models\AiConversation;
+use App\Models\AiMessage;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\AiMessage>
+ * @extends Factory<AiMessage>
  */
 class AiMessageFactory extends Factory
 {

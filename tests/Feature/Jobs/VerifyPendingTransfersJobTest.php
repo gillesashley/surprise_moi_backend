@@ -7,6 +7,7 @@ use App\Models\PayoutRequest;
 use App\Models\User;
 use App\Models\VendorBalance;
 use App\Models\VendorPayoutDetail;
+use App\Services\PaystackService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
@@ -38,7 +39,7 @@ class VerifyPendingTransfersJobTest extends TestCase
         ]);
 
         $job = new VerifyPendingTransfersJob;
-        $job->handle(app(\App\Services\PaystackService::class));
+        $job->handle(app(PaystackService::class));
 
         $payout->refresh();
         $this->assertEquals(PayoutRequest::STATUS_PAID, $payout->status);
@@ -62,7 +63,7 @@ class VerifyPendingTransfersJobTest extends TestCase
         Http::fake();
 
         $job = new VerifyPendingTransfersJob;
-        $job->handle(app(\App\Services\PaystackService::class));
+        $job->handle(app(PaystackService::class));
 
         $payout->refresh();
         $this->assertEquals(PayoutRequest::STATUS_PROCESSING, $payout->status);

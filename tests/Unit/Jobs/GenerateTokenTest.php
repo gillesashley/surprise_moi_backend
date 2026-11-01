@@ -3,6 +3,7 @@
 namespace Tests\Unit\Jobs;
 
 use App\Jobs\GenerateToken;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -35,7 +36,7 @@ class GenerateTokenTest extends TestCase
 
     public function test_generate_password_reset_token_creates_record(): void
     {
-        $user = \App\Models\User::factory()->create([
+        $user = User::factory()->create([
             'email' => 'test@example.com',
         ]);
 

@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\V1\Product\StoreProductRequest;
+use App\Http\Requests\Api\V1\Product\UpdateProductRequest;
 use App\Http\Resources\ProductDetailResource;
 use App\Http\Resources\ProductResource;
 use App\Models\Product;
@@ -266,7 +268,7 @@ class ProductController extends Controller
     /**
      * Store a newly created product.
      */
-    public function store(\App\Http\Requests\Api\V1\Product\StoreProductRequest $request)
+    public function store(StoreProductRequest $request)
     {
         $data = $request->validated();
         $data['vendor_id'] = $request->user()->id;
@@ -310,7 +312,7 @@ class ProductController extends Controller
     /**
      * Update the specified product.
      */
-    public function update(\App\Http\Requests\Api\V1\Product\UpdateProductRequest $request, Product $product)
+    public function update(UpdateProductRequest $request, Product $product)
     {
         $data = $request->validated();
 

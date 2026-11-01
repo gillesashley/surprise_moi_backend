@@ -5,6 +5,7 @@ namespace Tests\Unit\Services;
 use App\Models\Earning;
 use App\Models\User;
 use App\Services\EarningService;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -43,7 +44,7 @@ class EarningServiceTest extends TestCase
         $customer = User::factory()->create(['role' => 'customer']);
         $earning = Earning::factory()->create();
 
-        $this->expectException(\Illuminate\Auth\Access\AuthorizationException::class);
+        $this->expectException(AuthorizationException::class);
 
         $this->earningService->approve($earning, $customer);
     }

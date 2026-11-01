@@ -3,6 +3,7 @@
 namespace App\Events;
 
 use App\Models\VendorApplication;
+use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
@@ -34,7 +35,7 @@ class VendorApprovalSubmitted implements ShouldBroadcast
      * Broadcasts to private 'admin' channel.
      * Only authenticated admin users can subscribe (see routes/channels.php).
      *
-     * @return array<int, \Illuminate\Broadcasting\Channel>
+     * @return array<int, Channel>
      */
     public function broadcastOn(): array
     {

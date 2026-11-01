@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\FieldAgentApplicationStatus;
 use App\Traits\Auditable;
+use Database\Factories\FieldAgentApplicationFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -11,7 +12,7 @@ use Illuminate\Notifications\Notifiable;
 
 class FieldAgentApplication extends Model
 {
-    /** @use HasFactory<\Database\Factories\FieldAgentApplicationFactory> */
+    /** @use HasFactory<FieldAgentApplicationFactory> */
     use Auditable, HasFactory, Notifiable;
 
     public function retentionClass(string $eventName): string

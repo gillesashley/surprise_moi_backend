@@ -6,6 +6,7 @@ use App\Jobs\ReleasePendingFundsJob;
 use App\Models\Order;
 use App\Models\User;
 use App\Models\VendorBalance;
+use App\Services\VendorBalanceService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -33,7 +34,7 @@ class ReleasePendingFundsJobTest extends TestCase
         ]);
 
         $job = new ReleasePendingFundsJob;
-        $job->handle(app(\App\Services\VendorBalanceService::class));
+        $job->handle(app(VendorBalanceService::class));
 
         $order->refresh();
         $this->assertTrue($order->funds_released);
@@ -63,7 +64,7 @@ class ReleasePendingFundsJobTest extends TestCase
         ]);
 
         $job = new ReleasePendingFundsJob;
-        $job->handle(app(\App\Services\VendorBalanceService::class));
+        $job->handle(app(VendorBalanceService::class));
 
         $balance->refresh();
         $this->assertEquals(500.00, (float) $balance->pending_balance);
@@ -90,7 +91,7 @@ class ReleasePendingFundsJobTest extends TestCase
         ]);
 
         $job = new ReleasePendingFundsJob;
-        $job->handle(app(\App\Services\VendorBalanceService::class));
+        $job->handle(app(VendorBalanceService::class));
 
         $order->refresh();
         $this->assertTrue($order->funds_released);

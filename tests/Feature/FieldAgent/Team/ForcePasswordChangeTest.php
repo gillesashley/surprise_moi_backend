@@ -3,6 +3,7 @@
 namespace Tests\Feature\FieldAgent\Team;
 
 use App\Models\User;
+use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Config;
 use Tests\TestCase;
@@ -16,7 +17,7 @@ class ForcePasswordChangeTest extends TestCase
         parent::setUp();
         Config::set('session.driver', 'array');
         Config::set('cache.default', 'array');
-        $this->withoutMiddleware(\Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class);
+        $this->withoutMiddleware(ValidateCsrfToken::class);
     }
 
     public function test_member_is_not_redirected_from_dashboard(): void

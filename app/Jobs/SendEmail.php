@@ -17,7 +17,7 @@ class SendEmail extends BaseJob
     /**
      * The mailable instance.
      *
-     * @var \Illuminate\Mail\Mailable
+     * @var Mailable
      */
     public $mailable;
 

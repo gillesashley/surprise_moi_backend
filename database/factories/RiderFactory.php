@@ -3,11 +3,13 @@
 namespace Database\Factories;
 
 use App\Models\Rider;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Rider>
+ * @extends Factory<Rider>
  */
 class RiderFactory extends Factory
 {
@@ -109,14 +111,14 @@ class RiderFactory extends Factory
      * Indicate that this is a shadow rider linked to an admin User.
      * Used in tests of the super-admin dev-login fallback.
      */
-    public function shadowOf(\App\Models\User $admin): static
+    public function shadowOf(User $admin): static
     {
         return $this->state(fn () => [
             'user_id' => $admin->id,
             'name' => $admin->name,
             'email' => $admin->email,
             'phone' => $admin->phone ?? "admin-{$admin->id}",
-            'password' => \Illuminate\Support\Facades\Hash::make(\Illuminate\Support\Str::random(40)),
+            'password' => Hash::make(Str::random(40)),
             'status' => 'approved',
             'is_active' => true,
         ]);

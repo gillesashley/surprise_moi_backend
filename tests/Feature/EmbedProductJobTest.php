@@ -7,6 +7,7 @@ use App\Jobs\EmbedProduct;
 use App\Models\Product;
 use App\Models\Shop;
 use App\Models\User;
+use App\Services\ProductEmbeddingService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Queue;
 use Laravel\Ai\Embeddings;
@@ -64,7 +65,7 @@ class EmbedProductJobTest extends TestCase
         $product = $this->createProduct();
 
         $job = new EmbedProduct($product);
-        $job->handle(app(\App\Services\ProductEmbeddingService::class));
+        $job->handle(app(ProductEmbeddingService::class));
 
         $this->assertDatabaseHas('product_embeddings', [
             'product_id' => $product->id,

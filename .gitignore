@@ -54,6 +54,7 @@ firebase-credentials.json
 /cookies.txt
 /GEMINI.md
 .superpowers/*
+.serena/
 docs/*
 /graphify-out
 /app/Http/Resources/graphify-out/*

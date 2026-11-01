@@ -10,6 +10,7 @@ use App\Notifications\VendorApplicationSubmittedNotification;
 use App\Notifications\VendorApprovalNotification;
 use App\Notifications\VendorFlaggedNotification;
 use App\Traits\Auditable;
+use Database\Factories\VendorApplicationFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -20,7 +21,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class VendorApplication extends Model
 {
-    /** @use HasFactory<\Database\Factories\VendorApplicationFactory> */
+    /** @use HasFactory<VendorApplicationFactory> */
     use Auditable, HasFactory, SoftDeletes;
 
     /**

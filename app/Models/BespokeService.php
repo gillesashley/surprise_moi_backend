@@ -3,13 +3,14 @@
 namespace App\Models;
 
 use App\Traits\Auditable;
+use Database\Factories\BespokeServiceFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class BespokeService extends Model
 {
-    /** @use HasFactory<\Database\Factories\BespokeServiceFactory> */
+    /** @use HasFactory<BespokeServiceFactory> */
     use Auditable, HasFactory;
 
     protected $fillable = [

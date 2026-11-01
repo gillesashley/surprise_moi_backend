@@ -2,9 +2,12 @@
 
 namespace Tests\Feature\Settings;
 
+use App\Models\Setting;
 use App\Models\User;
 use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Cache;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class VendorOnboardingSettingsTest extends TestCase
@@ -88,17 +91,17 @@ class VendorOnboardingSettingsTest extends TestCase
         $response->assertStatus(403);
     }
 
-    #[\PHPUnit\Framework\Attributes\Test]
+    #[Test]
     public function migration_seeds_the_three_new_referral_program_settings(): void
     {
-        \Illuminate\Support\Facades\Cache::flush();
+        Cache::flush();
 
-        $this->assertSame('25.00', \App\Models\Setting::get('vendor_onboarding_subsidy_pct'));
-        $this->assertSame('10', \App\Models\Setting::get('referral_points_per_ghs'));
-        $this->assertSame('1000', \App\Models\Setting::get('referral_cashout_min_points'));
+        $this->assertSame('25.00', Setting::get('vendor_onboarding_subsidy_pct'));
+        $this->assertSame('10', Setting::get('referral_points_per_ghs'));
+        $this->assertSame('1000', Setting::get('referral_cashout_min_points'));
     }
 
-    #[\PHPUnit\Framework\Attributes\Test]
+    #[Test]
     public function admin_can_update_the_three_new_referral_program_settings(): void
     {
         $admin = User::factory()->create(['role' => 'super_admin']);
@@ -118,15 +121,17 @@ class VendorOnboardingSettingsTest extends TestCase
                 'vendor_onboarding_subsidy_pct' => '30',
                 'referral_points_per_ghs' => '15',
                 'referral_cashout_min_points' => '2000',
+                'payout_min_amount' => '50',
+                'payout_max_amount' => '5000',
             ])
             ->assertRedirect();
 
-        $this->assertEquals(30.0, (float) \App\Models\Setting::get('vendor_onboarding_subsidy_pct'));
-        $this->assertEquals(15.0, (float) \App\Models\Setting::get('referral_points_per_ghs'));
-        $this->assertEquals(2000.0, (float) \App\Models\Setting::get('referral_cashout_min_points'));
+        $this->assertEquals(30.0, (float) Setting::get('vendor_onboarding_subsidy_pct'));
+        $this->assertEquals(15.0, (float) Setting::get('referral_points_per_ghs'));
+        $this->assertEquals(2000.0, (float) Setting::get('referral_cashout_min_points'));
     }
 
-    #[\PHPUnit\Framework\Attributes\Test]
+    #[Test]
     public function subsidy_pct_must_be_between_0_and_100(): void
     {
         $admin = User::factory()->create(['role' => 'super_admin']);
@@ -150,7 +155,7 @@ class VendorOnboardingSettingsTest extends TestCase
             ->assertSessionHasErrors('vendor_onboarding_subsidy_pct');
     }
 
-    #[\PHPUnit\Framework\Attributes\Test]
+    #[Test]
     public function team_field_agent_pct_is_required_on_update(): void
     {
         $admin = User::factory()->create(['role' => 'super_admin']);
@@ -174,7 +179,7 @@ class VendorOnboardingSettingsTest extends TestCase
             ->assertSessionHasErrors('referral_bonus_field_agent_team_pct');
     }
 
-    #[\PHPUnit\Framework\Attributes\Test]
+    #[Test]
     public function team_field_agent_pct_must_be_between_0_and_100(): void
     {
         $admin = User::factory()->create(['role' => 'super_admin']);
@@ -198,10 +203,10 @@ class VendorOnboardingSettingsTest extends TestCase
             ->assertSessionHasErrors('referral_bonus_field_agent_team_pct');
     }
 
-    #[\PHPUnit\Framework\Attributes\Test]
+    #[Test]
     public function team_field_agent_pct_round_trips_through_setting_get(): void
     {
-        \Illuminate\Support\Facades\Cache::flush();
+        Cache::flush();
         $admin = User::factory()->create(['role' => 'super_admin']);
 
         $this->actingAs($admin)
@@ -219,18 +224,20 @@ class VendorOnboardingSettingsTest extends TestCase
                 'referral_points_per_ghs' => '10',
                 'referral_cashout_min_points' => '1000',
                 'referral_bonus_field_agent_team_pct' => '42',
+                'payout_min_amount' => '50',
+                'payout_max_amount' => '5000',
             ])
             ->assertRedirect();
 
-        \Illuminate\Support\Facades\Cache::flush();
-        $this->assertEquals(42.0, (float) \App\Models\Setting::get('referral_bonus_field_agent_team_pct'));
+        Cache::flush();
+        $this->assertEquals(42.0, (float) Setting::get('referral_bonus_field_agent_team_pct'));
     }
 
-    #[\PHPUnit\Framework\Attributes\Test]
+    #[Test]
     public function migration_seeds_the_team_field_agent_pct_setting(): void
     {
-        \Illuminate\Support\Facades\Cache::flush();
+        Cache::flush();
 
-        $this->assertEquals(35.0, (float) \App\Models\Setting::get('referral_bonus_field_agent_team_pct'));
+        $this->assertEquals(35.0, (float) Setting::get('referral_bonus_field_agent_team_pct'));
     }
 }

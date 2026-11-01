@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
 return [
@@ -113,5 +114,20 @@ return [
     */
 
     'prefix' => env('CACHE_PREFIX', Str::slug((string) env('APP_NAME', 'laravel')).'-cache-'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Serializable Classes
+    |--------------------------------------------------------------------------
+    |
+    | List of class names that are allowed to be serialized and unserialized
+    | when using the cache. Add any custom data classes that you cache.
+    |
+    */
+
+    'serializable_classes' => [
+        Collection::class,
+        Illuminate\Database\Eloquent\Collection::class,
+    ],
 
 ];

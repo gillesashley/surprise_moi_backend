@@ -2,11 +2,12 @@
 
 namespace Database\Factories;
 
+use App\Models\BespokeService;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\BespokeService>
+ * @extends Factory<BespokeService>
  */
 class BespokeServiceFactory extends Factory
 {

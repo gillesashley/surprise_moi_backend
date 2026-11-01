@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Traits\Auditable;
+use Database\Factories\ReferralCodeFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -12,7 +13,7 @@ use Illuminate\Support\Str;
 
 class ReferralCode extends Model
 {
-    /** @use HasFactory<\Database\Factories\ReferralCodeFactory> */
+    /** @use HasFactory<ReferralCodeFactory> */
     use Auditable, HasFactory, SoftDeletes;
 
     /**

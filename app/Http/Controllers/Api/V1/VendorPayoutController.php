@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Models\PayoutRequest;
 use App\Models\Setting;
+use App\Models\VendorPayoutDetail;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -75,7 +76,7 @@ class VendorPayoutController extends Controller
                 'required',
                 'exists:vendor_payout_details,id',
                 function ($attribute, $value, $fail) use ($request) {
-                    $detail = \App\Models\VendorPayoutDetail::find($value);
+                    $detail = VendorPayoutDetail::find($value);
                     if (! $detail || $detail->vendor_id !== $request->user()->id) {
                         $fail('The selected payout details do not belong to you.');
                     }
@@ -115,7 +116,7 @@ class VendorPayoutController extends Controller
             ], 400);
         }
 
-        $payoutDetail = \App\Models\VendorPayoutDetail::find($request->input('payout_detail_id'));
+        $payoutDetail = VendorPayoutDetail::find($request->input('payout_detail_id'));
 
         try {
             DB::beginTransaction();

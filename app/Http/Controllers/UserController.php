@@ -3,9 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Services\AuditService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
@@ -110,7 +113,7 @@ class UserController extends Controller
     /**
      * Export users list as a PDF file.
      */
-    public function exportPdf(Request $request): \Illuminate\Http\Response
+    public function exportPdf(Request $request): Response
     {
         $query = User::query()
             ->select(['id', 'name', 'email', 'phone', 'role', 'created_at']);
@@ -322,7 +325,7 @@ class UserController extends Controller
         $user->update($validated);
 
         if (array_key_exists('role', $validated) && $oldRole !== $user->role) {
-            app(\App\Services\AuditService::class)->record(
+            app(AuditService::class)->record(
                 'user.role_changed',
                 $user,
                 $request->user(),
@@ -337,7 +340,7 @@ class UserController extends Controller
     /**
      * Toggle a field agent between team and individual modes.
      */
-    public function switchFieldAgentType(Request $request, User $user): \Illuminate\Http\RedirectResponse
+    public function switchFieldAgentType(Request $request, User $user): RedirectResponse
     {
         if (! $user->isFieldAgent()) {
             return back()->with('error', 'Only field agents can have their team status switched.');
@@ -346,7 +349,7 @@ class UserController extends Controller
         $previous = (bool) $user->is_team_field_agent;
         $user->update(['is_team_field_agent' => ! $previous]);
 
-        app(\App\Services\AuditService::class)->record(
+        app(AuditService::class)->record(
             'field_agent.type_switched',
             $user,
             $request->user(),

@@ -157,12 +157,12 @@ class PhoneNormalizationTest extends TestCase
             $mock->shouldReceive('sendOtp')->never();
         });
 
-        // US landline: NPA 202 (Washington DC) area code, but specific number range
-        // libphonenumber classifies as fixed-line.
+        // Ghana Accra fixed-line (0302 prefix): libphonenumber classifies as FIXED_LINE.
+
         $response = $this->postJson('/api/v1/auth/register', [
             'name' => 'Land Line',
             'email' => 'fixed@example.com',
-            'phone' => '+12022345678',
+            'phone' => '+233302123456',
             'password' => 'Password123!',
             'password_confirmation' => 'Password123!',
             'role' => 'customer',

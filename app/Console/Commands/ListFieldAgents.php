@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\FieldAgentApplication;
 use Illuminate\Console\Command;
 
 class ListFieldAgents extends Command
@@ -22,7 +23,7 @@ class ListFieldAgents extends Command
 
     public function handle(): int
     {
-        $agents = \App\Models\FieldAgentApplication::all();
+        $agents = FieldAgentApplication::all();
 
         if ($agents->isEmpty()) {
             $this->info('No field agents found in database.');

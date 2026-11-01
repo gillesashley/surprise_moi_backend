@@ -3,6 +3,8 @@
 namespace Tests\Feature\Api;
 
 use App\Models\Address;
+use App\Models\Cart;
+use App\Models\CartItem;
 use App\Models\Coupon;
 use App\Models\Order;
 use App\Models\Product;
@@ -818,8 +820,8 @@ class OrderApiTest extends TestCase
         ]);
 
         // Simulate: user added product to cart when price was 8.00
-        $cart = \App\Models\Cart::create(['user_id' => $this->customer->id, 'currency' => 'GHS']);
-        \App\Models\CartItem::create([
+        $cart = Cart::create(['user_id' => $this->customer->id, 'currency' => 'GHS']);
+        CartItem::create([
             'cart_id' => $cart->id,
             'product_id' => $product->id,
             'vendor_id' => $product->vendor_id,
@@ -869,8 +871,8 @@ class OrderApiTest extends TestCase
         ]);
 
         // Cart has old price
-        $cart = \App\Models\Cart::create(['user_id' => $this->customer->id, 'currency' => 'GHS']);
-        \App\Models\CartItem::create([
+        $cart = Cart::create(['user_id' => $this->customer->id, 'currency' => 'GHS']);
+        CartItem::create([
             'cart_id' => $cart->id,
             'product_id' => $product->id,
             'vendor_id' => $product->vendor_id,
@@ -913,8 +915,8 @@ class OrderApiTest extends TestCase
         ]);
 
         // Add item to cart
-        $cart = \App\Models\Cart::create(['user_id' => $this->customer->id, 'currency' => 'GHS']);
-        \App\Models\CartItem::create([
+        $cart = Cart::create(['user_id' => $this->customer->id, 'currency' => 'GHS']);
+        CartItem::create([
             'cart_id' => $cart->id,
             'product_id' => $product->id,
             'vendor_id' => $product->vendor_id,
@@ -1070,7 +1072,7 @@ class OrderApiTest extends TestCase
 
         $response->assertStatus(201);
 
-        $order = \App\Models\Order::first();
+        $order = Order::first();
         $this->assertEquals(50.00, (float) $order->total);
     }
 }

@@ -3,8 +3,10 @@
 namespace Tests\Feature\FieldAgent\Team;
 
 use App\Models\User;
+use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
 class ToggleTeamMemberActiveTest extends TestCase
@@ -16,7 +18,7 @@ class ToggleTeamMemberActiveTest extends TestCase
         parent::setUp();
         Config::set('session.driver', 'array');
         Config::set('cache.default', 'array');
-        $this->withoutMiddleware(\Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class);
+        $this->withoutMiddleware(ValidateCsrfToken::class);
     }
 
     public function test_lead_deactivates_then_reactivates_member(): void
@@ -70,7 +72,7 @@ class ToggleTeamMemberActiveTest extends TestCase
         $lead = User::factory()->lead()->create();
         $member = User::factory()->teamMember($lead)->create([
             'is_active' => false,
-            'password' => \Illuminate\Support\Facades\Hash::make('secret-pass'),
+            'password' => Hash::make('secret-pass'),
         ]);
 
         $this->post('/login', [
@@ -84,7 +86,7 @@ class ToggleTeamMemberActiveTest extends TestCase
     public function test_active_user_logs_in_normally(): void
     {
         $lead = User::factory()->lead()->create([
-            'password' => \Illuminate\Support\Facades\Hash::make('secret-pass'),
+            'password' => Hash::make('secret-pass'),
         ]);
 
         $this->post('/login', [

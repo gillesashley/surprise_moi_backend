@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Traits\Auditable;
+use Database\Factories\ReferralFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -11,7 +12,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Referral extends Model
 {
-    /** @use HasFactory<\Database\Factories\ReferralFactory> */
+    /** @use HasFactory<ReferralFactory> */
     use Auditable, HasFactory, SoftDeletes;
 
     public const STATUS_PENDING = 'pending';

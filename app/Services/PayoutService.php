@@ -103,8 +103,8 @@ class PayoutService
 
             $payoutRequest->markAsPaid();
 
-            if ($payoutRequest->source === \App\Models\PayoutRequest::SOURCE_REFERRAL_MILESTONE) {
-                app(\App\Services\ReferralPayoutService::class)->onPayoutMarkedPaid($payoutRequest->fresh());
+            if ($payoutRequest->source === PayoutRequest::SOURCE_REFERRAL_MILESTONE) {
+                app(ReferralPayoutService::class)->onPayoutMarkedPaid($payoutRequest->fresh());
             }
 
             return $payoutRequest->fresh();

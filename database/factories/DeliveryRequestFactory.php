@@ -9,7 +9,7 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\DeliveryRequest>
+ * @extends Factory<DeliveryRequest>
  */
 class DeliveryRequestFactory extends Factory
 {

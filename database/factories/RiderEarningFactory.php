@@ -9,7 +9,7 @@ use App\Models\RiderEarning;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\RiderEarning>
+ * @extends Factory<RiderEarning>
  */
 class RiderEarningFactory extends Factory
 {

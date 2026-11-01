@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Database\Factories\SpecialOfferFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -9,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class SpecialOffer extends Model
 {
-    /** @use HasFactory<\Database\Factories\SpecialOfferFactory> */
+    /** @use HasFactory<SpecialOfferFactory> */
     use HasFactory;
 
     public const TAG_TODAYS_OFFERS = "Today's Offers";

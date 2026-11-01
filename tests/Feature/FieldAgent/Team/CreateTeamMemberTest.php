@@ -3,6 +3,7 @@
 namespace Tests\Feature\FieldAgent\Team;
 
 use App\Models\User;
+use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Hash;
@@ -18,7 +19,7 @@ class CreateTeamMemberTest extends TestCase
         Config::set('session.driver', 'array');
         Config::set('cache.default', 'array');
         Config::set('inertia.testing.ensure_pages_exist', false);
-        $this->withoutMiddleware(\Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class);
+        $this->withoutMiddleware(ValidateCsrfToken::class);
     }
 
     public function test_lead_creates_member_with_phone_as_password(): void

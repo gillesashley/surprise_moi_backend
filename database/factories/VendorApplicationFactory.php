@@ -7,7 +7,7 @@ use App\Models\VendorApplication;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\VendorApplication>
+ * @extends Factory<VendorApplication>
  */
 class VendorApplicationFactory extends Factory
 {

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Database\Factories\SupportTicketFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -9,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class SupportTicket extends Model
 {
-    /** @use HasFactory<\Database\Factories\SupportTicketFactory> */
+    /** @use HasFactory<SupportTicketFactory> */
     use HasFactory;
 
     public const STATUS_OPEN = 'open';

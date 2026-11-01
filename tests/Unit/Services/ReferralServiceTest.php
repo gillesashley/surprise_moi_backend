@@ -174,10 +174,19 @@ class ReferralServiceTest extends TestCase
             $this->service->activateReferral($application);
 
             $this->assertSame(150, (int) $referrer->fresh()->referral_points, "role={$role}");
-            $this->assertDatabaseMissing('earnings', [
-                'user_id' => $referrer->id,
-                'earning_type' => Earning::TYPE_REFERRAL_BONUS,
-            ]);
+
+            // Earning-capable roles also get a GHS earning row; others only points.
+            if (in_array($role, ['influencer', 'field_agent', 'employee'], true)) {
+                $this->assertDatabaseHas('earnings', [
+                    'user_id' => $referrer->id,
+                    'earning_type' => Earning::TYPE_REFERRAL_BONUS,
+                ]);
+            } else {
+                $this->assertDatabaseMissing('earnings', [
+                    'user_id' => $referrer->id,
+                    'earning_type' => Earning::TYPE_REFERRAL_BONUS,
+                ]);
+            }
         }
     }
 

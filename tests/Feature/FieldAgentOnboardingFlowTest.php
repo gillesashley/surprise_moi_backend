@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Referral;
 use App\Models\User;
 use App\Models\VendorApplication;
 use App\Models\VendorVisit;
@@ -48,12 +49,12 @@ class FieldAgentOnboardingFlowTest extends TestCase
             'submitted_at' => now(),
         ]);
 
-        \App\Models\Referral::create([
+        Referral::create([
             'referral_code_id' => $referralCode->id,
             'influencer_id' => $referralCode->influencer_id,
             'vendor_id' => $vendor->id,
             'vendor_application_id' => $application->id,
-            'status' => \App\Models\Referral::STATUS_PENDING,
+            'status' => Referral::STATUS_PENDING,
         ]);
 
         // 3. Field Agent views their pending visits

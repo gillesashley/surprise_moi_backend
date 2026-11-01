@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use Database\Factories\ReferralPointTransactionFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ReferralPointTransaction extends Model
 {
-    /** @use HasFactory<\Database\Factories\ReferralPointTransactionFactory> */
+    /** @use HasFactory<ReferralPointTransactionFactory> */
     use HasFactory;
 
     /**

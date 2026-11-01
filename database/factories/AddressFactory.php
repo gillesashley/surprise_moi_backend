@@ -2,10 +2,12 @@
 
 namespace Database\Factories;
 
+use App\Models\Address;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Address>
+ * @extends Factory<Address>
  */
 class AddressFactory extends Factory
 {
@@ -19,7 +21,7 @@ class AddressFactory extends Factory
         $names = ['Home', 'Office', 'Parent\'s House', 'Friend\'s House', 'Work', null];
 
         return [
-            'user_id' => \App\Models\User::factory(),
+            'user_id' => User::factory(),
             'name' => $this->faker->randomElement($names),
             'receiver_name' => $this->faker->optional()->name(),
             'address_line_1' => $this->faker->streetAddress(),

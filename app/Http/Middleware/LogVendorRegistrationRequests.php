@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use Closure;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
@@ -38,7 +39,7 @@ class LogVendorRegistrationRequests
                 'path' => $request->path(),
                 'status' => $response->getStatusCode(),
                 'user_id' => auth()->id(),
-                'response_preview' => $response instanceof \Illuminate\Http\JsonResponse
+                'response_preview' => $response instanceof JsonResponse
                     ? substr(json_encode($response->getData()), 0, 500)
                     : 'Non-JSON response',
             ]);

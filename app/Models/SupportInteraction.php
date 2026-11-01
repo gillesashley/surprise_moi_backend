@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use Database\Factories\SupportInteractionFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class SupportInteraction extends Model
 {
-    /** @use HasFactory<\Database\Factories\SupportInteractionFactory> */
+    /** @use HasFactory<SupportInteractionFactory> */
     use HasFactory;
 
     public const CHANNELS = [

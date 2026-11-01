@@ -17,6 +17,7 @@ class VendorApplicationDeletionTest extends TestCase
     {
         parent::setUp();
         $this->withoutMiddleware(ValidateCsrfToken::class);
+        $this->withSession(['user_management.verified_at' => time()]);
     }
 
     public function test_deleting_user_force_deletes_their_vendor_applications(): void

@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\User;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Pagination\LengthAwarePaginator;
 
@@ -13,7 +14,7 @@ class NotificationService
         return $user->notifications()->latest()->paginate($perPage);
     }
 
-    public function getUnreadNotificationsForUser(User $user): \Illuminate\Database\Eloquent\Collection
+    public function getUnreadNotificationsForUser(User $user): Collection
     {
         return $user->unreadNotifications()->latest()->get();
     }

@@ -39,7 +39,7 @@ return new class extends Migration
 
                     try {
                         $normalized = (new PhoneNumber($original, ['GH']))->formatE164();
-                    } catch (\Throwable) {
+                    } catch (Throwable) {
                         $unparseable[] = ['id' => $row->id, 'phone' => $original];
 
                         continue;
