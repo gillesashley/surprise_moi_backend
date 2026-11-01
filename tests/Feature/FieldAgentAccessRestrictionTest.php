@@ -42,6 +42,7 @@ class FieldAgentAccessRestrictionTest extends TestCase
         $admin = User::factory()->create(['role' => 'admin']);
 
         $this->actingAs($admin)
+            ->withSession(['user_management.verified_at' => time()])
             ->get('/dashboard/field-agent-applications')
             ->assertOk();
     }
