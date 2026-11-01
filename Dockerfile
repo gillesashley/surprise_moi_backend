@@ -31,29 +31,13 @@ RUN composer dump-autoload --optimize --no-dev
 # -----------------------------------------------------------------------------
 # Stage 2: Asset Builder - Build frontend with Node.js + PHP for Wayfinder
 # -----------------------------------------------------------------------------
-FROM node:20-alpine AS asset-builder
+FROM php:8.4-cli-alpine AS asset-builder
 
-# Install PHP and required extensions for Wayfinder
-RUN apk add --no-cache \
-    php83 \
-    php83-phar \
-    php83-mbstring \
-    php83-tokenizer \
-    php83-fileinfo \
-    php83-xml \
-    php83-xmlwriter \
-    php83-simplexml \
-    php83-dom \
-    php83-session \
-    php83-iconv \
-    php83-curl \
-    php83-openssl \
-    php83-pdo \
-    php83-pdo_mysql \
-    php83-pdo_pgsql \
-    php83-pdo_sqlite \
-    php83-sqlite3 \
-    && ln -s /usr/bin/php83 /usr/bin/php
+# Node for the Vite build. pcntl is required by dev dependencies
+# (Horizon/Pail) that are installed in this stage.
+RUN apk add --no-cache nodejs npm \
+    && docker-php-ext-install pcntl \
+    && rm -rf /var/cache/apk/*
 
 # Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
@@ -118,7 +102,7 @@ RUN SKIP_WAYFINDER=true bun run build
 # -----------------------------------------------------------------------------
 # Stage 3: Production Image
 # -----------------------------------------------------------------------------
-FROM php:8.3-cli-alpine AS production
+FROM php:8.4-cli-alpine AS production
 
 # Install system dependencies
 RUN apk add --no-cache \
