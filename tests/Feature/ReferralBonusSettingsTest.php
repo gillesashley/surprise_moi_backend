@@ -47,6 +47,9 @@ class ReferralBonusSettingsTest extends TestCase
             'vendor_onboarding_subsidy_pct' => '25.00',
             'referral_points_per_ghs' => '10',
             'referral_cashout_min_points' => '1000',
+            'referral_bonus_field_agent_team_pct' => '30.00',
+            'payout_min_amount' => '50',
+            'payout_max_amount' => '5000',
         ]);
 
         $response->assertRedirect();

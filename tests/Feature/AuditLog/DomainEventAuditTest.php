@@ -72,6 +72,7 @@ class DomainEventAuditTest extends TestCase
         $app = FieldAgentApplication::factory()->pending()->create();
 
         $this->actingAs($admin)
+            ->withSession(['user_management.verified_at' => time()])
             ->post("/dashboard/field-agent-applications/{$app->id}/approve");
 
         $this->assertDatabaseHas('activity_log', [
@@ -88,6 +89,7 @@ class DomainEventAuditTest extends TestCase
         $app = FieldAgentApplication::factory()->pending()->create();
 
         $this->actingAs($admin)
+            ->withSession(['user_management.verified_at' => time()])
             ->post("/dashboard/field-agent-applications/{$app->id}/reject", [
                 'rejection_reason' => 'Docs unclear — please resubmit',
             ]);
@@ -177,6 +179,9 @@ class DomainEventAuditTest extends TestCase
                 'vendor_onboarding_subsidy_pct' => 20.00,
                 'referral_points_per_ghs' => 10,
                 'referral_cashout_min_points' => 100,
+                'referral_bonus_field_agent_team_pct' => 5.00,
+                'payout_min_amount' => 50,
+                'payout_max_amount' => 5000,
             ]);
 
         if ($response->isRedirect() && session()->has('errors')) {

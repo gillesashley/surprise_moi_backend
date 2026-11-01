@@ -13,6 +13,9 @@ class PruneAuditLogsTest extends TestCase
 {
     use DatabaseTruncation;
 
+    /** Only this table is mutated; leave migration-seeded data (e.g. settings) intact. */
+    protected array $tablesToTruncate = ['activity_log'];
+
     private User $user;
 
     protected function setUp(): void
@@ -28,6 +31,15 @@ class PruneAuditLogsTest extends TestCase
         // Production's pruner role is configured with session_replication_role=replica,
         // which bypasses the append-only trigger. Mirror that for the test connection.
         DB::connection('audit_pruner')->statement('SET session_replication_role = replica');
+    }
+
+    protected function tearDown(): void
+    {
+        // This class runs without a wrapping transaction, so remove its user to
+        // avoid leaking rows into later tests in the same process.
+        DB::table('users')->where('id', $this->user->id)->delete();
+
+        parent::tearDown();
     }
 
     /**

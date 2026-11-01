@@ -121,6 +121,8 @@ class VendorOnboardingSettingsTest extends TestCase
                 'vendor_onboarding_subsidy_pct' => '30',
                 'referral_points_per_ghs' => '15',
                 'referral_cashout_min_points' => '2000',
+                'payout_min_amount' => '50',
+                'payout_max_amount' => '5000',
             ])
             ->assertRedirect();
 
@@ -222,6 +224,8 @@ class VendorOnboardingSettingsTest extends TestCase
                 'referral_points_per_ghs' => '10',
                 'referral_cashout_min_points' => '1000',
                 'referral_bonus_field_agent_team_pct' => '42',
+                'payout_min_amount' => '50',
+                'payout_max_amount' => '5000',
             ])
             ->assertRedirect();
 
