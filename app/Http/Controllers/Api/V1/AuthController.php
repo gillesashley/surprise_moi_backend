@@ -73,7 +73,7 @@ class AuthController extends Controller
                 ],
                 'token' => $token,
                 'token_type' => 'Bearer',
-                'otp_sent' => $otpResult['success'],
+                'otp_sent' => (bool) ($otpResult['success'] ?? false),
                 'transaction_id' => $otpResult['data']['transactionId'] ?? null,
             ],
         ], 201);

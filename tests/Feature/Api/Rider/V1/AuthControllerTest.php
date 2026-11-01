@@ -279,7 +279,7 @@ class AuthControllerTest extends TestCase
         Notification::assertNothingSent();
     }
 
-    public function test_forgot_password_for_shadow_rider_returns_422(): void
+    public function test_forgot_password_for_shadow_rider_returns_uniform_success(): void
     {
         Notification::fake();
         $admin = User::factory()->superAdmin()->create();
@@ -289,8 +289,9 @@ class AuthControllerTest extends TestCase
             'email' => 'admin@example.com',
         ]);
 
-        $response->assertStatus(422)
-            ->assertJsonPath('success', false);
+        // Shadow riders cannot reset via this flow, but the response stays
+        // uniform (200) to avoid leaking that the account exists.
+        $response->assertOk()->assertJsonPath('success', true);
         Notification::assertNothingSent();
     }
 

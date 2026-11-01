@@ -22,8 +22,8 @@ use Illuminate\Support\Facades\DB;
  *    onboarding fee.
  * 3. When the vendor application is approved, the referral activates and
  *    the referrer is awarded points based on a percentage of what the
- *    vendor actually paid. All roles earn points — no GHS Earning rows
- *    are created.
+ *    vendor actually paid. All roles earn points; earning-capable roles
+ *    (influencer, field_agent, employee) also receive a GHS Earning row.
  */
 class ReferralService
 {

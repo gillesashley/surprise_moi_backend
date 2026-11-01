@@ -28,6 +28,7 @@ class FieldAgentRegistrationTest extends TestCase
         parent::setUp();
         $this->region = Region::factory()->create(['name' => 'Greater Accra']);
         $this->city = City::factory()->create(['region_id' => $this->region->id, 'name' => 'Accra']);
+        config(['filesystems.default' => 'r2']);
         Storage::fake('r2');
         Notification::fake();
     }

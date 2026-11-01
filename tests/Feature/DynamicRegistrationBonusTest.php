@@ -13,9 +13,10 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 /**
- * After the 2026-04 referral redesign, activation awards points (not GHS
- * Earnings) to every role. The reward base is what the vendor actually paid
- * (post-subsidy), not the tier fee. This test verifies that shape.
+ * Activation awards referral points to every role, based on what the vendor
+ * actually paid (post-subsidy) rather than the tier fee. Earning-capable
+ * roles (influencer, field_agent, employee) additionally receive a GHS
+ * Earning row; all other roles receive points only.
  */
 class DynamicRegistrationBonusTest extends TestCase
 {
@@ -78,10 +79,10 @@ class DynamicRegistrationBonusTest extends TestCase
         $this->service->activateReferral($application);
 
         $this->assertSame(375, (int) $influencer->fresh()->referral_points); // 150 * 0.25 * 10
-        $this->assertDatabaseMissing('earnings', [
-            'user_id' => $influencer->id,
-            'earning_type' => Earning::TYPE_REFERRAL_BONUS,
-        ]);
+
+        // Influencers are earning-capable, so they also get a GHS earning row.
+        $earning = Earning::where('user_id', $influencer->id)->firstOrFail();
+        $this->assertEqualsWithDelta(37.50, (float) $earning->amount, 0.01);
     }
 
     public function test_activate_referral_awards_points_for_non_earning_role(): void
