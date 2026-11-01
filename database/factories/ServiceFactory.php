@@ -2,10 +2,13 @@
 
 namespace Database\Factories;
 
+use App\Models\Service;
+use App\Models\Shop;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Service>
+ * @extends Factory<Service>
  */
 class ServiceFactory extends Factory
 {
@@ -19,8 +22,8 @@ class ServiceFactory extends Factory
         $chargeStart = $this->faker->randomFloat(2, 100, 1000);
 
         return [
-            'vendor_id' => \App\Models\User::factory(),
-            'shop_id' => \App\Models\Shop::factory(),
+            'vendor_id' => User::factory(),
+            'shop_id' => Shop::factory(),
             'name' => $this->faker->words(3, true),
             'description' => $this->faker->sentence(),
             'service_type' => $this->faker->randomElement([

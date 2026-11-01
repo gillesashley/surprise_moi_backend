@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\V1\Service\StoreServiceRequest;
+use App\Http\Requests\Api\V1\Service\UpdateServiceRequest;
 use App\Http\Resources\ServiceResource;
 use App\Models\Service;
 use Illuminate\Http\Request;
@@ -126,7 +128,7 @@ class ServiceController extends Controller
     /**
      * Store a newly created service.
      */
-    public function store(\App\Http\Requests\Api\V1\Service\StoreServiceRequest $request)
+    public function store(StoreServiceRequest $request)
     {
         $data = $request->validated();
         $data['vendor_id'] = $request->user()->id;
@@ -151,7 +153,7 @@ class ServiceController extends Controller
     /**
      * Update the specified service.
      */
-    public function update(\App\Http\Requests\Api\V1\Service\UpdateServiceRequest $request, Service $service)
+    public function update(UpdateServiceRequest $request, Service $service)
     {
         $data = $request->validated();
 

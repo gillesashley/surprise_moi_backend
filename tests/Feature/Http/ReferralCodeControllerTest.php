@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Http;
 
+use App\Models\ReferralCode;
 use App\Models\User;
 use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -179,8 +180,8 @@ class ReferralCodeControllerTest extends TestCase
 
     public function test_update_only_accepts_allowlist_fields(): void
     {
-        $customer = \App\Models\User::factory()->create(['role' => 'customer']);
-        $code = \App\Models\ReferralCode::factory()->create([
+        $customer = User::factory()->create(['role' => 'customer']);
+        $code = ReferralCode::factory()->create([
             'influencer_id' => $customer->id,
         ]);
         $originalBonus = $code->registration_bonus;

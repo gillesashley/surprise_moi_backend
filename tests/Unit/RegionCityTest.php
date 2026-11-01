@@ -2,6 +2,7 @@
 
 namespace Tests\Unit;
 
+use App\Models\City;
 use App\Models\Region;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -21,14 +22,14 @@ class RegionCityTest extends TestCase
     public function test_region_has_many_cities(): void
     {
         $region = Region::factory()->create();
-        \App\Models\City::factory()->count(3)->create(['region_id' => $region->id]);
+        City::factory()->count(3)->create(['region_id' => $region->id]);
 
         $this->assertCount(3, $region->cities);
     }
 
     public function test_city_belongs_to_region(): void
     {
-        $city = \App\Models\City::factory()->create();
+        $city = City::factory()->create();
 
         $this->assertInstanceOf(Region::class, $city->region);
     }

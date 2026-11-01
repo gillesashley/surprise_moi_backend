@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use Database\Factories\SupportMessageFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class SupportMessage extends Model
 {
-    /** @use HasFactory<\Database\Factories\SupportMessageFactory> */
+    /** @use HasFactory<SupportMessageFactory> */
     use HasFactory;
 
     public const STATUS_QUEUED = 'queued';

@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\TierUpgradeRequest;
 use App\Models\User;
 use App\Models\VendorApplication;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -54,7 +55,7 @@ class AdminNotificationFeedControllerTest extends TestCase
     {
         $admin = User::factory()->create(['role' => 'admin']);
         VendorApplication::factory()->create(['submitted_at' => now()]);
-        \App\Models\TierUpgradeRequest::factory()->create(['created_at' => now()]);
+        TierUpgradeRequest::factory()->create(['created_at' => now()]);
 
         $this->actingAs($admin)
             ->get('/dashboard/notifications?categories[]=vendor_onboarding')

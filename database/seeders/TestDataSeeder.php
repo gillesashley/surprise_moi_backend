@@ -9,6 +9,7 @@ use App\Models\Review;
 use App\Models\Shop;
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 class TestDataSeeder extends Seeder
 {
@@ -121,7 +122,7 @@ class TestDataSeeder extends Seeder
             $shop = Shop::updateOrCreate(
                 [
                     'vendor_id' => $vendor->id,
-                    'slug' => \Illuminate\Support\Str::slug($vendor->name.'-shop'),
+                    'slug' => Str::slug($vendor->name.'-shop'),
                 ],
                 [
                     'category_id' => $category->id,

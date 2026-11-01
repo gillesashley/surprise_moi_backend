@@ -7,13 +7,14 @@ use App\Models\User;
 use App\Models\VendorApplication;
 use App\Models\VendorOnboardingPayment;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class VendorOnboardingPaymentTest extends TestCase
 {
     use RefreshDatabase;
 
-    #[\PHPUnit\Framework\Attributes\Test]
+    #[Test]
     public function it_persists_a_referral_code_id_and_loads_the_relation(): void
     {
         $user = User::factory()->create();

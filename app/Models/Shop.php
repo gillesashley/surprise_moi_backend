@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Database\Factories\ShopFactory;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -12,7 +13,7 @@ use Illuminate\Support\Str;
 
 class Shop extends Model
 {
-    /** @use HasFactory<\Database\Factories\ShopFactory> */
+    /** @use HasFactory<ShopFactory> */
     use HasFactory, SoftDeletes;
 
     protected $fillable = [

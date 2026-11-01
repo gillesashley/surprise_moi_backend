@@ -8,6 +8,7 @@ use App\Http\Resources\TargetResource;
 use App\Models\Earning;
 use App\Models\Target;
 use App\Services\EarningService;
+use App\Services\ReferralService;
 use App\Services\TargetService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -25,7 +26,7 @@ class FieldAgentDashboardController extends Controller
 
         $targetStats = $this->targetService->getUserTargetStats($user);
         $earningsSummary = $this->earningService->getUserEarningsSummary($user);
-        $referralStats = app(\App\Services\ReferralService::class)->getInfluencerStats($user);
+        $referralStats = app(ReferralService::class)->getInfluencerStats($user);
 
         $activeTargets = Target::where('user_id', $user->id)
             ->where('status', Target::STATUS_ACTIVE)
@@ -80,7 +81,7 @@ class FieldAgentDashboardController extends Controller
             ->latest('earned_at')
             ->paginate(15);
 
-        $referralStats = app(\App\Services\ReferralService::class)->getInfluencerStats($request->user());
+        $referralStats = app(ReferralService::class)->getInfluencerStats($request->user());
 
         return response()->json([
             'success' => true,

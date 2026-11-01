@@ -6,13 +6,14 @@ use App\Models\ReferralCode;
 use App\Models\Setting;
 use App\Models\VendorApplication;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class VendorApplicationTest extends TestCase
 {
     use RefreshDatabase;
 
-    #[\PHPUnit\Framework\Attributes\Test]
+    #[Test]
     public function calculate_final_amount_without_referral_code_returns_full_fee(): void
     {
         Setting::set('vendor_tier1_onboarding_fee', 200.0, 'number');
@@ -27,7 +28,7 @@ class VendorApplicationTest extends TestCase
         $this->assertSame(200.0, $amounts['final_amount']);
     }
 
-    #[\PHPUnit\Framework\Attributes\Test]
+    #[Test]
     public function calculate_final_amount_with_referral_code_applies_subsidy(): void
     {
         Setting::set('vendor_tier1_onboarding_fee', 200.0, 'number');
@@ -44,7 +45,7 @@ class VendorApplicationTest extends TestCase
         $this->assertSame(150.0, $amounts['final_amount']);
     }
 
-    #[\PHPUnit\Framework\Attributes\Test]
+    #[Test]
     public function calculate_final_amount_ignores_invalid_referral_code(): void
     {
         Setting::set('vendor_tier1_onboarding_fee', 200.0, 'number');

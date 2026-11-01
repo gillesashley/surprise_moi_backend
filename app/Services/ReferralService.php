@@ -9,6 +9,7 @@ use App\Models\ReferralPointTransaction;
 use App\Models\Setting;
 use App\Models\User;
 use App\Models\VendorApplication;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -118,7 +119,7 @@ class ReferralService
      * @param  string  $code  The referral code provided by vendor
      *
      * @throws \RuntimeException If application already has a code
-     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException If code invalid
+     * @throws ModelNotFoundException If code invalid
      */
     public function applyReferralCode(
         VendorApplication $vendorApplication,
@@ -131,7 +132,7 @@ class ReferralService
         $referralCode = ReferralCode::where('code', $code)->valid()->first();
 
         if (! $referralCode || $referralCode->code !== $code) {
-            throw new \Illuminate\Database\Eloquent\ModelNotFoundException('Invalid referral code.');
+            throw new ModelNotFoundException('Invalid referral code.');
         }
 
         // Defence in depth — also enforced at the validateReferralCode step.

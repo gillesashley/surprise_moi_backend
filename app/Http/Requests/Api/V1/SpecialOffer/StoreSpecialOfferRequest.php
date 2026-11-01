@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Api\V1\SpecialOffer;
 
+use App\Models\Product;
 use App\Models\SpecialOffer;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -22,7 +23,7 @@ class StoreSpecialOfferRequest extends FormRequest
                 'required',
                 'exists:products,id',
                 function ($attribute, $value, $fail) {
-                    $product = \App\Models\Product::with('shop')->find($value);
+                    $product = Product::with('shop')->find($value);
 
                     if (! $product || ! $product->shop || $product->shop->vendor_id !== $this->user()->id) {
                         $fail('This product does not belong to your shop.');

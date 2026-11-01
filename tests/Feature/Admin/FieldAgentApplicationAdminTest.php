@@ -3,9 +3,11 @@
 namespace Tests\Feature\Admin;
 
 use App\Models\FieldAgentApplication;
+use App\Models\ReferralCode;
 use App\Models\User;
 use App\Notifications\FieldAgentApprovedNotification;
 use App\Notifications\FieldAgentRejectedNotification;
+use App\Services\FieldAgentApprovalService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
@@ -173,10 +175,10 @@ class FieldAgentApplicationAdminTest extends TestCase
             'password' => Hash::make('AgentSecret1'),
         ]);
 
-        app(\App\Services\FieldAgentApprovalService::class)->approve($app->fresh(), $this->admin);
+        app(FieldAgentApprovalService::class)->approve($app->fresh(), $this->admin);
 
         $newUser = User::where('email', $app->email)->firstOrFail();
-        $code = \App\Models\ReferralCode::where('influencer_id', $newUser->id)->first();
+        $code = ReferralCode::where('influencer_id', $newUser->id)->first();
 
         $this->assertNotNull($code, 'A ReferralCode should be created for the new agent');
     }
@@ -188,10 +190,10 @@ class FieldAgentApplicationAdminTest extends TestCase
             'password' => Hash::make('AgentSecret1'),
         ]);
 
-        app(\App\Services\FieldAgentApprovalService::class)->approve($app->fresh(), $this->admin);
+        app(FieldAgentApprovalService::class)->approve($app->fresh(), $this->admin);
 
         $newUser = User::where('email', $app->email)->firstOrFail();
-        $code = \App\Models\ReferralCode::where('influencer_id', $newUser->id)->firstOrFail();
+        $code = ReferralCode::where('influencer_id', $newUser->id)->firstOrFail();
 
         $this->assertStringStartsWith('FA-', $code->code);
     }
@@ -203,10 +205,10 @@ class FieldAgentApplicationAdminTest extends TestCase
             'password' => Hash::make('AgentSecret1'),
         ]);
 
-        app(\App\Services\FieldAgentApprovalService::class)->approve($app->fresh(), $this->admin);
+        app(FieldAgentApprovalService::class)->approve($app->fresh(), $this->admin);
 
         $newUser = User::where('email', $app->email)->firstOrFail();
-        $code = \App\Models\ReferralCode::where('influencer_id', $newUser->id)->firstOrFail();
+        $code = ReferralCode::where('influencer_id', $newUser->id)->firstOrFail();
 
         $this->assertTrue($code->is_active);
         $this->assertNull($code->expires_at);
@@ -220,7 +222,7 @@ class FieldAgentApplicationAdminTest extends TestCase
             'password' => Hash::make('AgentSecret1'),
         ]);
 
-        app(\App\Services\FieldAgentApprovalService::class)->approve($app->fresh(), $this->admin);
+        app(FieldAgentApprovalService::class)->approve($app->fresh(), $this->admin);
 
         $user = User::where('email', 'teamlead@example.com')->firstOrFail();
         $this->assertTrue($user->is_team_field_agent);
@@ -234,7 +236,7 @@ class FieldAgentApplicationAdminTest extends TestCase
             'password' => Hash::make('AgentSecret1'),
         ]);
 
-        app(\App\Services\FieldAgentApprovalService::class)->approve($app->fresh(), $this->admin);
+        app(FieldAgentApprovalService::class)->approve($app->fresh(), $this->admin);
 
         $user = User::where('email', 'soloagent@example.com')->firstOrFail();
         $this->assertFalse($user->is_team_field_agent);

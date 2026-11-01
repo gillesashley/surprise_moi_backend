@@ -8,7 +8,7 @@ use App\Models\VendorRider;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\VendorRider>
+ * @extends Factory<VendorRider>
  */
 class VendorRiderFactory extends Factory
 {

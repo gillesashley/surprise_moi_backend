@@ -3,10 +3,34 @@
 namespace App\Providers;
 
 use App\Contracts\Sms\SmsProviderInterface;
+use App\Models\Advertisement;
+use App\Models\Category;
+use App\Models\Message;
+use App\Models\Order;
 use App\Models\Product;
 use App\Models\Review;
+use App\Models\ReviewReply;
+use App\Models\Service;
+use App\Models\Shop;
+use App\Models\SpecialOffer;
+use App\Models\User;
+use App\Models\UserPayoutDetail;
+use App\Models\VendorApplication;
+use App\Models\WawVideoLike;
+use App\Observers\AdvertisementObserver;
+use App\Observers\CategoryObserver;
+use App\Observers\FieldVerificationInvalidationObserver;
+use App\Observers\MessageObserver;
+use App\Observers\OrderObserver;
 use App\Observers\ProductObserver;
 use App\Observers\ReviewObserver;
+use App\Observers\ReviewReplyObserver;
+use App\Observers\ShopObserver;
+use App\Observers\SpecialOfferObserver;
+use App\Observers\VendorApplicationObserver;
+use App\Observers\WawVideoLikeObserver;
+use App\Policies\TeamMemberPolicy;
+use App\Policies\UserPayoutDetailPolicy;
 use App\Services\KairosAfrikaSmsService;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -66,27 +90,27 @@ class AppServiceProvider extends ServiceProvider
 
         Product::observe(ProductObserver::class);
         Review::observe(ReviewObserver::class);
-        \App\Models\WawVideoLike::observe(\App\Observers\WawVideoLikeObserver::class);
-        \App\Models\ReviewReply::observe(\App\Observers\ReviewReplyObserver::class);
-        \App\Models\Order::observe(\App\Observers\OrderObserver::class);
-        \App\Models\Message::observe(\App\Observers\MessageObserver::class);
-        \App\Models\VendorApplication::observe(\App\Observers\VendorApplicationObserver::class);
+        WawVideoLike::observe(WawVideoLikeObserver::class);
+        ReviewReply::observe(ReviewReplyObserver::class);
+        Order::observe(OrderObserver::class);
+        Message::observe(MessageObserver::class);
+        VendorApplication::observe(VendorApplicationObserver::class);
 
-        \App\Models\User::updated(function (\App\Models\User $user) {
-            app(\App\Observers\FieldVerificationInvalidationObserver::class)->userUpdated($user);
+        User::updated(function (User $user) {
+            app(FieldVerificationInvalidationObserver::class)->userUpdated($user);
         });
-        \App\Models\VendorApplication::updated(function (\App\Models\VendorApplication $app) {
-            app(\App\Observers\FieldVerificationInvalidationObserver::class)->vendorApplicationUpdated($app);
+        VendorApplication::updated(function (VendorApplication $app) {
+            app(FieldVerificationInvalidationObserver::class)->vendorApplicationUpdated($app);
         });
-        \App\Models\Category::observe(\App\Observers\CategoryObserver::class);
-        \App\Models\Shop::observe(\App\Observers\ShopObserver::class);
-        \App\Models\Advertisement::observe(\App\Observers\AdvertisementObserver::class);
-        \App\Models\SpecialOffer::observe(\App\Observers\SpecialOfferObserver::class);
+        Category::observe(CategoryObserver::class);
+        Shop::observe(ShopObserver::class);
+        Advertisement::observe(AdvertisementObserver::class);
+        SpecialOffer::observe(SpecialOfferObserver::class);
 
         // Configure morph map for polymorphic relationships
         Relation::morphMap([
-            'product' => \App\Models\Product::class,
-            'service' => \App\Models\Service::class,
+            'product' => Product::class,
+            'service' => Service::class,
         ]);
 
         RateLimiter::for('rider-login', function (Request $request) {
@@ -116,14 +140,14 @@ class AppServiceProvider extends ServiceProvider
             return true;
         });
 
-        Gate::define('manageTeam', function (\App\Models\User $user) {
+        Gate::define('manageTeam', function (User $user) {
             return $user->isFieldAgent()
                 && (bool) $user->is_team_field_agent
                 && $user->parent_user_id === null;
         });
 
-        Gate::policy(\App\Models\UserPayoutDetail::class, \App\Policies\UserPayoutDetailPolicy::class);
-        Gate::policy(\App\Models\User::class, \App\Policies\TeamMemberPolicy::class);
+        Gate::policy(UserPayoutDetail::class, UserPayoutDetailPolicy::class);
+        Gate::policy(User::class, TeamMemberPolicy::class);
 
         VerifyEmail::toMailUsing(function (object $notifiable, string $url) {
             // Generate the API verification URL

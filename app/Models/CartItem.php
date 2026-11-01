@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use Database\Factories\CartItemFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class CartItem extends Model
 {
-    /** @use HasFactory<\Database\Factories\CartItemFactory> */
+    /** @use HasFactory<CartItemFactory> */
     use HasFactory;
 
     protected $fillable = [

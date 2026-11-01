@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Api\V1\AiChat;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Validator;
 
 class StoreAiConversationRequest extends FormRequest
 {
@@ -40,7 +41,7 @@ class StoreAiConversationRequest extends FormRequest
     /**
      * Additional validation: partner profile must belong to authenticated user.
      */
-    public function withValidator(\Illuminate\Validation\Validator $validator): void
+    public function withValidator(Validator $validator): void
     {
         $validator->after(function ($validator) {
             if ($this->partner_profile_id) {

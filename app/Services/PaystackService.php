@@ -7,7 +7,9 @@ use App\Models\Payment;
 use App\Models\PayoutRequest;
 use App\Models\TreasuryTransfer;
 use App\Models\User;
+use App\Models\UserPayoutDetail;
 use App\Models\VendorTransaction;
+use App\Notifications\NewOrderReceived;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -358,7 +360,7 @@ class PaystackService
             try {
                 if ($payment->order->vendor) {
                     $payment->order->vendor->notify(
-                        new \App\Notifications\NewOrderReceived($payment->order->load(['items.orderable', 'user']))
+                        new NewOrderReceived($payment->order->load(['items.orderable', 'user']))
                     );
                 }
             } catch (\Exception $e) {
@@ -943,7 +945,7 @@ class PaystackService
         string $name = 'Referral User',
         string $currency = 'GHS'
     ): array {
-        $bankCode = \App\Models\UserPayoutDetail::providerToPaystackBankCode($provider);
+        $bankCode = UserPayoutDetail::providerToPaystackBankCode($provider);
 
         $response = Http::withToken($this->secretKey)
             ->timeout(30)
@@ -974,7 +976,7 @@ class PaystackService
      */
     public function resolveMobileMoneyAccount(string $mobileNumber, string $provider): array
     {
-        $bankCode = \App\Models\UserPayoutDetail::providerToPaystackBankCode($provider);
+        $bankCode = UserPayoutDetail::providerToPaystackBankCode($provider);
 
         try {
             $response = Http::withToken($this->secretKey)

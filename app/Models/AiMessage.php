@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use Database\Factories\AiMessageFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class AiMessage extends Model
 {
-    /** @use HasFactory<\Database\Factories\AiMessageFactory> */
+    /** @use HasFactory<AiMessageFactory> */
     use HasFactory;
 
     protected $fillable = [

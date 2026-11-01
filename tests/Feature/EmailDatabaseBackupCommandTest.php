@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Mail\DatabaseBackup;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Process;
@@ -106,7 +107,7 @@ class EmailDatabaseBackupCommandTest extends TestCase
 
     public function test_backup_is_scheduled_daily_at_midnight(): void
     {
-        $schedule = app(\Illuminate\Console\Scheduling\Schedule::class);
+        $schedule = app(Schedule::class);
 
         $events = collect($schedule->events())->filter(function ($event) {
             return str_contains($event->command ?? '', 'backup:email');

@@ -3,6 +3,7 @@
 namespace Tests\Unit\Jobs;
 
 use App\Jobs\BaseJob;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Log;
 use Tests\TestCase;
 
@@ -53,7 +54,7 @@ class BaseJobTest extends TestCase
             }
         };
 
-        $this->assertInstanceOf(\Illuminate\Contracts\Queue\ShouldQueue::class, $job);
+        $this->assertInstanceOf(ShouldQueue::class, $job);
     }
 
     public function test_get_job_id_returns_null_when_no_job_set(): void

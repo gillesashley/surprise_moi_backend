@@ -4,9 +4,14 @@ namespace Tests\Feature\Api\Rider\V1;
 
 use App\Models\Rider;
 use App\Models\User;
+use App\Notifications\RiderResetPasswordNotification;
+use App\Services\KairosAfrikaSmsService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Password;
+use Mockery\MockInterface;
 use Tests\TestCase;
 
 class AuthControllerTest extends TestCase
@@ -248,7 +253,7 @@ class AuthControllerTest extends TestCase
 
     public function test_forgot_password_for_real_rider_dispatches_notification(): void
     {
-        \Illuminate\Support\Facades\Notification::fake();
+        Notification::fake();
         $rider = Rider::factory()->approved()->create(['email' => 'rider@example.com']);
 
         $response = $this->postJson('/api/rider/v1/auth/forgot-password', [
@@ -256,27 +261,27 @@ class AuthControllerTest extends TestCase
         ]);
 
         $response->assertOk()->assertJsonPath('success', true);
-        \Illuminate\Support\Facades\Notification::assertSentTo(
+        Notification::assertSentTo(
             $rider,
-            \App\Notifications\RiderResetPasswordNotification::class
+            RiderResetPasswordNotification::class
         );
     }
 
     public function test_forgot_password_unknown_email_returns_uniform_success(): void
     {
-        \Illuminate\Support\Facades\Notification::fake();
+        Notification::fake();
 
         $response = $this->postJson('/api/rider/v1/auth/forgot-password', [
             'email' => 'nobody@example.com',
         ]);
 
         $response->assertOk()->assertJsonPath('success', true);
-        \Illuminate\Support\Facades\Notification::assertNothingSent();
+        Notification::assertNothingSent();
     }
 
     public function test_forgot_password_for_shadow_rider_returns_422(): void
     {
-        \Illuminate\Support\Facades\Notification::fake();
+        Notification::fake();
         $admin = User::factory()->superAdmin()->create();
         Rider::factory()->shadowOf($admin)->create(['email' => 'admin@example.com']);
 
@@ -286,7 +291,7 @@ class AuthControllerTest extends TestCase
 
         $response->assertStatus(422)
             ->assertJsonPath('success', false);
-        \Illuminate\Support\Facades\Notification::assertNothingSent();
+        Notification::assertNothingSent();
     }
 
     // ---------- Reset password ----------
@@ -299,7 +304,7 @@ class AuthControllerTest extends TestCase
         ]);
         // Simulate an active session by issuing a token first.
         $rider->createToken('rider-app');
-        $token = \Illuminate\Support\Facades\Password::broker('riders')->createToken($rider);
+        $token = Password::broker('riders')->createToken($rider);
 
         $response = $this->postJson('/api/rider/v1/auth/reset-password', [
             'email' => 'rider@example.com',
@@ -371,7 +376,7 @@ class AuthControllerTest extends TestCase
     {
         Rider::factory()->approved()->create(['phone' => '+233200000099']);
 
-        $this->mock(\App\Services\KairosAfrikaSmsService::class, function (\Mockery\MockInterface $mock) {
+        $this->mock(KairosAfrikaSmsService::class, function (MockInterface $mock) {
             $mock->shouldReceive('sendOtp')->andReturn(['success' => true]);
         });
 

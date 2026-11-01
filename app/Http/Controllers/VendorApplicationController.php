@@ -6,6 +6,8 @@ use App\Http\Requests\FlagVendorApplicationRequest;
 use App\Models\Order;
 use App\Models\Setting;
 use App\Models\VendorApplication;
+use App\Services\AuditService;
+use App\Services\ReferralService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -263,7 +265,7 @@ class VendorApplicationController extends Controller
     /**
      * Approve a vendor application.
      */
-    public function approve(VendorApplication $vendorApplication, \App\Services\ReferralService $referralService)
+    public function approve(VendorApplication $vendorApplication, ReferralService $referralService)
     {
         // Check if application is complete and ready for review
         if (! $vendorApplication->canBeReviewed()) {
@@ -277,7 +279,7 @@ class VendorApplicationController extends Controller
 
         $vendorApplication->approve(Auth::id());
 
-        app(\App\Services\AuditService::class)->record(
+        app(AuditService::class)->record(
             'vendor_application.approved',
             $vendorApplication,
             Auth::user(),
@@ -322,7 +324,7 @@ class VendorApplicationController extends Controller
 
         $vendorApplication->reject(Auth::id(), $request->rejection_reason);
 
-        app(\App\Services\AuditService::class)->record(
+        app(AuditService::class)->record(
             'vendor_application.rejected',
             $vendorApplication,
             Auth::user(),
@@ -353,7 +355,7 @@ class VendorApplicationController extends Controller
 
         $vendorApplication->flag(Auth::id(), $request->input('flag_reason'));
 
-        app(\App\Services\AuditService::class)->record(
+        app(AuditService::class)->record(
             'vendor_application.flagged',
             $vendorApplication,
             Auth::user(),

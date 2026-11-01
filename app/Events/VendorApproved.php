@@ -3,6 +3,7 @@
 namespace App\Events;
 
 use App\Models\VendorApplication;
+use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
@@ -34,7 +35,7 @@ class VendorApproved implements ShouldBroadcast
      * Broadcasts to private channel scoped to the vendor user.
      * Only the approved vendor can subscribe.
      *
-     * @return array<int, \Illuminate\Broadcasting\Channel>
+     * @return array<int, Channel>
      */
     public function broadcastOn(): array
     {

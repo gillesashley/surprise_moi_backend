@@ -9,7 +9,7 @@ use App\Models\VendorApplication;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Referral>
+ * @extends Factory<Referral>
  */
 class ReferralFactory extends Factory
 {

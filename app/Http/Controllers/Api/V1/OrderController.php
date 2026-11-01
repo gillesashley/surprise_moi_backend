@@ -17,6 +17,7 @@ use App\Models\Product;
 use App\Models\Service;
 use App\Services\CartService;
 use App\Services\VendorBalanceService;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -245,7 +246,7 @@ class OrderController extends Controller
 
                     // Order created successfully, break the loop
                     break;
-                } catch (\Illuminate\Database\QueryException $e) {
+                } catch (QueryException $e) {
                     // Check if it's a duplicate key violation on order_number
                     if (str_contains($e->getMessage(), 'orders_order_number_unique')) {
                         $attempt++;

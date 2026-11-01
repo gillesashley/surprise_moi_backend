@@ -3,13 +3,14 @@
 namespace App\Models;
 
 use App\Traits\Auditable;
+use Database\Factories\MusicGenreFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class MusicGenre extends Model
 {
-    /** @use HasFactory<\Database\Factories\MusicGenreFactory> */
+    /** @use HasFactory<MusicGenreFactory> */
     use Auditable, HasFactory;
 
     /**

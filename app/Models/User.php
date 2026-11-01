@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Traits\Auditable;
+use Database\Factories\UserFactory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -11,13 +12,15 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\URL;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
+    /** @use HasFactory<UserFactory> */
     use Auditable, HasApiTokens, HasFactory, Notifiable, TwoFactorAuthenticatable;
 
     private const ONLINE_WINDOW_MINUTES = 5;
@@ -263,7 +266,7 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Get all tier upgrade requests for this vendor.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<TierUpgradeRequest, $this>
+     * @return HasMany<TierUpgradeRequest, $this>
      */
     public function tierUpgradeRequests(): HasMany
     {
@@ -431,7 +434,7 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * The team-lead this user reports to. Null for leads/non-members.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<self, $this>
+     * @return BelongsTo<self, $this>
      */
     public function lead(): BelongsTo
     {
@@ -441,7 +444,7 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Members reporting to this user as a team lead.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<self, $this>
+     * @return HasMany<self, $this>
      */
     public function teamMembers(): HasMany
     {
@@ -650,9 +653,9 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function getEmailVerificationUrl(): string
     {
-        return \Illuminate\Support\Facades\URL::temporarySignedRoute(
+        return URL::temporarySignedRoute(
             'api.verification.verify',
-            \Illuminate\Support\Carbon::now()->addMinutes(60),
+            Carbon::now()->addMinutes(60),
             ['id' => $this->id, 'hash' => sha1($this->email)]
         );
     }

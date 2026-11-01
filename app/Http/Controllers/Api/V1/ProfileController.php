@@ -7,7 +7,9 @@ use App\Http\Requests\Api\V1\Profile\ChangePasswordRequest;
 use App\Http\Requests\Api\V1\Profile\UpdateProfileRequest;
 use App\Models\Interest;
 use App\Models\PersonalityTrait;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends Controller
@@ -92,7 +94,7 @@ class ProfileController extends Controller
     /**
      * Update user avatar.
      */
-    public function updateAvatar(\Illuminate\Http\Request $request): JsonResponse
+    public function updateAvatar(Request $request): JsonResponse
     {
         $request->validate([
             'avatar' => ['required', 'image', 'mimes:jpeg,png,jpg', 'max:5120'],
@@ -121,7 +123,7 @@ class ProfileController extends Controller
     /**
      * Update user banner.
      */
-    public function updateBanner(\Illuminate\Http\Request $request): JsonResponse
+    public function updateBanner(Request $request): JsonResponse
     {
         $request->validate([
             'banner' => ['required', 'image', 'mimes:jpeg,png,webp', 'max:5120'],
@@ -239,7 +241,7 @@ class ProfileController extends Controller
     /**
      * Format user data for API response.
      *
-     * @param  \App\Models\User  $user
+     * @param  User  $user
      * @return array<string, mixed>
      */
     protected function formatUserData($user): array

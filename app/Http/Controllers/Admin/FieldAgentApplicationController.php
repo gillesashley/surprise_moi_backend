@@ -6,6 +6,7 @@ use App\Enums\FieldAgentApplicationStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RejectFieldAgentApplicationRequest;
 use App\Models\FieldAgentApplication;
+use App\Services\AuditService;
 use App\Services\FieldAgentApprovalService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -77,7 +78,7 @@ class FieldAgentApplicationController extends Controller
             throw ValidationException::withMessages(['status' => $e->getMessage()]);
         }
 
-        app(\App\Services\AuditService::class)->record(
+        app(AuditService::class)->record(
             'field_agent_application.approved',
             $fieldAgentApplication,
             $request->user(),
@@ -102,7 +103,7 @@ class FieldAgentApplicationController extends Controller
             throw ValidationException::withMessages(['status' => $e->getMessage()]);
         }
 
-        app(\App\Services\AuditService::class)->record(
+        app(AuditService::class)->record(
             'field_agent_application.rejected',
             $fieldAgentApplication,
             $request->user(),

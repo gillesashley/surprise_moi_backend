@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Traits\Auditable;
+use Database\Factories\PayoutRequestFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -12,7 +13,7 @@ use Illuminate\Support\Str;
 
 class PayoutRequest extends Model
 {
-    /** @use HasFactory<\Database\Factories\PayoutRequestFactory> */
+    /** @use HasFactory<PayoutRequestFactory> */
     use Auditable, HasFactory, SoftDeletes;
 
     public const STATUS_PENDING = 'pending';

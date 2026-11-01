@@ -9,13 +9,14 @@ use App\Models\VendorApplication;
 use App\Services\VendorOnboardingPaymentService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class VendorOnboardingPaymentServiceTest extends TestCase
 {
     use RefreshDatabase;
 
-    #[\PHPUnit\Framework\Attributes\Test]
+    #[Test]
     public function validate_referral_code_returns_subsidy_adjusted_amounts(): void
     {
         Setting::set('vendor_tier1_onboarding_fee', '200', 'number');
@@ -38,7 +39,7 @@ class VendorOnboardingPaymentServiceTest extends TestCase
         $this->assertSame(150.0, (float) $result['final_amount']);
     }
 
-    #[\PHPUnit\Framework\Attributes\Test]
+    #[Test]
     public function validate_referral_code_rejects_self_referral(): void
     {
         Setting::set('vendor_tier1_onboarding_fee', '200', 'number');
@@ -57,7 +58,7 @@ class VendorOnboardingPaymentServiceTest extends TestCase
         $this->assertSame('You cannot use your own referral code.', $result['message']);
     }
 
-    #[\PHPUnit\Framework\Attributes\Test]
+    #[Test]
     public function validate_referral_code_rejects_invalid_code(): void
     {
         Setting::set('vendor_tier1_onboarding_fee', '200', 'number');
@@ -72,7 +73,7 @@ class VendorOnboardingPaymentServiceTest extends TestCase
         $this->assertFalse($result['valid']);
     }
 
-    #[\PHPUnit\Framework\Attributes\Test]
+    #[Test]
     public function initialize_payment_persists_referral_code_id_and_final_amount(): void
     {
         Setting::set('vendor_tier1_onboarding_fee', '200', 'number');

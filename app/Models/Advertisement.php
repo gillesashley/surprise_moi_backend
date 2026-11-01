@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Traits\Auditable;
+use Database\Factories\AdvertisementFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -10,7 +11,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Advertisement extends Model
 {
-    /** @use HasFactory<\Database\Factories\AdvertisementFactory> */
+    /** @use HasFactory<AdvertisementFactory> */
     use Auditable, HasFactory, SoftDeletes;
 
     protected $fillable = [

@@ -41,8 +41,8 @@ class NewDeliveryRequestNotification extends Notification implements ShouldQueue
         return [
             'type' => 'new_delivery_request',
             'title' => 'New Delivery Request',
-            'message' => 'Pickup: ' . $this->deliveryRequest->pickup_address
-                . ' — Fee: GHS ' . number_format($this->deliveryRequest->delivery_fee, 2),
+            'message' => 'Pickup: '.$this->deliveryRequest->pickup_address
+                .' — Fee: GHS '.number_format($this->deliveryRequest->delivery_fee, 2),
             'action_url' => '/deliveries',
             'delivery_request_id' => $this->deliveryRequest->id,
             'pickup_address' => $this->deliveryRequest->pickup_address,

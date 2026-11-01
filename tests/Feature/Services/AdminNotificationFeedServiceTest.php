@@ -2,6 +2,9 @@
 
 namespace Tests\Feature\Services;
 
+use App\Enums\FieldAgentApplicationStatus;
+use App\Models\FieldAgentApplication;
+use App\Models\TierUpgradeRequest;
 use App\Models\User;
 use App\Models\VendorApplication;
 use App\Models\VendorOnboardingPayment;
@@ -104,9 +107,9 @@ class AdminNotificationFeedServiceTest extends TestCase
     public function test_tier_upgrade_submitted_paid_rejected_yields_three_rows(): void
     {
         $vendor = User::factory()->create(['name' => 'Ama Boateng']);
-        $request = \App\Models\TierUpgradeRequest::factory()->create([
+        $request = TierUpgradeRequest::factory()->create([
             'vendor_id' => $vendor->id,
-            'status' => \App\Models\TierUpgradeRequest::STATUS_REJECTED,
+            'status' => TierUpgradeRequest::STATUS_REJECTED,
             'created_at' => now()->subDays(5),
             'payment_verified_at' => now()->subDays(4),
             'reviewed_at' => now()->subDays(2),
@@ -128,8 +131,8 @@ class AdminNotificationFeedServiceTest extends TestCase
 
     public function test_tier_upgrade_pending_review_does_not_emit_terminal_rows(): void
     {
-        \App\Models\TierUpgradeRequest::factory()->create([
-            'status' => \App\Models\TierUpgradeRequest::STATUS_PENDING_REVIEW,
+        TierUpgradeRequest::factory()->create([
+            'status' => TierUpgradeRequest::STATUS_PENDING_REVIEW,
             'created_at' => now(),
             'payment_verified_at' => now(),
             'reviewed_at' => null,
@@ -146,10 +149,10 @@ class AdminNotificationFeedServiceTest extends TestCase
 
     public function test_field_agent_application_approved_yields_submitted_and_approved(): void
     {
-        $app = \App\Models\FieldAgentApplication::factory()->create([
+        $app = FieldAgentApplication::factory()->create([
             'first_name' => 'Yaw',
             'last_name' => 'Owusu',
-            'status' => \App\Enums\FieldAgentApplicationStatus::Approved,
+            'status' => FieldAgentApplicationStatus::Approved,
             'created_at' => now()->subDays(2),
             'reviewed_at' => now()->subDay(),
         ]);
@@ -169,8 +172,8 @@ class AdminNotificationFeedServiceTest extends TestCase
     public function test_filter_excludes_other_categories(): void
     {
         VendorApplication::factory()->create(['submitted_at' => now()]);
-        \App\Models\TierUpgradeRequest::factory()->create(['created_at' => now()]);
-        \App\Models\FieldAgentApplication::factory()->create(['created_at' => now()]);
+        TierUpgradeRequest::factory()->create(['created_at' => now()]);
+        FieldAgentApplication::factory()->create(['created_at' => now()]);
 
         $rows = app(AdminNotificationFeedService::class)
             ->feed(['vendor_onboarding'], 50, 1)

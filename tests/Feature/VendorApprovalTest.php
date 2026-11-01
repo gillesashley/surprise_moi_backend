@@ -2,8 +2,10 @@
 
 namespace Tests\Feature;
 
+use App\Models\Category;
 use App\Models\User;
 use App\Models\VendorApplication;
+use App\Models\VendorOnboardingPayment;
 use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -191,7 +193,7 @@ class VendorApprovalTest extends TestCase
     public function test_approved_vendor_can_create_shop(): void
     {
         $user = User::factory()->create(['role' => 'vendor']);
-        $category = \App\Models\Category::factory()->create();
+        $category = Category::factory()->create();
 
         VendorApplication::factory()
             ->for($user)
@@ -440,7 +442,7 @@ class VendorApprovalTest extends TestCase
             ->create();
 
         // Create an onboarding payment record
-        \App\Models\VendorOnboardingPayment::factory()
+        VendorOnboardingPayment::factory()
             ->successful()
             ->create([
                 'user_id' => $applicant->id,
@@ -479,7 +481,7 @@ class VendorApprovalTest extends TestCase
             ->pending()
             ->create();
 
-        \App\Models\VendorOnboardingPayment::factory()
+        VendorOnboardingPayment::factory()
             ->successful()
             ->create([
                 'user_id' => $applicant->id,

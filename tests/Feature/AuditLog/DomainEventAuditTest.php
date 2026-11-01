@@ -3,8 +3,12 @@
 namespace Tests\Feature\AuditLog;
 
 use App\Models\ActivityLog;
+use App\Models\FieldAgentApplication;
+use App\Models\PayoutRequest;
 use App\Models\User;
 use App\Models\VendorApplication;
+use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
+use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -16,8 +20,8 @@ class DomainEventAuditTest extends TestCase
     {
         parent::setUp();
         $this->withoutMiddleware([
-            \Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class,
-            \Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class,
+            ValidateCsrfToken::class,
+            PreventRequestForgery::class,
         ]);
     }
 
@@ -65,14 +69,14 @@ class DomainEventAuditTest extends TestCase
     public function test_field_agent_application_approve_logs_domain_event(): void
     {
         $admin = User::factory()->create(['role' => 'admin']);
-        $app = \App\Models\FieldAgentApplication::factory()->pending()->create();
+        $app = FieldAgentApplication::factory()->pending()->create();
 
         $this->actingAs($admin)
             ->post("/dashboard/field-agent-applications/{$app->id}/approve");
 
         $this->assertDatabaseHas('activity_log', [
             'event' => 'field_agent_application.approved',
-            'subject_type' => \App\Models\FieldAgentApplication::class,
+            'subject_type' => FieldAgentApplication::class,
             'subject_id' => $app->id,
             'causer_id' => $admin->id,
         ]);
@@ -81,7 +85,7 @@ class DomainEventAuditTest extends TestCase
     public function test_field_agent_application_reject_logs_domain_event_with_reason(): void
     {
         $admin = User::factory()->create(['role' => 'admin']);
-        $app = \App\Models\FieldAgentApplication::factory()->pending()->create();
+        $app = FieldAgentApplication::factory()->pending()->create();
 
         $this->actingAs($admin)
             ->post("/dashboard/field-agent-applications/{$app->id}/reject", [
@@ -120,14 +124,14 @@ class DomainEventAuditTest extends TestCase
     public function test_admin_payout_approve_logs_domain_event(): void
     {
         $admin = User::factory()->create(['role' => 'super_admin']);
-        $payout = \App\Models\PayoutRequest::factory()->pending()->create();
+        $payout = PayoutRequest::factory()->pending()->create();
 
         $this->actingAs($admin)
             ->postJson("/api/v1/admin/payouts/{$payout->id}/approve");
 
         $this->assertDatabaseHas('activity_log', [
             'event' => 'payout.approved',
-            'subject_type' => \App\Models\PayoutRequest::class,
+            'subject_type' => PayoutRequest::class,
             'subject_id' => $payout->id,
             'causer_id' => $admin->id,
         ]);

@@ -5,6 +5,7 @@ namespace Tests\Feature\FieldAgent\Team;
 use App\Models\ReferralCode;
 use App\Models\User;
 use App\Models\VendorApplication;
+use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Config;
 use Tests\TestCase;
@@ -18,7 +19,7 @@ class VendorAttributionTest extends TestCase
         parent::setUp();
         Config::set('session.driver', 'array');
         Config::set('cache.default', 'array');
-        $this->withoutMiddleware(\Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class);
+        $this->withoutMiddleware(ValidateCsrfToken::class);
     }
 
     public function test_member_can_start_visit_under_leads_referral_code_and_attribution_set(): void

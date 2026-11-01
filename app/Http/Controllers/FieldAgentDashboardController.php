@@ -9,6 +9,7 @@ use App\Models\Target;
 use App\Models\User;
 use App\Models\VendorApplication;
 use App\Services\EarningService;
+use App\Services\ReferralService;
 use App\Services\TargetService;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\Request;
@@ -30,7 +31,7 @@ class FieldAgentDashboardController extends Controller
 
         $referralCode = $isMember ? null : $this->getOrCreateReferralCode($user);
         $earningsSummary = $isMember ? null : $this->earningService->getUserEarningsSummary($user);
-        $referralStats = $isMember ? ['total_earned' => 0] : app(\App\Services\ReferralService::class)->getInfluencerStats($user);
+        $referralStats = $isMember ? ['total_earned' => 0] : app(ReferralService::class)->getInfluencerStats($user);
 
         return Inertia::render('field-agent/dashboard', [
             'agent' => [
@@ -70,7 +71,7 @@ class FieldAgentDashboardController extends Controller
             ->latest('earned_at')
             ->paginate(15);
 
-        $referralStats = app(\App\Services\ReferralService::class)->getInfluencerStats($request->user());
+        $referralStats = app(ReferralService::class)->getInfluencerStats($request->user());
 
         return Inertia::render('field-agent/earnings', [
             'earnings' => $earnings,

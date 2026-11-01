@@ -2,10 +2,14 @@
 
 namespace Database\Factories;
 
+use App\Models\Category;
+use App\Models\Shop;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Shop>
+ * @extends Factory<Shop>
  */
 class ShopFactory extends Factory
 {
@@ -19,11 +23,11 @@ class ShopFactory extends Factory
         $name = $this->faker->company();
 
         return [
-            'vendor_id' => \App\Models\User::factory(),
-            'category_id' => \App\Models\Category::factory(),
+            'vendor_id' => User::factory(),
+            'category_id' => Category::factory(),
             'name' => $name,
             'owner_name' => $this->faker->name(),
-            'slug' => \Illuminate\Support\Str::slug($name).'-'.$this->faker->unique()->randomNumber(6),
+            'slug' => Str::slug($name).'-'.$this->faker->unique()->randomNumber(6),
             'description' => $this->faker->paragraph(),
             'logo' => 'storage/shops/'.$this->faker->slug().'.jpg',
             'is_active' => $this->faker->boolean(90),

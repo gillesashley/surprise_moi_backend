@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\PayoutRequestResource;
 use App\Models\PayoutRequest;
 use App\Models\Referral;
 use App\Models\ReferralCode;
@@ -168,7 +169,7 @@ class MyReferralController extends Controller
                 'next_unlock_threshold' => $user->nextReferralUnlockThreshold(),
                 'can_request_payout' => $user->canRequestReferralPayout(),
                 'pending_payout' => $pendingPayout
-                    ? (new \App\Http\Resources\PayoutRequestResource($pendingPayout->loadMissing('userPayoutDetail')))->resolve(request())
+                    ? (new PayoutRequestResource($pendingPayout->loadMissing('userPayoutDetail')))->resolve(request())
                     : null,
             ],
         ]);

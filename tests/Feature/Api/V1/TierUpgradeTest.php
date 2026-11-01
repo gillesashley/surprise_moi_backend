@@ -4,7 +4,10 @@ namespace Tests\Feature\Api\V1;
 
 use App\Models\TierUpgradeRequest;
 use App\Models\User;
+use App\Notifications\TierUpgradeApprovedNotification;
+use App\Notifications\TierUpgradeSubmittedNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
@@ -215,7 +218,7 @@ class TierUpgradeTest extends TestCase
             'vendor_id' => $this->vendor->id,
         ]);
 
-        $file = \Illuminate\Http\UploadedFile::fake()->create('certificate.pdf', 1024, 'application/pdf');
+        $file = UploadedFile::fake()->create('certificate.pdf', 1024, 'application/pdf');
 
         $response = $this->actingAs($this->vendor, 'sanctum')
             ->postJson('/api/v1/vendor/upgrade-tier/submit-document', [
@@ -238,7 +241,7 @@ class TierUpgradeTest extends TestCase
             'status' => TierUpgradeRequest::STATUS_PENDING_PAYMENT,
         ]);
 
-        $file = \Illuminate\Http\UploadedFile::fake()->create('certificate.pdf', 1024, 'application/pdf');
+        $file = UploadedFile::fake()->create('certificate.pdf', 1024, 'application/pdf');
 
         $response = $this->actingAs($this->vendor, 'sanctum')
             ->postJson('/api/v1/vendor/upgrade-tier/submit-document', [
@@ -256,7 +259,7 @@ class TierUpgradeTest extends TestCase
             'vendor_id' => $this->vendor->id,
         ]);
 
-        $file = \Illuminate\Http\UploadedFile::fake()->create('new-certificate.pdf', 1024, 'application/pdf');
+        $file = UploadedFile::fake()->create('new-certificate.pdf', 1024, 'application/pdf');
 
         $response = $this->actingAs($this->vendor, 'sanctum')
             ->postJson('/api/v1/vendor/upgrade-tier/submit-document', [
@@ -278,7 +281,7 @@ class TierUpgradeTest extends TestCase
             'vendor_id' => $this->vendor->id,
         ]);
 
-        $file = \Illuminate\Http\UploadedFile::fake()->create('document.txt', 1024, 'text/plain');
+        $file = UploadedFile::fake()->create('document.txt', 1024, 'text/plain');
 
         $response = $this->actingAs($this->vendor, 'sanctum')
             ->postJson('/api/v1/vendor/upgrade-tier/submit-document', [
@@ -355,14 +358,14 @@ class TierUpgradeTest extends TestCase
             'vendor_id' => $this->vendor->id,
         ]);
 
-        $file = \Illuminate\Http\UploadedFile::fake()->create('certificate.pdf', 1024, 'application/pdf');
+        $file = UploadedFile::fake()->create('certificate.pdf', 1024, 'application/pdf');
 
         $this->actingAs($this->vendor, 'sanctum')
             ->postJson('/api/v1/vendor/upgrade-tier/submit-document', [
                 'business_certificate_document' => $file,
             ]);
 
-        Notification::assertSentTo($admin, \App\Notifications\TierUpgradeSubmittedNotification::class);
+        Notification::assertSentTo($admin, TierUpgradeSubmittedNotification::class);
     }
 
     // --- Webhook tests ---
@@ -433,7 +436,7 @@ class TierUpgradeTest extends TestCase
         ]);
 
         // Step 3: Submit document
-        $file = \Illuminate\Http\UploadedFile::fake()->create('certificate.pdf', 1024, 'application/pdf');
+        $file = UploadedFile::fake()->create('certificate.pdf', 1024, 'application/pdf');
 
         $response = $this->actingAs($this->vendor, 'sanctum')
             ->postJson('/api/v1/vendor/upgrade-tier/submit-document', [
@@ -456,7 +459,7 @@ class TierUpgradeTest extends TestCase
         $this->vendor->refresh();
         $this->assertEquals(1, $this->vendor->vendor_tier);
 
-        Notification::assertSentTo($this->vendor, \App\Notifications\TierUpgradeApprovedNotification::class);
+        Notification::assertSentTo($this->vendor, TierUpgradeApprovedNotification::class);
     }
 
     // --- Expire stale command test ---

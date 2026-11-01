@@ -3,7 +3,10 @@
 namespace Tests\Feature\AuditLog;
 
 use App\Models\ActivityLog;
+use App\Models\Order;
+use App\Models\Setting;
 use App\Models\User;
+use App\Models\VendorApplication;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
@@ -60,12 +63,12 @@ class ModelAuditTest extends TestCase
 
     public function test_vendor_application_update_logs_with_critical_retention(): void
     {
-        $app = \App\Models\VendorApplication::factory()->create();
+        $app = VendorApplication::factory()->create();
         DB::statement('TRUNCATE TABLE activity_log RESTART IDENTITY CASCADE');
 
         $app->update(['rejection_reason' => 'test reason']);
 
-        $row = ActivityLog::where('subject_type', \App\Models\VendorApplication::class)
+        $row = ActivityLog::where('subject_type', VendorApplication::class)
             ->where('subject_id', $app->id)
             ->latest('id')->first();
         $this->assertNotNull($row);
@@ -74,23 +77,23 @@ class ModelAuditTest extends TestCase
 
     public function test_setting_create_is_not_logged(): void
     {
-        \App\Models\Setting::create(['key' => 'test_key_no_log', 'value' => 'v', 'type' => 'string']);
+        Setting::create(['key' => 'test_key_no_log', 'value' => 'v', 'type' => 'string']);
 
         $this->assertDatabaseMissing('activity_log', [
-            'subject_type' => \App\Models\Setting::class,
+            'subject_type' => Setting::class,
             'event' => 'created',
         ]);
     }
 
     public function test_setting_update_is_logged(): void
     {
-        $s = \App\Models\Setting::create(['key' => 'test_key_logged', 'value' => 'v1', 'type' => 'string']);
+        $s = Setting::create(['key' => 'test_key_logged', 'value' => 'v1', 'type' => 'string']);
         DB::statement('TRUNCATE TABLE activity_log RESTART IDENTITY CASCADE');
 
         $s->update(['value' => 'v2']);
 
         $this->assertDatabaseHas('activity_log', [
-            'subject_type' => \App\Models\Setting::class,
+            'subject_type' => Setting::class,
             'subject_id' => $s->id,
             'event' => 'updated',
         ]);
@@ -99,10 +102,10 @@ class ModelAuditTest extends TestCase
     public function test_order_create_is_not_logged(): void
     {
         $customer = User::factory()->create(['role' => 'customer']);
-        $order = \App\Models\Order::factory()->create(['user_id' => $customer->id]);
+        $order = Order::factory()->create(['user_id' => $customer->id]);
 
         $this->assertDatabaseMissing('activity_log', [
-            'subject_type' => \App\Models\Order::class,
+            'subject_type' => Order::class,
             'subject_id' => $order->id,
             'event' => 'created',
         ]);
@@ -111,7 +114,7 @@ class ModelAuditTest extends TestCase
     public function test_order_update_is_logged_with_standard_retention(): void
     {
         $customer = User::factory()->create(['role' => 'customer']);
-        $order = \App\Models\Order::factory()->create(['user_id' => $customer->id, 'status' => 'pending']);
+        $order = Order::factory()->create(['user_id' => $customer->id, 'status' => 'pending']);
         DB::statement('TRUNCATE TABLE activity_log RESTART IDENTITY CASCADE');
 
         $order->update(['status' => 'confirmed']);

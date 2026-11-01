@@ -3,11 +3,12 @@
 namespace Database\Factories;
 
 use App\Models\Review;
+use App\Models\ReviewHelpful;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\ReviewHelpful>
+ * @extends Factory<ReviewHelpful>
  */
 class ReviewHelpfulFactory extends Factory
 {

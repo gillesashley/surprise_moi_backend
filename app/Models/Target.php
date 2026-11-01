@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Database\Factories\TargetFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -11,7 +12,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Target extends Model
 {
-    /** @use HasFactory<\Database\Factories\TargetFactory> */
+    /** @use HasFactory<TargetFactory> */
     use HasFactory, SoftDeletes;
 
     public const TYPE_VENDOR_SIGNUPS = 'vendor_signups';

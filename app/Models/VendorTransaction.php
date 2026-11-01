@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Database\Factories\VendorTransactionFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -9,7 +10,7 @@ use Illuminate\Support\Str;
 
 class VendorTransaction extends Model
 {
-    /** @use HasFactory<\Database\Factories\VendorTransactionFactory> */
+    /** @use HasFactory<VendorTransactionFactory> */
     use HasFactory;
 
     public const TYPE_CREDIT_SALE = 'credit_sale';

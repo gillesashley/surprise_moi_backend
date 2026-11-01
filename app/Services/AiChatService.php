@@ -9,6 +9,7 @@ use App\Models\AiMessage;
 use App\Models\PartnerProfile;
 use App\Models\Product;
 use App\Models\User;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Log;
 
 class AiChatService
@@ -160,7 +161,7 @@ class AiChatService
     /**
      * Get paginated conversations for a user.
      *
-     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
+     * @return LengthAwarePaginator
      */
     public function getConversations(User $user, int $perPage = 20)
     {

@@ -2,8 +2,11 @@
 
 namespace Tests\Feature;
 
+use App\Events\VendorFlagged;
+use App\Models\Setting;
 use App\Models\User;
 use App\Models\VendorApplication;
+use App\Notifications\VendorFlaggedNotification;
 use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -163,7 +166,7 @@ class VendorApplicationFlagTest extends TestCase
         \Notification::fake();
         \Event::fake();
 
-        \App\Models\Setting::set('vendor_application_grace_period_days', '7', 'number');
+        Setting::set('vendor_application_grace_period_days', '7', 'number');
 
         $reviewer = User::factory()->create();
         $app = VendorApplication::factory()->underReview()->create();
@@ -191,10 +194,10 @@ class VendorApplicationFlagTest extends TestCase
 
         $app->flag($reviewer->id, 'Ghana card back is unreadable');
 
-        \Event::assertDispatched(\App\Events\VendorFlagged::class);
+        \Event::assertDispatched(VendorFlagged::class);
         \Notification::assertSentTo(
             $app->user,
-            \App\Notifications\VendorFlaggedNotification::class
+            VendorFlaggedNotification::class
         );
     }
 

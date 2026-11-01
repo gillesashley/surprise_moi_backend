@@ -12,7 +12,7 @@ class SendPasswordResetEmail extends BaseJob
     /**
      * The user instance.
      *
-     * @var \App\Models\User
+     * @var User
      */
     public $user;
 

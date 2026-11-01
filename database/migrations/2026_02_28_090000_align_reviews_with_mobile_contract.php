@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\Product;
+use App\Models\Service;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
@@ -35,8 +37,8 @@ return new class extends Migration
             ->chunkById(200, function ($reviews): void {
                 foreach ($reviews as $review) {
                     $itemType = match ($review->reviewable_type) {
-                        'product', \App\Models\Product::class => 'product',
-                        'service', \App\Models\Service::class => 'service',
+                        'product', Product::class => 'product',
+                        'service', Service::class => 'service',
                         default => null,
                     };
 
